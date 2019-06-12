@@ -1,0 +1,212 @@
+<!--
+//
+//     Copyright (C) 2018  Andrey Popov
+//
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script type='text/javascript'>
+    $.getScript('deconz/static/js/bootstrap-multiselect.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-in.js');
+    // $.getScript('deconz/static/js/node-red-contrib-deconz-out.js');
+    // $.getScript('deconz/static/js/node-red-contrib-deconz-get.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-server.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
+</script>
+
+
+
+
+
+<!-- *************** Input Node *************** -->
+<script type="text/x-red" data-template-name="deconz-input">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-device">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-state_key"><i class="fa fa-tag"></i> State key</label>
+        <input type="text" id="node-input-state_key">
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh channels list</button>
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="deconz-input">
+    <p>This node listens for mqtt messages sent from your deconz.</p>
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the deconz server instance to use.</li>
+        <li><b>Device:</b> Select channel to listen to.</li>
+        <li><b>State key:</b> Which state key use as node's status</li>
+    </ul>
+    <b>Output</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> contains message</li>
+    </ul>
+    <b>Status</b><br>
+    <ul>
+        <li>The node indicates the connection status to deconz via a status indicator.</li>
+    </ul>
+</script>
+
+
+
+
+<!--<script type="text/x-red" data-template-name="deconz-get">-->
+<!--   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />-->
+<!--   <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />-->
+
+<!--   <div class="form-row">-->
+<!--        <label for="node-input-name"><i class="icon-tag"></i> Name</label>-->
+<!--        <input type="text" id="node-input-name" placeholder="Name">-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>-->
+<!--        <input type="text" id="node-input-server">-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>-->
+<!--        <select id="node-input-device">-->
+<!--        </select>-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>-->
+<!--        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>-->
+<!--	</div>-->
+<!--</script>-->
+
+<!--<script type="text/x-red" data-help-name="deconz-get">-->
+<!--    <p>This reads mqtt message from defined channel.</p>-->
+<!--    <b>Configuration</b><br>-->
+<!--    <ul>-->
+<!--        <li><b>Name:</b> Choose any name to identify your node.</li>-->
+<!--        <li><b>Server:</b> Choose the deconz server instance to use.</li>-->
+<!--        <li><b>Device:</b> Select device to listen to.</li>-->
+<!--    </ul>-->
+<!--    <b>Output</b><br>-->
+<!--    <ul>-->
+<!--        <li>The <code>msg.payload</code> contains message</li>-->
+<!--    </ul>-->
+<!--    <b>Status</b><br>-->
+<!--    <ul>-->
+<!--        <li>The node indicates the connection status to deconz via a status indicator.</li>-->
+<!--    </ul>-->
+<!--</script>-->
+
+
+
+
+
+
+
+<!--&lt;!&ndash; *************** Output Node *************** &ndash;&gt;-->
+<!--<script type="text/x-red" data-template-name="deconz-output">-->
+<!--    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />-->
+<!--    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />-->
+
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-name"><i class="icon-tag"></i> Name</label>-->
+<!--        <input type="text" id="node-input-name" placeholder="Name">-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>-->
+<!--        <input type="text" id="node-input-server">-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>-->
+<!--        <select id="node-input-device"></select>-->
+<!--    </div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>-->
+<!--        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh channels list</button>-->
+<!--	</div>-->
+<!--    <div class="form-row">-->
+<!--        <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>-->
+<!--        <input type="text" id="node-input-command" style="width:70%">-->
+<!--        <input type="hidden" id="node-input-commandType">-->
+<!--    </div>-->
+<!--	<div class="form-row">-->
+<!--        <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</label>-->
+<!--        <input type="text" id="node-input-payload" style="width:70%">-->
+<!--        <input type="hidden" id="node-input-payloadType">-->
+<!--    </div>-->
+<!--</script>-->
+
+<!--<script type="text/x-red" data-help-name="deconz-output">-->
+<!--    <p>This node sends mqtt message to channel.</p>-->
+<!--    <b>Configuration</b><br>-->
+<!--    <ul>-->
+<!--        <li><b>Name:</b> Choose any name to identify your node.</li>-->
+<!--        <li><b>Server:</b> Choose the deconz server instance to use.</li>-->
+<!--        <li><b>Device:</b> Select the device to send your message.</li>-->
+<!--    </ul>-->
+<!--    <b>Input</b><br>-->
+<!--    <ul>-->
+<!--        <li>The <code>msg.payload</code> of your message is used as message.</li>-->
+<!--    </ul>-->
+<!--</script>-->
+
+
+
+
+
+
+
+<!-- *************** Server Node *************** -->
+<script type="text/x-red" data-template-name="deconz-server">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip"><i class="icon-bookmark"></i> IP-address</label>
+        <input type="text" id="node-config-input-ip">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-apikey"><i class="icon-lock"></i> API Key</label>
+        <input type="text" id="node-config-input-apikey">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="deconz-server">
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your server.</li>
+        <li><b>IP-address:</b> IP-address of your deconz instance. Example: <code>127.0.0.1</code> or <code>192.168.1.100</code></li>
+        <li><b>Port:</b> Port of your deconz instance. Example: <code>80</code></li>
+        <li><b>API Key:</b> <a href="https://dresden-elektronik.github.io/deconz-rest-doc/authorization/" target="_blank">https://dresden-elektronik.github.io/deconz-rest-doc/authorization/</a></li>
+    </ul>
+</script>
+
+
+

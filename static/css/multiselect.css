@@ -1,0 +1,38 @@
+.multiselect {
+    width: 100% !important;
+}
+
+.form-row input.multiselect-search {
+    width: 100%;
+}
+
+.multiselect-clear-filter {
+    display: none;
+}
+
+.dropdown-menu {
+    width: 100% !important;
+}
+.multiselect-container {
+    font-size: 10px !important;
+}
+.multiselect.dropdown-toggle input[type='button'] {
+    width: 100% !important;
+}
+
+.multiselect-container input[type='checkbox'] {
+    display: none;
+}
+
+.multiselect-container > li > a > label.radio {
+    margin: 5px;
+    width: 90%;
+    height: 100%;
+    cursor: pointer;
+    font-weight: 400;
+    padding: 3px 20px 3px 20px;
+}
+
+.multiselect-container label.radio input[type='radio'] {
+    display: none;
+}
