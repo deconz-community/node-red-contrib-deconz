@@ -16,6 +16,10 @@ RED.nodes.registerType('deconz-server', {
         apikey: {
             value: null,
             required: true
+        },
+        ws_port: {
+            value: '443',
+            required: true
         }
     },
     label: function() {

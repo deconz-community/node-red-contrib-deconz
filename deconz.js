@@ -138,6 +138,7 @@ module.exports = function (RED) {
         node.name = n.name;
         node.ip = n.ip;
         node.port = n.port;
+        node.ws_port = n.ws_port;
         node.apikey = n.apikey;
 
 
@@ -221,7 +222,7 @@ module.exports = function (RED) {
         }
 
         // this.discoverDevices(node);
-        connect({host:node.ip, port:443, namespace:null});
+        connect({host:node.ip, port:node.ws_port});
 
     }
 
@@ -236,6 +237,11 @@ module.exports = function (RED) {
         ws.on('open', function open() {
             console.log('Connected to WebSocket');
 
+        });
+
+        ws.on('error',  function(err) {
+            // need to get both the statusCode and the reason phrase
+            console.log(err);
         });
 
         ws.on('message', function(data) {
