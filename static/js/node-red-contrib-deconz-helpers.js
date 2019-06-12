@@ -94,7 +94,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
                         selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
-
                     } catch (error) {
                         console.error('Error #4534');
                         console.log(error);
@@ -237,6 +236,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
     // Initial call to populate item list
     deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
+
     // onChange event handler in case a new controller gets selected
     deServerElement.change(function (event) {
         deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
@@ -250,8 +250,8 @@ function deconz_initSettings(callback) {
             name:data[0].name,
             ip:data[0].internalipaddress,
             port:data[0].internalport,
-            apikey:'',
-            ws_port:''
+            apikey:false,
+            ws_port:false
         };
 
         $.ajax({

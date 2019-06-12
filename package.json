@@ -12,7 +12,7 @@
     "ws": "^7.0.0",
     "request": "^2.81.0"
   },
-  "description": "Wiren Board connectivity nodes for node-red",
+  "description": "deCONZ connectivity nodes for node-red",
   "homepage": "https://github.com/andreypopov/node-red-contrib-deconz",
   "keywords": [
     "deconz",
@@ -30,6 +30,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
-  },
-  "version": "0.2.0"
+  }
 }

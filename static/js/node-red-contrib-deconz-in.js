@@ -29,7 +29,6 @@ RED.nodes.registerType('deconz-input', {
         } else if (typeof(this.device) == 'string' && this.device.length) {
             label = this.device;
         }
-        console.log(this);
         return label;
     },
     oneditprepare: function () {
@@ -41,7 +40,7 @@ RED.nodes.registerType('deconz-input', {
 
 
             $deviceInput.on('change', function(){
-                deconz_getItemStateList(node.state, '#node-input-state');
+                deconz_getItemStateList(0, '#node-input-state');
             });
             setTimeout(function () {
                 deconz_getItemStateList(node.state, '#node-input-state');

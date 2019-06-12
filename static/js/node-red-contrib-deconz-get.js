@@ -35,8 +35,6 @@ RED.nodes.registerType('deconz-get', {
             deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
         }, 100); //we need small timeout, too fire change event for server select
 
-
-
     },
     oneditsave: function () {
         var selectedOptions = $('#node-input-device option:selected');
