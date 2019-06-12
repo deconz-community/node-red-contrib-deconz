@@ -133,40 +133,42 @@ module.exports = function (RED) {
         var node = this;
 
         node.config = config;
+        node.cleanTimer = null;
         node.server = RED.nodes.getNode(config.server);
         if (typeof(config.device) == 'string'  && config.device.length) {
             node.status({}); //clean
 
             this.on('input', function (message) {
+                clearTimeout(node.cleanTimer);
+                
+                node.server.getDeviceMeta(function(deviceMeta){
+                    if (deviceMeta) {
+                        devices[node.id] = deviceMeta.uniqueid;
 
-                    node.server.getDeviceMeta(function(deviceMeta){
-                        if (deviceMeta) {
-                            devices[node.id] = deviceMeta.uniqueid;
+                        node.meta = deviceMeta;
 
-                            node.meta = deviceMeta;
+                        node.status({
+                            fill: "green",
+                            shape: "dot",
+                            text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
+                        });
 
-                            node.status({
-                                fill: "green",
-                                shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
-                            });
+                        node.send({
+                            payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                            meta:deviceMeta,
+                        });
 
-                            node.send({
-                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
-                                meta:deviceMeta,
-                            });
-
-                            setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-                        } else {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: 'Device not found'
-                            });
-                        }
-                    }, config.device);
+                        node.cleanTimer = setTimeout(function(){
+                            node.status({}); //clean
+                        }, 3000);
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'Device not found'
+                        });
+                    }
+                }, config.device);
 
             });
         } else {
