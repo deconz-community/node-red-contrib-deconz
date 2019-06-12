@@ -1,32 +1,4 @@
 {
-  "_args": [
-    [
-      "node-red-contrib-deconz@0.0.1",
-      "/Users/apopov/.node-red"
-    ]
-  ],
-  "_from": "node-red-contrib-deconz@0.0.1",
-  "_id": "node-red-contrib-deconz@0.0.1",
-  "_inBundle": false,
-  "_integrity": "sha512-H9hc2ztGNxdlSq3Ns3nSMx7g1nu5TItLSFEsGmkcnfigF6yCrbfkZmIzu2ulAmrU9UwoM7ocTrpQaRzTjcN1Vw==",
-  "_location": "/node-red-contrib-deconz",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "node-red-contrib-deconz@0.0.1",
-    "name": "node-red-contrib-deconz",
-    "escapedName": "node-red-contrib-deconz",
-    "rawSpec": "0.0.1",
-    "saveSpec": null,
-    "fetchSpec": "0.0.1"
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/node-red-contrib-deconz/-/node-red-contrib-deconz-0.0.1.tgz",
-  "_spec": "0.0.1",
-  "_where": "/Users/apopov/.node-red",
   "author": {
     "name": "Andrey Popov",
     "email": "andrey_popov@me.com"
@@ -37,7 +9,7 @@
   "dependencies": {
     "bootstrap-multiselect": "^0.9.13-1",
     "eventsource": "^0.2.1",
-    "mqtt": "^2.18.8",
+    "ws": "^7.0.0",
     "request": "^2.81.0"
   },
   "description": "Wiren Board connectivity nodes for node-red",
