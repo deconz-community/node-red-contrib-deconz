@@ -42,9 +42,12 @@ RED.nodes.registerType('deconz-get', {
             this.device = selectedOptions.map(function () {
                 return $(this).val();
             });
-        } else {
-            this.device = null;
-        }
 
+            this.device_name = selectedOptions.map(function () {
+                return $(this).text();
+            });
+        } else {
+            this.device_name = this.device = null;
+        }
     }
 });

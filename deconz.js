@@ -91,13 +91,14 @@ module.exports = function (RED) {
         node.server = RED.nodes.getNode(config.server);
         node.server.getDeviceMeta(function(deviceMeta){
             if (deviceMeta) {
-
                 devices[node.id] = deviceMeta.uniqueid;
+
                 node.meta = deviceMeta;
+
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: (config.state in node.meta.state)?node.meta.state[config.state]:"connected"
+                    text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"connected",
                 });
 
                 node.send({
@@ -264,23 +265,25 @@ module.exports = function (RED) {
         });
 
         ws.on('message', function(data) {
-            var dataParsed = JSON.parse(data);
-            for (var nodeId in devices) {
-                var item = devices[nodeId];
+            if (data) {
+                var dataParsed = JSON.parse(data);
+                for (var nodeId in devices) {
+                    var item = devices[nodeId];
 
-                if (dataParsed.uniqueid === item) {
-                    var node = RED.nodes.getNode(nodeId);
-                    if (node) {
-                        node.status({
-                            fill: "green",
-                            shape: "dot",
-                            text: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : "connected"
-                        });
+                    if (dataParsed.uniqueid === item) {
+                        var node = RED.nodes.getNode(nodeId);
+                        if (node) {
+                            node.status({
+                                fill: "green",
+                                shape: "dot",
+                                text: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : "connected"
+                            });
 
-                        node.send({
-                            payload: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : dataParsed.state,
-                            event: dataParsed
-                        });
+                            node.send({
+                                payload: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : dataParsed.state,
+                                event: dataParsed
+                            });
+                        }
                     }
                 }
             }
