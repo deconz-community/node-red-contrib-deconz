@@ -174,11 +174,12 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
-                        selectedItemElement.html('<option value="">Complete state payload</option>');
+                        selectedItemElement.html('<option value="0">Complete state payload</option>');
 
 
                         $.each(data, function(index, value) {
-                            $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
+                            $('<option  value="' + index +'">'+index+'</option>').appendTo(selectedItemElement);
+                            // $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
                         });
 
                         // Enable item selection
@@ -222,10 +223,10 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
     // Initialize bootstrap multiselect form
     selectedItemElement.multiselect({
         enableFiltering: false,
-        enableCaseInsensitiveFiltering: true,
+        enableCaseInsensitiveFiltering: false,
         filterPlaceholder: 'Filter state...',
-        includeResetOption: true,
-        includeResetDivider: true,
+        includeResetOption: false,
+        includeResetDivider: false,
         numberDisplayed: 1,
         maxHeight: 300,
         disableIfEmpty: true,
@@ -234,7 +235,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         buttonWidth: '70%',
     });
 
-console.log('123411234: '+ selectedItemElement.val());
+
     // Initial call to populate item list
     deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
     // onChange event handler in case a new controller gets selected
