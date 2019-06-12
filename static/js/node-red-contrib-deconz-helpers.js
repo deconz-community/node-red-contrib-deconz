@@ -165,7 +165,6 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         // Remove all previous and/or static (if any) elements from 'select' input element
         selectedItemElement.children().remove();
 
-
         if (controller) {
             $.getJSON('/deconz/statelist', {
                 controllerID: controller.id,
@@ -241,5 +240,68 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
     // onChange event handler in case a new controller gets selected
     deServerElement.change(function (event) {
         deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
+    });
+}
+
+
+function deconz_initSettings(callback) {
+    $.get("https://dresden-light.appspot.com/discover", function( data ) {}).done(function(data) {
+        var settings = {
+            name:data[0].name,
+            ip:data[0].internalipaddress,
+            port:data[0].internalport,
+            apikey:'',
+            ws_port:''
+        };
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: 'http://'+settings.ip+':'+settings.port+'/api',
+            data: JSON.stringify({"devicetype":"Node-red"}),
+            success: function(response){
+                var resp = response[0];
+                if ('success' in resp) {
+                    settings.apikey = resp.success.username;
+
+                    $.ajax({
+                        type: "GET",
+                        dataType: 'json',
+                        url: 'http://'+settings.ip+':'+settings.port+'/api/'+settings.apikey+'/config',
+                        success: function(response){
+                            if ('websocketport' in response) {
+                                settings.ws_port = response.websocketport;
+                            }
+                        },
+                        error: function (err) {
+                            var response = (JSON.parse(err.responseText));
+                            var resp = response[0];
+                            if ('error' in resp) {
+                                alert(resp.error.description);
+                            }
+                        },
+                        complete: function() {
+                            callback(settings);
+                            return settings;
+                        }
+                    });
+                }
+            },
+            error: function (err) {
+                var response = (JSON.parse(err.responseText));
+                var resp = response[0];
+                if ('error' in resp) {
+                    alert(resp.error.description);
+                }
+
+                callback(settings);
+                return settings;
+            },
+            complete: function() {
+
+            }
+        });
+    }).fail(function() {
+        alert( "Remote server did not answer. Internet problems?" );
     });
 }
