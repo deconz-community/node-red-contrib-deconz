@@ -44,6 +44,25 @@ module.exports = function (RED) {
         }
     });
 
+    RED.httpAdmin.get(NODE_PATH + 'statelist', function (req, res) {
+        var config = req.query;
+        var controller = RED.nodes.getNode(config.controllerID);
+        var forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
+
+        if (controller && controller instanceof deConzServerNode) {
+            controller.getDeviceMeta(function (items) {
+                if (items) {
+                    res.json(items.state);
+                } else {
+                    res.status(404).end();
+                }
+            }, config.uniqueid);
+        } else {
+            res.status(404).end();
+        }
+    });
+
+
     RED.httpAdmin.get(NODE_PATH + 'getDeviceMeta', function (req, res) {
         var config = req.query;
         var controller = RED.nodes.getNode(config.controllerID);
@@ -78,11 +97,11 @@ module.exports = function (RED) {
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: (config.state_key in node.meta.state)?node.meta.state[config.state_key]:"connected"
+                    text: (config.state in node.meta.state)?node.meta.state[config.state]:"connected"
                 });
 
                 node.send({
-                    payload:(config.state_key in node.meta.state)?node.meta.state[config.state_key]:node.meta.state,
+                    payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
                     meta:deviceMeta,
                 });
             } else {
@@ -255,11 +274,11 @@ module.exports = function (RED) {
                         node.status({
                             fill: "green",
                             shape: "dot",
-                            text: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : "connected"
+                            text: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : "connected"
                         });
 
                         node.send({
-                            payload: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : dataParsed.state,
+                            payload: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : dataParsed.state,
                             event: dataParsed
                         });
                     }

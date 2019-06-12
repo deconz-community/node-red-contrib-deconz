@@ -33,6 +33,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
+
+
                         if (options.allowEmpty) {
                             selectedItemElement.html('<option value="">--Select device</option>');
                         }
@@ -118,6 +120,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     var selectedItemElement = $(selectedItemElementName);
 
 
+
+
     // Initialize bootstrap multiselect form
     selectedItemElement.multiselect({
         enableFiltering: true,
@@ -133,6 +137,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         buttonWidth: '70%',
     });
 
+
     // Initial call to populate item list
     deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
     // onChange event handler in case a new controller gets selected
@@ -142,5 +147,98 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     refreshListElement.click(function (event) {
         // Force a refresh of the item list
         deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+    });
+}
+
+
+
+
+function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}) {
+
+    options = $.extend({
+        filterType:'',
+        disableReadonly:false,
+        refresh:false
+    }, options);
+
+    function deconz_updateItemStateList(controller, selectedItemElement, itemName) {
+        // Remove all previous and/or static (if any) elements from 'select' input element
+        selectedItemElement.children().remove();
+
+
+        if (controller) {
+            $.getJSON('/deconz/statelist', {
+                controllerID: controller.id,
+                uniqueid:$('#node-input-device').val()
+            })
+                .done(function (data, textStatus, jqXHR) {
+                    try {
+
+                        selectedItemElement.html('<option value="">Complete state payload</option>');
+
+
+                        $.each(data, function(index, value) {
+                            $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
+                        });
+
+                        // Enable item selection
+                        selectedItemElement.multiselect('enable');
+                        // Finally, set the value of the input select to the selected value
+                        selectedItemElement.val(itemName);
+                        // Rebuild bootstrap multiselect form
+                        selectedItemElement.multiselect('rebuild');
+                        // Trim selected item string length with elipsis
+                        var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
+                        var sHTML = selectItemSpanElement.html();
+                        selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
+
+                    } catch (error) {
+                        console.error('Error #4534');
+                        console.log(error);
+                    }
+
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    // Disable item selection if no items were retrieved
+                    selectedItemElement.multiselect('disable');
+                    selectedItemElement.multiselect('refresh');
+                    //console.error(`Error: ${errorThrown}`);
+                });
+
+        } else {
+            // Disable item selection if no (valid) controller was selected
+            selectedItemElement.multiselect('disable');
+            selectedItemElement.multiselect('refresh');
+        }
+    }
+
+
+    var deServerElement = $('#node-input-server');
+    var selectedItemElement = $(selectedItemElementName);
+
+
+
+
+    // Initialize bootstrap multiselect form
+    selectedItemElement.multiselect({
+        enableFiltering: false,
+        enableCaseInsensitiveFiltering: true,
+        filterPlaceholder: 'Filter state...',
+        includeResetOption: true,
+        includeResetDivider: true,
+        numberDisplayed: 1,
+        maxHeight: 300,
+        disableIfEmpty: true,
+        nSelectedText: 'selected',
+        nonSelectedText: 'Complete state payload',
+        buttonWidth: '70%',
+    });
+
+console.log('123411234: '+ selectedItemElement.val());
+    // Initial call to populate item list
+    deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
+    // onChange event handler in case a new controller gets selected
+    deServerElement.change(function (event) {
+        deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
     });
 }

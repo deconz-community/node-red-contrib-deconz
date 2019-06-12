@@ -43,12 +43,11 @@
     </div>
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
-        <select id="node-input-device">
-        </select>
+        <select id="node-input-device"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-state_key"><i class="fa fa-tag"></i> State key</label>
-        <input type="text" id="node-input-state_key">
+        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
+        <select id="node-input-state"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
@@ -57,13 +56,13 @@
 </script>
 
 <script type="text/x-red" data-help-name="deconz-input">
-    <p>This node listens for mqtt messages sent from your deconz.</p>
+    <p>This node listens for messages sent from your deconz.</p>
     <b>Configuration</b><br>
     <ul>
         <li><b>Name:</b> Choose any name to identify your node.</li>
         <li><b>Server:</b> Choose the deconz server instance to use.</li>
         <li><b>Device:</b> Select channel to listen to.</li>
-        <li><b>State key:</b> Which state key use as node's status</li>
+        <li><b>State:</b> Which state key use as node's payload</li>
     </ul>
     <b>Output</b><br>
     <ul>

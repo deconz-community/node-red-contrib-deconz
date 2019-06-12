@@ -13,8 +13,8 @@ RED.nodes.registerType('deconz-input', {
             value: null,
             required: true
         },
-        state_key: {
-            value: null
+        state: {
+            value: ""
         }
     },
     inputs: 0,
@@ -35,9 +35,20 @@ RED.nodes.registerType('deconz-input', {
     oneditprepare: function () {
         var node = this;
         setTimeout(function(){
+            var $deviceInput = $('#node-input-device');
+
             deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
-            // console.log(deconz_getDeviceMeta(this.device));
+
+
+            $deviceInput.on('change', function(){
+                deconz_getItemStateList(node.state, '#node-input-state');
+            });
+            setTimeout(function () {
+                deconz_getItemStateList(node.state, '#node-input-state');
+            },100);
         }, 100); //we need small timeout, too fire change event for server select
+
+
 
     },
     oneditsave: function () {
