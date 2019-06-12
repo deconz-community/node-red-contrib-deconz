@@ -251,16 +251,18 @@ module.exports = function (RED) {
 
                 if (dataParsed.uniqueid === item) {
                     var node = RED.nodes.getNode(nodeId);
-                    node.status({
-                        fill: "green",
-                        shape: "dot",
-                        text: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : "connected"
-                    });
+                    if (node) {
+                        node.status({
+                            fill: "green",
+                            shape: "dot",
+                            text: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : "connected"
+                        });
 
-                    node.send({
-                        payload: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : dataParsed.state,
-                        event: dataParsed
-                    });
+                        node.send({
+                            payload: (node.config.state_key in dataParsed.state) ? dataParsed.state[node.config.state_key] : dataParsed.state,
+                            event: dataParsed
+                        });
+                    }
                 }
             }
         });
