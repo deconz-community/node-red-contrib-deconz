@@ -9,7 +9,6 @@
   "dependencies": {
     "bootstrap-multiselect": "^0.9.13-1",
     "eventsource": "^0.2.1",
-    "ws": "^7.0.0",
     "request": "^2.81.0"
   },
   "description": "deCONZ connectivity nodes for node-red",
