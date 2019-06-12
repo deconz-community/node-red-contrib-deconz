@@ -6,6 +6,11 @@
   "bugs": {
     "url": "https://github.com/andreypopov/node-red-contrib-deconz/issues/"
   },
+  "dependencies": {
+    "bootstrap-multiselect": "^0.9.13-1",
+    "eventsource": "^0.2.1",
+    "request": "^2.81.0"
+  },
   "description": "deCONZ connectivity nodes for node-red",
   "homepage": "https://github.com/andreypopov/node-red-contrib-deconz",
   "keywords": [
@@ -24,5 +29,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
-  }
+  },
+  "version": "0.2.1"
 }
