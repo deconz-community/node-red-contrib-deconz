@@ -176,8 +176,8 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
 
                         $.each(data, function(index, value) {
-                            $('<option  value="' + index +'">'+index+'</option>').appendTo(selectedItemElement);
-                            // $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
+                            // $('<option  value="' + index +'">'+index+'</option>').appendTo(selectedItemElement);
+                            $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
                         });
 
                         // Enable item selection

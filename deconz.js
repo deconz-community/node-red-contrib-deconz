@@ -88,33 +88,42 @@ module.exports = function (RED) {
         var node = this;
 
         node.config = config;
-        node.server = RED.nodes.getNode(config.server);
-        node.server.getDeviceMeta(function(deviceMeta){
-            if (deviceMeta) {
-                devices[node.id] = deviceMeta.uniqueid;
 
-                node.meta = deviceMeta;
+        if (typeof (config.device) == 'string' && config.device.length) {
+            node.server = RED.nodes.getNode(config.server);
+            node.server.getDeviceMeta(function (deviceMeta) {
+                if (deviceMeta) {
+                    devices[node.id] = deviceMeta.uniqueid;
 
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"connected",
-                });
+                    node.meta = deviceMeta;
 
-                node.send({
-                    payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
-                    meta:deviceMeta,
-                });
-            } else {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Device not found'
-                });
-            }
-        }, config.device);
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: (config.state in node.meta.state) ? (node.meta.state[config.state] ? node.meta.state[config.state] : '') : "connected",
+                    });
+
+                    node.send({
+                        payload: (config.state in node.meta.state) ? node.meta.state[config.state] : node.meta.state,
+                        meta: deviceMeta,
+                    });
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'Device not found'
+                    });
+                }
+            }, config.device);
+        } else {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: 'Device not set'
+            });
+        }
+
     }
-
     RED.nodes.registerType("deconz-input", deConzItemIn);
 
 
@@ -122,9 +131,51 @@ module.exports = function (RED) {
     function deConzItemGet(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+
+        node.config = config;
         node.server = RED.nodes.getNode(config.server);
+        if (typeof(config.device) == 'string'  && config.device.length) {
+            node.status({}); //clean
 
+            this.on('input', function (message) {
 
+                    node.server.getDeviceMeta(function(deviceMeta){
+                        if (deviceMeta) {
+                            devices[node.id] = deviceMeta.uniqueid;
+
+                            node.meta = deviceMeta;
+
+                            node.status({
+                                fill: "green",
+                                shape: "dot",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
+                            });
+
+                            node.send({
+                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                                meta:deviceMeta,
+                            });
+
+                            setTimeout(function(){
+                                node.status({}); //clean
+                            }, 3000);
+                        } else {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: 'Device not found'
+                            });
+                        }
+                    }, config.device);
+
+            });
+        } else {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: 'Device not set'
+            });
+        }
     }
 
     RED.nodes.registerType("deconz-get", deConzItemGet);
@@ -272,7 +323,11 @@ module.exports = function (RED) {
 
                     if (dataParsed.uniqueid === item) {
                         var node = RED.nodes.getNode(nodeId);
-                        if (node) {
+                        if (node && node.type === "deconz-input") {
+
+                            var serverNode = RED.nodes.getNode(node.server.id);
+                            serverNode.items[dataParsed.uniqueid].state = dataParsed.state; //set last state
+
                             node.status({
                                 fill: "green",
                                 shape: "dot",

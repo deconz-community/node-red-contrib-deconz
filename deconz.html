@@ -20,7 +20,7 @@
     $.getScript('deconz/static/js/bootstrap-multiselect.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-in.js');
     // $.getScript('deconz/static/js/node-red-contrib-deconz-out.js');
-    // $.getScript('deconz/static/js/node-red-contrib-deconz-get.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-get.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-server.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
 </script>
@@ -62,61 +62,58 @@
         <li><b>Name:</b> Choose any name to identify your node.</li>
         <li><b>Server:</b> Choose the deconz server instance to use.</li>
         <li><b>Device:</b> Select channel to listen to.</li>
-        <li><b>State:</b> Which state key use as node's payload</li>
+        <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
     </ul>
     <b>Output</b><br>
     <ul>
         <li>The <code>msg.payload</code> contains message</li>
-    </ul>
-    <b>Status</b><br>
-    <ul>
-        <li>The node indicates the connection status to deconz via a status indicator.</li>
     </ul>
 </script>
 
 
 
 
-<!--<script type="text/x-red" data-template-name="deconz-get">-->
-<!--   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />-->
-<!--   <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />-->
+<script type="text/x-red" data-template-name="deconz-get">
+   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+   <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
 
-<!--   <div class="form-row">-->
-<!--        <label for="node-input-name"><i class="icon-tag"></i> Name</label>-->
-<!--        <input type="text" id="node-input-name" placeholder="Name">-->
-<!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>-->
-<!--        <input type="text" id="node-input-server">-->
-<!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>-->
-<!--        <select id="node-input-device">-->
-<!--        </select>-->
-<!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>-->
-<!--        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>-->
-<!--	</div>-->
-<!--</script>-->
+   <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-device">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
+        <select id="node-input-state"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+	</div>
+</script>
 
-<!--<script type="text/x-red" data-help-name="deconz-get">-->
-<!--    <p>This reads mqtt message from defined channel.</p>-->
-<!--    <b>Configuration</b><br>-->
-<!--    <ul>-->
-<!--        <li><b>Name:</b> Choose any name to identify your node.</li>-->
-<!--        <li><b>Server:</b> Choose the deconz server instance to use.</li>-->
-<!--        <li><b>Device:</b> Select device to listen to.</li>-->
-<!--    </ul>-->
-<!--    <b>Output</b><br>-->
-<!--    <ul>-->
-<!--        <li>The <code>msg.payload</code> contains message</li>-->
-<!--    </ul>-->
-<!--    <b>Status</b><br>-->
-<!--    <ul>-->
-<!--        <li>The node indicates the connection status to deconz via a status indicator.</li>-->
-<!--    </ul>-->
-<!--</script>-->
+<script type="text/x-red" data-help-name="deconz-get">
+    <p>This reads mqtt message from defined channel.</p>
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the deconz server instance to use.</li>
+        <li><b>Device:</b> Select device to listen to.</li>
+        <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
+    </ul>
+    <b>Output</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> contains message</li>
+    </ul>
+</script>
 
 
 
