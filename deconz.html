@@ -19,7 +19,7 @@
 <script type='text/javascript'>
     $.getScript('deconz/static/js/bootstrap-multiselect.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-in.js');
-    // $.getScript('deconz/static/js/node-red-contrib-deconz-out.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-out.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-get.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-server.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
@@ -121,52 +121,56 @@
 
 
 
-<!--&lt;!&ndash; *************** Output Node *************** &ndash;&gt;-->
-<!--<script type="text/x-red" data-template-name="deconz-output">-->
-<!--    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />-->
-<!--    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />-->
+<!-- *************** Output Node *************** -->
+<script type="text/x-red" data-template-name="deconz-output">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
 
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-device"></select>
+    </div>
 <!--    <div class="form-row">-->
-<!--        <label for="node-input-name"><i class="icon-tag"></i> Name</label>-->
-<!--        <input type="text" id="node-input-name" placeholder="Name">-->
+<!--        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>-->
+<!--        <select id="node-input-state"></select>-->
 <!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>-->
-<!--        <input type="text" id="node-input-server">-->
-<!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>-->
-<!--        <select id="node-input-device"></select>-->
-<!--    </div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>-->
-<!--        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>-->
-<!--	</div>-->
-<!--    <div class="form-row">-->
-<!--        <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>-->
-<!--        <input type="text" id="node-input-command" style="width:70%">-->
-<!--        <input type="hidden" id="node-input-commandType">-->
-<!--    </div>-->
-<!--	<div class="form-row">-->
-<!--        <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</label>-->
-<!--        <input type="text" id="node-input-payload" style="width:70%">-->
-<!--        <input type="hidden" id="node-input-payloadType">-->
-<!--    </div>-->
-<!--</script>-->
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+	</div>
+    <div class="form-row">
+        <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>
+        <input type="text" id="node-input-command" style="width:70%">
+        <input type="hidden" id="node-input-commandType">
+    </div>
+	<div class="form-row">
+        <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</label>
+        <input type="text" id="node-input-payload" style="width:70%">
+        <input type="hidden" id="node-input-payloadType">
+    </div>
+</script>
 
-<!--<script type="text/x-red" data-help-name="deconz-output">-->
-<!--    <p>This node sends mqtt message to channel.</p>-->
-<!--    <b>Configuration</b><br>-->
-<!--    <ul>-->
-<!--        <li><b>Name:</b> Choose any name to identify your node.</li>-->
-<!--        <li><b>Server:</b> Choose the deconz server instance to use.</li>-->
-<!--        <li><b>Device:</b> Select the device to send your message.</li>-->
-<!--    </ul>-->
-<!--    <b>Input</b><br>-->
-<!--    <ul>-->
-<!--        <li>The <code>msg.payload</code> of your message is used as message.</li>-->
-<!--    </ul>-->
-<!--</script>-->
+<script type="text/x-red" data-help-name="deconz-output">
+    <p>This node sends mqtt message to channel.</p>
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the deconz server instance to use.</li>
+        <li><b>Device:</b> Select device to listen to.</li>
+    </ul>
+    <b>Input</b><br>
+    <ul>
+        <li>The <code>msg.payload</code> of your message is used as message.</li>
+    </ul>
+</script>
 
 
 

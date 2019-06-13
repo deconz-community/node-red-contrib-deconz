@@ -88,9 +88,20 @@ module.exports = function (RED) {
         var node = this;
 
         node.config = config;
+        node.server = RED.nodes.getNode(config.server);
+
+        //check if this device exists
+        node.server.getDeviceMeta(function(deviceMeta){
+            if (!deviceMeta) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'Device not found'
+                });
+            }
+        }, config.device);
 
         if (typeof (config.device) == 'string' && config.device.length) {
-            node.server = RED.nodes.getNode(config.server);
             node.server.getDeviceMeta(function (deviceMeta) {
                 if (deviceMeta) {
                     devices[node.id] = deviceMeta.uniqueid;
@@ -135,12 +146,26 @@ module.exports = function (RED) {
         node.config = config;
         node.cleanTimer = null;
         node.server = RED.nodes.getNode(config.server);
+
+
+        //check if this device exists
+        node.server.getDeviceMeta(function(deviceMeta){
+            if (!deviceMeta) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'Device not found'
+                });
+            }
+        }, config.device);
+
+
         if (typeof(config.device) == 'string'  && config.device.length) {
             node.status({}); //clean
 
             this.on('input', function (message) {
                 clearTimeout(node.cleanTimer);
-                
+
                 node.server.getDeviceMeta(function(deviceMeta){
                     if (deviceMeta) {
                         devices[node.id] = deviceMeta.uniqueid;
@@ -193,10 +218,151 @@ module.exports = function (RED) {
         node.payloadType = config.payloadType;
         node.command = config.command;
         node.commandType = config.commandType;
+        node.cleanTimer = null;
+
+        //check if this device exists
+        node.server.getDeviceMeta(function(deviceMeta){
+            if (!deviceMeta) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'Device not found'
+                });
+            }
+        }, config.device);
+
+        if (typeof(config.device) == 'string'  && config.device.length) {
+            node.status({}); //clean
+
+            this.on('input', function (message) {
+                clearTimeout(node.cleanTimer);
+
+                var payload;
+                switch (node.payloadType) {
+                    case 'flow':
+                    case 'global': {
+                        RED.util.evaluateNodeProperty(node.payload, node.payloadType, this, message, function (error, result) {
+                            if (error) {
+                                node.error(error, message);
+                            } else {
+                                payload = result;
+                            }
+                        });
+                        break;
+                    }
+                    case 'date': {
+                        payload = Date.now();
+                        break;
+                    }
+                    case 'msg':
+                    case 'num':
+                    case 'str':
+                    default: {
+                        payload = message[node.payload];
+                        break;
+                    }
+                }
+
+                var command;
+                switch (node.commandType) {
+                    case 'msg': {
+                        command = message[node.command];
+                        break;
+                    }
+                    case 'deconz_cmd':
+                        command = node.command;
+                        switch (command) {
+                            case 'on':
+                                payload = payload && payload != '0'?true:false;
+                                break;
+
+                            case 'bri':
+                            case 'hue':
+                            case 'sat':
+                            case 'ct':
+                            case 'colorloopspeed':
+                            case 'transitiontime':
+                                payload = parseInt(payload);
+                                break;
+
+                            case 'alert':
+                            case 'effect':
+                            default: {
+                                break;
+                            }
+                        }
+                        break;
+
+                    case 'str':
+                    default: {
+                        command = node.command;
+                        break;
+                    }
+                }
+
+                node.server.getDeviceMeta(function(deviceMeta){
+                    if (deviceMeta) {
+                        var url = 'http://'+node.server.ip+':'+node.server.port+'/api/'+node.server.apikey+'/lights/'+deviceMeta.device_id+'/state';
+                        var post = {};
+                        if (command != 'on') post['on'] = true;
+                        if (command == 'bri') post['on'] = payload>0?true:false;;
+                        post[command] = payload;
 
 
-        this.on('input', function (message) {
-        });
+                        // post["on"] = true;
+                        node.log('Requesting url: '+url);
+
+                        request.put({
+                            url:     url,
+                            form:    JSON.stringify(post)
+                        }, function(error, response, body){
+                            if (body) {
+                                var response = JSON.parse(body)[0];
+
+                                if ('success' in response) {
+                                    node.status({
+                                        fill: "green",
+                                        shape: "dot",
+                                        text: "ok",
+                                    });
+                                } else if ('error' in response) {
+                                    response.error.post = post; //add post data
+                                    node.warn('deconz-out ERROR: '+response.error.description);
+                                    node.warn(response.error);
+                                    node.status({
+                                        fill: "red",
+                                        shape: "dot",
+                                        text: "error",
+                                    });
+                                }
+
+                                node.cleanTimer = setTimeout(function(){
+                                    node.status({}); //clean
+                                }, 3000);
+                            }
+                        });
+
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'Device not found'
+                        });
+                    }
+                }, config.device);
+
+
+
+
+                // /api/<apikey>/lights/<id>/state
+            });
+        } else {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: 'Device not set'
+            });
+        }
     }
 
     RED.nodes.registerType("deconz-output", deConzOut);
@@ -239,14 +405,23 @@ module.exports = function (RED) {
 
                     node.items = [];
                     if (dataParsed) {
-                        dataParsed = dataParsed.sensors;
-                        for (var index in dataParsed) {
-                            var prop = dataParsed[index];
+                        for (var index in dataParsed.sensors) {
+                            var prop = dataParsed.sensors[index];
+                            prop.device_type = 'sensors';
+                            prop.device_id = parseInt(index);
+
+                            node.items[prop.uniqueid] = prop;
+                        }
+
+                        for (var index in dataParsed.lights) {
+                            var prop = dataParsed.lights[index];
+                            prop.device_type = 'lights';
+                            prop.device_id = parseInt(index);
 
                             node.items[prop.uniqueid] = prop;
                         }
                     }
-
+                    // console.log(node.items);
                     callback(node.items);
                     return node.items;
                 });

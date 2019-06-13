@@ -17,7 +17,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         filterType:'',
         disableReadonly:false,
         refresh:false,
-        allowEmpty:false
+        allowEmpty:false,
+        deviceType:false
     }, options);
 
     function deconz_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
@@ -49,6 +50,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             disabled = '';
                             nameSuffix = '';
 
+                            if (options.deviceType && options.deviceType != value.meta.device_type) {
+                                return true;
+                            }
 
                             // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
@@ -245,14 +249,19 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
 
 function deconz_initSettings(callback) {
+    var settings = {
+        name:false,
+        ip:false,
+        port:false,
+        apikey:false,
+        ws_port:false
+    };
+
+
     $.get("https://dresden-light.appspot.com/discover", function( data ) {}).done(function(data) {
-        var settings = {
-            name:data[0].name,
-            ip:data[0].internalipaddress,
-            port:data[0].internalport,
-            apikey:false,
-            ws_port:false
-        };
+        settings.name = data[0].name;
+        settings.ip = data[0].internalipaddress;
+        settings.port = data[0].internalport;
 
         $.ajax({
             type: "POST",
