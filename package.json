@@ -31,5 +31,5 @@
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
   },
-  "version": "0.5.4"
+  "version": "0.5.5"
 }
