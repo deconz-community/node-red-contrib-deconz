@@ -36,7 +36,7 @@ RED.nodes.registerType('deconz-output', {
     outputs: 0,
     icon: "deconz.png",
     label: function() {
-        var label = 'deconz-get';
+        var label = 'deconz-out';
         if (this.name) {
             label = this.name;
         } else if (typeof(this.device_name) == 'string' && this.device_name.length) {
@@ -54,10 +54,10 @@ RED.nodes.registerType('deconz-output', {
             value: 'deconz_cmd',
             label: 'deCONZ',
             icon: 'icons/node-red-contrib-deconz/icon-color.png',
-            options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime']
+            options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime', 'json', 'homekit']
         };
         $('#node-input-command').typedInput({
-            types: [deConzTypes, 'str', 'msg'],
+            types: [deConzTypes, {value:'homekit',label:'homekit',icon: 'icons/node-red-contrib-deconz/homekit-logo.png',options:['homekit']}, 'str', 'msg', {value:'object',label:'object',options:['json']}],
             default: 'msg',
             value: 'topic',
             typeField: $('#node-input-commandType'),

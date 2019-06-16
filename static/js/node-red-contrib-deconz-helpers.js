@@ -1,14 +1,8 @@
-function deconz_getDeviceMeta(uniqueid) {
-    var deServerElement = $('#node-input-server');
-    var serverNode = RED.nodes.node(deServerElement.val());
-
-    $.getJSON('/deconz/getDeviceMeta', {
-        controllerID: serverNode.id,
-        uniqueid:uniqueid,
-        forceRefresh: refresh
-    }).done(function (data, textStatus, jqXHR) {
-        return data;
-    });
+function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) {
+    $.getJSON('/deconz/gwscanner', {})
+        .done(function (data, textStatus, jqXHR) {
+            console.log(data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {});
 }
 
 function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
@@ -33,9 +27,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {
-
-
-
                         if (options.allowEmpty) {
                             selectedItemElement.html('<option value="">--Select device</option>');
                         }
@@ -123,8 +114,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     var selectedItemElement = $(selectedItemElementName);
 
 
-
-
     // Initialize bootstrap multiselect form
     selectedItemElement.multiselect({
         enableFiltering: true,
@@ -140,7 +129,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         buttonWidth: '70%',
     });
 
-
     // Initial call to populate item list
     deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
     // onChange event handler in case a new controller gets selected
@@ -152,8 +140,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
     });
 }
-
-
 
 
 function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}) {
@@ -248,7 +234,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 }
 
 
-function deconz_initSettings(callback) {
+function deconz_initSettings(callback, inputSettings) {
     var settings = {
         name:false,
         ip:false,
@@ -257,11 +243,17 @@ function deconz_initSettings(callback) {
         ws_port:false
     };
 
-
     $.get("https://dresden-light.appspot.com/discover", function( data ) {}).done(function(data) {
+        if (!data.length) {
+            alert( "Can't discover your device, enter settings manually" );
+            return false;
+        }
+
         settings.name = data[0].name;
         settings.ip = data[0].internalipaddress;
         settings.port = data[0].internalport;
+
+        // deconz_getApiKey(callback, settings.ip, settings.port);
 
         $.ajax({
             type: "POST",
@@ -312,5 +304,55 @@ function deconz_initSettings(callback) {
         });
     }).fail(function() {
         alert( "Remote server did not answer. Internet problems?" );
+    });
+}
+
+function deconz_getApiKey(callback, ip, port) {
+    $.ajax({
+        type: "POST",
+        dataType: 'json',
+        url: 'http://'+settings.ip+':'+settings.port+'/api',
+        data: JSON.stringify({"devicetype":"Node-red"}),
+        success: function(response){
+            var resp = response[0];
+            if ('success' in resp) {
+                settings.apikey = resp.success.username;
+
+                $.ajax({
+                    type: "GET",
+                    dataType: 'json',
+                    url: 'http://'+settings.ip+':'+settings.port+'/api/'+settings.apikey+'/config',
+                    success: function(response){
+                        if ('websocketport' in response) {
+                            settings.ws_port = response.websocketport;
+                        }
+                    },
+                    error: function (err) {
+                        var response = (JSON.parse(err.responseText));
+                        var resp = response[0];
+                        if ('error' in resp) {
+                            alert(resp.error.description);
+                        }
+                    },
+                    complete: function() {
+                        callback(settings);
+                        return settings;
+                    }
+                });
+            }
+        },
+        error: function (err) {
+            var response = (JSON.parse(err.responseText));
+            var resp = response[0];
+            if ('error' in resp) {
+                alert(resp.error.description);
+            }
+
+            callback(settings);
+            return settings;
+        },
+        complete: function() {
+
+        }
     });
 }

@@ -21,7 +21,7 @@ RED.nodes.registerType('deconz-input', {
         }
     },
     inputs: 0,
-    outputs: 1,
+    outputs: 2,
     outputLabels: ["event"],
     paletteLabel: 'in',
     icon: "deconz.png",

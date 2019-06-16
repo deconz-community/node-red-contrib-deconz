@@ -62,33 +62,30 @@ module.exports = function (RED) {
         }
     });
 
+    RED.httpAdmin.get(NODE_PATH + 'gwscanner', function (req, res) {
+        // var ip = require("ip");
+        // console.log ( ip.address() );
 
-    RED.httpAdmin.get(NODE_PATH + 'getDeviceMeta', function (req, res) {
-        var config = req.query;
-        var controller = RED.nodes.getNode(config.controllerID);
-        var forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
-        var uniqueid = config.uniqueid;
+        var portscanner = require('portscanner');
 
-        if (controller && controller instanceof deConzServerNode) {
-            controller.getDeviceMeta(function (meta) {
-                if (meta) {
-                    res.json(meta);
-                } else {
-                    res.status(404).end();
-                }
-            }, uniqueid);
-        } else {
-            res.status(404).end();
-        }
+// 127.0.0.1 is the default hostname; not required to provide
+        portscanner.findAPortNotInUse([80], '127.0.0.1').then(port => {
+            console.log(`Port ${port} is available!`);
+
+            // Now start your service on this port...
+        });
     });
+
 
     //*************** Input Node ***************
     function deConzItemIn(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-
         node.config = config;
+
+        //get server node
         node.server = RED.nodes.getNode(config.server);
+        if (!node.server) return status_no_server(node);
 
         //check if this device exists
         node.server.getDeviceMeta(function(deviceMeta){
@@ -105,19 +102,8 @@ module.exports = function (RED) {
             node.server.getDeviceMeta(function (deviceMeta) {
                 if (deviceMeta) {
                     devices[node.id] = deviceMeta.uniqueid;
-
                     node.meta = deviceMeta;
-
-                    node.status({
-                        fill: "green",
-                        shape: "dot",
-                        text: (config.state in node.meta.state) ? (node.meta.state[config.state] ? node.meta.state[config.state] : '') : "connected",
-                    });
-
-                    node.send({
-                        payload: (config.state in node.meta.state) ? node.meta.state[config.state] : node.meta.state,
-                        meta: deviceMeta,
-                    });
+                    node.sendState(deviceMeta);
                 } else {
                     node.status({
                         fill: "red",
@@ -134,6 +120,21 @@ module.exports = function (RED) {
             });
         }
 
+        this.sendState = function (device) {
+            //status
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+            });
+
+            //outputs
+            node.send([
+                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device.state},
+                format_to_homekit(device)
+            ]);
+        };
+
     }
     RED.nodes.registerType("deconz-input", deConzItemIn);
 
@@ -145,7 +146,10 @@ module.exports = function (RED) {
 
         node.config = config;
         node.cleanTimer = null;
+
+        //get server node
         node.server = RED.nodes.getNode(config.server);
+        if (!node.server) return status_no_server(node);
 
 
         //check if this device exists
@@ -213,7 +217,11 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.device = config.device;
+
+        //get server node
         node.server = RED.nodes.getNode(config.server);
+        if (!node.server) return status_no_server(node);
+
         node.payload = config.payload;
         node.payloadType = config.payloadType;
         node.command = config.command;
@@ -254,6 +262,8 @@ module.exports = function (RED) {
                         payload = Date.now();
                         break;
                     }
+                    case 'object':
+                    case 'homekit':
                     case 'msg':
                     case 'num':
                     case 'str':
@@ -285,12 +295,17 @@ module.exports = function (RED) {
                                 payload = parseInt(payload);
                                 break;
 
+                            case 'json':
                             case 'alert':
                             case 'effect':
                             default: {
                                 break;
                             }
                         }
+                        break;
+
+                    case 'homekit':
+                        payload = format_from_homekit(message, payload);
                         break;
 
                     case 'str':
@@ -300,17 +315,30 @@ module.exports = function (RED) {
                     }
                 }
 
+                //empty payload, stop
+                if (payload === null) {
+                    return false;
+                }
+
+                console.log('//send data to API');
+                // console.log(payload);
+                //send data to API
                 node.server.getDeviceMeta(function(deviceMeta){
                     if (deviceMeta) {
                         var url = 'http://'+node.server.ip+':'+node.server.port+'/api/'+node.server.apikey+'/lights/'+deviceMeta.device_id+'/state';
                         var post = {};
-                        if (command != 'on') post['on'] = true;
-                        if (command == 'bri') post['on'] = payload>0?true:false;;
-                        post[command] = payload;
+                        if (node.commandType == 'object' || node.commandType == 'homekit') {
+                            post = payload;
+                        } else {
+                            if (command != 'on') post['on'] = true;
+                            if (command == 'bri') post['on'] = payload > 0 ? true : false;
+                            post[command] = payload;
+                        }
 
 
                         // post["on"] = true;
                         node.log('Requesting url: '+url);
+                        console.log(post);
 
                         request.put({
                             url:     url,
@@ -379,8 +407,7 @@ module.exports = function (RED) {
         node.port = n.port;
         node.ws_port = n.ws_port;
         node.apikey = n.apikey;
-
-
+        node.pingTimeout = undefined;
 
 
         this.discoverDevices = function (callback, forceRefresh = false) {
@@ -469,18 +496,28 @@ module.exports = function (RED) {
             }, forceRefresh);
         }
 
-        // this.discoverDevices(node);
-        connect({host:node.ip, port:node.ws_port});
+        // this.heartbeat = function() {
+        //     clearTimeout(node.pingTimeout);
+        //
+        //     // Use `WebSocket#terminate()` and not `WebSocket#close()`. Delay should be
+        //     // equal to the interval at which your server sends out pings plus a
+        //     // conservative assumption of the latency.
+        //     node.pingTimeout = setTimeout(() => {
+        //         this.terminate();
+        //     }, 15000 + 1000);
+        // }
 
+        // this.discoverDevices(node);
+        connect(node, {host:node.ip, port:node.ws_port});
     }
 
     RED.nodes.registerType("deconz-server", deConzServerNode);
 
 
-    function connect(config) {
-
+    function connect(serverNode, config) {
         const WebSocket = require('ws');
         const ws = new WebSocket('ws://' + config.host + ':' + config.port);
+
 
         ws.on('open', function open() {
             console.log('Connected to WebSocket');
@@ -488,8 +525,7 @@ module.exports = function (RED) {
         });
 
         ws.on('error',  function(err) {
-            // need to get both the statusCode and the reason phrase
-            console.log(err);
+            serverNode.warn('deCONZ error: '+err);
         });
 
         ws.on('message', function(data) {
@@ -498,23 +534,16 @@ module.exports = function (RED) {
                 for (var nodeId in devices) {
                     var item = devices[nodeId];
 
+
                     if (dataParsed.uniqueid === item) {
                         var node = RED.nodes.getNode(nodeId);
+
+                        //update server items db
+                        var serverNode = RED.nodes.getNode(node.server.id);
+                        serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
+
                         if (node && node.type === "deconz-input") {
-
-                            var serverNode = RED.nodes.getNode(node.server.id);
-                            serverNode.items[dataParsed.uniqueid].state = dataParsed.state; //set last state
-
-                            node.status({
-                                fill: "green",
-                                shape: "dot",
-                                text: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : "connected"
-                            });
-
-                            node.send({
-                                payload: (node.config.state in dataParsed.state) ? dataParsed.state[node.config.state] : dataParsed.state,
-                                event: dataParsed
-                            });
+                            node.sendState(dataParsed);
                         }
                     }
                 }
@@ -522,9 +551,167 @@ module.exports = function (RED) {
         });
 
         ws.on('close', function close() {
-            console.log('disconnected');
+            clearTimeout(serverNode.pingTimeout);
+            // setTimeout(connect(serverNode, config), 15000);
+            serverNode.warn('deCONZ WebSocket closed');
+
+            for (var nodeId in devices) {
+                var node = RED.nodes.getNode(nodeId);
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: 'disconnected'
+                });
+            }
         });
+
+        // ws.on('open', serverNode.heartbeat);
+        // ws.on('ping', serverNode.heartbeat);
     }
 
-    function disconnect(config) {}
+
+    function format_to_homekit(device) {
+        var state = device.state;
+        var msg = {};
+
+
+// console.log(device.state);
+
+
+
+        var characteristic = {};
+        if (state !== undefined){
+
+            // if (device.device_type === 'sensors') {
+            //     switch (device.type) {
+            //         case "ZHATemperature":
+            //             characteristic.CurrentTemperature = state.temperature/100;
+            //             break;
+            //         case "ZHAHumidity":
+            //             characteristic.CurrentRelativeHumidity = state.humidity/100;
+            //             break;
+            //         case "ZHALightLevel":
+            //             // characteristic.CurrentRelativeHumidity = state.humidity;
+            //             break;
+            //         case "ZHAPresence":
+            //             // characteristic.CurrentRelativeHumidity = state.humidity;
+            //             break;
+            //         case "ZHAOpenClose":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "ZHASwitch":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPLightlevel":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPHumidity":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPTemperature":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPPresence":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPOpenClose":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPSwitch":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPGenericStatus":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "CLIPGenericFlag":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //         case "Daylight":
+            //             // characteristic.ContactSensorState = state.humidity;
+            //             break;
+            //     }
+            // }
+
+            if (state['temperature'] !== undefined){
+                characteristic.CurrentTemperature = state.temperature/100;
+            }
+
+            if (state['humidity'] !== undefined){
+                characteristic.CurrentRelativeHumidity = state.humidity/100;
+            }
+
+            // if (state['lightlevel'] !== undefined){
+            //     characteristic.CurrentAmbientLightLevel = state.lightlevel;
+            // }
+
+            if (state['open'] !== undefined){
+                characteristic.ContactSensorState = !state.open;
+            }
+
+            if (state['vibration'] !== undefined){
+                characteristic.ContactSensorState = !state.vibration;
+            }
+
+            if (state['on'] !== undefined){
+                characteristic.On = state.on;
+            }
+
+            if (state['bri'] !== undefined){
+                characteristic.Brightness = state.bri/2.55
+            }
+
+            if (state['hue'] !== undefined){
+                characteristic.Hue = state.hue/182;
+            }
+
+            if (state['sat'] !== undefined){
+                characteristic.Saturation = state.sat/2.55
+            }
+
+            if (state['ct'] !== undefined){
+                characteristic.ColorTemperature = state.ct;
+                if (state.ct < 140) characteristic.ColorTemperature = 140;
+                else if (state.ct > 500) characteristic.ColorTemperature = 500;
+            }
+        }
+
+        msg.payload = characteristic;
+        return msg;
+    }
+
+    function format_from_homekit(message, payload) {
+        if (message.hap.context === undefined) {
+            return null;
+        }
+
+        var msg = {};
+
+        if (payload.On !== undefined) {
+            msg['on'] = payload.On;
+        } else if (payload.Brightness !== undefined) {
+            msg['bri'] = payload.Brightness*2.55;
+            msg['on'] = payload.Brightness>0?true:false;
+        } else if (payload.Hue !== undefined) {
+            msg['hue'] = payload.Hue*182;
+            msg['on'] = true;
+        } else if (payload.Saturation !== undefined) {
+            msg['sat'] = payload.Saturation*2.55;
+            msg['on'] = true;
+        } else if (payload.ColorTemperature !== undefined) {
+            msg['ct'] = payload.ColorTemperature;
+            msg['on'] = true;
+        }
+
+        return msg;
+    }
+
+    function status_no_server(node) {
+        node.status({
+            fill: "red",
+            shape: "dot",
+            text: 'Server node error'
+        });
+
+        return false;
+    }
 }

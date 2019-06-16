@@ -30,13 +30,22 @@ RED.nodes.registerType('deconz-server', {
         var $refreshBtn = $('#force-refresh');
 
         $refreshBtn.on('click', function(){
+            //
+            // deconz_gatewayScanner();
+            // return false;
+            var currentSettings = {
+                name:$('#node-config-input-name').val(),
+                ip:$('#node-config-input-ip').val(),
+                port:$('#node-config-input-port').val(),
+            };
+
             deconz_initSettings(function(settings){
                 if (settings.name) $('#node-config-input-name').val(settings.name);
                 if (settings.ip) $('#node-config-input-ip').val(settings.ip);
                 if (settings.port) $('#node-config-input-port').val(settings.port);
                 if (settings.apikey) $('#node-config-input-apikey').val(settings.apikey);
                 if (settings.ws_port) $('#node-config-input-ws_port').val(settings.ws_port);
-            });
+            }, currentSettings);
 
         });
 

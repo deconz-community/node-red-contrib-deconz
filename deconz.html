@@ -64,10 +64,18 @@
         <li><b>Device:</b> Select channel to listen to.</li>
         <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
     </ul>
-    <b>Output</b><br>
-    <ul>
-        <li>The <code>msg.payload</code> contains message</li>
-    </ul>
+
+    <h3>Outputs</h3>
+    <h5>Raw output</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string or object</span></dt>
+        <dd>New state of the selected device.</dd>
+    </dl>
+    <h5>Homekit output</h5>
+    <dl class="message-properties">
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd>Object formatted for homekit node</dd>
+        </dl>
 </script>
 
 
