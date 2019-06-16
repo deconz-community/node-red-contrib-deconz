@@ -536,7 +536,7 @@ module.exports = function (RED) {
 
                     if (dataParsed.uniqueid === item) {
                         var node = RED.nodes.getNode(nodeId);
-                        if (node.server) {
+                        if (node && "server" in node) {
                             //update server items db
                             var serverNode = RED.nodes.getNode(node.server.id);
                             serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
@@ -656,11 +656,11 @@ module.exports = function (RED) {
             }
 
             if (state['open'] !== undefined){
-                characteristic.ContactSensorState = !state.open;
+                characteristic.ContactSensorState = state.open;
             }
 
             if (state['vibration'] !== undefined){
-                characteristic.ContactSensorState = !state.vibration;
+                characteristic.ContactSensorState = state.vibration;
             }
 
             if (state['on'] !== undefined){
