@@ -97,7 +97,7 @@ module.exports = function (RED) {
                 format_to_homekit(device)
             ]);
         };
-        
+
         //get server node
         node.server = RED.nodes.getNode(config.server);
         if (!node.server) return status_no_server(node);
@@ -536,13 +536,16 @@ module.exports = function (RED) {
 
                     if (dataParsed.uniqueid === item) {
                         var node = RED.nodes.getNode(nodeId);
+                        if (node.server) {
+                            //update server items db
+                            var serverNode = RED.nodes.getNode(node.server.id);
+                            serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
-                        //update server items db
-                        var serverNode = RED.nodes.getNode(node.server.id);
-                        serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
-
-                        if (node && node.type === "deconz-input") {
-                            node.sendState(dataParsed);
+                            if (node && node.type === "deconz-input") {
+                                node.sendState(dataParsed);
+                            }
+                        } else {
+                            console.log('ERROR: cant get '+nodeId+' node');
                         }
                     }
                 }
@@ -643,6 +646,10 @@ module.exports = function (RED) {
             //     characteristic.CurrentAmbientLightLevel = state.lightlevel;
             // }
 
+
+            if (state['fire'] !== undefined){
+                characteristic.SmokeDetected = state.fire;
+            }
 
             if (state['presence'] !== undefined){
                 characteristic.MotionDetected = state.presence;
