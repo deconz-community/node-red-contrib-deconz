@@ -130,7 +130,7 @@ module.exports = function (RED) {
 
             //outputs
             node.send([
-                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device.state},
+                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device},
                 format_to_homekit(device)
             ]);
         };
