@@ -1,4 +1,4 @@
-RED.nodes.registerType('deconz-input', {
+RED.nodes.registerType('deconz-event', {
     category: 'deCONZ',
     color: '#f7aa3f',
     defaults: {
@@ -9,28 +9,17 @@ RED.nodes.registerType('deconz-input', {
             type: "deconz-server",
             required: true
         },
-        device: {
-            value: null,
-            required: true
-        },
         device_name: {
             value: null
-        },
-        state: {
-            value: ""
-        },
-        outputAtStartup: {
-            value: true,
-            required: true,
         }
     },
     inputs: 0,
-    outputs: 2,
+    outputs: 1,
     outputLabels: ["event"],
-    paletteLabel: 'in',
+    paletteLabel: 'event',
     icon: "deconz.png",
     label: function () {
-        var label = 'deconz-input';
+        var label = 'deconz-event';
         if (this.name) {
             label = this.name;
         } else if (typeof(this.device_name) == 'string' && this.device_name.length) {
@@ -44,16 +33,7 @@ RED.nodes.registerType('deconz-input', {
     oneditprepare: function () {
         var node = this;
         setTimeout(function(){
-            var $deviceInput = $('#node-input-device');
-
             deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
-
-            $deviceInput.on('change', function(){
-                deconz_getItemStateList(0, '#node-input-state');
-            });
-            setTimeout(function () {
-                deconz_getItemStateList(node.state, '#node-input-state');
-            },100);
         }, 100); //we need small timeout, too fire change event for server select
     },
     oneditsave: function () {

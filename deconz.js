@@ -118,7 +118,9 @@ module.exports = function (RED) {
                 if (deviceMeta) {
                     devices[node.id] = deviceMeta.uniqueid;
                     node.meta = deviceMeta;
-                    node.sendState(deviceMeta);
+                    if (node.config.outputAtStartup) {
+                        node.sendState(deviceMeta);
+                    }
                 } else {
                     node.status({
                         fill: "red",
@@ -136,6 +138,7 @@ module.exports = function (RED) {
         }
     }
     RED.nodes.registerType("deconz-input", deConzItemIn);
+
 
 
     //*************** GET Node ***************
@@ -395,6 +398,24 @@ module.exports = function (RED) {
     RED.nodes.registerType("deconz-output", deConzOut);
 
 
+
+    //*************** Event Node ***************
+    function deConzItemEvent(config) {
+        RED.nodes.createNode(this, config);
+        var node = this;
+        node.config = config;
+        node.cleanTimer = null;
+        node.status({}); //clean
+
+        //get server node
+        node.server = RED.nodes.getNode(config.server);
+        if (!node.server) return status_no_server(node);
+
+
+        devices[node.id] = 'event';
+    }
+    RED.nodes.registerType("deconz-event", deConzItemEvent);
+
     //*************** Server Node ***************
     function deConzServerNode(n) {
         RED.nodes.createNode(this, n);
@@ -409,7 +430,7 @@ module.exports = function (RED) {
         node.pingTimeout = undefined;
 
 
-        this.discoverDevices = function (callback, forceRefresh = false) {
+        node.discoverDevices = function (callback, forceRefresh = false) {
             if (forceRefresh || node.items === undefined) {
                 node.log('discoverDevices: Refreshing devices list');
 
@@ -458,7 +479,7 @@ module.exports = function (RED) {
             }
         }
 
-        this.getDeviceMeta = function (callback, uniqueid) {
+        node.getDeviceMeta = function (callback, uniqueid) {
             var result = null;
 
             node.discoverDevices(function(items){
@@ -477,7 +498,7 @@ module.exports = function (RED) {
             }, false);
         }
 
-        this.getItemsList = function (callback, forceRefresh = false) {
+        node.getItemsList = function (callback, forceRefresh = false) {
             node.discoverDevices(function(items){
                 node.items_list = [];
                 for (var index in items) {
@@ -533,6 +554,22 @@ module.exports = function (RED) {
                 for (var nodeId in devices) {
                     var item = devices[nodeId];
 
+                    if ("event" == item && "t" in dataParsed && dataParsed.t == "event") {
+                        var node = RED.nodes.getNode(nodeId);
+                        if (node && "type" in node && node.type === "deconz-event") {
+                            var serverNode = RED.nodes.getNode(node.server.id);
+                            node.send({'payload': dataParsed, 'device': serverNode.items[dataParsed.uniqueid]});
+                            clearTimeout(node.cleanTimer);
+                            node.status({
+                                fill: "green",
+                                shape: "dot",
+                                text: 'event'
+                            });
+                            node.cleanTimer = setTimeout(function () {
+                                node.status({}); //clean
+                            }, 3000);
+                        }
+                    }
 
                     if (dataParsed.uniqueid === item) {
                         var node = RED.nodes.getNode(nodeId);
@@ -592,62 +629,23 @@ module.exports = function (RED) {
             //         case "ZHAHumidity":
             //             characteristic.CurrentRelativeHumidity = state.humidity/100;
             //             break;
-            //         case "ZHALightLevel":
-            //             // characteristic.CurrentRelativeHumidity = state.humidity;
-            //             break;
-            //         case "ZHAPresence":
-            //             // characteristic.CurrentRelativeHumidity = state.humidity;
-            //             break;
-            //         case "ZHAOpenClose":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "ZHASwitch":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPLightlevel":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPHumidity":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPTemperature":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPPresence":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPOpenClose":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPSwitch":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPGenericStatus":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "CLIPGenericFlag":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
-            //         case "Daylight":
-            //             // characteristic.ContactSensorState = state.humidity;
-            //             break;
             //     }
             // }
 
             if (state['temperature'] !== undefined){
-                characteristic.CurrentTemperature = state.temperature/100;
+                characteristic.CurrentTemperature = state['temperature']/100;
             }
 
             if (state['humidity'] !== undefined){
-                characteristic.CurrentRelativeHumidity = state.humidity/100;
+                characteristic.CurrentRelativeHumidity = state['humidity']/100;
             }
 
             if (state['lux'] !== undefined){
                 characteristic.CurrentAmbientLightLevel = state['lux'];
             }
-            
+
             if (state['fire'] !== undefined){
-                characteristic.SmokeDetected = state.fire;
+                characteristic.SmokeDetected = state['fire'];
             }
 
             if (state['buttonevent'] !== undefined){
@@ -658,37 +656,37 @@ module.exports = function (RED) {
             }
 
             if (state['presence'] !== undefined){
-                characteristic.MotionDetected = state.presence;
+                characteristic.MotionDetected = state['presence'];
             }
 
             if (state['open'] !== undefined){
-                characteristic.ContactSensorState = state.open;
+                characteristic.ContactSensorState = state['open'];
             }
 
             if (state['vibration'] !== undefined){
-                characteristic.ContactSensorState = state.vibration;
+                characteristic.ContactSensorState = state['vibration'];
             }
 
             if (state['on'] !== undefined){
-                characteristic.On = state.on;
+                characteristic.On = state['on'];
             }
 
             if (state['bri'] !== undefined){
-                characteristic.Brightness = state.bri/2.55
+                characteristic.Brightness = state['bri']/2.55
             }
 
             if (state['hue'] !== undefined){
-                characteristic.Hue = state.hue/182;
+                characteristic.Hue = state['hue']/182;
             }
 
             if (state['sat'] !== undefined){
-                characteristic.Saturation = state.sat/2.55
+                characteristic.Saturation = state['sat']/2.55
             }
 
             if (state['ct'] !== undefined){
-                characteristic.ColorTemperature = state.ct;
-                if (state.ct < 140) characteristic.ColorTemperature = 140;
-                else if (state.ct > 500) characteristic.ColorTemperature = 500;
+                characteristic.ColorTemperature = state['ct'];
+                if (state['ct'] < 140) characteristic.ColorTemperature = 140;
+                else if (state['ct'] > 500) characteristic.ColorTemperature = 500;
             }
         }
 
