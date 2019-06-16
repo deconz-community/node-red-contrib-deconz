@@ -83,6 +83,21 @@ module.exports = function (RED) {
         var node = this;
         node.config = config;
 
+        node.sendState = function (device) {
+            //status
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+            });
+
+            //outputs
+            node.send([
+                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device},
+                format_to_homekit(device)
+            ]);
+        };
+        
         //get server node
         node.server = RED.nodes.getNode(config.server);
         if (!node.server) return status_no_server(node);
@@ -119,22 +134,6 @@ module.exports = function (RED) {
                 text: 'Device not set'
             });
         }
-
-        this.sendState = function (device) {
-            //status
-            node.status({
-                fill: "green",
-                shape: "dot",
-                text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
-            });
-
-            //outputs
-            node.send([
-                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device},
-                format_to_homekit(device)
-            ]);
-        };
-
     }
     RED.nodes.registerType("deconz-input", deConzItemIn);
 
@@ -643,6 +642,11 @@ module.exports = function (RED) {
             // if (state['lightlevel'] !== undefined){
             //     characteristic.CurrentAmbientLightLevel = state.lightlevel;
             // }
+
+
+            if (state['presence'] !== undefined){
+                characteristic.MotionDetected = state.presence;
+            }
 
             if (state['open'] !== undefined){
                 characteristic.ContactSensorState = !state.open;
