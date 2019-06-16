@@ -541,7 +541,7 @@ module.exports = function (RED) {
                             var serverNode = RED.nodes.getNode(node.server.id);
                             serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
-                            if (node && node.type === "deconz-input") {
+                            if (node.type === "deconz-input") {
                                 node.sendState(dataParsed);
                             }
                         } else {
@@ -642,13 +642,19 @@ module.exports = function (RED) {
                 characteristic.CurrentRelativeHumidity = state.humidity/100;
             }
 
-            // if (state['lightlevel'] !== undefined){
-            //     characteristic.CurrentAmbientLightLevel = state.lightlevel;
-            // }
-
-
+            if (state['lux'] !== undefined){
+                characteristic.CurrentAmbientLightLevel = state['lux'];
+            }
+            
             if (state['fire'] !== undefined){
                 characteristic.SmokeDetected = state.fire;
+            }
+
+            if (state['buttonevent'] !== undefined){
+                //https://github.com/dresden-elektronik/deconz-rest-plugin/wiki/Xiaomi-WXKG01LM
+                if (state['buttonevent'] == 1002) characteristic.ProgrammableSwitchEvent = 0;
+                else if (state['buttonevent'] == 1004) characteristic.ProgrammableSwitchEvent = 1;
+                else if (state['buttonevent'] == 1001) characteristic.ProgrammableSwitchEvent = 2;
             }
 
             if (state['presence'] !== undefined){
