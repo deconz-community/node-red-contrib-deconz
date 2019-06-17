@@ -47,13 +47,13 @@
         <select id="node-input-device"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
-        <select id="node-input-state"></select>
-    </div>
-    <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
         <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
 	</div>
+    <div class="form-row">
+        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
+        <select id="node-input-state"></select>
+    </div>
     <div class='form-row'>
         <label for='node-input-outputAtStartup'><i class='fa fa-share-square'></i> Start output</label>
         <input type='checkbox' id='node-input-outputAtStartup' style='width:auto; margin: 0;' checked="checked">
@@ -115,7 +115,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="deconz-get">
-    <p>This reads mqtt message from defined channel.</p>
+    <p>This node reads state from defined device.</p>
     <b>Configuration</b><br>
     <ul>
         <li><b>Name:</b> Choose any name to identify your node.</li>
@@ -173,7 +173,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="deconz-output">
-    <p>This node sends mqtt message to channel.</p>
+    <p>This node sends message to device.</p>
     <b>Configuration</b><br>
     <ul>
         <li><b>Name:</b> Choose any name to identify your node.</li>

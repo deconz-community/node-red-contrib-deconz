@@ -84,18 +84,26 @@ module.exports = function (RED) {
         node.config = config;
 
         node.sendState = function (device) {
-            //status
-            node.status({
-                fill: "green",
-                shape: "dot",
-                text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
-            });
+            if (device.state === undefined) {
+                console.log("CODE: #66");
+                console.log(device);
+            } else {
+                //status
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+                });
 
-            //outputs
-            node.send([
-                {payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state, payload_raw: device},
-                format_to_homekit(device)
-            ]);
+                //outputs
+                node.send([
+                    {
+                        payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                        payload_raw: device
+                    },
+                    format_to_homekit(device)
+                ]);
+            }
         };
 
         //get server node
@@ -653,6 +661,9 @@ module.exports = function (RED) {
                 if (state['buttonevent'] == 1002) characteristic.ProgrammableSwitchEvent = 0;
                 else if (state['buttonevent'] == 1004) characteristic.ProgrammableSwitchEvent = 1;
                 else if (state['buttonevent'] == 1001) characteristic.ProgrammableSwitchEvent = 2;
+                else if (state['buttonevent'] == 1005) characteristic.ProgrammableSwitchEvent = 3;
+                else if (state['buttonevent'] == 1006) characteristic.ProgrammableSwitchEvent = 4;
+                else if (state['buttonevent'] == 1010) characteristic.ProgrammableSwitchEvent = 5;
             }
 
             if (state['presence'] !== undefined){

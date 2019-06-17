@@ -54,7 +54,7 @@ RED.nodes.registerType('deconz-output', {
             value: 'deconz_cmd',
             label: 'deCONZ',
             icon: 'icons/node-red-contrib-deconz/icon-color.png',
-            options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime', 'json', 'homekit']
+            options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime']
         };
         $('#node-input-command').typedInput({
             types: [deConzTypes, {value:'homekit',label:'homekit',icon: 'icons/node-red-contrib-deconz/homekit-logo.png',options:['homekit']}, 'str', 'msg', {value:'object',label:'object',options:['json']}],
