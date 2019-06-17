@@ -590,7 +590,11 @@ module.exports = function (RED) {
                                 node.sendState(dataParsed);
                             }
                         } else {
-                            console.log('ERROR: cant get '+nodeId+' node');
+                            console.log('ERROR: cant get '+nodeId+' node, removed from list');
+                            delete devices[nodeId];
+
+                            var serverNode = RED.nodes.getNode(node.server.id);
+                            delete serverNode.items[dataParsed.uniqueid];
                         }
                     }
                 }
