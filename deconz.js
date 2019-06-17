@@ -674,11 +674,11 @@ module.exports = function (RED) {
             //     characteristic.OutletInUse = state['consumption'];
             // }
 
-            if (state['power'] !== null){
+            if (state['power'] !== undefined){
                 characteristic.OutletInUse = state['power']>0?true:false;
             }
 
-            if (state['water'] !== null){
+            if (state['water'] !== undefined){
                 characteristic.LeakDetected = state['water']?1:0;
             }
 
