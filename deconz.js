@@ -662,12 +662,24 @@ module.exports = function (RED) {
 
             if (state['buttonevent'] !== undefined){
                 //https://github.com/dresden-elektronik/deconz-rest-plugin/wiki/Xiaomi-WXKG01LM
-                if (state['buttonevent'] == 1002) characteristic.ProgrammableSwitchEvent = 0;
-                else if (state['buttonevent'] == 1004) characteristic.ProgrammableSwitchEvent = 1;
-                else if (state['buttonevent'] == 1001) characteristic.ProgrammableSwitchEvent = 2;
-                else if (state['buttonevent'] == 1005) characteristic.ProgrammableSwitchEvent = 3;
-                else if (state['buttonevent'] == 1006) characteristic.ProgrammableSwitchEvent = 4;
-                else if (state['buttonevent'] == 1010) characteristic.ProgrammableSwitchEvent = 5;
+                if ([1002,2002,3002,4002,5002].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 0;
+                else if ([1004,2004,3004,4004,5004].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 1;
+                else if ([1001,2001,3001,4001,5001].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 2;
+                else if ([1005,2005,3005,4005,5005].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 3;
+                else if ([1006,2006,3006,4006,5006].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 4;
+                else if ([1010,2010,3010,4010,5010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
+            }
+
+            // if (state['consumption'] !== null){
+            //     characteristic.OutletInUse = state['consumption'];
+            // }
+
+            if (state['power'] !== null){
+                characteristic.OutletInUse = state['power']>0?true:false;
+            }
+
+            if (state['water'] !== null){
+                characteristic.LeakDetected = state['water']?1:0;
             }
 
             if (state['presence'] !== undefined){
