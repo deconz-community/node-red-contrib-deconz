@@ -89,11 +89,25 @@ module.exports = function (RED) {
                 console.log(device);
             } else {
                 //status
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
-                });
+                if ("state" in device && "reachable" in device.state && device.state.reachable === false) {
+                    node.status({
+                        fill: "red",
+                        shape: "ring",
+                        text: "not reachable"
+                    });
+                } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
+                    node.status({
+                        fill: "red",
+                        shape: "ring",
+                        text: "not reachable"
+                    });
+                } else {
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+                    });
+                }
 
                 //outputs
                 node.send([
@@ -110,16 +124,6 @@ module.exports = function (RED) {
         node.server = RED.nodes.getNode(config.server);
         if (!node.server) return status_no_server(node);
 
-        // //check if this device exists
-        // node.server.getDeviceMeta(function(deviceMeta){
-        //     if (!deviceMeta) {
-        //         node.status({
-        //             fill: "red",
-        //             shape: "dot",
-        //             text: 'Device not found'
-        //         });
-        //     }
-        // }, config.device);
 
         if (typeof (config.device) == 'string' && config.device.length) {
             node.server.getDeviceMeta(function (deviceMeta) {
@@ -164,18 +168,6 @@ module.exports = function (RED) {
         if (!node.server) return status_no_server(node);
 
 
-        //check if this device exists
-        node.server.getDeviceMeta(function(deviceMeta){
-            if (!deviceMeta) {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Device not found'
-                });
-            }
-        }, config.device);
-
-
         if (typeof(config.device) == 'string'  && config.device.length) {
             node.status({}); //clean
 
@@ -188,16 +180,33 @@ module.exports = function (RED) {
 
                         node.meta = deviceMeta;
 
-                        node.status({
-                            fill: "green",
-                            shape: "dot",
-                            text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
-                        });
 
-                        node.send({
-                            payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
-                            meta:deviceMeta,
-                        });
+                        //status
+                        if ("state" in deviceMeta && "reachable" in deviceMeta.state && deviceMeta.state.reachable === false) {
+                            node.status({
+                                fill: "red",
+                                shape: "ring",
+                                text: "not reachable"
+                            });
+                        } else if ("config" in deviceMeta && "reachable" in deviceMeta.config && deviceMeta.config.reachable === false) {
+                            node.status({
+                                fill: "red",
+                                shape: "ring",
+                                text: "not reachable"
+                            });
+                        } else {
+                            node.status({
+                                fill: "green",
+                                shape: "dot",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
+                            });
+
+                            node.send({
+                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                                meta:deviceMeta,
+                            });
+                        }
+
 
                         node.cleanTimer = setTimeout(function(){
                             node.status({}); //clean
@@ -240,16 +249,6 @@ module.exports = function (RED) {
         node.commandType = config.commandType;
         node.cleanTimer = null;
 
-        //check if this device exists
-        node.server.getDeviceMeta(function(deviceMeta){
-            if (!deviceMeta) {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Device not found'
-                });
-            }
-        }, config.device);
 
         if (typeof(config.device) == 'string'  && config.device.length) {
             node.status({}); //clean
@@ -612,11 +611,28 @@ module.exports = function (RED) {
 
                 //status
                 if (battery) {
-                    node.status({
-                        fill:  (battery >= 20)?((battery >= 50)?"green":"yellow"):"red",
-                        shape: "dot",
-                        text: battery+'%'
-                    });
+
+                    //status
+                    if ("state" in device && "reachable" in device.state && device.state.reachable === false) {
+                        node.status({
+                            fill: "red",
+                            shape: "ring",
+                            text: "not reachable"
+                        });
+                    } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
+                        node.status({
+                            fill: "red",
+                            shape: "ring",
+                            text: "not reachable"
+                        });
+                    } else {
+                        node.status({
+                            fill:  (battery >= 20)?((battery >= 50)?"green":"yellow"):"red",
+                            shape: "dot",
+                            text: battery+'%'
+                        });
+                    }
+
 
                     //outputs
                     node.send([
@@ -724,8 +740,10 @@ module.exports = function (RED) {
                             console.log('ERROR: cant get '+nodeId+' node, removed from list');
                             delete devices[nodeId];
 
-                            var serverNode = RED.nodes.getNode(node.server.id);
-                            delete serverNode.items[dataParsed.uniqueid];
+                            if ("server" in node) {
+                                var serverNode = RED.nodes.getNode(node.server.id);
+                                delete serverNode.items[dataParsed.uniqueid];
+                            }
                         }
                     }
                 }
@@ -755,6 +773,14 @@ module.exports = function (RED) {
     function format_to_homekit(device) {
         var state = device.state;
         var config = device.config;
+        var no_reponse = false;
+        if (state !== undefined && state['reachable'] !== undefined && state['reachable'] != null && state['reachable'] === false) {
+            no_reponse = true;
+        }
+        if (config !== undefined && config['reachable'] !== undefined && config['reachable'] != null && config['reachable'] === false) {
+            no_reponse = true;
+        }
+
         var msg = {};
 
         var characteristic = {};
@@ -773,18 +799,22 @@ module.exports = function (RED) {
 
             if (state['temperature'] !== undefined){
                 characteristic.CurrentTemperature = state['temperature']/100;
+                if (no_reponse) characteristic.CurrentTemperature = "NO_RESPONSE";
             }
 
             if (state['humidity'] !== undefined){
                 characteristic.CurrentRelativeHumidity = state['humidity']/100;
+                if (no_reponse) characteristic.CurrentRelativeHumidity = "NO_RESPONSE";
             }
 
             if (state['lux'] !== undefined){
                 characteristic.CurrentAmbientLightLevel = state['lux'];
+                if (no_reponse) characteristic.CurrentAmbientLightLevel = "NO_RESPONSE";
             }
 
             if (state['fire'] !== undefined){
                 characteristic.SmokeDetected = state['fire'];
+                if (no_reponse) characteristic.SmokeDetected = "NO_RESPONSE";
             }
 
             if (state['buttonevent'] !== undefined){
@@ -795,6 +825,7 @@ module.exports = function (RED) {
                 else if ([1005,2005,3005,4005,5005].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 3;
                 else if ([1006,2006,3006,4006,5006].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 4;
                 else if ([1010,2010,3010,4010,5010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
+                if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
             }
 
             // if (state['consumption'] !== null){
@@ -803,44 +834,54 @@ module.exports = function (RED) {
 
             if (state['power'] !== undefined){
                 characteristic.OutletInUse = state['power']>0?true:false;
+                if (no_reponse) characteristic.OutletInUse = "NO_RESPONSE";
             }
 
             if (state['water'] !== undefined){
                 characteristic.LeakDetected = state['water']?1:0;
+                if (no_reponse) characteristic.LeakDetected = "NO_RESPONSE";
             }
 
             if (state['presence'] !== undefined){
                 characteristic.MotionDetected = state['presence'];
+                if (no_reponse) characteristic.MotionDetected = "NO_RESPONSE";
             }
 
             if (state['open'] !== undefined){
                 characteristic.ContactSensorState = state['open'];
+                if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
             }
 
             if (state['vibration'] !== undefined){
                 characteristic.ContactSensorState = state['vibration'];
+                if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
             }
 
             if (state['on'] !== undefined){
                 characteristic.On = state['on'];
+                if (no_reponse) characteristic.On = "NO_RESPONSE";
             }
 
             if (state['bri'] !== undefined){
-                characteristic.Brightness = state['bri']/2.55
+                characteristic.Brightness = state['bri']/2.55;
+                if (no_reponse) characteristic.Brightness = "NO_RESPONSE";
             }
 
             if (state['hue'] !== undefined){
                 characteristic.Hue = state['hue']/182;
+                if (no_reponse) characteristic.Hue = "NO_RESPONSE";
             }
 
             if (state['sat'] !== undefined){
-                characteristic.Saturation = state['sat']/2.55
+                characteristic.Saturation = state['sat']/2.55;
+                if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
             }
 
             if (state['ct'] !== undefined){
                 characteristic.ColorTemperature = state['ct'];
                 if (state['ct'] < 140) characteristic.ColorTemperature = 140;
                 else if (state['ct'] > 500) characteristic.ColorTemperature = 500;
+                if (no_reponse) characteristic.ColorTemperature = "NO_RESPONSE";
             }
         }
 
@@ -848,33 +889,7 @@ module.exports = function (RED) {
         if (config !== undefined) {
             if (config['battery'] !== undefined && config['battery'] != null){
                 characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
-            }
-        }
-
-
-        //reachable, can be in state or config
-        if (state !== undefined) {
-            if (state['reachable'] !== undefined && state['reachable'] != null) {
-                if (!state['reachable']) {
-                    if (device.device_type === 'sensors') {
-                        characteristic.StatusFault = 1;
-                        characteristic.StatusActive = false;
-                    } else if (device.device_type === 'lights') {
-                        characteristic.On = "NO_RESPONSE";
-                    }
-                }
-            }
-        }
-        if (config !== undefined) {
-            if (config['reachable'] !== undefined && config['reachable'] != null) {
-                if (!config['reachable']) {
-                    if (device.device_type === 'sensors') {
-                        characteristic.StatusActive = false;
-                        characteristic.StatusFault = 1;
-                    } else if (device.device_type === 'lights') {
-                        characteristic.On = "NO_RESPONSE";
-                    }
-                }
+                if (no_reponse) characteristic.StatusLowBattery = "NO_RESPONSE";
             }
         }
 
