@@ -22,6 +22,7 @@
     $.getScript('deconz/static/js/node-red-contrib-deconz-out.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-get.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-event.js');
+    $.getScript('deconz/static/js/node-red-contrib-deconz-battery.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-server.js');
     $.getScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
 </script>
@@ -222,6 +223,55 @@
     </dl>
 </script>
 
+
+<!-- *************** Input Node *************** -->
+<script type="text/x-red" data-template-name="deconz-battery">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
+        <select id="node-input-device"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
+	</div>
+    <div class='form-row'>
+        <label for='node-input-outputAtStartup'><i class='fa fa-share-square'></i> Start output</label>
+        <input type='checkbox' id='node-input-outputAtStartup' style='width:auto; margin: 0;' checked="checked">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="deconz-battery">
+    <p>This node listens for messages sent from your deconz.</p>
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the deconz server instance to use.</li>
+        <li><b>Device:</b> Select channel to listen to.</li>
+        <li><b>Start output:</b> Output state at startup.</li>
+    </ul>
+
+    <h3>Outputs</h3>
+    <h5>Raw output</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string or object</span></dt>
+        <dd>Battery status of the selected device.</dd>
+    </dl>
+    <h5>Homekit output</h5>
+    <dl class="message-properties">
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd>Battery status for homekit node</dd>
+        </dl>
+</script>
 
 
 <!-- *************** Server Node *************** -->

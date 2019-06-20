@@ -110,16 +110,16 @@ module.exports = function (RED) {
         node.server = RED.nodes.getNode(config.server);
         if (!node.server) return status_no_server(node);
 
-        //check if this device exists
-        node.server.getDeviceMeta(function(deviceMeta){
-            if (!deviceMeta) {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Device not found'
-                });
-            }
-        }, config.device);
+        // //check if this device exists
+        // node.server.getDeviceMeta(function(deviceMeta){
+        //     if (!deviceMeta) {
+        //         node.status({
+        //             fill: "red",
+        //             shape: "dot",
+        //             text: 'Device not found'
+        //         });
+        //     }
+        // }, config.device);
 
         if (typeof (config.device) == 'string' && config.device.length) {
             node.server.getDeviceMeta(function (deviceMeta) {
@@ -127,7 +127,9 @@ module.exports = function (RED) {
                     devices[node.id] = deviceMeta.uniqueid;
                     node.meta = deviceMeta;
                     if (node.config.outputAtStartup) {
-                        node.sendState(deviceMeta);
+                        setTimeout(function(){
+                            node.sendState(deviceMeta);
+                        }, 1500); //we need this timeout after restart of node-red  (homekit delays)
                     }
                 } else {
                     node.status({
@@ -424,12 +426,17 @@ module.exports = function (RED) {
     }
     RED.nodes.registerType("deconz-event", deConzItemEvent);
 
+
+
+
+
     //*************** Server Node ***************
     function deConzServerNode(n) {
         RED.nodes.createNode(this, n);
         var node = this;
         node.items = undefined;
         node.items_list = undefined;
+        node.discoverProcess = false;
         node.name = n.name;
         node.ip = n.ip;
         node.port = n.port;
@@ -440,6 +447,7 @@ module.exports = function (RED) {
 
         node.discoverDevices = function (callback, forceRefresh = false) {
             if (forceRefresh || node.items === undefined) {
+                node.discoverProcess = true;
                 node.log('discoverDevices: Refreshing devices list');
 
                 var url = "http://" + node.ip + ":" + node.port + "/api/" + node.apikey;
@@ -476,7 +484,10 @@ module.exports = function (RED) {
                             node.items[prop.uniqueid] = prop;
                         }
                     }
-                    // console.log(node.items);
+
+                    // console.log('discoverProcess = false');
+                    node.discoverProcess = false;
+
                     callback(node.items);
                     return node.items;
                 });
@@ -490,20 +501,46 @@ module.exports = function (RED) {
         node.getDeviceMeta = function (callback, uniqueid) {
             var result = null;
 
-            node.discoverDevices(function(items){
-                if (items) {
-                    for (var index in items) {
-                        var item = items[index];
-                        if (index === uniqueid) {
-                            result = item;
-                            break;
+            if (node.items === undefined && !node.discoverProcess) {
+                node.discoverDevices(function (items) {
+                    if (items) {
+                        for (var index in items) {
+                            var item = items[index];
+                            if (index === uniqueid) {
+                                result = item;
+                                break;
+                            }
                         }
                     }
-                }
 
-                callback(result);
-                return result;
-            }, false);
+                    callback(result);
+                    return result;
+                }, false);
+            } else {
+                if (node.getDiscoverProcess()) {
+                    var refreshIntervalId = setInterval(function(){
+                        if (!node.getDiscoverProcess()) {
+                            clearInterval(refreshIntervalId);
+
+                            result = [];
+                            if ((node.items)) {
+                                for (var index in (node.items)) {
+                                    var item = (node.items)[index];
+                                    if (index === uniqueid) {
+                                        result = item;
+                                        break;
+                                    }
+                                }
+                            }
+                            callback(result);
+                            return result;
+                        }
+                    }, 100);
+                } else {
+                    callback(node.items);
+                    return node.items;
+                }
+            }
         }
 
         node.getItemsList = function (callback, forceRefresh = false) {
@@ -524,6 +561,10 @@ module.exports = function (RED) {
             }, forceRefresh);
         }
 
+        node.getDiscoverProcess = function() {
+            return node.discoverProcess;
+        }
+
         // this.heartbeat = function() {
         //     clearTimeout(node.pingTimeout);
         //
@@ -542,13 +583,93 @@ module.exports = function (RED) {
     RED.nodes.registerType("deconz-server", deConzServerNode);
 
 
+
+    //*************** Input Node ***************
+    function deConzItemBattery(config) {
+        RED.nodes.createNode(this, config);
+        var node = this;
+        node.config = config;
+
+        node.sendState = function (device) {
+            if (device.state === undefined) {
+                // console.log("CODE: #66");
+                // console.log(device);
+            } else {
+                var battery = null;
+                if ("config" in device && "battery" in device.config && device.config.battery !== undefined && device.config.battery != null) {
+                    battery = device.config.battery;
+                }
+
+                //status
+                if (battery) {
+                    node.status({
+                        fill:  (battery >= 20)?((battery >= 50)?"green":"yellow"):"red",
+                        shape: "dot",
+                        text: battery+'%'
+                    });
+
+                    //outputs
+                    node.send([
+                        device.config,
+                        format_to_homekit_battery(device)
+                    ]);
+                }
+            }
+        };
+
+        //get server node
+        node.server = RED.nodes.getNode(config.server);
+        if (!node.server) return status_no_server(node);
+
+        // //check if this device exists
+        // node.server.getDeviceMeta(function(deviceMeta){
+        //     if (!deviceMeta) {
+        //         node.status({
+        //             fill: "red",
+        //             shape: "dot",
+        //             text: 'Device not found'
+        //         });
+        //     }
+        // }, config.device);
+
+        if (typeof (config.device) == 'string' && config.device.length) {
+            node.server.getDeviceMeta(function (deviceMeta) {
+                if (deviceMeta) {
+                    devices[node.id] = deviceMeta.uniqueid;
+                    node.meta = deviceMeta;
+                    if (node.config.outputAtStartup) {
+                        setTimeout(function(){
+                            node.sendState(deviceMeta);
+                        }, 1500); //we need this timeout after restart of node-red  (homekit delays)
+                    }
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'Device not found'
+                    });
+                }
+            }, config.device);
+        } else {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: 'Device not set'
+            });
+        }
+    }
+    RED.nodes.registerType("deconz-battery", deConzItemBattery);
+
+
+
+
     function connect(serverNode, config) {
         const WebSocket = require('ws');
         const ws = new WebSocket('ws://' + config.host + ':' + config.port);
 
 
         ws.on('open', function open() {
-            console.log('Connected to WebSocket');
+            serverNode.log('Connected to WebSocket');
 
         });
 
@@ -624,11 +745,6 @@ module.exports = function (RED) {
     function format_to_homekit(device) {
         var state = device.state;
         var msg = {};
-
-
-// console.log(device.state);
-
-
 
         var characteristic = {};
         if (state !== undefined){
@@ -717,8 +833,37 @@ module.exports = function (RED) {
             }
         }
 
+        //battery status
+        if ("config" in device) {
+            if (device.config['battery'] !== undefined && device.config['battery'] != null){
+                characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
+                // characteristic.Battery = parseInt(device.config['battery']);
+            }
+        }
+
         msg.payload = characteristic;
         return msg;
+    }
+
+
+    function format_to_homekit_battery(device) {
+
+        var msg = {};
+        var characteristic = {};
+
+        //battery status
+        if ("config" in device) {
+            if (device.config['battery'] !== undefined && device.config['battery'] != null){
+                characteristic.BatteryLevel = parseInt(device.config['battery']);
+                characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
+
+                msg.payload = characteristic;
+                // msg.topic = "battery";
+                return msg;
+            }
+        }
+
+        return null;
     }
 
     function format_from_homekit(message, payload) {

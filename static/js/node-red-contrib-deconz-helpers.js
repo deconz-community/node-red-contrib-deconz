@@ -12,7 +12,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         disableReadonly:false,
         refresh:false,
         allowEmpty:false,
-        deviceType:false
+        deviceType:false,
+        batteryFilter:false
     }, options);
 
     function deconz_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
@@ -45,6 +46,15 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                                 return true;
                             }
 
+                            if (options.batteryFilter &&
+                                (!("meta" in value)
+                                || !("config" in value.meta)
+                                || !("battery" in value.meta.config)
+                                )
+                            ) {
+
+                                return true;
+                            }
                             // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
 
