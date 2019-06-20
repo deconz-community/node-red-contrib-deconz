@@ -890,8 +890,11 @@ module.exports = function (RED) {
         //battery status
         if (config !== undefined) {
             if (config['battery'] !== undefined && config['battery'] != null){
-                characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
-                if (no_reponse) characteristic.StatusLowBattery = "NO_RESPONSE";
+
+                if (device.type !== 'ZHASwitch') { //exclude
+                    characteristic.StatusLowBattery = parseInt(device.config['battery']) <= 15 ? 1 : 0;
+                    if (no_reponse) characteristic.StatusLowBattery = "NO_RESPONSE";
+                }
             }
         }
 
