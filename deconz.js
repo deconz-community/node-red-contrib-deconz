@@ -537,8 +537,18 @@ module.exports = function (RED) {
                         }
                     }, 100);
                 } else {
-                    callback(node.items);
-                    return node.items;
+                    result = [];
+                    if ((node.items)) {
+                        for (var index in (node.items)) {
+                            var item = (node.items)[index];
+                            if (index === uniqueid) {
+                                result = item;
+                                break;
+                            }
+                        }
+                    }
+                    callback(result);
+                    return result;
                 }
             }
         }
@@ -744,6 +754,7 @@ module.exports = function (RED) {
 
     function format_to_homekit(device) {
         var state = device.state;
+        var config = device.config;
         var msg = {};
 
         var characteristic = {};
@@ -834,10 +845,36 @@ module.exports = function (RED) {
         }
 
         //battery status
-        if ("config" in device) {
-            if (device.config['battery'] !== undefined && device.config['battery'] != null){
+        if (config !== undefined) {
+            if (config['battery'] !== undefined && config['battery'] != null){
                 characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
-                // characteristic.Battery = parseInt(device.config['battery']);
+            }
+        }
+
+
+        //reachable, can be in state or config
+        if (state !== undefined) {
+            if (state['reachable'] !== undefined && state['reachable'] != null) {
+                if (!state['reachable']) {
+                    if (device.device_type === 'sensors') {
+                        characteristic.StatusFault = 1;
+                        characteristic.StatusActive = false;
+                    } else if (device.device_type === 'lights') {
+                        characteristic.On = "NO_RESPONSE";
+                    }
+                }
+            }
+        }
+        if (config !== undefined) {
+            if (config['reachable'] !== undefined && config['reachable'] != null) {
+                if (!config['reachable']) {
+                    if (device.device_type === 'sensors') {
+                        characteristic.StatusActive = false;
+                        characteristic.StatusFault = 1;
+                    } else if (device.device_type === 'lights') {
+                        characteristic.On = "NO_RESPONSE";
+                    }
+                }
             }
         }
 
