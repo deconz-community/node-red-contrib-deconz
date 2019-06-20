@@ -198,7 +198,7 @@ module.exports = function (RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:''):"received",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:'false'):"received",
                             });
 
                             node.send({
@@ -731,10 +731,12 @@ module.exports = function (RED) {
                         if (node && "server" in node) {
                             //update server items db
                             var serverNode = RED.nodes.getNode(node.server.id);
-                            serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
+                            if ("items" in serverNode && dataParsed.uniqueid in serverNode.items) {
+                                serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
-                            if (node.type === "deconz-input") {
-                                node.sendState(dataParsed);
+                                if (node.type === "deconz-input") {
+                                    node.sendState(dataParsed);
+                                }
                             }
                         } else {
                             console.log('ERROR: cant get '+nodeId+' node, removed from list');
