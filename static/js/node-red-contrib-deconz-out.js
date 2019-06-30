@@ -76,7 +76,7 @@ RED.nodes.registerType('deconz-output', {
         setTimeout(function(){
             var $deviceInput = $('#node-input-device');
 
-            deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, deviceType:'lights'});
+            deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, deviceType:'lights', groups:true});
 
             $deviceInput.on('change', function(){
                 deconz_getItemStateList(0, '#node-input-state');
@@ -94,7 +94,7 @@ RED.nodes.registerType('deconz-output', {
                 return $(this).val();
             });
 
-            this.device_name = selectedOptions.text();
+            this.device_name = selectedOptions.text().replace(/ *\([^)]*\) */g, "");
         } else {
             this.device_name = this.device = null;
         }

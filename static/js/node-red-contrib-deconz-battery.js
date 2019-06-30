@@ -51,7 +51,7 @@ RED.nodes.registerType('deconz-battery', {
                 return $(this).val();
             });
 
-            this.device_name = selectedOptions.text();
+            this.device_name = selectedOptions.text().replace(/ *\([^)]*\) */g, "");
         } else {
             this.device_name = this.device = null;
         }

@@ -13,7 +13,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
         refresh:false,
         allowEmpty:false,
         deviceType:false,
-        batteryFilter:false
+        batteryFilter:false,
+        groups:false
     }, options);
 
     function deconz_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
@@ -38,7 +39,21 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         // var selected = false;
                         var groupHtml = '';
 
-                        $.each(data, function(index, value) {
+
+
+                        if (options.groups && data.groups) {
+                            groupHtml = $('<optgroup/>', { label: "Groups" });
+                            groupHtml.appendTo(selectedItemElement);
+
+                            $.each(data.groups, function(index, value) {
+                                $('<option  value="group_' + value.id +'">' +value.name +' (lights: '+value.lights.length+')</option>').appendTo(groupHtml);
+                            });
+
+                            groupHtml = $('<optgroup/>', { label: "Devices" });
+                            groupHtml.appendTo(selectedItemElement);
+                        }
+
+                        $.each(data.items, function(index, value) {
                             disabled = '';
                             nameSuffix = '';
 
@@ -79,6 +94,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             //     return true;
                             // }
 
+
                             // if (optgroup != value.device_type) {
                             //     groupHtml = $('<optgroup/>', { label: value.device_friendly_name});
                             //     groupHtml.appendTo(selectedItemElement);
@@ -86,7 +102,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             // }
 
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                            $('<option '+disabled+' value="' + value.uniqueid +'">' +value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(selectedItemElement);//.appendTo(groupHtml?groupHtml:selectedItemElement);
+
+                            var parentElement = (options.groups && data.groups.length)?groupHtml:selectedItemElement;
+                            $('<option '+disabled+' value="' + value.uniqueid +'">' +value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
                         // Enable item selection
