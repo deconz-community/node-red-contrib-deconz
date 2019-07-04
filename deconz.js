@@ -587,7 +587,7 @@ module.exports = function (RED) {
                     var prop = items[index];
 
                     node.items_list.push({
-                        device_name: prop.name + ' (' + prop.type + ')',
+                        device_name: prop.name + ' : ' + prop.type,
                         uniqueid: prop.uniqueid,
                         meta: prop
                     });
@@ -768,7 +768,7 @@ module.exports = function (RED) {
                                 serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
                                 if (node.type === "deconz-input") {
-                                    // console.log(dataParsed);
+                                    console.log(dataParsed);
                                     node.sendState(dataParsed);
                                 }
                             }
@@ -866,6 +866,19 @@ module.exports = function (RED) {
                 else if ([1006,2006,3006,4006,5006].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 4;
                 else if ([1010,2010,3010,4010,5010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
                 if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
+
+                //index of btn
+                if (state['buttonevent'] >= 1000 && state['buttonevent'] < 2000) {
+                    characteristic.ServiceLabelIndex = 1;
+                } else if (state['buttonevent'] >= 2000 && state['buttonevent'] < 3000) {
+                    characteristic.ServiceLabelIndex = 2;
+                } else if (state['buttonevent'] >= 3000 && state['buttonevent'] < 4000) {
+                    characteristic.ServiceLabelIndex = 3;
+                } else if (state['buttonevent'] >= 4000 && state['buttonevent'] < 5000) {
+                    characteristic.ServiceLabelIndex = 4;
+                } else if (state['buttonevent'] >= 5000 && state['buttonevent'] < 6000) {
+                    characteristic.ServiceLabelIndex = 5;
+                }
             }
 
             // if (state['consumption'] !== null){
