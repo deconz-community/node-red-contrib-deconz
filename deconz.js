@@ -868,17 +868,11 @@ module.exports = function (RED) {
                 if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
 
                 //index of btn
-                if (state['buttonevent'] >= 1000 && state['buttonevent'] < 2000) {
-                    characteristic.ServiceLabelIndex = 1;
-                } else if (state['buttonevent'] >= 2000 && state['buttonevent'] < 3000) {
-                    characteristic.ServiceLabelIndex = 2;
-                } else if (state['buttonevent'] >= 3000 && state['buttonevent'] < 4000) {
-                    characteristic.ServiceLabelIndex = 3;
-                } else if (state['buttonevent'] >= 4000 && state['buttonevent'] < 5000) {
-                    characteristic.ServiceLabelIndex = 4;
-                } else if (state['buttonevent'] >= 5000 && state['buttonevent'] < 6000) {
-                    characteristic.ServiceLabelIndex = 5;
-                }
+                if ([1001,1002,1004,1005,1006,1010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 1;
+                else if ([2001,2002,2004,2005,2006,2010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 2;
+                else if ([3001,3002,3004,3005,3006,3010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 3;
+                else if ([4001,4002,4004,4005,4006,4010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 4;
+                else if ([5001,5002,5004,5005,5006,5010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 5;
             }
 
             // if (state['consumption'] !== null){
