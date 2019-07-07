@@ -11,7 +11,7 @@
     "request": "latest",
     "portscanner": "latest",
     "ws": "latest",
-    "events":"latest"
+    "events": "latest"
   },
   "description": "deCONZ connectivity nodes for node-red",
   "homepage": "https://github.com/andreypopov/node-red-contrib-deconz",
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
   },
-  "version": "0.4.1"
+  "version": "0.5.0"
 }
