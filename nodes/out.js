@@ -122,7 +122,6 @@ module.exports = function(RED) {
                     } else {
                         node.server.getDeviceMeta(function (deviceMeta) {
                             if (deviceMeta) {
-                                console.log(deviceMeta);
                                 var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
                                 var post = {};
                                 if (node.commandType == 'object' || node.commandType == 'homekit') {
@@ -158,7 +157,7 @@ module.exports = function(RED) {
         postData(url, post) {
             var node = this;
             node.log('Requesting url: '+url);
-            console.log(post);
+            // console.log(post);
 
             request.put({
                 url:     url,
