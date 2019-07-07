@@ -1,0 +1,86 @@
+<script type='text/javascript'>
+    RED.nodes.registerType('deconz-event', {
+        category: 'deCONZ',
+        color: '#f7aa3f',
+        defaults: {
+            name: {
+                value: ""
+            },
+            server: {
+                type: "deconz-server",
+                required: true
+            },
+            device_name: {
+                value: null
+            }
+        },
+        inputs: 0,
+        outputs: 1,
+        outputLabels: ["event"],
+        paletteLabel: 'event',
+        icon: "deconz.png",
+        label: function () {
+            var label = 'deconz-event';
+            if (this.name) {
+                label = this.name;
+            } else if (typeof(this.device_name) == 'string' && this.device_name.length) {
+                label = this.device_name;
+            } else if (typeof(this.device) == 'string' && this.device.length) {
+                label = this.device;
+            }
+
+            return label;
+        },
+        oneditprepare: function () {
+            var node = this;
+            setTimeout(function(){
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
+            }, 100); //we need small timeout, too fire change event for server select
+        },
+        oneditsave: function () {
+            var selectedOptions = $('#node-input-device option:selected');
+            if (selectedOptions) {
+                this.device = selectedOptions.map(function () {
+                    return $(this).val();
+                });
+
+                this.device_name = selectedOptions.text();
+            } else {
+                this.device_name = this.device = null;
+            }
+        }
+    });
+</script>
+
+
+<script type="text/x-red" data-template-name="deconz-event">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+</script>
+
+
+<script type="text/x-red" data-help-name="deconz-event">
+    <p>This node listens for messages sent from your deconz.</p>
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your node.</li>
+        <li><b>Server:</b> Choose the deconz server instance to use.</li>
+    </ul>
+
+    <h3>Outputs</h3>
+    <h5>Raw output</h5>
+    <dl class="message-properties">
+        <dt>msg.payload <span class="property-type">object</span></dt>
+        <dd>full data of event</dd>
+        <dt>msg.device <span class="property-type">object</span></dt>
+        <dd>device info</dd>
+    </dl>
+</script>

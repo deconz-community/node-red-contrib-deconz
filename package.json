@@ -10,7 +10,8 @@
     "bootstrap-multiselect": "^0.9.13-1",
     "request": "latest",
     "portscanner": "latest",
-    "ws": "latest"
+    "ws": "latest",
+    "events":"latest"
   },
   "description": "deCONZ connectivity nodes for node-red",
   "homepage": "https://github.com/andreypopov/node-red-contrib-deconz",
@@ -24,12 +25,18 @@
   "name": "node-red-contrib-deconz",
   "node-red": {
     "nodes": {
-      "server": "deconz.js"
+      "in": "nodes/in.js",
+      "get": "nodes/get.js",
+      "out": "nodes/out.js",
+      "event": "nodes/event.js",
+      "battery": "nodes/battery.js",
+      "server": "nodes/server.js",
+      "api": "deconz.js"
     }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
   },
-  "version": "0.8.3"
+  "version": "0.4.1"
 }

@@ -1,5 +1,5 @@
 function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) {
-    $.getJSON('/deconz/gwscanner', {})
+    $.getJSON('deconz/gwscanner', {})
         .done(function (data, textStatus, jqXHR) {
             console.log(data);
         }).fail(function (jqXHR, textStatus, errorThrown) {});
@@ -23,7 +23,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
 
         if (controller) {
-            $.getJSON('/deconz/itemlist', {
+            $.getJSON('deconz/itemlist', {
                 controllerID: controller.id,
                 forceRefresh: refresh
             })
@@ -183,7 +183,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         selectedItemElement.children().remove();
 
         if (controller) {
-            $.getJSON('/deconz/statelist', {
+            $.getJSON('deconz/statelist', {
                 controllerID: controller.id,
                 uniqueid:$('#node-input-device').val()
             })

@@ -1,0 +1,96 @@
+<script type='text/javascript'>
+    RED.nodes.registerType('deconz-server', {
+        category: 'config',
+        defaults: {
+            name: {
+                value: null,
+                required: false
+            },
+            ip: {
+                value: '127.0.0.1',
+                required: true
+            },
+            port: {
+                value: '80',
+                required: true
+            },
+            apikey: {
+                value: null,
+                required: true
+            },
+            ws_port: {
+                value: '443',
+                required: true
+            }
+        },
+        label: function() {
+            return this.name ||  this.ip+':'+this.port;
+        },
+        oneditprepare: function () {
+            var node = this;
+            var $refreshBtn = $('#force-refresh');
+
+            $refreshBtn.on('click', function(){
+                var currentSettings = {
+                    name:$('#node-config-input-name').val(),
+                    ip:$('#node-config-input-ip').val(),
+                    port:$('#node-config-input-port').val(),
+                };
+
+                deconz_initSettings(function(settings){
+                    if (settings.name) $('#node-config-input-name').val(settings.name);
+                    if (settings.ip) $('#node-config-input-ip').val(settings.ip);
+                    if (settings.port) $('#node-config-input-port').val(settings.port);
+                    if (settings.apikey) $('#node-config-input-apikey').val(settings.apikey);
+                    if (settings.ws_port) $('#node-config-input-ws_port').val(settings.ws_port);
+                }, currentSettings);
+            });
+        },
+    });
+</script>
+
+
+<script type="text/x-red" data-template-name="deconz-server">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip"><i class="icon-bookmark"></i> IP-address</label>
+        <input type="text" id="node-config-input-ip">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-apikey"><i class="icon-lock"></i> API Key</label>
+        <input type="text" id="node-config-input-apikey">
+    </div>
+        <div class="form-row">
+        <label for="node-config-input-port"><i class="icon-bookmark"></i> WebSocket Port</label>
+        <input type="text" id="node-config-input-ws_port">
+    </div>
+
+    <div class="form-row">
+        <label for="force-refresh"><i class="fa fa-refresh"></i> Get Settings</label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Do magic!</button>
+	</div>
+    <div class="form-row">
+         <div class="alert alert-warning"><b>Important:</b> deploy server node to get devices list</div>
+    </div>
+</script>
+
+
+<script type="text/x-red" data-help-name="deconz-server">
+    <b>Configuration</b><br>
+    <ul>
+        <li><b>Name:</b> Choose any name to identify your server.</li>
+        <li><b>IP-address:</b> IP-address of your deconz instance. Example: <code>127.0.0.1</code> or <code>192.168.1.100</code></li>
+        <li><b>Port:</b> Port of your deconz instance. Example: <code>80</code></li>
+        <li><b>API Key:</b> <a href="https://dresden-elektronik.github.io/deconz-rest-doc/authorization/" target="_blank">https://dresden-elektronik.github.io/deconz-rest-doc/authorization/</a></li>
+        <li><b>WebSocket Port:</b> Connection port</li>
+        <li><b>Get Settings:</b> Auto fetch all settings (need Internet connection)</li>
+    </ul>
+</script>
+
