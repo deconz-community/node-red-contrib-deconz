@@ -10,11 +10,13 @@ module.exports = function(RED) {
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (!node.server) {
+            if (node.server) {
+
+            } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'Server node error'
+                    text: 'server node error'
                 });
             }
 
@@ -24,7 +26,7 @@ module.exports = function(RED) {
             node.commandType = config.commandType;
             node.cleanTimer = null;
 
-            if (typeof(config.device) == 'string'  && config.device.length) {
+            // if (typeof(config.device) == 'string'  && config.device.length) {
                 node.status({}); //clean
 
                 this.on('input', function (message) {
@@ -108,48 +110,65 @@ module.exports = function(RED) {
 
                     //send data to API
                     if ((/group_/g).test(node.config.device)) {
-                        var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + ((node.config.device).split('group_').join('')) + '/action';
-                        var post = {};
-                        if (node.commandType == 'object' || node.commandType == 'homekit') {
-                            post = payload;
-                        } else {
-                            if (command != 'on') post['on'] = true;
-                            if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                            post[command] = payload;
-                        }
-
-                        node.postData(url, post);
-                    } else {
-                        node.server.getDeviceMeta(function (deviceMeta) {
-                            if (deviceMeta) {
-                                var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
-                                var post = {};
-                                if (node.commandType == 'object' || node.commandType == 'homekit') {
-                                    post = payload;
-                                } else {
-                                    if (command != 'on') post['on'] = true;
-                                    if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                                    post[command] = payload;
-                                }
-
-                                node.postData(url, post);
+                        var groupid = ((node.config.device).split('group_').join(''));
+                        var group = node.server.getGroup(groupid);
+                        if (group !== false) {
+                            var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + groupid + '/action';
+                            var post = {};
+                            if (node.commandType == 'object' || node.commandType == 'homekit') {
+                                post = payload;
                             } else {
-                                node.status({
-                                    fill: "red",
-                                    shape: "dot",
-                                    text: 'Device not found'
-                                });
+                                if (command != 'on') post['on'] = true;
+                                if (command == 'bri') post['on'] = payload > 0 ? true : false;
+                                post[command] = payload;
                             }
-                        }, node.config.device);
+
+                            node.postData(url, post);
+                        } else {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: 'no device'
+                            });
+                            node.cleanTimer = setTimeout(function(){
+                                node.status({}); //clean
+                            }, 3000);
+                        }
+                    } else {
+
+                        var deviceMeta = node.server.getDevice(node.config.device);
+                        if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
+                            var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
+                            var post = {};
+                            if (node.commandType == 'object' || node.commandType == 'homekit') {
+                                post = payload;
+                            } else {
+                                if (command != 'on') post['on'] = true;
+                                if (command == 'bri') post['on'] = payload > 0 ? true : false;
+                                post[command] = payload;
+                            }
+
+                            node.postData(url, post);
+                        } else {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: 'no device'
+                            });
+                            node.cleanTimer = setTimeout(function(){
+                                node.status({}); //clean
+                            }, 3000);
+
+                        }
                     }
                 });
-            } else {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: 'Device not set'
-                });
-            }
+            // } else {
+            //     node.status({
+            //         fill: "red",
+            //         shape: "dot",
+            //         text: 'Device not set'
+            //     });
+            // }
         }
 
 
@@ -163,7 +182,18 @@ module.exports = function(RED) {
                 url:     url,
                 form:    JSON.stringify(post)
             }, function(error, response, body){
-                if (body) {
+                if (error && typeof(error) === 'object') {
+                    node.warn(error);
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'connection',
+                    });
+
+                    node.cleanTimer = setTimeout(function(){
+                        node.status({}); //clean
+                    }, 3000);
+                } else if (body) {
                     var response = JSON.parse(body)[0];
 
                     if ('success' in response) {

@@ -8,15 +8,20 @@ module.exports = function(RED) {
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (!node.server) {
+            if (node.server) {
+                node.server.on('onClose', () => this.onClose());
+                node.server.on('onSocketError', () => this.onSocketError());
+                node.server.on('onSocketClose', () => this.onSocketClose());
+                node.server.on('onSocketOpen', () => this.onSocketOpen());
+                node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
+                node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
+            } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'Server node error'
+                    text: 'server node error'
                 });
             }
-
-            node.sendLastState();
         }
 
 
@@ -69,28 +74,27 @@ module.exports = function(RED) {
         sendLastState() {
             var node = this;
             if (typeof (node.config.device) == 'string' && node.config.device.length) {
-                node.server.getDeviceMeta(function (deviceMeta) {
-                    if (deviceMeta) {
-                        node.server.devices[node.id] = deviceMeta.uniqueid;
-                        node.meta = deviceMeta;
-                        if (node.config.outputAtStartup) {
-                            setTimeout(function(){
-                                node.sendState(deviceMeta);
-                            }, 1500); //we need this timeout after restart of node-red  (homekit delays)
-                        }
-                    } else {
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: 'Device not found'
-                        });
+                var deviceMeta = node.server.getDevice(node.config.device);
+                if (deviceMeta) {
+                    node.server.devices[node.id] = deviceMeta.uniqueid;
+                    node.meta = deviceMeta;
+                    if (node.config.outputAtStartup) {
+                        setTimeout(function(){
+                            node.sendState(deviceMeta);
+                        }, 1500); //we need this timeout after restart of node-red  (homekit delays)
                     }
-                }, node.config.device);
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'disconnected'
+                    });
+                }
             } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'Device not set'
+                    text: 'device not set'
                 });
             }
         }
@@ -112,6 +116,46 @@ module.exports = function(RED) {
             }
 
             return null;
+        }
+
+        onSocketPongTimeout() {
+            var node = this;
+            node.onSocketError();
+        }
+
+        onSocketError() {
+            var node = this;
+            node.status({
+                fill: "yellow",
+                shape: "dot",
+                text: 'reconnecting...'
+            });
+        }
+
+        onClose() {
+            var node = this;
+            node.onSocketClose();
+        }
+
+        onSocketClose() {
+            var node = this;
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: 'disconnected'
+            });
+        }
+
+        onSocketOpen() {
+            var node = this;
+            node.sendLastState();
+        }
+
+        onNewDevice(uniqueid) {
+            var node = this;
+            if (node.config.device === uniqueid) {
+                node.sendLastState();
+            }
         }
 
     }

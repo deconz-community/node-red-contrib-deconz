@@ -39,13 +39,12 @@ module.exports = function (RED) {
         var config = req.query;
         var controller = RED.nodes.getNode(config.controllerID);
         if (controller && controller.constructor.name === "ServerNode") {
-            controller.getDeviceMeta(function (items) {
-                if (items) {
-                    res.json(items.state);
-                } else {
-                    res.status(404).end();
-                }
-            }, config.uniqueid);
+            var item = controller.getDevice(config.uniqueid);
+            if (item) {
+                res.json(item.state);
+            } else {
+                res.status(404).end();
+            }
         } else {
             res.status(404).end();
         }
