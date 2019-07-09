@@ -210,11 +210,11 @@ module.exports = function(RED) {
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
 
-                if ("event" == item && "t" in dataParsed && dataParsed.t == "event") {
+                if ("event" === item && "t" in dataParsed && dataParsed.t == "event") {
                     var node = RED.nodes.getNode(nodeId);
-                    if (node && "type" in node && node.type === "deconz-event" && serverNode && "items" in serverNode && dataParsed.uniqueid in serverNode.items) {
-                        var serverNode = RED.nodes.getNode(node.server.id);
-                        node.send({'payload': dataParsed, 'device': serverNode.items[dataParsed.uniqueid]});
+                    var serverNode = RED.nodes.getNode(node.server.id);
+                    if (node && "type" in node && node.type === "deconz-event" && serverNode && "items" in serverNode) {
+                        node.send({'payload': dataParsed});
                         clearTimeout(node.cleanTimer);
                         node.status({
                             fill: "green",
