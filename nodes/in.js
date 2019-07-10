@@ -86,10 +86,6 @@ module.exports = function(RED) {
                 }
 
                 //outputs
-                if ( node.config.state in device.state && node.config.outputChangeOnly && device.state[node.config.state] == node.oldState ) {
-                    return;
-                }
-                node.oldState = device.state[node.config.state];
                 node.send([
                     {
                         payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
