@@ -21,6 +21,10 @@
             ws_port: {
                 value: '443',
                 required: true
+            },
+            secure: {
+                value: false,
+                required: true
             }
         },
         label: function() {
@@ -51,29 +55,34 @@
 
 
 <script type="text/x-red" data-template-name="deconz-server">
+    <link rel="stylesheet" href="deconz/static/css/server.css" type="text/css" />
+
     <div class="form-row">
-        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <label for="node-config-input-name" class="w130"><i class="icon-bookmark"></i> Name</label>
         <input type="text" id="node-config-input-name">
     </div>
     <div class="form-row">
-        <label for="node-config-input-ip"><i class="icon-bookmark"></i> IP-address</label>
+        <label for="node-config-input-ip" class="w130"><i class="icon-globe"></i> IP-address</label>
         <input type="text" id="node-config-input-ip">
     </div>
     <div class="form-row">
-        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+        <label for="node-config-input-port" class="w130"><i class="icon-tag"></i> Port</label>
         <input type="text" id="node-config-input-port">
     </div>
     <div class="form-row">
-        <label for="node-config-input-apikey"><i class="icon-lock"></i> API Key</label>
+        <label for="node-config-input-apikey" class="w130"><i class="icon-lock"></i> API Key</label>
         <input type="text" id="node-config-input-apikey">
     </div>
         <div class="form-row">
-        <label for="node-config-input-port"><i class="icon-bookmark"></i> WebSocket Port</label>
+        <label for="node-config-input-ws_port" class="w130"><i class="icon-tag"></i> WebSocket Port</label>
         <input type="text" id="node-config-input-ws_port">
     </div>
-
     <div class="form-row">
-        <label for="force-refresh"><i class="fa fa-refresh"></i> Get Settings</label>
+        <label for="node-config-input-secure" class="w130"><i class="icon-tag"></i> SSL</label>
+        <input type="checkbox" id="node-config-input-secure" style="display: inline-block; width: auto; vertical-align: top;"> Use secured SSL connection</input>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="w130"><i class="fa fa-refresh"></i> Get Settings</label>
         <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Do magic!</button>
 	</div>
     <div class="form-row">

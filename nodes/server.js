@@ -15,6 +15,7 @@ module.exports = function(RED) {
             node.ip = n.ip;
             node.port = n.port;
             node.ws_port = n.ws_port;
+            node.secure = n.secure || false;
             node.apikey = n.apikey;
             node.devices = {};
 
@@ -26,7 +27,7 @@ module.exports = function(RED) {
             node.socket = new DeconzSocket({
                 hostname: this.ip,
                 port: this.ws_port,
-                secure: false
+                secure: this.secure
             });
             node.socket.on('close', (code, reason) => this.onSocketClose(code, reason));
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
@@ -168,10 +169,13 @@ module.exports = function(RED) {
         }
 
         onClose() {
-            clearInterval(this.refreshDiscoverTimer);
-            this.socket.close();
-            this.socket = null;
-            this.emit('onClose');
+            var that = this;
+            that.warn('WebSocket connection closed');
+            that.emit('onClose');
+
+            clearInterval(that.refreshDiscoverTimer);
+            that.socket.close();
+            that.socket = null;
         }
 
         onSocketPongTimeout() {
