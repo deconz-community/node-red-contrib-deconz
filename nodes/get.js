@@ -20,6 +20,7 @@ module.exports = function(RED) {
                 });
             }
 
+
             if (typeof(config.device) == 'string'  && config.device.length) {
                 node.status({}); //clean
 
@@ -28,27 +29,7 @@ module.exports = function(RED) {
 
                     var deviceMeta = node.server.getDevice(node.config.device);
 
-                    if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        var group = node.server.getGroup(groupid);
-                        node.meta = group
-                        if (group !== false) {
-                            node.send({
-                                payload:node.meta.state['any_on'],
-                                meta:group,
-                            });
-                        } else {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: 'no device'
-                            });
-                            node.cleanTimer = setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-                        }
-                    
-                    } else if (deviceMeta) {
+                    if (deviceMeta) {
                         node.server.devices[node.id] = deviceMeta.uniqueid;
 
                         node.meta = deviceMeta;
