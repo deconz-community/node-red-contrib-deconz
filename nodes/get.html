@@ -43,13 +43,13 @@
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
                 $deviceInput.on('change', function(){
-                    deconz_getItemStateList(0, '#node-input-state');
+                    deconz_getItemStateList(0, '#node-input-state', {groups:true});
                 });
                 setTimeout(function () {
-                    deconz_getItemStateList(node.state, '#node-input-state');
+                    deconz_getItemStateList(node.state, '#node-input-state', {groups:true});
                 },100);
             }, 100); //we need small timeout, too fire change event for server select
 
