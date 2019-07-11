@@ -89,7 +89,11 @@ module.exports = function(RED) {
                 if ( node.config.state in device.state && node.config.outputChangeOnly && device.state[node.config.state] == node.oldState ) {
                     return;
                 }
+                if ( node.config.state in device.state && node.config.outputOnUpdateOnly && device.state['lastupdated'] == node.prevUpdateTime ) {
+                    return;
+                }
                 node.oldState = device.state[node.config.state];
+                node.prevUpdateTime = device.state['lastupdated'];
                 node.send([
                     {
                         payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,

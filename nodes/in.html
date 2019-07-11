@@ -27,6 +27,10 @@
             outputChangeOnly: {
                 value: false,
                 required: true,
+            },
+            outputOnUpdateOnly: {
+                value: false,
+                required: true,
             }
         },
         inputs: 0,
@@ -106,7 +110,11 @@
     </div>
     <div class='form-row'>
         <label for='node-input-outputChangeOnly'><i class='fa fa-share-square'></i> Only on change</label>
-        <input type='checkbox' id='node-input-outputChangeOnly' style='width:auto; margin: 0;' checked="checked">
+        <input type='checkbox' id='node-input-outputChangeOnly' style='width:auto; margin: 0;'>
+    </div>
+    <div class='form-row'>
+        <label for='node-input-outputOnUpdateOnly'><i class='fa fa-share-square'></i> Only on update</label>
+        <input type='checkbox' id='node-input-outputOnUpdateOnly' style='width:auto; margin: 0;'>
     </div>
 </script>
 
@@ -121,6 +129,7 @@
         <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
         <li><b>Start output:</b> Output state at startup.</li>
         <li><b>Only on change:</b> Output only when state changes. (Only works when specific state output is selected.)</li>
+        <li><b>Only on update:</b> Output only when 'lastupdated' field changes. (This can be useful for switches and only works when specific state output is selected.)</li>
     </ul>
 
     <h3>Outputs</h3>
