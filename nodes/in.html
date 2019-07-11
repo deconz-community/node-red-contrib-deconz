@@ -25,7 +25,7 @@
                 required: true,
             },
             outputChangeOnly: {
-                value: true,
+                value: false,
                 required: true,
             }
         },
@@ -120,6 +120,7 @@
         <li><b>Device:</b> Select channel to listen to.</li>
         <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
         <li><b>Start output:</b> Output state at startup.</li>
+        <li><b>Only on change:</b> Output only when state changes. (Only works when specific state output is selected.)</li>
     </ul>
 
     <h3>Outputs</h3>
