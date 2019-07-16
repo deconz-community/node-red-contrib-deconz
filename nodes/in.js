@@ -86,18 +86,12 @@ module.exports = function(RED) {
                 }
 
                 //outputs
-		console.log(node.config.state)
-		console.log(device.state)
-		console.log(node.config.output)
-		console.log(device.state[node.config.state])
-		console.log(node.oldState)
                 if ( node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState ) {
                     return;
                 }
                 if ( node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ) {
                     return;
                 }
-		console.log(device)
                 node.oldState = device.state[node.config.state];
                 node.prevUpdateTime = device.state['lastupdated'];
                 node.send([
