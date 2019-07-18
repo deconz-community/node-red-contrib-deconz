@@ -86,8 +86,8 @@ module.exports = function(RED) {
                         text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
                     });
                 }
-                if (!node.oldState && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
-                if (!node.prevUpdateTime && device.state['lastupdated']) { node.prevUpdateTime = device.state['lastupdated']; }
+                if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
+                if (node.prevUpdateTime === undefined && device.state['lastupdated']) { node.prevUpdateTime = device.state['lastupdated']; }
                 return(device)
             }
         };
@@ -98,21 +98,19 @@ module.exports = function(RED) {
             if(!device) { return; }
 
             //outputs
-            if ( node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState ) {
-                return;
-            }
-            if ( node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ) {
-                return;
+            if ( !(node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState) && 
+                 !(node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ))
+            {
+                node.send([
+                    {
+                        payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                        payload_raw: device
+                    },
+                    node.formatHomeKit(device)
+                ]);
             }
             node.oldState = device.state[node.config.state];
             node.prevUpdateTime = device.state['lastupdated'];
-            node.send([
-                {
-                    payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                    payload_raw: device
-                },
-                node.formatHomeKit(device)
-            ]);
         };
 
         formatHomeKit(device, options) {
