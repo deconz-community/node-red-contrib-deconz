@@ -49,8 +49,8 @@
             var node = this;
 
             var updateOutput = function () {
-		var selectedState = $('#node-input-state option:selected').val();
-		var selectedDevice = $('#node-input-device option:selected').val();
+                var selectedState = $('#node-input-state option:selected').val();
+                var selectedDevice = $('#node-input-device option:selected').val();
 
                 if ( (selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
                    $("#node-input-output").removeAttr("disabled");
@@ -61,9 +61,9 @@
 
             $('#node-input-state').change(function() {
                 state = $('#node-input-state option:selected').val();
-	        if (state) { node.state = state; }
-	        updateOutput();
-	    });
+                if (state) { node.state = state; }
+                updateOutput();
+            });
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
@@ -72,14 +72,14 @@
                 $deviceInput.on('change', function(){
                     deconz_getItemStateList(0, '#node-input-state');
                     device = $('#node-input-device option:selected').val();
-			if (!device.match(/^\d/)) { node.state = 0; }
-	            updateOutput();
+                        if (!device.match(/^\d/)) { node.state = 0; }
+                    updateOutput();
                 });
                 setTimeout(function () {
                     deconz_getItemStateList(node.state, '#node-input-state');
                 },100);
 
-		if (!node.output) { $("#node-input-output").val('always'); }
+                if (!node.output) { $("#node-input-output").val('always'); }
 
             }, 100); //we need small timeout, too fire change event for server select
         },
@@ -117,7 +117,7 @@
     <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
         <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
-	</div>
+        </div>
     <div class="form-row">
         <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
         <select id="node-input-state"></select>

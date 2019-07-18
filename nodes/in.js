@@ -145,15 +145,15 @@ module.exports = function(RED) {
 
                 if (state['buttonevent'] !== undefined){
                     //https://github.com/dresden-elektronik/deconz-rest-plugin/wiki/Xiaomi-WXKG01LM
-                    // Event	Button	Action
-                    // 1000	    One	    initial press
-                    // 1001   	One	    single hold
-                    // 1002	    One	    single short release
-                    // 1003	    One	    single hold release
-                    // 1004   	One	    double short press
-                    // 1005	    One	    triple short press
-                    // 1006	    One	    quad short press
-                    // 1010	    One	    five+ short press
+                    // Event        Button        Action
+                    // 1000            One            initial press
+                    // 1001           One            single hold
+                    // 1002            One            single short release
+                    // 1003            One            single hold release
+                    // 1004           One            double short press
+                    // 1005            One            triple short press
+                    // 1006            One            quad short press
+                    // 1010            One            five+ short press
                     if ([1002,2002,3002,4002,5002].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 0;
                     else if ([1004,2004,3004,4004,5004].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 1;
                     else if ([1001,2001,3001,4001,5001].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 2;
