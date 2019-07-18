@@ -39,7 +39,6 @@ module.exports = function (RED) {
         var config = req.query;
         var controller = RED.nodes.getNode(config.controllerID);
         if (controller && controller.constructor.name === "ServerNode") {
-            console.log(config);
             if (config.uniqueid.match(/^group_/)) {
                 var groupid = ((config.uniqueid).split('group_').join(''));
                 var item = controller.getGroup(groupid);
