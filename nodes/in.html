@@ -64,15 +64,16 @@
                 if (state) { node.state = state; }
                 updateOutput();
             });
+            //$('#node-input-device').change(updateOutput)
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true});
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
                 $deviceInput.on('change', function(){
                     deconz_getItemStateList(0, '#node-input-state');
                     device = $('#node-input-device option:selected').val();
-                        if (!device.match(/^\d/)) { node.state = 0; }
+                    if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
                     updateOutput();
                 });
                 setTimeout(function () {
@@ -146,7 +147,7 @@
         <li><b>Device:</b> Select channel to listen to.</li>
         <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
         <li><b>Output:</b></li>
-        <ul>
+        <ul> 
             <li><b>On state change:</b> Output only when state changes. (Only works when specific state output is selected.)</li>
             <li><b>On update:</b> Output only when 'lastupdated' field changes. (This can be useful for switches and only works when specific state output is selected.)</li>
         </ul>

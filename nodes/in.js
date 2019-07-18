@@ -39,6 +39,7 @@ module.exports = function(RED) {
                     } else {
                         setTimeout(function () {
                             node.status({}); //clean
+                            node.getState(deviceMeta);
                         }, 1500); //update status with the same delay
                     }
                 } else {
@@ -57,10 +58,11 @@ module.exports = function(RED) {
             }
         }
 
-        sendState(device) {
+        getState(device) {
             var node = this;
 
             if (device.state === undefined) {
+                return;
                 // console.log("CODE: #66");
                 // console.log(device);
             } else {
@@ -84,24 +86,33 @@ module.exports = function(RED) {
                         text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
                     });
                 }
-
-                //outputs
-                if ( node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState ) {
-                    return;
-                }
-                if ( node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ) {
-                    return;
-                }
-                node.oldState = device.state[node.config.state];
-                node.prevUpdateTime = device.state['lastupdated'];
-                node.send([
-                    {
-                        payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                        payload_raw: device
-                    },
-                    node.formatHomeKit(device)
-                ]);
+                if (!node.oldState && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
+                if (!node.prevUpdateTime && device.state['lastupdated']) { node.prevUpdateTime = device.state['lastupdated']; }
+                return(device)
             }
+        };
+
+        sendState(device) {
+            var node = this;
+            device = node.getState(device);
+            if(!device) { return; }
+
+            //outputs
+            if ( node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState ) {
+                return;
+            }
+            if ( node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ) {
+                return;
+            }
+            node.oldState = device.state[node.config.state];
+            node.prevUpdateTime = device.state['lastupdated'];
+            node.send([
+                {
+                    payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                    payload_raw: device
+                },
+                node.formatHomeKit(device)
+            ]);
         };
 
         formatHomeKit(device, options) {
