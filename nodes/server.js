@@ -226,10 +226,12 @@ module.exports = function(RED) {
 
         onSocketMessage(dataParsed) {
             if (dataParsed.r == "scenes") { return; }
-            if (dataParsed.r == "groups") {
-               var groupid = dataParsed.id;
+
+            var groupid = dataParsed.id;
+            if (dataParsed.r == "groups" && this.groups[groupid]) {
+               console.log(dataParsed.state)
                var state = dataParsed.state
-               if (state) { this.groups[groupid].state = state; }
+               this.groups[groupid].state = state;
             }
 
             for (var nodeId in this.devices) {
