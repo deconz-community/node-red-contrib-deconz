@@ -228,7 +228,7 @@ module.exports = function(RED) {
             if (dataParsed.r == "scenes") { return; }
 
             var groupid = dataParsed.id;
-            if (dataParsed.r == "groups" && this.groups[groupid]) {
+            if (dataParsed.r == "groups" && groupid in this.groups) {
                var state = dataParsed.state
                this.groups[groupid].state = state;
             }
