@@ -39,6 +39,7 @@ module.exports = function(RED) {
                     } else {
                         setTimeout(function () {
                             node.status({}); //clean
+                            node.getState(deviceMeta);
                         }, 1500); //update status with the same delay
                     }
                 } else {
@@ -57,10 +58,11 @@ module.exports = function(RED) {
             }
         }
 
-        sendState(device) {
+        getState(device) {
             var node = this;
 
             if (device.state === undefined) {
+                return;
                 // console.log("CODE: #66");
                 // console.log(device);
             } else {
@@ -84,16 +86,21 @@ module.exports = function(RED) {
                         text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
                     });
                 }
+                if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
+                if (node.prevUpdateTime === undefined && device.state['lastupdated']) { node.prevUpdateTime = device.state['lastupdated']; }
+                return(device)
+            }
+        };
 
-                //outputs
-                if ( node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState ) {
-                    return;
-                }
-                if ( node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ) {
-                    return;
-                }
-                node.oldState = device.state[node.config.state];
-                node.prevUpdateTime = device.state['lastupdated'];
+        sendState(device) {
+            var node = this;
+            device = node.getState(device);
+            if(!device) { return; }
+
+            //outputs
+            if ( !(node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState) && 
+                 !(node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ))
+            {
                 node.send([
                     {
                         payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
@@ -102,6 +109,8 @@ module.exports = function(RED) {
                     node.formatHomeKit(device)
                 ]);
             }
+            node.oldState = device.state[node.config.state];
+            node.prevUpdateTime = device.state['lastupdated'];
         };
 
         formatHomeKit(device, options) {
@@ -145,15 +154,15 @@ module.exports = function(RED) {
 
                 if (state['buttonevent'] !== undefined){
                     //https://github.com/dresden-elektronik/deconz-rest-plugin/wiki/Xiaomi-WXKG01LM
-                    // Event	Button	Action
-                    // 1000	    One	    initial press
-                    // 1001   	One	    single hold
-                    // 1002	    One	    single short release
-                    // 1003	    One	    single hold release
-                    // 1004   	One	    double short press
-                    // 1005	    One	    triple short press
-                    // 1006	    One	    quad short press
-                    // 1010	    One	    five+ short press
+                    // Event        Button        Action
+                    // 1000            One            initial press
+                    // 1001           One            single hold
+                    // 1002            One            single short release
+                    // 1003            One            single hold release
+                    // 1004           One            double short press
+                    // 1005            One            triple short press
+                    // 1006            One            quad short press
+                    // 1010            One            five+ short press
                     if ([1002,2002,3002,4002,5002].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 0;
                     else if ([1004,2004,3004,4004,5004].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 1;
                     else if ([1001,2001,3001,4001,5001].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 2;
