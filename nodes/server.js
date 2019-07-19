@@ -102,6 +102,20 @@ module.exports = function(RED) {
                             node.items[prop.uniqueid] = prop;
                         }
 
+                        for (var index in dataParsed.groups) {
+                            var prop = dataParsed.groups[index];
+                            prop.device_type = 'groups';
+                            var groupid = "group_" + parseInt(index);
+                            prop.device_id = groupid;
+                            prop.uniqueid = groupid;
+
+                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                                node.items[prop.uniqueid] = prop;
+                                node.emit("onNewDevice", prop.uniqueid);
+                            }
+                            node.items[prop.uniqueid] = prop;
+                        }
+
                         if ("groups" in dataParsed) {
                             node.groups = dataParsed.groups;
                         }
@@ -211,9 +225,20 @@ module.exports = function(RED) {
         }
 
         onSocketMessage(dataParsed) {
+            if (dataParsed.r == "scenes") { return; }
+            if (dataParsed.r == "groups") {
+               var groupid = dataParsed.id;
+               var state = dataParsed.state
+               this.groups[groupid].state = state;
+            }
+
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
 
+                if (dataParsed.r == "groups" && item.match(/^group_/)) {
+                    var node = RED.nodes.getNode(nodeId);
+                    if (node.type === "deconz-input") { node.sendState(this.groups[dataParsed.id]); }
+                }
                 if ("event" === item && "t" in dataParsed && dataParsed.t == "event") {
                     var node = RED.nodes.getNode(nodeId);
                     var serverNode = RED.nodes.getNode(node.server.id);
