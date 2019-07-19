@@ -229,7 +229,7 @@ module.exports = function(RED) {
             if (dataParsed.r == "groups") {
                var groupid = dataParsed.id;
                var state = dataParsed.state
-               this.groups[groupid].state = state;
+               if (state) { this.groups[groupid].state = state; }
             }
 
             for (var nodeId in this.devices) {
