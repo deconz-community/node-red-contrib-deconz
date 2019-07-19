@@ -229,7 +229,6 @@ module.exports = function(RED) {
 
             var groupid = dataParsed.id;
             if (dataParsed.r == "groups" && this.groups[groupid]) {
-               console.log(dataParsed.state)
                var state = dataParsed.state
                this.groups[groupid].state = state;
             }
