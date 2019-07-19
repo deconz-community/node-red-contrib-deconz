@@ -215,12 +215,8 @@ module.exports = function(RED) {
             if (dataParsed.r == "groups") {
                var groupid = dataParsed.id;
                var state = dataParsed.state
-               for (var group in this.groups) {
-                   if ( group[groupid] && group[groupid] == groupid ) {
-                       this.groups[groupid].state = state;
-                       return;
-                   }
-               }
+               this.groups[groupid].state = state;
+               return;
             }
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
