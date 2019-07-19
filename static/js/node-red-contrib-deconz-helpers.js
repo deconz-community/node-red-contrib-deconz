@@ -116,7 +116,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         // // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
-                        selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
+                        selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
                     } catch (error) {
                         console.error('Error #4534');
                         console.log(error);
@@ -207,7 +207,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
                         // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
-                        selectItemSpanElement.html(truncateWithEllipses(sHTML, 35));
+                        selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
 
                     } catch (error) {
                         console.error('Error #4534');
@@ -383,4 +383,19 @@ function deconz_getApiKey(callback, ip, port) {
 
         }
     });
+}
+
+
+/**
+ * truncateWithEllipses
+ *
+ * Utility function to truncate long strings with elipsis ('...')
+ *
+ */
+function deconz_truncateWithEllipses(text, max = 30) {
+    if (text) {
+        return text.substr(0, max - 1) + (text.length > max ? '&hellip;' : '');
+    } else {
+        return text;
+    }
 }

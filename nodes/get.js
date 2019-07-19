@@ -26,33 +26,16 @@ module.exports = function(RED) {
                 node.on('input', function (message) {
                     clearTimeout(node.cleanTimer);
 
-                    var deviceMeta = node.server.getDevice(node.config.device);
-
                     if ((/group_/g).test(node.config.device)) {
                         var groupid = ((node.config.device).split('group_').join(''));
-                        var group = node.server.getGroup(groupid);
-                        node.meta = group
-                        if (group !== false) {
-                            node.send({
-                                payload:node.meta.state['any_on'],
-                                meta:group,
-                            });
-                        } else {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: 'no device'
-                            });
-                            node.cleanTimer = setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-                        }
-                    
-                    } else if (deviceMeta) {
+                        var deviceMeta = node.server.getGroup(groupid);
+                    } else {
+                        var deviceMeta = node.server.getDevice(node.config.device);
+                    }
+
+                    if (deviceMeta) {
                         node.server.devices[node.id] = deviceMeta.uniqueid;
-
                         node.meta = deviceMeta;
-
 
                         //status
                         if ("state" in deviceMeta && "reachable" in deviceMeta.state && deviceMeta.state.reachable === false) {
@@ -80,7 +63,6 @@ module.exports = function(RED) {
                             });
                         }
 
-
                         node.cleanTimer = setTimeout(function(){
                             node.status({}); //clean
                         }, 3000);
@@ -105,9 +87,3 @@ module.exports = function(RED) {
 
     RED.nodes.registerType('deconz-get', deConzItemGet);
 };
-
-
-
-
-
-
