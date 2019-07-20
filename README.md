@@ -20,4 +20,4 @@ https://youtu.be/i3TiZiuNofM
 
 
 # Support
-Developing and supporting this plugin needs time and efforts. Appreciate your support on [Patreon](https://www.patreon.com/popov). Here, you can sign up to be a member and help support my project.
+Developing and supporting this plugin needs time and efforts. Appreciate your support on [Patreon](https://www.patreon.com/bePatron?u=12661781). Here, you can sign up to be a member and help support my project.
