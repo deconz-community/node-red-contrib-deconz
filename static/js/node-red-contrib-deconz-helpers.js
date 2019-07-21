@@ -39,13 +39,35 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         // var selected = false;
                         var groupHtml = '';
 
+                        var itemList = [];
+                        var groupList = [];
+                        $.each(data.items, function(index, value) {
+                            if (value.meta.device_type === "groups") {
+                                groupList.push(value)
+                            } else {
+                                itemList.push(value)
+                            }
+                        });
+                        var itemsByName = itemList.slice(0);
+                        if ( groupList.length > 0 ) {
+                            var groupsByName = groupList.slice(0);
+                            groupsByName.sort(function(a,b) {
+                                var x = a.device_name.toLowerCase();
+                                var y = b.device_name.toLowerCase();
+                                return x < y ? -1 : x > y ? 1 : 0;
+                            });
+                        }
+                        itemsByName.sort(function(a,b) {
+                            var x = a.device_name.toLowerCase();
+                            var y = b.device_name.toLowerCase();
+                            return x < y ? -1 : x > y ? 1 : 0;
+                        });
 
-
-                        if (options.groups) {
+                        if (options.groups && groupsByName) {
                             groupHtml = $('<optgroup/>', { label: "Groups" });
                             groupHtml.appendTo(selectedItemElement);
 
-                            $.each(data.items, function(index, value) {
+                            $.each(groupsByName, function(index, value) {
                                 if (value.meta.device_type == "groups") {
                                     $('<option  value="group_' + value.meta.id +'">' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
                                 }
@@ -55,7 +77,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             groupHtml.appendTo(selectedItemElement);
                         }
 
-                        $.each(data.items, function(index, value) {
+                        $.each(itemsByName, function(index, value) {
                             disabled = '';
                             nameSuffix = '';
 
