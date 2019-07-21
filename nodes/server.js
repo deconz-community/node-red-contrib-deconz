@@ -8,7 +8,6 @@ module.exports = function(RED) {
 
             var node = this;
             node.items = undefined;
-            node.groups = undefined;
             node.items_list = undefined;
             node.discoverProcess = false;
             node.name = n.name;
@@ -102,8 +101,18 @@ module.exports = function(RED) {
                             node.items[prop.uniqueid] = prop;
                         }
 
-                        if ("groups" in dataParsed) {
-                            node.groups = dataParsed.groups;
+                        for (var index in dataParsed.groups) {
+                            var prop = dataParsed.groups[index];
+                            prop.device_type = 'groups';
+                            var groupid = "group_" + parseInt(index);
+                            prop.device_id = groupid;
+                            prop.uniqueid = groupid;
+
+                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                                node.items[prop.uniqueid] = prop;
+                                node.emit("onNewDevice", prop.uniqueid);
+                            }
+                            node.items[prop.uniqueid] = prop;
                         }
                     }
 
@@ -138,17 +147,6 @@ module.exports = function(RED) {
             return result;
         }
 
-        getGroup(groupid) {
-            var node = this;
-            var result = false;
-
-            if (node.groups !== undefined && groupid in node.groups) {
-                result = node.groups[groupid];
-            }
-
-            return result;
-        }
-
         getItemsList(callback, forceRefresh = false) {
             var node = this;
             node.discoverDevices(function(items){
@@ -163,7 +161,7 @@ module.exports = function(RED) {
                     });
                 }
 
-                callback(node.items_list, node.groups);
+                callback(node.items_list);
                 return node.items_list;
             }, forceRefresh);
         }
@@ -211,11 +209,19 @@ module.exports = function(RED) {
         }
 
         onSocketMessage(dataParsed) {
+            if (dataParsed.r == "scenes") { return; }
+
+            var groupid = dataParsed.id;
+            if (dataParsed.r == "groups" && groupid in this.groups) {
+               var state = dataParsed.state
+               this.groups[groupid].state = state;
+            }
+
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
+                var node = RED.nodes.getNode(nodeId);
 
                 if ("event" === item && "t" in dataParsed && dataParsed.t == "event") {
-                    var node = RED.nodes.getNode(nodeId);
                     var serverNode = RED.nodes.getNode(node.server.id);
                     if (node && "type" in node && node.type === "deconz-event" && serverNode && "items" in serverNode) {
                         node.send({'payload': dataParsed});
@@ -231,8 +237,12 @@ module.exports = function(RED) {
                     }
                 }
 
-                if (dataParsed.uniqueid === item) {
-                    var node = RED.nodes.getNode(nodeId);
+                if (dataParsed.r == "groups" && item.match(/^group_/) && node && "server" in node) {
+                    var groupid = "group_" + dataParsed.id;
+                    if (node.type === "deconz-input" && item === groupid) {
+                        node.sendState(this.groups[dataParsed.id]);
+                    }
+                } else if (dataParsed.uniqueid === item) {
                     if (node && "server" in node) {
                         //update server items db
                         var serverNode = RED.nodes.getNode(node.server.id);

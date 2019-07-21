@@ -25,13 +25,7 @@ module.exports = function(RED) {
 
                 node.on('input', function (message) {
                     clearTimeout(node.cleanTimer);
-
-                    if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        var deviceMeta = node.server.getGroup(groupid);
-                    } else {
-                        var deviceMeta = node.server.getDevice(node.config.device);
-                    }
+                    var deviceMeta = node.server.getDevice(node.config.device);
 
                     if (deviceMeta) {
                         node.server.devices[node.id] = deviceMeta.uniqueid;

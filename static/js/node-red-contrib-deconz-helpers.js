@@ -41,12 +41,14 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
 
 
-                        if (options.groups && data.groups) {
+                        if (options.groups) {
                             groupHtml = $('<optgroup/>', { label: "Groups" });
                             groupHtml.appendTo(selectedItemElement);
 
-                            $.each(data.groups, function(index, value) {
-                                $('<option  value="group_' + value.id +'">' +value.name +' (lights: '+value.lights.length+')</option>').appendTo(groupHtml);
+                            $.each(data.items, function(index, value) {
+                                if (value.meta.device_type == "groups") {
+                                    $('<option  value="group_' + value.meta.id +'">' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
+                                }
                             });
 
                             groupHtml = $('<optgroup/>', { label: "Devices" });
@@ -56,6 +58,10 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         $.each(data.items, function(index, value) {
                             disabled = '';
                             nameSuffix = '';
+
+                            if (value.meta.device_type === "groups") {
+                                return;
+                            }
 
                             if (options.deviceType && options.deviceType != value.meta.device_type) {
                                 return true;
@@ -103,7 +109,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
 
-                            var parentElement = (options.groups && data.groups.length)?groupHtml:selectedItemElement;
+                            var parentElement = (options.groups)?groupHtml:selectedItemElement;
                             $('<option '+disabled+' value="' + value.uniqueid +'">' +value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
