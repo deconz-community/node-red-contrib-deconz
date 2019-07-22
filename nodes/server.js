@@ -210,7 +210,7 @@ module.exports = function(RED) {
 
         onSocketMessage(dataParsed) {
             var that = this;
-	    that.emit('onSocketMessage', dataParsed);
+            that.emit('onSocketMessage', dataParsed);
 
             if (dataParsed.r == "scenes") { return; }
 
