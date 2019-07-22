@@ -18,16 +18,16 @@ module.exports = function(RED) {
             node.apikey = n.apikey;
             node.devices = {};
 
+            node.setMaxListeners(255);
             node.refreshDiscoverTimer = null;
             node.refreshDiscoverInterval = 15000;
-
-
 
             node.socket = new DeconzSocket({
                 hostname: this.ip,
                 port: this.ws_port,
                 secure: this.secure
             });
+
             node.socket.on('close', (code, reason) => this.onSocketClose(code, reason));
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
             node.socket.on('open', () => this.onSocketOpen());
@@ -209,6 +209,9 @@ module.exports = function(RED) {
         }
 
         onSocketMessage(dataParsed) {
+            var that = this;
+	    that.emit('onSocketMessage', dataParsed);
+
             if (dataParsed.r == "scenes") { return; }
 
             if (dataParsed.r == "groups") {
@@ -218,22 +221,6 @@ module.exports = function(RED) {
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
                 var node = RED.nodes.getNode(nodeId);
-
-                if ("event" === item && "t" in dataParsed && dataParsed.t == "event") {
-                    var serverNode = RED.nodes.getNode(node.server.id);
-                    if (node && "type" in node && node.type === "deconz-event" && serverNode && "items" in serverNode) {
-                        node.send({'payload': dataParsed});
-                        clearTimeout(node.cleanTimer);
-                        node.status({
-                            fill: "green",
-                            shape: "dot",
-                            text: 'event'
-                        });
-                        node.cleanTimer = setTimeout(function () {
-                            node.status({}); //clean
-                        }, 3000);
-                    }
-                }
 
                 if (dataParsed.uniqueid === item) {
                     if (node && "server" in node) {
