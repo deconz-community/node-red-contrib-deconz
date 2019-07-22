@@ -125,57 +125,34 @@ module.exports = function(RED) {
 
 
                     //send data to API
-                    if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        var group = node.server.getGroup(groupid);
-                        if (group !== false) {
+                    var deviceMeta = node.server.getDevice(node.config.device);
+                    if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
+                        if ((/group_/g).test(node.config.device)) {
+                            var groupid = ((node.config.device).split('group_').join(''));
                             var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + groupid + '/action';
-                            var post = {};
-                            if (node.commandType == 'object' || node.commandType == 'homekit') {
-                                post = payload;
-                            } else {
-                                if (command != 'on') post['on'] = true;
-                                if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                                post[command] = payload;
-                            }
-
-                            node.postData(url, post);
                         } else {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: 'no device'
-                            });
-                            node.cleanTimer = setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-                        }
-                    } else {
-
-                        var deviceMeta = node.server.getDevice(node.config.device);
-                        if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
                             var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
-                            var post = {};
-                            if (node.commandType == 'object' || node.commandType == 'homekit') {
-                                post = payload;
-                            } else {
-                                if (command != 'on') post['on'] = true;
-                                if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                                post[command] = payload;
-                            }
-
-                            node.postData(url, post);
-                        } else {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: 'no device'
-                            });
-                            node.cleanTimer = setTimeout(function(){
-                                node.status({}); //clean
-                            }, 3000);
-
                         }
+                        var post = {};
+                        if (node.commandType == 'object' || node.commandType == 'homekit') {
+                            post = payload;
+                        } else {
+                            if (command != 'on') post['on'] = true;
+                            if (command == 'bri') post['on'] = payload > 0 ? true : false;
+                            post[command] = payload;
+                        }
+
+                        node.postData(url, post);
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'no device'
+                        });
+                        node.cleanTimer = setTimeout(function(){
+                            node.status({}); //clean
+                        }, 3000);
+
                     }
                 });
             // } else {

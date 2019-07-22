@@ -83,7 +83,7 @@
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:false});
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
                 $deviceInput.on("change", function(){
                     deconz_getItemStateList(0, '#node-input-state');
