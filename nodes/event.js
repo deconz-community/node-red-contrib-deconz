@@ -17,6 +17,7 @@ module.exports = function(RED) {
                 node.server.on('onSocketError', () => this.onSocketError());
                 node.server.on('onSocketClose', () => this.onSocketClose());
                 node.server.on('onSocketOpen', () => this.onSocketOpen());
+                node.server.on('onSocketMessage', (data) => this.onSocketMessage(data));
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
             } else {
                 node.status({
@@ -66,6 +67,24 @@ module.exports = function(RED) {
         onSocketOpen() {
             var node = this;
             node.sendLastState();
+        }
+
+        onSocketMessage(data) {
+            var node = this;
+            // console.log(data);
+            if ("t" in data && data.t === "event") {
+                node.send({'payload': data});
+                clearTimeout(node.cleanTimer);
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: 'event'
+                });
+                node.cleanTimer = setTimeout(function () {
+                    node.status({}); //clean
+                }, 3000);
+            }
+
         }
 
     }
