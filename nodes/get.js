@@ -11,7 +11,24 @@ module.exports = function(RED) {
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
-
+                if (typeof (node.config.device) == 'string' && node.config.device.length) {
+                    var deviceMeta = node.server.getDevice(node.config.device);
+                    if (deviceMeta !== undefined && deviceMeta && "uniqueid" in deviceMeta) {
+                        node.server.devices[node.id] = deviceMeta.uniqueid; //regisgter node in devices list
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'Error'
+                        });
+                    }
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'device not set'
+                    });
+                }
             } else {
                 node.status({
                     fill: "red",

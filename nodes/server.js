@@ -211,10 +211,8 @@ module.exports = function(RED) {
         onSocketMessage(dataParsed) {
             if (dataParsed.r == "scenes") { return; }
 
-            var groupid = dataParsed.id;
-            if (dataParsed.r == "groups" && groupid in this.groups) {
-               var state = dataParsed.state
-               this.groups[groupid].state = state;
+            if (dataParsed.r == "groups") {
+               dataParsed.uniqueid = "group_" + dataParsed.id;
             }
 
             for (var nodeId in this.devices) {
@@ -237,12 +235,7 @@ module.exports = function(RED) {
                     }
                 }
 
-                if (dataParsed.r == "groups" && item.match(/^group_/) && node && "server" in node) {
-                    var groupid = "group_" + dataParsed.id;
-                    if (node.type === "deconz-input" && item === groupid) {
-                        node.sendState(this.groups[dataParsed.id]);
-                    }
-                } else if (dataParsed.uniqueid === item) {
+                if (dataParsed.uniqueid === item) {
                     if (node && "server" in node) {
                         //update server items db
                         var serverNode = RED.nodes.getNode(node.server.id);
