@@ -30,7 +30,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 .done(function (data, textStatus, jqXHR) {
                     try {
                         if (options.allowEmpty) {
-                            selectedItemElement.html('<option value="">--Select device</option>');
+                            selectedItemElement.html('<option value="" disabled selected>Select device</option>');
                         }
 
                         var optgroup = '';
@@ -38,6 +38,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         var nameSuffix = '';
                         // var selected = false;
                         var groupHtml = '';
+                        var prevName = '';
 
                         var itemList = [];
                         var groupList = [];
@@ -64,12 +65,12 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         });
 
                         if (options.groups && groupsByName) {
-                            groupHtml = $('<optgroup/>', { label: "Groups" });
+                            groupHtml = $('<optgroup/>', { label: "Light Groups" });
                             groupHtml.appendTo(selectedItemElement);
 
                             $.each(groupsByName, function(index, value) {
                                 if (value.meta.device_type == "groups") {
-                                    $('<option  value="group_' + value.meta.id +'">' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
+                                    $('<option  value="group_' + value.meta.id +'">&bull;&nbsp' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
                                 }
                             });
 
@@ -126,9 +127,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             // }
 
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-
+                            //var name = (value.device_name).split(':',2);
                             var parentElement = (options.groups)?groupHtml:selectedItemElement;
-                            $('<option '+disabled+' value="' + value.uniqueid +'">' +value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
+                            $('<option'+ disabled+' value="' + value.uniqueid +'">&bull;&nbsp' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
                         // Enable item selection
