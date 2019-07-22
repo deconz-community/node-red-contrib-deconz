@@ -50,7 +50,6 @@
                 });
 
                 var stateListTimer = setInterval(function () {
-                    console.log($('#node-input-device').ready())
                     deconz_getItemStateList(node.state, '#node-input-state', {groups:true});
                     if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
                 },100);
