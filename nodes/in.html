@@ -48,29 +48,44 @@
         oneditprepare: function () {
             var node = this;
 
+            var $outputSelect = $("#node-input-output");
+
+            // Initialize bootstrap multiselect form
+            $outputSelect.multiselect({
+                maxHeight: 300,
+                disableIfEmpty: true,
+                buttonWidth: '70%',
+            });
+            // console.log(node.output);
+            // $outputSelect.val(node.output).multiselect('refresh');
+
             var updateOutput = function () {
                 var selectedState = $('#node-input-state option:selected').val();
                 var selectedDevice = $('#node-input-device option:selected').val();
 
                 if ( (selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
-                   $("#node-input-output").removeAttr("disabled");
+                    $outputSelect.closest('.form-row').show();
                 } else {
-                   $("#node-input-output").prop('disabled', 'disabled');
+                    $outputSelect.closest('.form-row').hide();
                 }
+
+                $outputSelect.multiselect('refresh');
             }
 
-            $('#node-input-state').change(function() {
+            $('#node-input-state').on("change", function() {
                 state = $('#node-input-state option:selected').val();
                 if (state) { node.state = state; }
+                if (parseInt(state) === 0) {$outputSelect.val('always').multiselect('refresh');}
                 updateOutput();
             });
+
             //$('#node-input-device').change(updateOutput)
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
                 deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:false});
 
-                $deviceInput.on('change', function(){
+                $deviceInput.on("change", function(){
                     deconz_getItemStateList(0, '#node-input-state');
                     device = $('#node-input-device option:selected').val();
                     if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
@@ -80,7 +95,7 @@
                     deconz_getItemStateList(node.state, '#node-input-state');
                 },100);
 
-                if (!node.output) { $("#node-input-output").val('always'); }
+                if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
 
             }, 100); //we need small timeout, too fire change event for server select
         },
