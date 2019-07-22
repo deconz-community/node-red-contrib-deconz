@@ -111,7 +111,12 @@ module.exports = function(RED) {
                     //send data to API
                     var deviceMeta = node.server.getDevice(node.config.device);
                     if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
-                        var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
+                        if ((/group_/g).test(node.config.device)) {
+                            var groupid = ((node.config.device).split('group_').join(''));
+                            var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + groupid + '/action';
+                        } else {
+                            var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
+                        }
                         var post = {};
                         if (node.commandType == 'object' || node.commandType == 'homekit') {
                             post = payload;
