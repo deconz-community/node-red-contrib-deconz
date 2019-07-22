@@ -40,7 +40,7 @@
         },
         oneditprepare: function () {
             var node = this;
-            setTimeout(function(){
+            var deviceListTimer = setInterval(function(){
                 var $deviceInput = $('#node-input-device');
 
                 deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
@@ -48,9 +48,13 @@
                 $deviceInput.on('change', function(){
                     deconz_getItemStateList(0, '#node-input-state', {groups:true});
                 });
-                setTimeout(function () {
+
+                var stateListTimer = setInterval(function () {
+                    console.log($('#node-input-device').ready())
                     deconz_getItemStateList(node.state, '#node-input-state', {groups:true});
+                    if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
                 },100);
+                if ($('#node-input-device').ready()) { clearInterval(deviceListTimer); }
             }, 100); //we need small timeout, too fire change event for server select
 
         },
