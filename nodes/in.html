@@ -106,7 +106,7 @@
                     return $(this).val();
                 });
 
-                this.device_name = selectedOptions.text();
+                this.device_name = deconz_filterDeviceName(selectedOptions.text());
             } else {
                 this.device_name = this.device = null;
             }

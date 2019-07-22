@@ -74,19 +74,13 @@ module.exports = function(RED) {
                                     break;
 
                                 case 'toggle':
-                                    if ((/group_/g).test(node.config.device)) {
-                                        var groupid = ((node.config.device).split('group_').join(''));
-                                        var deviceMeta = node.server.getGroup(groupid);
+                                    command = "on";
+                                    var deviceMeta = node.server.getDevice(node.config.device);
+                                    if (deviceMeta !== undefined && deviceMeta && "state" in deviceMeta  && "on" in deviceMeta.state) {
+                                        payload = !deviceMeta.state.on;
                                     } else {
-                                        var deviceMeta = node.server.getDevice(node.config.device);
+                                        payload = false;
                                     }
-
-                                    // if (deviceMeta) {
-                                    //     payload = (node.config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state
-                                    // } else {
-                                    //     payload = false;
-                                    // }
-                                    // payload = payload && payload != '0'?true:false;
                                     break;
 
                                 case 'bri':
