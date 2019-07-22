@@ -81,10 +81,6 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             disabled = '';
                             nameSuffix = '';
 
-                            if (value.meta.device_type === "groups") {
-                                return;
-                            }
-
                             if (options.deviceType && options.deviceType != value.meta.device_type) {
                                 return true;
                             }
