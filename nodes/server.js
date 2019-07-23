@@ -8,7 +8,6 @@ module.exports = function(RED) {
 
             var node = this;
             node.items = undefined;
-            node.groups = undefined;
             node.items_list = undefined;
             node.discoverProcess = false;
             node.name = n.name;
@@ -18,18 +17,16 @@ module.exports = function(RED) {
             node.secure = n.secure || false;
             node.apikey = n.apikey;
             node.devices = {};
+
             node.setMaxListeners(255);
             node.refreshDiscoverTimer = null;
             node.refreshDiscoverInterval = 15000;
-
-
 
             node.socket = new DeconzSocket({
                 hostname: this.ip,
                 port: this.ws_port,
                 secure: this.secure
             });
-
 
             node.socket.on('close', (code, reason) => this.onSocketClose(code, reason));
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
@@ -104,8 +101,18 @@ module.exports = function(RED) {
                             node.items[prop.uniqueid] = prop;
                         }
 
-                        if ("groups" in dataParsed) {
-                            node.groups = dataParsed.groups;
+                        for (var index in dataParsed.groups) {
+                            var prop = dataParsed.groups[index];
+                            prop.device_type = 'groups';
+                            var groupid = "group_" + parseInt(index);
+                            prop.device_id = groupid;
+                            prop.uniqueid = groupid;
+
+                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                                node.items[prop.uniqueid] = prop;
+                                node.emit("onNewDevice", prop.uniqueid);
+                            }
+                            node.items[prop.uniqueid] = prop;
                         }
                     }
 
@@ -140,17 +147,6 @@ module.exports = function(RED) {
             return result;
         }
 
-        getGroup(groupid) {
-            var node = this;
-            var result = false;
-
-            if (node.groups !== undefined && groupid in node.groups) {
-                result = node.groups[groupid];
-            }
-
-            return result;
-        }
-
         getItemsList(callback, forceRefresh = false) {
             var node = this;
             node.discoverDevices(function(items){
@@ -165,7 +161,7 @@ module.exports = function(RED) {
                     });
                 }
 
-                callback(node.items_list, node.groups);
+                callback(node.items_list);
                 return node.items_list;
             }, forceRefresh);
         }
@@ -216,12 +212,17 @@ module.exports = function(RED) {
             var that = this;
             that.emit('onSocketMessage', dataParsed);
 
+            if (dataParsed.r == "scenes") { return; }
+
+            if (dataParsed.r == "groups") {
+               dataParsed.uniqueid = "group_" + dataParsed.id;
+            }
+
             for (var nodeId in this.devices) {
                 var item = this.devices[nodeId];
-
+                var node = RED.nodes.getNode(nodeId);
 
                 if (dataParsed.uniqueid === item) {
-                    var node = RED.nodes.getNode(nodeId);
                     if (node && "server" in node) {
                         //update server items db
                         var serverNode = RED.nodes.getNode(node.server.id);
