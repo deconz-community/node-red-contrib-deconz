@@ -69,7 +69,7 @@ module.exports = function(RED) {
                             });
 
                             node.send({
-                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                                payload:(config.state in node.meta.state)?(node.meta.state[config.state]).toString():node.meta.state,
                                 meta:deviceMeta,
                             });
                         }

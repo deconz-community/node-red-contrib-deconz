@@ -83,7 +83,7 @@ module.exports = function(RED) {
                     node.status({
                         fill: "green",
                         shape: "dot",
-                        text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+                        text: (node.config.state in device.state) ? (device.state[node.config.state]).toString() : "connected"
                     });
                 }
                 if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
