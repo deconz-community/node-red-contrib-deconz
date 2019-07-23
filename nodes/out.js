@@ -88,7 +88,7 @@ module.exports = function(RED) {
                                 case 'sat':
                                 case 'ct':
                                 case 'colorloopspeed':
-                                case 'transitiontime':
+                                // case 'transitiontime':
                                     payload = parseInt(payload);
                                     break;
 
@@ -134,6 +134,9 @@ module.exports = function(RED) {
                             if (command != 'on') post['on'] = true;
                             if (command == 'bri') post['on'] = payload > 0 ? true : false;
                             post[command] = payload;
+                        }
+                        if (parseInt(config.transitionTime) >= 0) {
+                            post['transitiontime'] = parseInt(config.transitionTime);
                         }
 
                         node.postData(url, post);
@@ -217,13 +220,13 @@ module.exports = function(RED) {
             if (payload.On !== undefined) {
                 msg['on'] = payload.On;
             } else if (payload.Brightness !== undefined) {
-                msg['bri'] = payload.Brightness*2.55;
+                msg['bri'] = Math.round(payload.Brightness*2.55);
                 msg['on'] = payload.Brightness>0?true:false;
             } else if (payload.Hue !== undefined) {
                 msg['hue'] = payload.Hue*182;
                 msg['on'] = true;
             } else if (payload.Saturation !== undefined) {
-                msg['sat'] = payload.Saturation*2.55;
+                msg['sat'] = Math.round(payload.Saturation*2.55);
                 msg['on'] = true;
             } else if (payload.ColorTemperature !== undefined) {
                 msg['ct'] = payload.ColorTemperature;

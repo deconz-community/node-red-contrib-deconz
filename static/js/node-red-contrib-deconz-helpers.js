@@ -88,8 +88,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             if (options.batteryFilter &&
                                 (!("meta" in value)
-                                    || !("config" in value.meta)
-                                    || !("battery" in value.meta.config)
+                                || !("config" in value.meta)
+                                || !("battery" in value.meta.config)
                                 )
                             ) {
 
