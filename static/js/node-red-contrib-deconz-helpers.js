@@ -70,7 +70,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             $.each(groupsByName, function(index, value) {
                                 if (value.meta.device_type == "groups") {
-                                    $('<option  value="group_' + value.meta.id +'">&bull;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
+                                    $('<option  value="group_' + value.meta.id +'">&#9675;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
                                 }
                             });
 
@@ -88,8 +88,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             if (options.batteryFilter &&
                                 (!("meta" in value)
-                                || !("config" in value.meta)
-                                || !("battery" in value.meta.config)
+                                    || !("config" in value.meta)
+                                    || !("battery" in value.meta.config)
                                 )
                             ) {
 
@@ -129,7 +129,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
                             //var name = (value.device_name).split(':',2);
                             var parentElement = (options.groups)?groupHtml:selectedItemElement;
-                            $('<option'+ disabled+' value="' + value.uniqueid +'">&bull;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
+                            $('<option'+ disabled+' value="' + value.uniqueid +'">&#9679;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
                         // Enable item selection
@@ -426,5 +426,9 @@ function deconz_truncateWithEllipses(text, max = 30) {
 }
 
 function deconz_filterDeviceName(name) {
-    return name.replace(/ *\([^)]*\) */g, "").split('• ').join('');
+    var result =  name.replace(/ *\([^)]*\) */g, ""); //remove (lights: 1)
+    result = result.replace(new RegExp('●', 'g'), '');
+    result = result.trim();
+    return result;
+
 }
