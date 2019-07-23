@@ -55,7 +55,7 @@
                 value: 'deconz_cmd',
                 label: 'deCONZ',
                 icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime']
+                options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'transitiontime', 'toggle']
             };
             $('#node-input-command').typedInput({
                 types: [deConzTypes, {value:'homekit',label:'homekit',icon: 'icons/node-red-contrib-deconz/homekit-logo.png',options:['homekit']}, 'str', 'msg', {value:'object',label:'object',options:['json']}],
@@ -95,7 +95,7 @@
                     return $(this).val();
                 });
 
-                this.device_name = selectedOptions.text().replace(/ *\([^)]*\) */g, "");
+                this.device_name = deconz_filterDeviceName(selectedOptions.text());
             } else {
                 this.device_name = this.device = null;
             }

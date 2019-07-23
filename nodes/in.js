@@ -97,18 +97,19 @@ module.exports = function(RED) {
             device = node.getState(device);
             if(!device) { return; }
 
+            //filter output
+            if ('onchange' === node.config.output && device.state[node.config.state] === node.oldState) return;
+            if ('onupdate' === node.config.output && device.state['lastupdated'] === node.prevUpdateTime) return;
+
             //outputs
-            if ( !(node.config.state in device.state && node.config.output == 'onchange' && device.state[node.config.state] == node.oldState) && 
-                 !(node.config.state in device.state && node.config.output == 'onupdate' && device.state['lastupdated'] == node.prevUpdateTime ))
-            {
-                node.send([
-                    {
-                        payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                        payload_raw: device
-                    },
-                    node.formatHomeKit(device)
-                ]);
-            }
+            node.send([
+                {
+                    payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                    payload_raw: device
+                },
+                node.formatHomeKit(device)
+            ]);
+
             node.oldState = device.state[node.config.state];
             node.prevUpdateTime = device.state['lastupdated'];
         };
