@@ -41,10 +41,22 @@
         },
         oneditprepare: function () {
             var node = this;
-            var deviceListTimer = setInterval(function(){
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, batteryFilter:true});
-                if ($('#node-input-device').ready()) { clearInterval(deviceListTimer); }
-            }, 200); //we need small timeout, too fire change event for server select
+
+            var updateDeviceList = function() {
+                var deviceListTimer = setInterval(function() {
+                    if ($('#node-input-device option').length === 0 && $('#node-input-server option:selected').val() != '_ADD_') {
+                        deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, batteryFilter:true});
+                    } else if ($('#node-input-device option').length > 0) {
+                        clearInterval(deviceListTimer);
+                    } else {
+                        clearInterval(deviceListTimer);
+                    }
+                },100)
+            }
+
+            $('#node-input-server').on("change", function(){
+                updateDeviceList();
+            });
         },
         oneditsave: function () {
             var selectedOptions = $('#node-input-device option:selected');
