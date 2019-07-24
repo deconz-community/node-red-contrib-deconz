@@ -65,11 +65,11 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:'false'):"received",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]).toString():"received",
                             });
 
                             node.send({
-                                payload:(config.state in node.meta.state)?(node.meta.state[config.state]).toString():node.meta.state,
+                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
                                 meta:deviceMeta,
                             });
                         }
