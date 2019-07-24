@@ -94,7 +94,6 @@
 
                 if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
                 $('#node-input-device').ready(function() {
-                //if ($('#node-input-device').ready()) { 
                     clearInterval(deviceListTimer);
                     var stateListTimer = setInterval(function () {
                         deconz_getItemStateList(node.state, '#node-input-state');
