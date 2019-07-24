@@ -80,20 +80,23 @@
             });
 
             //$('#node-input-device').change(updateOutput)
-            $('#node-input-server').on("change", function() {
+            $('#node-input-server').ready(function() {
                 var deviceListTimer = setInterval(function(){
                     var $deviceInput = $('#node-input-device');
 
                     deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
                     $deviceInput.on("change", function(){
-                        deconz_getItemStateList(0, '#node-input-state');
-                        device = $('#node-input-device option:selected').val();
-                        if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
-                        updateOutput();
+                        if($('#node-input-device').ready) {
+                            deconz_getItemStateList(0, '#node-input-state');
+                            device = $('#node-input-device option:selected').val();
+                            if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
+                            updateOutput();
+                        }
                     });
 
                     if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
+
                     $('#node-input-device').ready(function() {
                         clearInterval(deviceListTimer);
                         var stateListTimer = setInterval(function () {
