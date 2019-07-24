@@ -15,8 +15,6 @@ module.exports = function(RED) {
                 node.server.on('onSocketOpen', () => this.onSocketOpen());
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
                 node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
-
-                node.sendLastState();
             } else {
                 node.status({
                     fill: "red",
@@ -85,7 +83,7 @@ module.exports = function(RED) {
                     node.status({
                         fill: "green",
                         shape: "dot",
-                        text: (node.config.state in device.state) ? device.state[node.config.state] : "connected"
+                        text: (node.config.state in device.state) ? (device.state[node.config.state]).toString() : "connected"
                     });
                 }
                 if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
@@ -296,6 +294,7 @@ module.exports = function(RED) {
 
         onSocketOpen() {
             var node = this;
+            node.sendLastState();
         }
 
         onNewDevice(uniqueid) {

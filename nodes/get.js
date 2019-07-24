@@ -11,7 +11,24 @@ module.exports = function(RED) {
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
-
+                if (typeof (node.config.device) == 'string' && node.config.device.length) {
+                    var deviceMeta = node.server.getDevice(node.config.device);
+                    if (deviceMeta !== undefined && deviceMeta && "uniqueid" in deviceMeta) {
+                        node.server.devices[node.id] = deviceMeta.uniqueid; //regisgter node in devices list
+                    } else {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: 'Error'
+                        });
+                    }
+                } else {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: 'device not set'
+                    });
+                }
             } else {
                 node.status({
                     fill: "red",
@@ -25,13 +42,7 @@ module.exports = function(RED) {
 
                 node.on('input', function (message) {
                     clearTimeout(node.cleanTimer);
-
-                    if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        var deviceMeta = node.server.getGroup(groupid);
-                    } else {
-                        var deviceMeta = node.server.getDevice(node.config.device);
-                    }
+                    var deviceMeta = node.server.getDevice(node.config.device);
 
                     if (deviceMeta) {
                         node.server.devices[node.id] = deviceMeta.uniqueid;
@@ -54,7 +65,7 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]?node.meta.state[config.state]:'false'):"received",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]).toString():"received",
                             });
 
                             node.send({

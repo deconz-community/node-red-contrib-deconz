@@ -30,7 +30,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 .done(function (data, textStatus, jqXHR) {
                     try {
                         if (options.allowEmpty) {
-                            selectedItemElement.html('<option value="">--Select device</option>');
+                            selectedItemElement.html('<option value="" disabled selected>Select device</option>');
                         }
 
                         var optgroup = '';
@@ -38,22 +38,47 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         var nameSuffix = '';
                         // var selected = false;
                         var groupHtml = '';
+                        var prevName = '';
 
+                        var itemList = [];
+                        var groupList = [];
+                        $.each(data.items, function(index, value) {
+                            if (value.meta.device_type === "groups") {
+                                groupList.push(value)
+                            } else {
+                                itemList.push(value)
+                            }
+                        });
+                        var itemsByName = itemList.slice(0);
+                        if ( groupList.length > 0 ) {
+                            var groupsByName = groupList.slice(0);
+                            groupsByName.sort(function(a,b) {
+                                var x = a.device_name.toLowerCase();
+                                var y = b.device_name.toLowerCase();
+                                return x < y ? -1 : x > y ? 1 : 0;
+                            });
+                        }
+                        itemsByName.sort(function(a,b) {
+                            var x = a.device_name.toLowerCase();
+                            var y = b.device_name.toLowerCase();
+                            return x < y ? -1 : x > y ? 1 : 0;
+                        });
 
-
-                        if (options.groups && data.groups) {
-                            groupHtml = $('<optgroup/>', { label: "Groups" });
+                        if (options.groups && groupsByName) {
+                            groupHtml = $('<optgroup/>', { label: "Light Groups" });
                             groupHtml.appendTo(selectedItemElement);
 
-                            $.each(data.groups, function(index, value) {
-                                $('<option  value="group_' + value.id +'">' +value.name +' (lights: '+value.lights.length+')</option>').appendTo(groupHtml);
+                            $.each(groupsByName, function(index, value) {
+                                if (value.meta.device_type == "groups") {
+                                    $('<option  value="group_' + value.meta.id +'">&#9675;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
+                                }
                             });
 
                             groupHtml = $('<optgroup/>', { label: "Devices" });
                             groupHtml.appendTo(selectedItemElement);
                         }
 
-                        $.each(data.items, function(index, value) {
+                        $.each(itemsByName, function(index, value) {
                             disabled = '';
                             nameSuffix = '';
 
@@ -102,9 +127,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             // }
 
                             // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-
-                            var parentElement = (options.groups && data.groups.length)?groupHtml:selectedItemElement;
-                            $('<option '+disabled+' value="' + value.uniqueid +'">' +value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
+                            //var name = (value.device_name).split(':',2);
+                            var parentElement = (options.groups)?groupHtml:selectedItemElement;
+                            $('<option'+ disabled+' value="' + value.uniqueid +'">&#9679;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
                         // Enable item selection
@@ -398,4 +423,12 @@ function deconz_truncateWithEllipses(text, max = 30) {
     } else {
         return text;
     }
+}
+
+function deconz_filterDeviceName(name) {
+    var result =  name.replace(/ *\([^)]*\) */g, ""); //remove (lights: 1)
+    result = result.replace(new RegExp('●', 'g'), '');
+    result = result.trim();
+    return result;
+
 }

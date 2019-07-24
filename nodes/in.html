@@ -83,7 +83,7 @@
             setTimeout(function(){
                 var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:false});
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
                 $deviceInput.on("change", function(){
                     deconz_getItemStateList(0, '#node-input-state');
@@ -106,7 +106,7 @@
                     return $(this).val();
                 });
 
-                this.device_name = selectedOptions.text();
+                this.device_name = deconz_filterDeviceName(selectedOptions.text());
             } else {
                 this.device_name = this.device = null;
             }
@@ -133,7 +133,9 @@
     <div class="form-row">
         <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
         <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
-        </div>
+    </div>
+
+
     <div class="form-row">
         <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
         <select id="node-input-state"></select>
