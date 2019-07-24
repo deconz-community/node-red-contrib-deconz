@@ -52,9 +52,9 @@
                 var stateListTimer = setInterval(function () {
                     deconz_getItemStateList(node.state, '#node-input-state', {groups:true});
                     if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
-                },100);
+                },200);
                 if ($('#node-input-device').ready()) { clearInterval(deviceListTimer); }
-            }, 100); //we need small timeout, too fire change event for server select
+            }, 200); //we need small timeout, too fire change event for server select
 
         },
         oneditsave: function () {

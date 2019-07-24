@@ -77,7 +77,7 @@
 
 
 
-            setTimeout(function(){
+            var deviceListTimer = setInterval(function(){
                 var $deviceInput = $('#node-input-device');
 
                 deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, deviceType:'lights', groups:true});
@@ -85,10 +85,12 @@
                 $deviceInput.on('change', function(){
                     deconz_getItemStateList(0, '#node-input-state');
                 });
-                setTimeout(function () {
+                var stateListTimer = setInterval(function () {
                     deconz_getItemStateList(node.state, '#node-input-state');
-                },100);
-            }, 100); //we need small timeout, too fire change event for server select
+                    if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
+                },200);
+                if ($('#node-input-device').ready()) { clearInterval(deviceListTimer); }
+            }, 200); //we need small timeout, too fire change event for server select
         },
 
         oneditsave: function () {
