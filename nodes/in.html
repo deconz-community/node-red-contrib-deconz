@@ -72,39 +72,33 @@
                 $outputSelect.multiselect('refresh');
             }
 
-            $('#node-input-state').on("change", function() {
-                state = $('#node-input-state option:selected').val();
-                if (state) { node.state = state; }
-                if (parseInt(state) === 0) {$outputSelect.val('always').multiselect('refresh');}
-                updateOutput();
-            });
-
-            //$('#node-input-device').change(updateOutput)
-            $('#node-input-server').change(function() {
-                var deviceListTimer = setInterval(function(){
-                    var $deviceInput = $('#node-input-device');
-
-                    deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
-
-                    $deviceInput.on("change", function(){
-                        if($('#node-input-device').ready) {
+            var updateDeviceList = function() {
+                var deviceListTimer = setInterval(function() {
+                    if ($('#node-input-device option').length === 0 && $('#node-input-server option:selected').val() != '_ADD_') {
+                        deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
+                    } else if ($('#node-input-device option').length > 0) {
+                        clearInterval(deviceListTimer);
+                        deconz_getItemStateList(node.state, '#node-input-state');
+                        $('#node-input-device').on("change", function(){
                             deconz_getItemStateList(0, '#node-input-state');
                             device = $('#node-input-device option:selected').val();
                             if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
                             updateOutput();
-                        }
-                    });
-
-                    if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
-
-                    $('#node-input-device').ready(function() {
+                        });
+                        $('#node-input-state').on("change", function() {
+                            state = $('#node-input-state option:selected').val();
+                            if (state) { node.state = state; }
+                            if (parseInt(state) === 0) {$outputSelect.val('always').multiselect('refresh');}
+                            updateOutput();
+                        });
+                    } else {
                         clearInterval(deviceListTimer);
-                        var stateListTimer = setInterval(function () {
-                            deconz_getItemStateList(node.state, '#node-input-state');
-                            if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
-                        },100);
-                    });
-                }, 100); //we need small timeout, too fire change event for server select
+                    }
+                },100)
+            }
+
+            $('#node-input-server').on("change", function(){
+                updateDeviceList();
             });
         },
         oneditsave: function () {

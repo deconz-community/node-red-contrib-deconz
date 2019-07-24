@@ -208,6 +208,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         selectedItemElement.children().remove();
 
         if (controller) {
+            if(!$('#node-input-device').val()) { return; }
             $.getJSON('deconz/statelist', {
                 controllerID: controller.id,
                 uniqueid:$('#node-input-device').val()
