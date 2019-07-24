@@ -46,8 +46,6 @@
                 var deviceListTimer = setInterval(function() {
                     if ($('#node-input-device option').length === 0 && $('#node-input-server option:selected').val() != '_ADD_') {
                         deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, batteryFilter:true});
-                    } else if ($('#node-input-device option').length > 0) {
-                        clearInterval(deviceListTimer);
                     } else {
                         clearInterval(deviceListTimer);
                     }

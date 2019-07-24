@@ -80,14 +80,6 @@
                 var deviceListTimer = setInterval(function() {
                     if ($('#node-input-device option').length === 0 && $('#node-input-server option:selected').val() != '_ADD_') {
                         deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, deviceType:'lights', groups:true});
-                    } else if ($('#node-input-device option').length > 0) {
-                        clearInterval(deviceListTimer);
-                        deconz_getItemStateList(node.state, '#node-input-state');
-                        $('#node-input-device').on("change", function(){
-                            deconz_getItemStateList(0, '#node-input-state');
-                            device = $('#node-input-device option:selected').val();
-                            if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
-                        });
                     } else {
                         clearInterval(deviceListTimer);
                     }
