@@ -80,28 +80,29 @@
             });
 
             //$('#node-input-device').change(updateOutput)
-            var deviceListTimer = setInterval(function(){
-                var $deviceInput = $('#node-input-device');
+            $('#node-input-server').on("change", function() {
+                var deviceListTimer = setInterval(function(){
+                    var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
+                    deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
 
-                $deviceInput.on("change", function(){
-                    deconz_getItemStateList(0, '#node-input-state');
-                    device = $('#node-input-device option:selected').val();
-                    if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
-                    updateOutput();
-                });
+                    $deviceInput.on("change", function(){
+                        deconz_getItemStateList(0, '#node-input-state');
+                        device = $('#node-input-device option:selected').val();
+                        if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
+                        updateOutput();
+                    });
 
-                if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
-                $('#node-input-device').ready(function() {
-                    clearInterval(deviceListTimer);
-                    var stateListTimer = setInterval(function () {
-                        deconz_getItemStateList(node.state, '#node-input-state');
-                        if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
-                    },100);
-                });
-
-            }, 100); //we need small timeout, too fire change event for server select
+                    if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
+                    $('#node-input-device').ready(function() {
+                        clearInterval(deviceListTimer);
+                        var stateListTimer = setInterval(function () {
+                            deconz_getItemStateList(node.state, '#node-input-state');
+                            if ($('#node-input-state').ready()) { clearInterval(stateListTimer); }
+                        },100);
+                    });
+                }, 100); //we need small timeout, too fire change event for server select
+            });
         },
         oneditsave: function () {
             var selectedOptions = $('#node-input-device option:selected');
