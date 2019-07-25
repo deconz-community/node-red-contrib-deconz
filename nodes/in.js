@@ -15,6 +15,8 @@ module.exports = function(RED) {
                 node.server.on('onSocketOpen', () => this.onSocketOpen());
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
                 node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
+
+                node.sendLastState(); //tested for duplicate send with onSocketOpen
             } else {
                 node.status({
                     fill: "red",
