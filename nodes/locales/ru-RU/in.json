@@ -8,6 +8,7 @@
         "refresh": "Обновить",
         "refresh_devices_list": "Обновить список",
         "start_output": "Начать вывод",
+        "start_output_help": "Отправить состояние при старте",
         "always": "Всегда",
         "on_state_change": "При смене статуса",
         "on_update": "При обновлении времени",

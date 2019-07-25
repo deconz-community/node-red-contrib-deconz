@@ -8,6 +8,7 @@
         "refresh": "Refresh",
         "refresh_devices_list": "Refresh Devices List",
         "start_output": "Start Output",
+        "start_output_help": "Send status on start",
         "always": "Always",
         "on_state_change": "On state change",
         "on_update": "On update",
