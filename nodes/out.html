@@ -54,20 +54,57 @@
         oneditprepare: function() {
             var node = this;
 
-            var deConzTypes = {
+            var topicTypes = {
                 value: 'deconz_cmd',
                 label: 'deCONZ',
                 icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                options: ['on', 'bri', 'hue', 'sat', 'ct', 'xy', 'alert', 'effect', 'colorloopspeed', 'toggle']
+                options: [
+                    {'value':'on', 'label':'Switch (true/false)'},
+                    {'value':'toggle', 'label':'Toggle'},
+                    {'value':'bri', 'label':'Brightness (0..255)'},
+                    {'value':'hue', 'label':'Hue (0..65535)'},
+                    {'value':'sat', 'label':'Saturation (0..255)'},
+                    {'value':'ct', 'label':'Color Temperature (153..500)'},
+                      'xy',
+                      'alert',
+                      'effect',
+                      'colorloopspeed'
+                ]
             };
             $('#node-input-command').typedInput({
-                types: [deConzTypes, {value:'homekit',label:'homekit',icon: 'icons/node-red-contrib-deconz/homekit-logo.png',options:['homekit']}, 'str', 'msg', {value:'object',label:'object',options:['json']}],
+                types: [topicTypes, {value:'homekit',label:'homekit',icon: 'icons/node-red-contrib-deconz/homekit-logo.png',options:['homekit']}, 'str', 'msg', {value:'object',label:'object',options:['json']}],
                 default: 'msg',
                 value: 'topic',
                 typeField: $('#node-input-commandType'),
             });
+            $('#node-input-command').on('change', function(type, value) {
+                var val = $(this).val();
+
+                if ('toggle' === val) {
+                    $('#node-input-payload').closest('.form-row').hide();
+                } else {
+                    $('#node-input-payload').closest('.form-row').show();
+                }
+            });
+
+
+            var payloadTypes = {
+                value: 'deconz_payload',
+                label: 'deCONZ',
+                icon: 'icons/node-red-contrib-deconz/icon-color.png',
+                options: [
+                    {'value':'1', 'label':'On (Switch)'},
+                    {'value':'0', 'label':'Off (Switch)'},
+                    {'value':'none', 'label':'None (alert,effect)'},
+                    {'value':'select', 'label':'Blink short (alert)'},
+                    {'value':'lselect', 'label':'Blink log (alert)'},
+                    {'value':'153', 'label':'Cold (Color Temperature)'},
+                    {'value':'500', 'label':'Warm (Color Temperature)'},
+                    {'value':'colorloop', 'label':'Color Loop (effect)'}
+                ]
+            };
             $('#node-input-payload').typedInput({
-                types: ['msg', 'flow', 'global', 'str', 'num', 'date'],
+                types: [payloadTypes, 'msg', 'flow', 'global', 'str', 'num', 'date'],
                 default: 'msg',
                 value: 'payload',
                 typeField: $('#node-input-payloadType'),

@@ -49,6 +49,10 @@ module.exports = function(RED) {
                             payload = Date.now();
                             break;
                         }
+                        case 'deconz_payload':
+                            payload = node.payload;
+                            break;
+
                         case 'object':
                         case 'homekit':
                         case 'msg':
@@ -70,7 +74,7 @@ module.exports = function(RED) {
                             command = node.command;
                             switch (command) {
                                 case 'on':
-                                    payload = payload && payload != '0'?true:false;
+                                    payload = payload && payload !== '0'?true:false;
                                     break;
 
                                 case 'toggle':
