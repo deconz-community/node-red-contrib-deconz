@@ -1,0 +1,20 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server",
+        "device": "Device",
+        "state": "State",
+        "output": "Output",
+        "refresh": "Refresh",
+        "refresh_devices_list": "Refresh Devices List",
+        "start_output": "Start Output",
+        "always": "Always",
+        "on_state_change": "On state change",
+        "on_update": "On update",
+        "devices": "Devices",
+        "light_groups": "Light Groups"
+    },
+    "placeholder": {
+        "name": "Name"
+    }
+}

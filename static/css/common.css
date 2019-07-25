@@ -1,3 +1,7 @@
+.form-row label.l-width {
+    width: 130px;
+}
+
 .multiselect {
     width: 100% !important;
 }

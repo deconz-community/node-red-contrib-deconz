@@ -305,10 +305,6 @@ module.exports = function(RED) {
                 node.sendLastState();
             }
         }
-
-
-
-
     }
     RED.nodes.registerType('deconz-input', deConzItemIn);
 };

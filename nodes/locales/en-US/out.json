@@ -1,0 +1,17 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server",
+        "device": "Device",
+        "refresh": "Refresh",
+        "refresh_devices_list": "Refresh Devices List",
+        "command": "Command",
+        "payload": "Payload",
+        "options": "Options",
+        "transition_time": "Transition time"
+    },
+    "placeholder": {
+        "name": "Name",
+        "transition_time": "10 = 1 second"
+    }
+}

@@ -1,3 +1,41 @@
+<script type="text/x-red" data-template-name="deconz-output">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
+        <select id="node-input-device"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+    </div>
+    <div class="form-row">
+        <label for="node-input-command" class="l-width"><i class="fa fa-tasks"></i> <span data-i18n="label.command"></span></label>
+        <input type="text" id="node-input-command" style="width:70%">
+        <input type="hidden" id="node-input-commandType">
+    </div>
+	<div class="form-row">
+        <label for="node-input-payload" class="l-width"><i class="fa fa-envelope"></i> <span data-i18n="label.payload"></span></label>
+        <input type="text" id="node-input-payload" style="width:70%">
+        <input type="hidden" id="node-input-payloadType">
+    </div>
+    <hr>
+    <h4><span data-i18n="label.options"></span></h4>
+    <div class="form-row">
+        <label for="node-input-transitionTime" class="l-width"><span data-i18n="label.transition_time"></span></label>
+        <input type="number" id="node-input-transitionTime" data-i18n="[placeholder]placeholder.transition_time">
+    </div>
+</script>
+
 <script type='text/javascript'>
     RED.nodes.registerType('deconz-output', {
         category: 'deCONZ',
@@ -143,57 +181,3 @@
     });
 </script>
 
-
-<script type="text/x-red" data-template-name="deconz-output">
-    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
-    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
-
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
-        <select id="node-input-device"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
-	</div>
-    <div class="form-row">
-        <label for="node-input-command"><i class="fa fa-tasks"></i> Command</label>
-        <input type="text" id="node-input-command" style="width:70%">
-        <input type="hidden" id="node-input-commandType">
-    </div>
-	<div class="form-row">
-        <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</label>
-        <input type="text" id="node-input-payload" style="width:70%">
-        <input type="hidden" id="node-input-payloadType">
-    </div>
-    <hr>
-    <h4>Options</h4>
-    <div class="form-row">
-        <label for="node-input-transitionTime">Transition time</label>
-        <input type="number" id="node-input-transitionTime" placeholder="10 = 1 second">
-    </div>
-</script>
-
-
-<script type="text/x-red" data-help-name="deconz-output">
-    <p>This node sends message to device.</p>
-    <b>Configuration</b><br>
-    <ul>
-        <li><b>Name:</b> Choose any name to identify your node.</li>
-        <li><b>Server:</b> Choose the deconz server instance to use.</li>
-        <li><b>Device:</b> Select device to listen to.</li>
-        <li><b>Transition time:</b> Time in 1/10 seconds between two states.</li>
-    </ul>
-    <b>Input</b><br>
-    <ul>
-        <li>The <code>msg.payload</code> of your message is used as message.</li>
-    </ul>
-</script>

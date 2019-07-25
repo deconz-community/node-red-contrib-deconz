@@ -1,0 +1,20 @@
+{
+    "label": {
+        "name": "Название",
+        "server": "Сервер",
+        "device": "Устройство",
+        "state": "Статус",
+        "output": "Вывод",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список",
+        "start_output": "Начать вывод",
+        "always": "Всегда",
+        "on_state_change": "При смене статуса",
+        "on_update": "При обновлении времени",
+        "devices": "Устройства",
+        "light_groups": "Группы"
+    },
+    "placeholder": {
+        "name": "Название"
+    }
+}

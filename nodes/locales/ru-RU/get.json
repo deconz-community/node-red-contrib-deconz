@@ -1,0 +1,13 @@
+{
+    "label": {
+        "name": "Название",
+        "server": "Сервер",
+        "device": "Устройство",
+        "state": "Статус",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список"
+    },
+    "placeholder": {
+        "name": "Название"
+    }
+}

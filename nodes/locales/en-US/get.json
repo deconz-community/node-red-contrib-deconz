@@ -1,0 +1,13 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server",
+        "device": "Device",
+        "state": "State",
+        "refresh": "Refresh",
+        "refresh_devices_list": "Refresh Devices List"
+    },
+    "placeholder": {
+        "name": "Name"
+    }
+}

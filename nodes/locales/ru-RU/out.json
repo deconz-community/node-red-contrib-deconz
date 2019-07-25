@@ -1,0 +1,17 @@
+{
+    "label": {
+        "name": "Название",
+        "server": "Сервер",
+        "device": "Устройство",
+        "refresh": "Обновить",
+        "refresh_devices_list": "Обновить список",
+        "command": "Команда",
+        "payload": "Данные",
+        "options": "Параметры",
+        "transition_time": "Время изменения"
+    },
+    "placeholder": {
+        "name": "Название",
+        "transition_time": "10 = 1 секунда"
+    }
+}

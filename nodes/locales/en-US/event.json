@@ -1,0 +1,9 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server"
+    },
+    "placeholder": {
+        "name": "Name"
+    }
+}

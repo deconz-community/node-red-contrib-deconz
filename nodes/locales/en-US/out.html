@@ -1,0 +1,23 @@
+<script type="text/x-red" data-help-name="deconz-output">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+    <p>Send command to device or group.</p>
+
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt class="optional">Name <span class="property-type">string</span></dt><dd>Provide a custom name for this node.</dd>
+        <dt>Server <span class="property-type">object</span></dt><dd>Choose the deconz server instance to use.</dd>
+        <dt>Device <span class="property-type">string</span></dt><dd>Select device to listen to.</dd>
+        <dt>Command <span class="property-type">string</span></dt>
+        <dd>
+            <ul>
+                <li><b>homekit:</b> select if data is from homekit nodes;</li>
+                <li><b>deconz:</b> your data to deconz;</li>
+            </ul>
+        </dd>
+        <dt>Payload <span class="property-type">string or object</span></dt><dd>Select your payload data.</dd>
+    </dl>
+    <h3>Options</h3>
+    <dl class="message-properties">
+        <dt class="optional">Transition time <span class="property-type">int</span></dt><dd>Works with brightness.</dd>
+    </dl>
+</script>
