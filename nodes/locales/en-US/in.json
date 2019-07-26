@@ -8,7 +8,7 @@
         "refresh": "Refresh",
         "refresh_devices_list": "Refresh Devices List",
         "start_output": "Start Output",
-        "start_output_help": "Send status on start",
+        "start_output_help": "Send state on start",
         "always": "Always",
         "on_state_change": "On state change",
         "on_update": "On update",
@@ -17,5 +17,21 @@
     },
     "placeholder": {
         "name": "Name"
+    },
+    "status": {
+        "disconnected": "disconnected",
+        "connected": "connected",
+        "server_node_error": "server node error",
+        "not_reachable": "not reachable",
+        "device_not_set": "device not set",
+        "reconnecting": "reconnecting..."
+    },
+    "multiselect": {
+        "groups":  "Light Groups",
+        "devices": "Devices",
+        "filter_devices": "Filter devices...",
+        "refresh": "Refresh devices list",
+        "none_selected": "None selected",
+        "complete_payload": "Complete state payload"
     }
 }

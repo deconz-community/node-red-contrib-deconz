@@ -29,9 +29,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {
-                        if (options.allowEmpty) {
-                            selectedItemElement.html('<option value="" disabled selected>Select device</option>');
-                        }
+                        // if (options.allowEmpty) {
+                            // selectedItemElement.html('<option value="" disabled selected>Select device</option>');
+                        // }
 
                         var optgroup = '';
                         var disabled = '';
@@ -65,7 +65,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         });
 
                         if (options.groups && groupsByName) {
-                            groupHtml = $('<optgroup/>', { label: "Light Groups" });
+                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.groups") });
                             groupHtml.appendTo(selectedItemElement);
 
                             $.each(groupsByName, function(index, value) {
@@ -74,7 +74,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                                 }
                             });
 
-                            groupHtml = $('<optgroup/>', { label: "Devices" });
+                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.devices") });
                             groupHtml.appendTo(selectedItemElement);
                         }
 
@@ -171,14 +171,15 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     selectedItemElement.multiselect({
         enableFiltering: true,
         enableCaseInsensitiveFiltering: true,
-        filterPlaceholder: 'Filter devices...',
+        filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
         includeResetOption: true,
         includeResetDivider: true,
+        resetText: RED._("node-red-contrib-deconz/in:multiselect.refresh"),
         numberDisplayed: 1,
         maxHeight: 300,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: 'None selected',
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected"),
         buttonWidth: '70%',
     });
 
@@ -215,7 +216,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
-                        selectedItemElement.html('<option value="0">Complete state payload</option>');
+                        selectedItemElement.html('<option value="0">'+ RED._("node-red-contrib-deconz/in:multiselect.complete_payload")+'</option>');
 
 
                         $.each(data, function(index, value) {
@@ -263,16 +264,11 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
     // Initialize bootstrap multiselect form
     selectedItemElement.multiselect({
-        enableFiltering: false,
-        enableCaseInsensitiveFiltering: false,
-        filterPlaceholder: 'Filter state...',
-        includeResetOption: false,
-        includeResetDivider: false,
         numberDisplayed: 1,
         maxHeight: 300,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: 'Complete state payload',
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.complete_payload"),
         buttonWidth: '70%',
     });
 

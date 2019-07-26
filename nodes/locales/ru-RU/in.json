@@ -17,5 +17,21 @@
     },
     "placeholder": {
         "name": "Название"
+    },
+    "status": {
+        "disconnected": "отключено",
+        "connected": "подключено",
+        "server_node_error": "ошибка сервера",
+        "not_reachable": "недоступен",
+        "device_not_set": "нет устройства",
+        "reconnecting": "подключение..."
+    },
+    "multiselect": {
+        "groups":  "Группы",
+        "devices": "Устройства",
+        "filter_devices": "Поиск...",
+        "refresh": "Обновить список",
+        "none_selected": "Не выбран",
+        "complete_payload": "Все данные массивом"
     }
 }

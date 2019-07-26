@@ -7,7 +7,7 @@
     "url": "https://github.com/andreypopov/node-red-contrib-deconz/issues/"
   },
   "dependencies": {
-    "bootstrap-multiselect": "^0.9.13-1",
+    "bootstrap-multiselect": "latest",
     "request": "latest",
     "portscanner": "latest",
     "ws": "latest",

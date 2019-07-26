@@ -16,7 +16,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/out:status.server_node_error"
                 });
             }
 
@@ -148,7 +148,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: 'no device'
+                            text: "node-red-contrib-deconz/out:status.device_not_set"
                         });
                         node.cleanTimer = setTimeout(function(){
                             node.status({}); //clean
@@ -181,7 +181,7 @@ module.exports = function(RED) {
                     node.status({
                         fill: "red",
                         shape: "dot",
-                        text: 'connection',
+                        text: "node-red-contrib-deconz/out:status.connection"
                     });
 
                     node.cleanTimer = setTimeout(function(){
@@ -194,7 +194,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "green",
                             shape: "dot",
-                            text: "ok",
+                            text: "node-red-contrib-deconz/out:status.ok"
                         });
                     } else if ('error' in response) {
                         response.error.post = post; //add post data
@@ -203,7 +203,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: "error",
+                            text: "node-red-contrib-deconz/out:status.error"
                         });
                     }
 

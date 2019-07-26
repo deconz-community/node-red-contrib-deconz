@@ -13,5 +13,16 @@
     "placeholder": {
         "name": "Name",
         "transition_time": "10 = 1 second"
+    },
+    "status": {
+        "disconnected": "disconnected",
+        "connected": "connected",
+        "server_node_error": "server node error",
+        "not_reachable": "not reachable",
+        "device_not_set": "device not set",
+        "reconnecting": "reconnecting...",
+        "ok": "sent",
+        "error": "error",
+        "connection": "connection error"
     }
 }

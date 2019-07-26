@@ -21,7 +21,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/in:status.server_node_error"
                 });
             }
         }
@@ -48,14 +48,14 @@ module.exports = function(RED) {
                     node.status({
                         fill: "red",
                         shape: "dot",
-                        text: 'disconnected'
+                        text: "node-red-contrib-deconz/in:status.disconnected"
                     });
                 }
             } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'device not set'
+                    text: "node-red-contrib-deconz/in:status.device_not_set"
                 });
             }
         }
@@ -73,19 +73,19 @@ module.exports = function(RED) {
                     node.status({
                         fill: "red",
                         shape: "ring",
-                        text: "not reachable"
+                        text: "node-red-contrib-deconz/in:status.not_reachable"
                     });
                 } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
                     node.status({
                         fill: "red",
                         shape: "ring",
-                        text: "not reachable"
+                        text: "node-red-contrib-deconz/in:status.not_reachable"
                     });
                 } else {
                     node.status({
                         fill: "green",
                         shape: "dot",
-                        text: (node.config.state in device.state) ? (device.state[node.config.state]).toString() : "connected"
+                        text: (node.config.state in device.state) ? (device.state[node.config.state]).toString() : "node-red-contrib-deconz/in:status.connected"
                     });
                 }
                 if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
@@ -267,7 +267,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "yellow",
                 shape: "dot",
-                text: 'reconnecting...'
+                text: "node-red-contrib-deconz/in:status.reconnecting"
             });
 
             //send NO_RESPONSE
@@ -290,7 +290,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "red",
                 shape: "dot",
-                text: 'disconnected'
+                text: "node-red-contrib-deconz/in:status.disconnected"
             });
         }
 
