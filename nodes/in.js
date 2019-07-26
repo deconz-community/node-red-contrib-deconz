@@ -134,10 +134,8 @@ module.exports = function(RED) {
 
             var characteristic = {};
             if (state !== undefined){
-
-
                 //by types
-                if (device.type === 'ZHACovering') {
+                if (device.type === 'Window Covering Device') {
                     characteristic.CurrentPosition = state['bri']/2.55;
                     characteristic.TargetPosition = state['bri']/2.55;
                     if (no_reponse) {
