@@ -219,22 +219,34 @@ module.exports = function(RED) {
                 return null;
             }
 
+            var node = this;
+            var deviceMeta = node.server.getDevice(node.config.device);
+
+
             var msg = {};
 
-            if (payload.On !== undefined) {
-                msg['on'] = payload.On;
-            } else if (payload.Brightness !== undefined) {
-                msg['bri'] = Math.round(payload.Brightness*2.55);
-                msg['on'] = payload.Brightness>0?true:false;
-            } else if (payload.Hue !== undefined) {
-                msg['hue'] = payload.Hue*182;
-                msg['on'] = true;
-            } else if (payload.Saturation !== undefined) {
-                msg['sat'] = Math.round(payload.Saturation*2.55);
-                msg['on'] = true;
-            } else if (payload.ColorTemperature !== undefined) {
-                msg['ct'] = payload.ColorTemperature;
-                msg['on'] = true;
+            //by device type
+            if (deviceMeta.type === 'ZHACovering') {
+                msg['on'] = payload.CurrentPosition>0;
+                msg['bri'] = Math.round(payload.CurrentPosition * 2.55);
+
+            //by param
+            } else {
+                if (payload.On !== undefined) {
+                    msg['on'] = payload.On;
+                } else if (payload.Brightness !== undefined) {
+                    msg['bri'] = Math.round(payload.Brightness * 2.55);
+                    msg['on'] = payload.Brightness > 0 ? true : false;
+                } else if (payload.Hue !== undefined) {
+                    msg['hue'] = payload.Hue * 182;
+                    msg['on'] = true;
+                } else if (payload.Saturation !== undefined) {
+                    msg['sat'] = Math.round(payload.Saturation * 2.55);
+                    msg['on'] = true;
+                } else if (payload.ColorTemperature !== undefined) {
+                    msg['ct'] = payload.ColorTemperature;
+                    msg['on'] = true;
+                }
             }
 
             return msg;
