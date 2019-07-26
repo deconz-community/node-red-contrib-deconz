@@ -9,7 +9,6 @@
   "dependencies": {
     "bootstrap-multiselect": "latest",
     "request": "latest",
-    "portscanner": "latest",
     "ws": "latest",
     "events": "latest"
   },
