@@ -107,7 +107,8 @@ module.exports = function(RED) {
             node.send([
                 {
                     payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                    payload_raw: device
+                    payload_raw: device,
+                    meta: node.server.getDevice(node.config.device)
                 },
                 node.formatHomeKit(device)
             ]);
@@ -117,8 +118,11 @@ module.exports = function(RED) {
         };
 
         formatHomeKit(device, options) {
+            var node = this;
             var state = device.state;
             var config = device.config;
+            var deviceMeta = node.server.getDevice(node.config.device);
+
             var no_reponse = false;
             if (state !== undefined && state['reachable'] !== undefined && state['reachable'] != null && state['reachable'] === false) {
                 no_reponse = true;
@@ -135,7 +139,7 @@ module.exports = function(RED) {
             var characteristic = {};
             if (state !== undefined){
                 //by types
-                if ("type" in device && (device.type).toLowerCase() === 'window covering device') {
+                if ("type" in deviceMeta && (deviceMeta.type).toLowerCase() === 'window covering device') {
                     characteristic.CurrentPosition = state['bri']/2.55;
                     characteristic.TargetPosition = state['bri']/2.55;
                     if (no_reponse) {
