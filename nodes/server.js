@@ -55,7 +55,7 @@ module.exports = function(RED) {
                 // node.log('discoverDevices: Refreshing devices list');
 
                 var url = "http://" + node.ip + ":" + node.port + "/api/" + node.apikey;
-                node.log('discoverDevices: Requesting: ' + url);
+                // node.log('discoverDevices: Requesting: ' + url);
 
 
                 request.get(url, function (error, result, data) {

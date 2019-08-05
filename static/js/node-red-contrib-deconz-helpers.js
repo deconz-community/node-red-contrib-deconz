@@ -95,40 +95,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                                 return true;
                             }
-                            // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
-
-                            // //readonly
-                            // if (typeof value.meta !== 'undefined'
-                            //     && typeof value.meta.type !== 'undefined'
-                            //     && options.disableReadonly
-                            //     && parseInt(value.meta.readonly) == 1
-                            // ) {
-                            //     disabled = 'disabled="disabled"';
-                            //     nameSuffix = 'readonly';
-                            //     return true;
-                            // }
-
-                            // //filter by type
-                            // if (typeof value.meta !== 'undefined'
-                            //     && typeof value.meta.type !== 'undefined'
-                            //     && options.filterType
-                            //     && value.meta.type != options.filterType) {
-                            //     disabled = 'disabled="disabled"';
-                            //     nameSuffix = value.meta.type;
-                            //     return true;
-                            // }
-
-
-                            // if (optgroup != value.device_type) {
-                            //     groupHtml = $('<optgroup/>', { label: value.device_friendly_name});
-                            //     groupHtml.appendTo(selectedItemElement);
-                            //     optgroup = value.device_type;
-                            // }
-
-                            // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                            //var name = (value.device_name).split(':',2);
-                            var parentElement = (options.groups)?groupHtml:selectedItemElement;
+                            var parentElement = (options.groups && groupHtml)?groupHtml:selectedItemElement;
                             $('<option'+ disabled+' value="' + value.uniqueid +'">&#9679;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
@@ -208,10 +176,11 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         // Remove all previous and/or static (if any) elements from 'select' input element
         selectedItemElement.children().remove();
 
-        if (controller) {
+        var uniqueId = $('#node-input-device').val();
+        if (controller && uniqueId) {
             $.getJSON('deconz/statelist', {
                 controllerID: controller.id,
-                uniqueid:$('#node-input-device').val()
+                uniqueid:uniqueId
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {

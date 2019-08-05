@@ -53,11 +53,23 @@ module.exports = function(RED) {
                             payload = node.payload;
                             break;
 
-                        case 'object':
+                        case 'num': {
+                            payload = parseInt(node.config.payload);
+                            break;
+                        }
+
+                        case 'str': {
+                            payload = node.config.payload;
+                            break;
+                        }
+
+                        case 'object': {
+                            payload = node.config.payload;
+                            break;
+                        }
+
                         case 'homekit':
                         case 'msg':
-                        case 'num':
-                        case 'str':
                         default: {
                             payload = message[node.payload];
                             break;
