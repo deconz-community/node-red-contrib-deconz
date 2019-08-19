@@ -1,0 +1,21 @@
+<script type="text/x-red" data-help-name="deconz-battery">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+    <p>Эта нода получает все сообщения о батарейках, приходящие из деконза, для выбранного устройства.</p>
+    <h3>Настройки</h3>
+    <dl class="message-properties">
+        <dt class="optional">Название <span class="property-type">string</span></dt><dd>Указать свое название или оставить пустым.</dd>
+        <dt>Сервер <span class="property-type">object</span></dt><dd>Выбрать деконз сервер.</dd>
+        <dt>Устройство <span class="property-type">string</span></dt><dd>Устройство, с которым будет работать нода.</dd>
+        <dt class="optional">Начать вывод <span class="property-type">boolean</span></dt><dd>Вывод данных при старте нод-реда или при деплое. (если выбран деплой измененных нод, и данная нода не менялась - вывода не будет)</dd>
+    </dl>
+
+    <h3>Выходы</h3>
+    <h5>Выход 1: Данные</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt><dd>Все данные о батарейке.</dd>
+    </dl>
+    <h5>Выход 2: Homekit</h5>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt><dd>Объект, отформатированный для homekit нод.</dd>
+    </dl>
+</script>

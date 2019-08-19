@@ -29,9 +29,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {
-                        if (options.allowEmpty) {
-                            selectedItemElement.html('<option value="" disabled selected>Select device</option>');
-                        }
+                        // if (options.allowEmpty) {
+                            // selectedItemElement.html('<option value="" disabled selected>Select device</option>');
+                        // }
 
                         var optgroup = '';
                         var disabled = '';
@@ -65,7 +65,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         });
 
                         if (options.groups && groupsByName) {
-                            groupHtml = $('<optgroup/>', { label: "Light Groups" });
+                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.groups") });
                             groupHtml.appendTo(selectedItemElement);
 
                             $.each(groupsByName, function(index, value) {
@@ -74,7 +74,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                                 }
                             });
 
-                            groupHtml = $('<optgroup/>', { label: "Devices" });
+                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.devices") });
                             groupHtml.appendTo(selectedItemElement);
                         }
 
@@ -95,40 +95,8 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                                 return true;
                             }
-                            // selected = typeof(itemName) == 'string' && value.topic == itemName;
 
-
-                            // //readonly
-                            // if (typeof value.meta !== 'undefined'
-                            //     && typeof value.meta.type !== 'undefined'
-                            //     && options.disableReadonly
-                            //     && parseInt(value.meta.readonly) == 1
-                            // ) {
-                            //     disabled = 'disabled="disabled"';
-                            //     nameSuffix = 'readonly';
-                            //     return true;
-                            // }
-
-                            // //filter by type
-                            // if (typeof value.meta !== 'undefined'
-                            //     && typeof value.meta.type !== 'undefined'
-                            //     && options.filterType
-                            //     && value.meta.type != options.filterType) {
-                            //     disabled = 'disabled="disabled"';
-                            //     nameSuffix = value.meta.type;
-                            //     return true;
-                            // }
-
-
-                            // if (optgroup != value.device_type) {
-                            //     groupHtml = $('<optgroup/>', { label: value.device_friendly_name});
-                            //     groupHtml.appendTo(selectedItemElement);
-                            //     optgroup = value.device_type;
-                            // }
-
-                            // $('<option value="' + value.topic + '"'+(selected ? 'selected' : '')+'>' + value.control_name + '</option>').appendTo(groupHtml);
-                            //var name = (value.device_name).split(':',2);
-                            var parentElement = (options.groups)?groupHtml:selectedItemElement;
+                            var parentElement = (options.groups && groupHtml)?groupHtml:selectedItemElement;
                             $('<option'+ disabled+' value="' + value.uniqueid +'">&#9679;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
                         });
 
@@ -171,14 +139,15 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     selectedItemElement.multiselect({
         enableFiltering: true,
         enableCaseInsensitiveFiltering: true,
-        filterPlaceholder: 'Filter devices...',
+        filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
         includeResetOption: true,
         includeResetDivider: true,
+        resetText: RED._("node-red-contrib-deconz/in:multiselect.refresh"),
         numberDisplayed: 1,
         maxHeight: 300,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: 'None selected',
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected"),
         buttonWidth: '70%',
     });
 
@@ -207,16 +176,17 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         // Remove all previous and/or static (if any) elements from 'select' input element
         selectedItemElement.children().remove();
 
-        if (controller) {
-            if(!$('#node-input-device').val()) { return; }
+        var uniqueId = $('#node-input-device').val();
+        if (controller && uniqueId) {
+          if(!$('#node-input-device').val()) { return; }
             $.getJSON('deconz/statelist', {
                 controllerID: controller.id,
-                uniqueid:$('#node-input-device').val()
+                uniqueid:uniqueId
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
-                        selectedItemElement.html('<option value="0">Complete state payload</option>');
+                        selectedItemElement.html('<option value="0">'+ RED._("node-red-contrib-deconz/in:multiselect.complete_payload")+'</option>');
 
 
                         $.each(data, function(index, value) {
@@ -264,16 +234,11 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
     // Initialize bootstrap multiselect form
     selectedItemElement.multiselect({
-        enableFiltering: false,
-        enableCaseInsensitiveFiltering: false,
-        filterPlaceholder: 'Filter state...',
-        includeResetOption: false,
-        includeResetDivider: false,
         numberDisplayed: 1,
         maxHeight: 300,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: 'Complete state payload',
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.complete_payload"),
         buttonWidth: '70%',
     });
 

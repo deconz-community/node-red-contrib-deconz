@@ -1,0 +1,18 @@
+{
+    "label": {
+        "name": "Name",
+        "ip_address": "IP-Address",
+        "port": "Port",
+        "api_key": "API Key",
+        "websocket_port": "WebSocket Port",
+        "get_settings": "Get Settings",
+        "use_secured_ssl": "Use secured SSL connection",
+        "magick": "Magick"
+    },
+    "placeholder": {
+        "name": "Name"
+    },
+    "tip": {
+        "deploy": "<b>Important:</b> deploy server node to get devices list"
+    }
+}

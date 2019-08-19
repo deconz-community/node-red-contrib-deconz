@@ -1,3 +1,29 @@
+<script type="text/x-red" data-template-name="deconz-get">
+   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+   <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
+        <select id="node-input-device"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+    </div>
+    <div class="form-row">
+        <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
+        <select id="node-input-state"></select>
+    </div>
+</script>
+
 <script type='text/javascript'>
     RED.nodes.registerType('deconz-get', {
         category: 'deCONZ',
@@ -23,7 +49,7 @@
         },
         inputs: 1,
         outputs: 1,
-        outputLabels: ["event"],
+        outputLabels: ["state"],
         paletteLabel: 'get',
         icon: "deconz.png",
         label: function () {
@@ -77,47 +103,4 @@
     });
 </script>
 
-
-<script type="text/x-red" data-template-name="deconz-get">
-   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
-   <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
-
-   <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
-        <select id="node-input-device">
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
-        <select id="node-input-state"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
-	</div>
-</script>
-
-
-<script type="text/x-red" data-help-name="deconz-get">
-    <p>This node reads state from defined device.</p>
-    <b>Configuration</b><br>
-    <ul>
-        <li><b>Name:</b> Choose any name to identify your node.</li>
-        <li><b>Server:</b> Choose the deconz server instance to use.</li>
-        <li><b>Device:</b> Select device to listen to.</li>
-        <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
-    </ul>
-    <b>Output</b><br>
-    <ul>
-        <li>The <code>msg.payload</code> contains message</li>
-    </ul>
-</script>
 

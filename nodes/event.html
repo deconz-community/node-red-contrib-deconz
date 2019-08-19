@@ -1,3 +1,16 @@
+<script type="text/x-red" data-template-name="deconz-event">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+</script>
+
 <script type='text/javascript'>
     RED.nodes.registerType('deconz-event', {
         category: 'deCONZ',
@@ -38,35 +51,3 @@
     });
 </script>
 
-
-<script type="text/x-red" data-template-name="deconz-event">
-    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
-    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
-        <input type="text" id="node-input-server">
-    </div>
-</script>
-
-
-<script type="text/x-red" data-help-name="deconz-event">
-    <p>This node listens for messages sent from your deconz.</p>
-    <b>Configuration</b><br>
-    <ul>
-        <li><b>Name:</b> Choose any name to identify your node.</li>
-        <li><b>Server:</b> Choose the deconz server instance to use.</li>
-    </ul>
-
-    <h3>Outputs</h3>
-    <h5>Raw output</h5>
-    <dl class="message-properties">
-        <dt>msg.payload <span class="property-type">object</span></dt>
-        <dd>full data of event</dd>
-        <dt>msg.device <span class="property-type">object</span></dt>
-        <dd>device info</dd>
-    </dl>
-</script>

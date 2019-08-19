@@ -15,11 +15,13 @@ module.exports = function(RED) {
                 node.server.on('onSocketOpen', () => this.onSocketOpen());
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
                 node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
+
+                node.sendLastState();
             } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/battery:status.server_node_error"
                 });
             }
         }
@@ -45,13 +47,13 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "ring",
-                            text: "not reachable"
+                            text: "node-red-contrib-deconz/battery:status.not_reachable"
                         });
                     } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
                         node.status({
                             fill: "red",
                             shape: "ring",
-                            text: "not reachable"
+                            text: "node-red-contrib-deconz/battery:status.not_reachable"
                         });
                     } else {
                         node.status({
@@ -87,14 +89,14 @@ module.exports = function(RED) {
                     node.status({
                         fill: "red",
                         shape: "dot",
-                        text: 'disconnected'
+                        text: "node-red-contrib-deconz/battery:status.disconnected"
                     });
                 }
             } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'device not set'
+                    text: "node-red-contrib-deconz/battery:status.device_not_set"
                 });
             }
         }
@@ -128,7 +130,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "yellow",
                 shape: "dot",
-                text: 'reconnecting...'
+                text: "node-red-contrib-deconz/battery:status.reconnecting"
             });
         }
 
@@ -142,7 +144,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "red",
                 shape: "dot",
-                text: 'disconnected'
+                text: "node-red-contrib-deconz/battery:status.disconnected"
             });
         }
 

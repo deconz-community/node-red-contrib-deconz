@@ -1,0 +1,18 @@
+{
+    "label": {
+        "name": "Название",
+        "server": "Сервер"
+    },
+    "placeholder": {
+        "name": "Название"
+    },
+    "status": {
+        "disconnected": "отключено",
+        "connected": "подключено",
+        "server_node_error": "ошибка сервера",
+        "not_reachable": "недоступен",
+        "device_not_set": "нет устройства",
+        "reconnecting": "подключение...",
+        "event": "событие"
+    }
+}

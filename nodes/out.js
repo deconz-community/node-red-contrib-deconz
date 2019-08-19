@@ -16,7 +16,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/out:status.server_node_error"
                 });
             }
 
@@ -49,11 +49,27 @@ module.exports = function(RED) {
                             payload = Date.now();
                             break;
                         }
-                        case 'object':
+                        case 'deconz_payload':
+                            payload = node.payload;
+                            break;
+
+                        case 'num': {
+                            payload = parseInt(node.config.payload);
+                            break;
+                        }
+
+                        case 'str': {
+                            payload = node.config.payload;
+                            break;
+                        }
+
+                        case 'object': {
+                            payload = node.config.payload;
+                            break;
+                        }
+
                         case 'homekit':
                         case 'msg':
-                        case 'num':
-                        case 'str':
                         default: {
                             payload = message[node.payload];
                             break;
@@ -70,7 +86,7 @@ module.exports = function(RED) {
                             command = node.command;
                             switch (command) {
                                 case 'on':
-                                    payload = payload && payload != '0'?true:false;
+                                    payload = payload && payload !== '0'?true:false;
                                     break;
 
                                 case 'toggle':
@@ -144,7 +160,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: 'no device'
+                            text: "node-red-contrib-deconz/out:status.device_not_set"
                         });
                         node.cleanTimer = setTimeout(function(){
                             node.status({}); //clean
@@ -177,7 +193,7 @@ module.exports = function(RED) {
                     node.status({
                         fill: "red",
                         shape: "dot",
-                        text: 'connection',
+                        text: "node-red-contrib-deconz/out:status.connection"
                     });
 
                     node.cleanTimer = setTimeout(function(){
@@ -190,7 +206,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "green",
                             shape: "dot",
-                            text: "ok",
+                            text: "node-red-contrib-deconz/out:status.ok"
                         });
                     } else if ('error' in response) {
                         response.error.post = post; //add post data
@@ -199,7 +215,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: "error",
+                            text: "node-red-contrib-deconz/out:status.error"
                         });
                     }
 
@@ -215,23 +231,31 @@ module.exports = function(RED) {
                 return null;
             }
 
+            var node = this;
+            // var deviceMeta = node.server.getDevice(node.config.device);
+
+
             var msg = {};
 
             if (payload.On !== undefined) {
                 msg['on'] = payload.On;
             } else if (payload.Brightness !== undefined) {
-                msg['bri'] = Math.round(payload.Brightness*2.55);
-                msg['on'] = payload.Brightness>0?true:false;
+                msg['bri'] = Math.round(payload.Brightness * 2.55);
+                msg['on'] = payload.Brightness > 0 ? true : false;
             } else if (payload.Hue !== undefined) {
-                msg['hue'] = payload.Hue*182;
+                msg['hue'] = payload.Hue * 182;
                 msg['on'] = true;
             } else if (payload.Saturation !== undefined) {
-                msg['sat'] = Math.round(payload.Saturation*2.55);
+                msg['sat'] = Math.round(payload.Saturation * 2.55);
                 msg['on'] = true;
             } else if (payload.ColorTemperature !== undefined) {
                 msg['ct'] = payload.ColorTemperature;
                 msg['on'] = true;
+            } else if (payload.TargetPosition !== undefined) {
+                msg['on'] = payload.TargetPosition>0;
+                msg['bri'] = Math.round(payload.TargetPosition * 2.55);
             }
+
 
             return msg;
         }

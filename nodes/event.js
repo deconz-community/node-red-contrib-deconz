@@ -23,7 +23,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/event:status.server_node_error"
                 });
             }
 
@@ -46,7 +46,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "yellow",
                 shape: "dot",
-                text: 'reconnecting...'
+                text: "node-red-contrib-deconz/event:status.reconnecting"
             });
         }
 
@@ -60,7 +60,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "red",
                 shape: "dot",
-                text: 'disconnected'
+                text: "node-red-contrib-deconz/event:status.disconnected"
             });
         }
 
@@ -78,7 +78,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: 'event'
+                    text: "node-red-contrib-deconz/event:status.event"
                 });
                 node.cleanTimer = setTimeout(function () {
                     node.status({}); //clean

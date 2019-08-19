@@ -19,21 +19,21 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: 'Error'
+                            text: "node-red-contrib-deconz/get:status.device_not_set"
                         });
                     }
                 } else {
                     node.status({
                         fill: "red",
                         shape: "dot",
-                        text: 'device not set'
+                        text: "node-red-contrib-deconz/get:status.device_not_set"
                     });
                 }
             } else {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'server node error'
+                    text: "node-red-contrib-deconz/get:status.server_node_error"
                 });
             }
 
@@ -53,19 +53,19 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "red",
                                 shape: "ring",
-                                text: "not reachable"
+                                text: "node-red-contrib-deconz/get:status.not_reachable"
                             });
                         } else if ("config" in deviceMeta && "reachable" in deviceMeta.config && deviceMeta.config.reachable === false) {
                             node.status({
                                 fill: "red",
                                 shape: "ring",
-                                text: "not reachable"
+                                text: "node-red-contrib-deconz/get:status.not_reachable"
                             });
                         } else {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]).toString():"received",
+                                text: (config.state in node.meta.state)?(node.meta.state[config.state]).toString():"node-red-contrib-deconz/get:status.received",
                             });
 
                             node.send({
@@ -81,7 +81,7 @@ module.exports = function(RED) {
                         node.status({
                             fill: "red",
                             shape: "dot",
-                            text: 'Device not found'
+                            text: "node-red-contrib-deconz/get:status.device_not_set"
                         });
                     }
 
@@ -90,7 +90,7 @@ module.exports = function(RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: 'Device not set'
+                    text: "node-red-contrib-deconz/get:status.device_not_set"
                 });
             }
         }

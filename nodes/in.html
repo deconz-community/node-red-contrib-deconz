@@ -1,3 +1,42 @@
+<script type="text/x-red" data-template-name="deconz-input">
+    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
+        <select id="node-input-device"></select>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+    </div>
+    <div class="form-row">
+        <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
+        <select id="node-input-state"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span data-i18n="label.output"></span></label>
+        <select id="node-input-output" style="width: auto;">
+            <option value="always" data-i18n="label.always">Always</option>
+            <option value="onchange" data-i18n="label.on_state_change">On state change</option>
+            <option value="onupdate" data-i18n="label.on_update">On update</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span data-i18n="label.start_output"></span></label>
+        <input type="checkbox" id="node-input-outputAtStartup" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.start_output_help"></span></input>
+    </div>
+</script>
+
+
 <script type='text/javascript'>
     RED.nodes.registerType('deconz-input', {
         category: 'deCONZ',
@@ -30,7 +69,7 @@
         },
         inputs: 0,
         outputs: 2,
-        outputLabels: ["event"],
+        outputLabels: ["state", "homekit"],
         paletteLabel: 'in',
         icon: "deconz.png",
         label: function () {
@@ -47,7 +86,6 @@
         },
         oneditprepare: function () {
             var node = this;
-
             var $outputSelect = $("#node-input-output");
 
             // Initialize bootstrap multiselect form
@@ -117,71 +155,4 @@
 </script>
 
 
-<script type="text/x-red" data-template-name="deconz-input">
-    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
-    <link rel="stylesheet" href="deconz/static/css/multiselect.css" type="text/css" />
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-crosshairs"></i> Device</label>
-        <select id="node-input-device"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh"><i class="fa fa-refresh"></i> Refresh</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Refresh devices list</button>
-    </div>
 
-
-    <div class="form-row">
-        <label for="node-input-state"><i class="fa fa-tag"></i> State</label>
-        <select id="node-input-state"></select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-output"><i class="fa fa-sign-out"></i> Output</label>
-        <select id="node-input-output" style="width: auto;">
-            <option value="always">Always</option>
-            <option value="onchange">On state change</option>
-            <option value="onupdate">On update</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for='node-input-outputAtStartup'><i class='fa fa-share-square'></i> Start output</label>
-        <input type='checkbox' id='node-input-outputAtStartup' style='width:auto; margin: 0;' checked="checked">
-    </div>
-</script>
-
-
-<script type="text/x-red" data-help-name="deconz-input">
-    <p>This node listens for messages sent from your deconz.</p>
-    <b>Configuration</b><br>
-    <ul>
-        <li><b>Name:</b> Choose any name to identify your node.</li>
-        <li><b>Server:</b> Choose the deconz server instance to use.</li>
-        <li><b>Device:</b> Select channel to listen to.</li>
-        <li><b>State:</b> The node indicates the connection status to deconz via a status indicator and affects payload.</li>
-        <li><b>Output:</b></li>
-        <ul> 
-            <li><b>On state change:</b> Output only when state changes. (Only works when specific state output is selected.)</li>
-            <li><b>On update:</b> Output only when 'lastupdated' field changes. (This can be useful for switches and only works when specific state output is selected.)</li>
-        </ul>
-        <li><b>Start output:</b> Output state at startup.</li>
-    </ul>
-
-    <h3>Outputs</h3>
-    <h5>Raw output</h5>
-    <dl class="message-properties">
-        <dt>payload <span class="property-type">string or object</span></dt>
-        <dd>New state of the selected device.</dd>
-    </dl>
-    <h5>Homekit output</h5>
-    <dl class="message-properties">
-            <dt>payload <span class="property-type">object</span></dt>
-            <dd>Object formatted for homekit node</dd>
-        </dl>
-</script>

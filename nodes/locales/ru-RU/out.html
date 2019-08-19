@@ -1,0 +1,23 @@
+<script type="text/x-red" data-help-name="deconz-output">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+    <p>Отправить команду устройству или группе.</p>
+
+    <h3>Настройки</h3>
+    <dl class="message-properties">
+        <dt class="optional">Название <span class="property-type">string</span></dt><dd>Указать свое название или оставить пустым.</dd>
+        <dt>Сервер <span class="property-type">object</span></dt><dd>Выбрать деконз сервер.</dd>
+        <dt>Устройство <span class="property-type">string</span></dt><dd>Устройство или группа, с которым будет работать нода.</dd>
+        <dt>Команда <span class="property-type">string</span></dt>
+        <dd>
+            <ul>
+                <li><b>homekit:</b> выбрать, если данные приходят от homekit ноды;</li>
+                <li><b>deconz:</b> если нужно отправить свои данные;</li>
+            </ul>
+        </dd>
+        <dt>Данные <span class="property-type">string or object</span></dt><dd>Выбрать откуда брать данные.</dd>
+    </dl>
+    <h3>Параметры</h3>
+    <dl class="message-properties">
+        <dt class="optional">Время изменения <span class="property-type">int</span></dt><dd>Нормально работает только с яркостью или при изменения температуры цвета</dd>
+    </dl>
+</script>

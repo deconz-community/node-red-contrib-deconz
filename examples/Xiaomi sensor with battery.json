@@ -1,0 +1,154 @@
+[
+  {
+    "id": "f84ba7e0.ff5868",
+    "type": "homekit-service",
+    "z": "dae8637c.368b7",
+    "isParent": true,
+    "bridge": "8e4d0c4d.ceb44",
+    "parentService": "",
+    "name": "Temperature",
+    "serviceName": "TemperatureSensor",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "characteristicProperties": "{}",
+    "x": 590,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "693d6bc9.c38024",
+    "type": "deconz-input",
+    "z": "dae8637c.368b7",
+    "name": "",
+    "server": "539a1c84.7e99f4",
+    "device": "00:15:8d:00:02:28:85:40-01-0402",
+    "device_name": "Multi Sensor : ZHATemperature",
+    "state": "temperature",
+    "output": "always",
+    "outputAtStartup": true,
+    "x": 350,
+    "y": 260,
+    "wires": [
+      [],
+      [
+        "f84ba7e0.ff5868"
+      ]
+    ]
+  },
+  {
+    "id": "1a9ff9d8.1ad856",
+    "type": "homekit-service",
+    "z": "dae8637c.368b7",
+    "isParent": false,
+    "bridge": "8e4d0c4d.ceb44",
+    "parentService": "f84ba7e0.ff5868",
+    "name": "Humidity",
+    "serviceName": "HumiditySensor",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "characteristicProperties": "{}",
+    "x": 580,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a5b757cb.0c42f8",
+    "type": "deconz-input",
+    "z": "dae8637c.368b7",
+    "name": "",
+    "server": "539a1c84.7e99f4",
+    "device": "00:15:8d:00:02:28:85:40-01-0405",
+    "device_name": "Multi Sensor : ZHAHumidity",
+    "state": "humidity",
+    "output": "always",
+    "outputAtStartup": true,
+    "x": 360,
+    "y": 320,
+    "wires": [
+      [],
+      [
+        "1a9ff9d8.1ad856"
+      ]
+    ]
+  },
+  {
+    "id": "b78be39a.06705",
+    "type": "deconz-battery",
+    "z": "dae8637c.368b7",
+    "name": "Battery",
+    "server": "539a1c84.7e99f4",
+    "device": "00:15:8d:00:02:28:85:40-01-0402",
+    "device_name": "Multi Sensor : ZHATemperature",
+    "outputAtStartup": true,
+    "x": 430,
+    "y": 380,
+    "wires": [
+      [],
+      [
+        "cc918faa.640ac"
+      ]
+    ]
+  },
+  {
+    "id": "cc918faa.640ac",
+    "type": "homekit-service",
+    "z": "dae8637c.368b7",
+    "isParent": false,
+    "bridge": "8e4d0c4d.ceb44",
+    "parentService": "f84ba7e0.ff5868",
+    "name": "Battery",
+    "serviceName": "BatteryService",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "characteristicProperties": "{}",
+    "x": 580,
+    "y": 380,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8e4d0c4d.ceb44",
+    "type": "homekit-bridge",
+    "z": "",
+    "bridgeName": "Node-Red-macos2",
+    "pinCode": "111-11-111",
+    "port": "",
+    "allowInsecureRequest": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "customMdnsConfig": false,
+    "mdnsMulticast": true,
+    "mdnsInterface": "",
+    "mdnsPort": "",
+    "mdnsIp": "",
+    "mdnsTtl": "",
+    "mdnsLoopback": true,
+    "mdnsReuseAddr": true
+  },
+  {
+    "id": "539a1c84.7e99f4",
+    "type": "deconz-server",
+    "z": "",
+    "name": "Conbee2",
+    "ip": "127.0.0.1",
+    "port": "80",
+    "apikey": "F18D851E01",
+    "ws_port": "443",
+    "secure": false
+  }
+]

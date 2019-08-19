@@ -1,3 +1,38 @@
+<script type="text/x-red" data-template-name="deconz-server">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+
+    <div class="form-row">
+        <label for="node-config-input-name" class="l-width"><i class="icon-bookmark"></i> <span data-i18n="label.name"></span></label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ip" class="l-width"><i class="icon-globe"></i> <span data-i18n="label.ip_address"></span></label>
+        <input type="text" id="node-config-input-ip">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.port"></span></label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-apikey" class="l-width"><i class="icon-lock"></i> <span data-i18n="label.api_key"></span></label>
+        <input type="text" id="node-config-input-apikey">
+    </div>
+        <div class="form-row">
+        <label for="node-config-input-ws_port" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.websocket_port"></span></label>
+        <input type="text" id="node-config-input-ws_port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-secure" class="l-width"><i class="icon-tag"></i> SSL</label>
+        <input type="checkbox" id="node-config-input-secure" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.use_secured_ssl"></span></input>
+    </div>
+    <div class="form-row">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.magick"></span></label>
+        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.get_settings"></span></button>
+	</div>
+	<div class="form-tips" data-i18n="[html]tip.deploy"></div>
+
+</script>
+
 <script type='text/javascript'>
     RED.nodes.registerType('deconz-server', {
         category: 'config',
@@ -51,55 +86,5 @@
             });
         },
     });
-</script>
-
-
-<script type="text/x-red" data-template-name="deconz-server">
-    <link rel="stylesheet" href="deconz/static/css/server.css" type="text/css" />
-
-    <div class="form-row">
-        <label for="node-config-input-name" class="w130"><i class="icon-bookmark"></i> Name</label>
-        <input type="text" id="node-config-input-name">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-ip" class="w130"><i class="icon-globe"></i> IP-address</label>
-        <input type="text" id="node-config-input-ip">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-port" class="w130"><i class="icon-tag"></i> Port</label>
-        <input type="text" id="node-config-input-port">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-apikey" class="w130"><i class="icon-lock"></i> API Key</label>
-        <input type="text" id="node-config-input-apikey">
-    </div>
-        <div class="form-row">
-        <label for="node-config-input-ws_port" class="w130"><i class="icon-tag"></i> WebSocket Port</label>
-        <input type="text" id="node-config-input-ws_port">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-secure" class="w130"><i class="icon-tag"></i> SSL</label>
-        <input type="checkbox" id="node-config-input-secure" style="display: inline-block; width: auto; vertical-align: top;"> Use secured SSL connection</input>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh" class="w130"><i class="fa fa-refresh"></i> Get Settings</label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh">Do magic!</button>
-	</div>
-    <div class="form-row">
-         <div class="alert alert-warning"><b>Important:</b> deploy server node to get devices list</div>
-    </div>
-</script>
-
-
-<script type="text/x-red" data-help-name="deconz-server">
-    <b>Configuration</b><br>
-    <ul>
-        <li><b>Name:</b> Choose any name to identify your server.</li>
-        <li><b>IP-address:</b> IP-address of your deconz instance. Example: <code>127.0.0.1</code> or <code>192.168.1.100</code></li>
-        <li><b>Port:</b> Port of your deconz instance. Example: <code>80</code></li>
-        <li><b>API Key:</b> <a href="https://dresden-elektronik.github.io/deconz-rest-doc/authorization/" target="_blank">https://dresden-elektronik.github.io/deconz-rest-doc/authorization/</a></li>
-        <li><b>WebSocket Port:</b> Connection port</li>
-        <li><b>Get Settings:</b> Auto fetch all settings (need Internet connection)</li>
-    </ul>
 </script>
 

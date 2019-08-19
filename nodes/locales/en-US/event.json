@@ -1,0 +1,18 @@
+{
+    "label": {
+        "name": "Name",
+        "server": "Server"
+    },
+    "placeholder": {
+        "name": "Name"
+    },
+    "status": {
+        "disconnected": "disconnected",
+        "connected": "connected",
+        "server_node_error": "server node error",
+        "not_reachable": "not reachable",
+        "device_not_set": "device not set",
+        "reconnecting": "reconnecting...",
+        "event": "event"
+    }
+}
