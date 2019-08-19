@@ -8,9 +8,12 @@ module.exports = function(RED) {
             var node = this;
             node.config = config;
 
+            node.status({}); //clean
+
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
+                node.server.devices[node.id] = node.config.device; //register node in devices list
 
             } else {
                 node.status({
@@ -27,7 +30,7 @@ module.exports = function(RED) {
             node.cleanTimer = null;
 
             // if (typeof(config.device) == 'string'  && config.device.length) {
-                node.status({}); //clean
+
 
                 this.on('input', function (message) {
                     clearTimeout(node.cleanTimer);
@@ -86,13 +89,15 @@ module.exports = function(RED) {
                             command = node.command;
                             switch (command) {
                                 case 'on':
-                                    payload = payload && payload !== '0'?true:false;
+                                    payload = payload && payload !== '0' ? true : false;
                                     break;
 
                                 case 'toggle':
                                     command = "on";
                                     var deviceMeta = node.server.getDevice(node.config.device);
-                                    if (deviceMeta !== undefined && deviceMeta && "state" in deviceMeta  && "on" in deviceMeta.state) {
+                                    if (deviceMeta !== undefined && "device_type" in deviceMeta && deviceMeta.device_type === 'groups'  && deviceMeta && "state" in deviceMeta  && "all_on" in deviceMeta.state) {
+                                        payload = !deviceMeta.state.all_on;
+                                    } else if (deviceMeta !== undefined && deviceMeta && "state" in deviceMeta  && "on" in deviceMeta.state) {
                                         payload = !deviceMeta.state.on;
                                     } else {
                                         payload = false;
@@ -181,7 +186,7 @@ module.exports = function(RED) {
 
         postData(url, post) {
             var node = this;
-            node.log('Requesting url: '+url);
+            // node.log('Requesting url: '+url);
             // console.log(post);
 
             request.put({

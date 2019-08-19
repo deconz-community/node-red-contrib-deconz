@@ -11,10 +11,12 @@ module.exports = function(RED) {
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
+                node.server.devices[node.id] = node.config.device; //register node in devices list
+
                 if (typeof (node.config.device) == 'string' && node.config.device.length) {
                     var deviceMeta = node.server.getDevice(node.config.device);
                     if (deviceMeta !== undefined && deviceMeta && "uniqueid" in deviceMeta) {
-                        node.server.devices[node.id] = deviceMeta.uniqueid; //regisgter node in devices list
+                        node.server.devices[node.id] = deviceMeta.uniqueid; //register node in devices list
                     } else {
                         node.status({
                             fill: "red",

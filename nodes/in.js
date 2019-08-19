@@ -42,6 +42,7 @@ module.exports = function(RED) {
                         setTimeout(function () {
                             node.status({}); //clean
                             node.getState(deviceMeta);
+                            node.sendStateHomekitOnly(deviceMeta); //always send for homekit
                         }, 1500); //update status with the same delay
                     }
                 } else {
@@ -115,6 +116,19 @@ module.exports = function(RED) {
 
             node.oldState = device.state[node.config.state];
             node.prevUpdateTime = device.state['lastupdated'];
+        };
+
+
+        sendStateHomekitOnly(device) {
+            var node = this;
+            device = node.getState(device);
+            if(!device) { return; }
+
+            //outputs
+            node.send([
+                null,
+                node.formatHomeKit(device)
+            ]);
         };
 
         formatHomeKit(device, options) {

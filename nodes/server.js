@@ -45,8 +45,6 @@ module.exports = function(RED) {
         }
 
 
-
-
         discoverDevices(callback, forceRefresh = false) {
             var node = this;
 
@@ -245,6 +243,7 @@ module.exports = function(RED) {
                     }
                 }
             }
+
         }
     }
 
