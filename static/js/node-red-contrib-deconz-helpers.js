@@ -101,11 +101,11 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                         });
 
                         // Enable item selection
-                        selectedItemElement.multiselect('enable');
+                        selectedItemElement.multipleSelect('enable');
                         // Finally, set the value of the input select to the selected value
                         selectedItemElement.val(itemName);
                         // // Rebuild bootstrap multiselect form
-                        selectedItemElement.multiselect('rebuild');
+                        selectedItemElement.multipleSelect('refresh');
                         // // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
@@ -117,15 +117,15 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     // Disable item selection if no items were retrieved
-                    selectedItemElement.multiselect('disable');
-                    selectedItemElement.multiselect('refresh');
+                    selectedItemElement.multipleSelect('disable');
+                    selectedItemElement.multipleSelect('refresh');
                     //console.error(`Error: ${errorThrown}`);
                 });
 
         } else {
             // Disable item selection if no (valid) controller was selected
-            selectedItemElement.multiselect('disable');
-            selectedItemElement.multiselect('refresh');
+            selectedItemElement.multipleSelect('disable');
+            selectedItemElement.multipleSelect('refresh');
         }
     }
 
@@ -134,21 +134,25 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
     var refreshListElement = $('#force-refresh');
     var selectedItemElement = $(selectedItemElementName);
 
+    var attr = $(this).attr('multiple');
+
 
     // Initialize bootstrap multiselect form
-    selectedItemElement.multiselect({
-        enableFiltering: true,
-        enableCaseInsensitiveFiltering: true,
+    selectedItemElement.multipleSelect({
+        maxHeight: 300,
+        dropWidth: 320,
+        width: 320,
+        single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false),
+        filter: true,
         filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
+
         includeResetOption: true,
         includeResetDivider: true,
         resetText: RED._("node-red-contrib-deconz/in:multiselect.refresh"),
         numberDisplayed: 1,
-        maxHeight: 300,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected"),
-        buttonWidth: '70%',
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected")
     });
 
     // Initial call to populate item list
@@ -194,11 +198,17 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
                         });
 
                         // Enable item selection
-                        selectedItemElement.multiselect('enable');
+                        selectedItemElement.multipleSelect('enable');
+
+
                         // Finally, set the value of the input select to the selected value
-                        selectedItemElement.val(itemName);
-                        // Rebuild bootstrap multiselect form
-                        selectedItemElement.multiselect('rebuild');
+                        if (selectedItemElement.find('option[value='+itemName+']').length) {
+                            selectedItemElement.val(itemName);
+                        } else {
+                            selectedItemElement.val(selectedItemElement.find('option').eq(0).attr('value'));
+                        }
+                        selectedItemElement.multipleSelect('destroy');
+
                         // Trim selected item string length with elipsis
                         var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
                         var sHTML = selectItemSpanElement.html();
@@ -212,15 +222,15 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     // Disable item selection if no items were retrieved
-                    selectedItemElement.multiselect('disable');
-                    selectedItemElement.multiselect('refresh');
+                    selectedItemElement.multipleSelect('disable');
+                    selectedItemElement.multipleSelect('refresh');
                     //console.error(`Error: ${errorThrown}`);
                 });
 
         } else {
             // Disable item selection if no (valid) controller was selected
-            selectedItemElement.multiselect('disable');
-            selectedItemElement.multiselect('refresh');
+            selectedItemElement.multipleSelect('disable');
+            selectedItemElement.multipleSelect('refresh');
         }
     }
 
@@ -232,13 +242,12 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
 
     // Initialize bootstrap multiselect form
-    selectedItemElement.multiselect({
+    selectedItemElement.multipleSelect('destroy');
+    selectedItemElement.multipleSelect({
         numberDisplayed: 1,
-        maxHeight: 300,
-        disableIfEmpty: true,
-        nSelectedText: 'selected',
-        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.complete_payload"),
-        buttonWidth: '70%',
+        dropWidth: 320,
+        width: 320,
+        single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false)
     });
 
 
@@ -261,7 +270,7 @@ function deconz_initSettings(callback, inputSettings) {
         ws_port:false
     };
 
-    $.get("https://dresden-light.appspot.com/discover", function( data ) {}).done(function(data) {
+    $.get("https://phoscon.de/discover", function( data ) {}).done(function(data) {
         if (!data.length) {
             alert( "Can't discover your device, enter settings manually" );
             return false;

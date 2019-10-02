@@ -18,5 +18,10 @@
         "device_not_set": "device not set",
         "reconnecting": "reconnecting...",
         "received": "received"
+    },
+    "multiselect": {
+        "none_selected": "None selected",
+        "complete_payload": "Complete state payload"
     }
+
 }

@@ -1,5 +1,5 @@
 <script type="text/x-red" data-template-name="deconz-battery">
-    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css" />
     <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
     <div class="form-row">
         <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
@@ -11,11 +11,11 @@
     </div>
     <div class="form-row">
         <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
-        <select id="node-input-device"></select>
+        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
     </div>
     <div class="form-row">
         <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span data-i18n="label.start_output"></span></label>

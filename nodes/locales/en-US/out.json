@@ -24,5 +24,8 @@
         "ok": "sent",
         "error": "error",
         "connection": "connection error"
+    },
+    "multiselect": {
+        "none_selected": "None selected"
     }
 }

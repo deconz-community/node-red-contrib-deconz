@@ -1,5 +1,5 @@
 <script type="text/x-red" data-template-name="deconz-get">
-   <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+   <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css" />
    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
 
     <div class="form-row">
@@ -12,15 +12,15 @@
     </div>
     <div class="form-row">
         <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
-        <select id="node-input-device"></select>
+        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
     </div>
     <div class="form-row">
         <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
-        <select id="node-input-state"></select>
+        <select id="node-input-state" class="s-width"  data-i18n="[placeholder]multiselect.complete_payload"></select>
     </div>
 </script>
 

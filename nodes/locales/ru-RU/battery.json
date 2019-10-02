@@ -21,5 +21,8 @@
         "not_reachable": "недоступен",
         "device_not_set": "нет устройства",
         "reconnecting": "подключение..."
+    },
+    "multiselect": {
+        "none_selected": "Не выбран"
     }
 }

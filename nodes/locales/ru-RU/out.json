@@ -24,5 +24,8 @@
         "ok": "ок",
         "error": "ошибка",
         "connection": "ошибка соединения"
+    },
+    "multiselect": {
+        "none_selected": "Не выбран"
     }
 }

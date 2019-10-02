@@ -18,5 +18,9 @@
         "device_not_set": "нет устройства",
         "reconnecting": "подключение...",
         "received": "получено"
+    },
+    "multiselect": {
+        "none_selected": "Не выбран",
+        "complete_payload": "Все данные массивом"
     }
 }

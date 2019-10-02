@@ -21,5 +21,8 @@
         "not_reachable": "not reachable",
         "device_not_set": "device not set",
         "reconnecting": "reconnecting..."
+    },
+    "multiselect": {
+        "none_selected": "None selected"
     }
 }

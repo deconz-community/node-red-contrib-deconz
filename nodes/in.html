@@ -1,5 +1,5 @@
 <script type="text/x-red" data-template-name="deconz-input">
-    <link rel="stylesheet" href="deconz/static/css/bootstrap-multiselect.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css" />
     <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
 
     <div class="form-row">
@@ -12,19 +12,19 @@
     </div>
     <div class="form-row">
         <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
-        <select id="node-input-device"></select>
+        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <button type="button" style="width: 70%" class="btn btn-light" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></button>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
     </div>
     <div class="form-row">
         <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
-        <select id="node-input-state"></select>
+        <select id="node-input-state" class="s-width"  data-i18n="[placeholder]multiselect.complete_payload"></select>
     </div>
     <div class="form-row">
         <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span data-i18n="label.output"></span></label>
-        <select id="node-input-output" style="width: auto;">
+        <select id="node-input-output" class="s-width">
             <option value="always" data-i18n="label.always">Always</option>
             <option value="onchange" data-i18n="label.on_state_change">On state change</option>
             <option value="onupdate" data-i18n="label.on_update">On update</option>
@@ -93,13 +93,13 @@
             var $outputSelect = $("#node-input-output");
 
             // Initialize bootstrap multiselect form
-            $outputSelect.multiselect({
+            $outputSelect.multipleSelect({
                 maxHeight: 300,
-                disableIfEmpty: true,
-                buttonWidth: '70%',
+                dropWidth: 320,
+                single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false),
+                placeholder: "Always"
             });
-            // console.log(node.output);
-            // $outputSelect.val(node.output).multiselect('refresh');
+
 
             var updateOutput = function () {
                 var selectedState = $('#node-input-state option:selected').val();
@@ -111,13 +111,13 @@
                     $outputSelect.closest('.form-row').hide();
                 }
 
-                $outputSelect.multiselect('refresh');
+                $outputSelect.multipleSelect('refresh');
             }
 
             $('#node-input-state').on("change", function() {
                 state = $('#node-input-state option:selected').val();
                 if (state) { node.state = state; }
-                if (parseInt(state) === 0) {$outputSelect.val('always').multiselect('refresh');}
+                if (parseInt(state) === 0) {$outputSelect.val('always').multipleSelect('refresh');}
                 updateOutput();
             });
 
@@ -137,7 +137,7 @@
                     deconz_getItemStateList(node.state, '#node-input-state');
                 },100);
 
-                if (!node.output) { $outputSelect.val('always').multiselect('refresh'); }
+                if (!node.output) { $outputSelect.val('always').multipleSelect('refresh'); }
 
             }, 100); //we need small timeout, too fire change event for server select
         },
