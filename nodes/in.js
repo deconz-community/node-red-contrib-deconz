@@ -154,8 +154,8 @@ module.exports = function(RED) {
             if (state !== undefined){
                 //by types
                 if ("type" in deviceMeta && (deviceMeta.type).toLowerCase() === 'window covering device') {
-                    characteristic.CurrentPosition = state['bri']/2.55;
-                    characteristic.TargetPosition = state['bri']/2.55;
+                    characteristic.CurrentPosition = Math.ceil(state['bri']/2.55);
+                    characteristic.TargetPosition = Math.ceil(state['bri']/2.55);
                     if (no_reponse) {
                         characteristic.CurrentPosition = "NO_RESPONSE";
                         characteristic.TargetPosition = "NO_RESPONSE";
@@ -216,7 +216,7 @@ module.exports = function(RED) {
                     // }
 
                     if (state['power'] !== undefined) {
-                        characteristic.OutletInUse = state['power'] > 0 ? true : false;
+                        characteristic.OutletInUse = state['power'] > 0;
                         if (no_reponse) characteristic.OutletInUse = "NO_RESPONSE";
                     }
 
@@ -246,17 +246,17 @@ module.exports = function(RED) {
                     }
 
                     if (state['bri'] !== undefined) {
-                        characteristic.Brightness = state['bri'] / 2.55;
+                        characteristic.Brightness = Math.ceil(state['bri'] / 2.55);
                         if (no_reponse) characteristic.Brightness = "NO_RESPONSE";
                     }
 
                     if (state['hue'] !== undefined) {
-                        characteristic.Hue = state['hue'] / 182;
+                        characteristic.Hue = Math.ceil(state['hue'] / 182);
                         if (no_reponse) characteristic.Hue = "NO_RESPONSE";
                     }
 
                     if (state['sat'] !== undefined) {
-                        characteristic.Saturation = state['sat'] / 2.55;
+                        characteristic.Saturation = Math.ceil(state['sat'] / 2.55);
                         if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
                     }
 

@@ -89,7 +89,7 @@ module.exports = function(RED) {
                             command = node.command;
                             switch (command) {
                                 case 'on':
-                                    payload = payload && payload !== '0' ? true : false;
+                                    payload = payload && payload !== '0';
                                     break;
 
                                 case 'toggle':
@@ -245,20 +245,20 @@ module.exports = function(RED) {
             if (payload.On !== undefined) {
                 msg['on'] = payload.On;
             } else if (payload.Brightness !== undefined) {
-                msg['bri'] = Math.round(payload.Brightness * 2.55);
-                msg['on'] = payload.Brightness > 0 ? true : false;
+                msg['bri'] = Math.ceil(payload.Brightness * 2.55);
+                msg['on'] = payload.Brightness > 0
             } else if (payload.Hue !== undefined) {
                 msg['hue'] = payload.Hue * 182;
                 msg['on'] = true;
             } else if (payload.Saturation !== undefined) {
-                msg['sat'] = Math.round(payload.Saturation * 2.55);
+                msg['sat'] = Math.ceil(payload.Saturation * 2.55);
                 msg['on'] = true;
             } else if (payload.ColorTemperature !== undefined) {
                 msg['ct'] = payload.ColorTemperature;
                 msg['on'] = true;
             } else if (payload.TargetPosition !== undefined) {
-                msg['on'] = payload.TargetPosition>0;
-                msg['bri'] = Math.round(payload.TargetPosition * 2.55);
+                msg['on'] = payload.TargetPosition > 0;
+                msg['bri'] = Math.ceil(payload.TargetPosition * 2.55);
             }
 
 
