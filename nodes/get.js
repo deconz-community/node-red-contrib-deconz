@@ -42,7 +42,7 @@ module.exports = function(RED) {
             if (typeof(config.device) == 'string'  && config.device.length) {
                 node.status({}); //clean
 
-                node.on('input', function (message) {
+                node.on('input', function (message_in) {
                     clearTimeout(node.cleanTimer);
                     var deviceMeta = node.server.getDevice(node.config.device);
 
@@ -72,6 +72,7 @@ module.exports = function(RED) {
 
                             node.send({
                                 payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                                payload_in: message_in.payload,
                                 meta:deviceMeta,
                             });
                         }

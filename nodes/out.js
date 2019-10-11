@@ -246,6 +246,7 @@ module.exports = function(RED) {
                 msg['on'] = payload.On;
             } else if (payload.Brightness !== undefined) {
                 msg['bri'] = Math.ceil(payload.Brightness * 2.55);
+                if (msg['bri'] >= 254) msg['bri'] = 255;
                 msg['on'] = payload.Brightness > 0
             } else if (payload.Hue !== undefined) {
                 msg['hue'] = payload.Hue * 182;
