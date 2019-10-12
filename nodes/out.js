@@ -256,6 +256,7 @@ module.exports = function(RED) {
                 msg['on'] = true;
             } else if (payload.ColorTemperature !== undefined) {
                 msg['ct'] = payload.ColorTemperature;
+                if (msg['ct'] <= 153) msg['ct'] = 153;
                 msg['on'] = true;
             } else if (payload.TargetPosition !== undefined) {
                 msg['on'] = payload.TargetPosition > 0;
