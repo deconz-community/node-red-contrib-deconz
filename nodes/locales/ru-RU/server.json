@@ -7,7 +7,8 @@
         "websocket_port": "Вебсокет порт",
         "get_settings": "Получить настройки",
         "use_secured_ssl": "Использовать защищенное SSL соединение",
-        "magick": "Магия"
+        "magick": "Магия",
+        "polling": "Интервал, сек"
     },
     "placeholder": {
         "name": "Название"

@@ -231,12 +231,12 @@ module.exports = function(RED) {
                     }
 
                     if (state['open'] !== undefined) {
-                        characteristic.ContactSensorState = state['open'];
+                        characteristic.ContactSensorState = state['open'] ? 1 : 0;
                         if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
                     }
 
                     if (state['vibration'] !== undefined) {
-                        characteristic.ContactSensorState = state['vibration'];
+                        characteristic.ContactSensorState = state['vibration'] ? 1 : 0;
                         if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
                     }
 

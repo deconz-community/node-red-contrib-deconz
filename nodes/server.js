@@ -20,7 +20,7 @@ module.exports = function(RED) {
 
             node.setMaxListeners(255);
             node.refreshDiscoverTimer = null;
-            node.refreshDiscoverInterval = 15000;
+            node.refreshDiscoverInterval = n.polling >= 3? n.polling*1000 : 15000;
 
             node.socket = new DeconzSocket({
                 hostname: this.ip,

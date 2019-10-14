@@ -26,6 +26,10 @@
         <input type="checkbox" id="node-config-input-secure" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.use_secured_ssl"></span></input>
     </div>
     <div class="form-row">
+        <label for="node-input-polling" class="l-width"><i class="icon-time"></i> <span data-i18n="label.polling"></span></label>
+        <input type="text" id="node-config-input-polling" placeholder="15">
+    </div>
+    <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.magick"></span></label>
         <a style="width: 70%" class="red-ui-button" id="force-refresh" name="force-refresh"><span data-i18n="label.get_settings"></span></a>
 	</div>
@@ -59,7 +63,14 @@
             secure: {
                 value: false,
                 required: true
-            }
+            },
+            polling: {
+                value: 15,
+                required: false,
+                validate: function (value) {
+                    return !value || value > 2;
+                }
+            },
         },
         label: function() {
             return this.name ||  this.ip+':'+this.port;
