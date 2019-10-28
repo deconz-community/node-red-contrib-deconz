@@ -108,6 +108,7 @@ module.exports = function(RED) {
                                 case 'hue':
                                 case 'sat':
                                 case 'ct':
+                                case 'scene': // added scene, payload is the scene ID
                                 case 'colorloopspeed':
                                 // case 'transitiontime':
                                     payload = parseInt(payload);
@@ -142,16 +143,19 @@ module.exports = function(RED) {
                     //send data to API
                     var deviceMeta = node.server.getDevice(node.config.device);
                     if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
-                        if ((/group_/g).test(node.config.device)) {
+						if (command == 'scene'){ // make a new URL for recalling the scene
+							var groupid = ((node.config.device).split('group_').join(''));
+                            var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + groupid + '/scenes/' + payload + '/recall';
+						} else if ((/group_/g).test(node.config.device)) {
                             var groupid = ((node.config.device).split('group_').join(''));
                             var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/groups/' + groupid + '/action';
                         } else {
                             var url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.apikey + '/lights/' + deviceMeta.device_id + '/state';
                         }
                         var post = {};
-                        if (node.commandType == 'object' || node.commandType == 'homekit') {
+						if (node.commandType == 'object' || node.commandType == 'homekit') {
                             post = payload;
-                        } else {
+                        } else if (command != 'scene') { // scene doesn't have a post payload, so keep it empty.
                             if (command != 'on') post['on'] = true;
                             if (command == 'bri') post['on'] = payload > 0 ? true : false;
                             post[command] = payload;

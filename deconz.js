@@ -49,6 +49,20 @@ module.exports = function (RED) {
             res.status(404).end();
         }
     });
+
+    RED.httpAdmin.get(NODE_PATH + 'getScenesByDevice', function (req, res) {
+        var config = req.query;
+        var controller = RED.nodes.getNode(config.controllerID);
+        if (controller && controller.constructor.name === "ServerNode") {
+            if ("scenes" in controller.items[config.device] && config.device in controller.items) {
+                res.json(controller.items[config.device].scenes);
+            } else {
+                res.json({});
+            }
+        } else {
+            res.status(404).end();
+        }
+    });
     // RED.httpAdmin.get(NODE_PATH + 'gwscanner', function (req, res) {
     //     // var ip = require("ip");
     //     // console.log ( ip.address() );

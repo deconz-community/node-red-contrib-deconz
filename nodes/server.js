@@ -166,7 +166,7 @@ module.exports = function(RED) {
 
         onClose() {
             var that = this;
-            that.warn('WebSocket connection closed');
+            that.log('WebSocket connection closed');
             that.emit('onClose');
 
             clearInterval(that.refreshDiscoverTimer);
