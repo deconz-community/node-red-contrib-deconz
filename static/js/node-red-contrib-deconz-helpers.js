@@ -70,7 +70,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             $.each(groupsByName, function(index, value) {
                                 if (value.meta.device_type == "groups") {
-                                    $('<option  value="group_' + value.meta.id +'">&#9675;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+')</option>').appendTo(groupHtml);
+                                    $('<option  value="group_' + value.meta.id +'">&#9675;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+(value.meta.scenes.length?", scenes: "+value.meta.scenes.length:"")+')</option>').appendTo(groupHtml);
                                 }
                             });
 
