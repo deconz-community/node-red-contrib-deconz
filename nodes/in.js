@@ -83,10 +83,11 @@ module.exports = function(RED) {
                         text: "node-red-contrib-deconz/in:status.not_reachable"
                     });
                 } else {
+                    var nodeState = (node.config.state in device.state) ? (device.state[node.config.state]) : null;
                     node.status({
                         fill: "green",
                         shape: "dot",
-                        text: (node.config.state in device.state) ? (device.state[node.config.state]).toString() : "node-red-contrib-deconz/in:status.connected"
+                        text: nodeState !== null ? nodeState.toString() : "node-red-contrib-deconz/in:status.connected"
                     });
                 }
                 if (node.oldState === undefined && device.state[node.config.state]) { node.oldState = device.state[node.config.state]; }
