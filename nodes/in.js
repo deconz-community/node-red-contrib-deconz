@@ -196,20 +196,22 @@ module.exports = function(RED) {
                         // 1005            One            triple short press
                         // 1006            One            quad short press
                         // 1010            One            five+ short press
-                        if ([1002, 2002, 3002, 4002, 5002].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 0;
-                        else if ([1004, 2004, 3004, 4004, 5004].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 1;
-                        else if ([1001, 2001, 3001, 4001, 5001].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 2;
-                        else if ([1005, 2005, 3005, 4005, 5005].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 3;
-                        else if ([1006, 2006, 3006, 4006, 5006].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 4;
-                        else if ([1010, 2010, 3010, 4010, 5010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
+                        if ([1002, 2002, 3002, 4002, 5002, 6002].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 0;
+                        else if ([1004, 2004, 3004, 4004, 5004, 6004].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 1;
+                        else if ([1001, 2001, 3001, 4001, 5001, 6001].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 2;
+                        else if ([1005, 2005, 3005, 4005, 5005, 6005].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 3;
+                        else if ([1006, 2006, 3006, 4006, 5006, 6006].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 4;
+                        else if ([1010, 2010, 3010, 4010, 5010, 6010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
                         if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
 
+                        
                         //index of btn
                         if ([1001, 1002, 1004, 1005, 1006, 1010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 1;
                         else if ([2001, 2002, 2004, 2005, 2006, 2010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 2;
                         else if ([3001, 3002, 3004, 3005, 3006, 3010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 3;
                         else if ([4001, 4002, 4004, 4005, 4006, 4010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 4;
                         else if ([5001, 5002, 5004, 5005, 5006, 5010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 5;
+                        else if ([6001, 6002, 6004, 6005, 6006, 6010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 6;
                     }
 
                     // if (state['consumption'] !== null){
