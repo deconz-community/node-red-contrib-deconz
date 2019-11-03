@@ -162,7 +162,7 @@
                             var list = [];
                             if (data.length) {
                                 $.each(data, function(index, value) {
-                                    list.push({'value':index+"", 'label':value.name});
+                                    list.push({'value':value.id+"", 'label':value.name});
                                 });
                             } else {
                                 list = [{'value':"0", 'label':'No scenes avaiable'}];
