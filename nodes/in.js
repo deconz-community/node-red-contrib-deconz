@@ -254,7 +254,7 @@ module.exports = function(RED) {
                     }
 
                     if (state['hue'] !== undefined) {
-                        characteristic.Hue = Math.ceil(state['hue'] / 182);
+                        characteristic.Hue = Math.ceil(state['hue'] / 182.04);
                         if (no_reponse) characteristic.Hue = "NO_RESPONSE";
                     }
 

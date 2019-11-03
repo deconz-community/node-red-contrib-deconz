@@ -253,7 +253,7 @@ module.exports = function(RED) {
                 if (msg['bri'] >= 254) msg['bri'] = 255;
                 msg['on'] = payload.Brightness > 0
             } else if (payload.Hue !== undefined) {
-                msg['hue'] = payload.Hue * 182;
+                msg['hue'] = Math.ceil(payload.Hue * 182.04);
                 msg['on'] = true;
             } else if (payload.Saturation !== undefined) {
                 msg['sat'] = Math.ceil(payload.Saturation * 2.55);

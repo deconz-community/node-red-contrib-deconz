@@ -1,0 +1,492 @@
+[
+  {
+    "id": "c3e9a061.1f4ad",
+    "type": "change",
+    "z": "3f1c4f24.8b18d",
+    "name": "Change",
+    "rules": [
+      {
+        "t": "move",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.TargetTemperature",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 935,
+    "y": 1120,
+    "wires": [
+      [
+        "f78f3175.ecc06"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "e57f2be.71ce5d8",
+    "type": "homekit-service",
+    "z": "3f1c4f24.8b18d",
+    "isParent": true,
+    "bridge": "e2253181.3cea4",
+    "accessoryCategory": "THERMOSTAT",
+    "parentService": "",
+    "name": "Thermostat",
+    "serviceName": "Thermostat",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "cameraConfigVideoProcessor": "",
+    "cameraConfigSource": "",
+    "cameraConfigStillImageSource": "",
+    "cameraConfigMaxStreams": "",
+    "cameraConfigMaxWidth": "",
+    "cameraConfigMaxHeight": "",
+    "cameraConfigMaxFPS": "",
+    "cameraConfigMaxBitrate": "",
+    "cameraConfigVideoCodec": "",
+    "cameraConfigAudioCodec": "",
+    "cameraConfigAudio": false,
+    "cameraConfigPacketSize": "",
+    "cameraConfigVerticalFlip": false,
+    "cameraConfigHorizontalFlip": false,
+    "cameraConfigMapVideo": "",
+    "cameraConfigMapAudio": "",
+    "cameraConfigVideoFilter": "",
+    "cameraConfigAdditionalCommandLine": "",
+    "cameraConfigDebug": false,
+    "characteristicProperties": "{\n    \"TargetHeatingCoolingState\": {\n        \"validValues\": [0, 1, 2, 3]\n    },\n    \"CurrentHeatingCoolingState\": {\n        \"validValues\": [0, 1, 2]\n    },\n    \"CoolingThresholdTemperature\": {\n        \n    },\n    \"HeatingThresholdTemperature\": {\n        \n    }\n}",
+    "x": 1050,
+    "y": 960,
+    "wires": [
+      [
+        "f78f3175.ecc06",
+        "68c74f2d.b94f5"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "5057a323.78fc3c",
+    "type": "deconz-input",
+    "z": "3f1c4f24.8b18d",
+    "name": "Current Temperature",
+    "server": "",
+    "device": {
+      "length": 0,
+      "prevObject": {
+        "length": 0,
+        "prevObject": {
+          "0": {
+            "location": {
+              "href": "http://127.0.0.1:1880/#flow/3f1c4f24.8b18d",
+              "ancestorOrigins": {},
+              "origin": "http://127.0.0.1:1880",
+              "protocol": "http:",
+              "host": "127.0.0.1:1880",
+              "hostname": "127.0.0.1",
+              "port": "1880",
+              "pathname": "/",
+              "search": "",
+              "hash": "#flow/3f1c4f24.8b18d"
+            },
+            "jQuery341071116124471850871": {
+              "events": {
+                "mouseup": [
+                  {
+                    "type": "mouseup",
+                    "origType": "mouseup",
+                    "guid": 3,
+                    "namespace": ""
+                  }
+                ],
+                "click": [
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17251,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17264,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17274,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17282,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17297,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17303,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17830,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "data": null,
+                    "guid": 17841,
+                    "namespace": ""
+                  },
+                  {
+                    "type": "click",
+                    "origType": "click",
+                    "guid": 20934,
+                    "namespace": "red-ui-menu"
+                  }
+                ]
+              },
+              "focusin": 3
+            },
+            "jQuery341071116124471850872": {
+              "uiDialogInstances": []
+            }
+          },
+          "length": 1
+        }
+      }
+    },
+    "device_name": "",
+    "state": "0",
+    "output": "always",
+    "outputAtStartup": true,
+    "x": 770,
+    "y": 960,
+    "wires": [
+      [],
+      [
+        "e57f2be.71ce5d8"
+      ]
+    ]
+  },
+  {
+    "id": "8a84a294.6c39d",
+    "type": "deconz-output",
+    "z": "3f1c4f24.8b18d",
+    "name": "Heater",
+    "server": "c0e9510b.07ed5",
+    "device": "00:15:8d:00:02:d4:0d:c1-01",
+    "device_name": "Light 1 : Color temperature light",
+    "command": "on",
+    "commandType": "deconz_cmd",
+    "payload": "payload",
+    "payloadType": "msg",
+    "transitionTime": "",
+    "x": 1310,
+    "y": 960,
+    "wires": []
+  },
+  {
+    "id": "f78f3175.ecc06",
+    "type": "function",
+    "z": "3f1c4f24.8b18d",
+    "name": "save",
+    "func": "var T1 = context.get(\"T1\")||{\n    \"TargetHeatingCoolingState\": 0,\n    \"CurrentHeatingCoolingState\": 0,\n    \"CurrentTemperature\": 0,\n    \"TargetTemperature\": 0,\n};\n\n\nOutMsg = {payload:{}};\n\nif (msg.payload.TargetHeatingCoolingState !== undefined){\n    T1.TargetHeatingCoolingState = msg.payload.TargetHeatingCoolingState;\n}\nif (msg.payload.CurrentTemperature !== undefined) {\n    T1.CurrentTemperature = msg.payload.CurrentTemperature;\n}\nif (msg.payload.TargetTemperature !== undefined) {\n    T1.TargetTemperature = msg.payload.TargetTemperature;\n}\n\nif (T1.TargetHeatingCoolingState === 0){\n    OutMsg.payload.CurrentHeatingCoolingState = 0;\n} else if(T1.TargetHeatingCoolingState === 1 || T1.TargetHeatingCoolingState == 2 || T1.TargetHeatingCoolingState == 3){\n    OutMsg.payload.CurrentHeatingCoolingState = T1.CurrentTemperature < T1.TargetTemperature?1:0;\n}\n\n\nif (msg.hap === undefined || msg.hap.context === undefined) {\n    if (msg.payload.TargetTemperature !== undefined) {\n        if (T1.TargetHeatingCoolingState === 3) {\n            OutMsg.payload.TargetTemperature = msg.payload.TargetTemperature;\n        } else {\n            return null; //в не-авто режиме заблокирована передача температуры\n        }\n    }\n}\n\n\ncontext.set(\"T1\",T1);\n\nif (!OutMsg || !OutMsg.payload) return null;\nOutMsg.data = T1;\nreturn OutMsg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 1055,
+    "y": 1040,
+    "wires": [
+      [
+        "e57f2be.71ce5d8"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "c3d39b50.b21aa8",
+    "type": "inject",
+    "z": "3f1c4f24.8b18d",
+    "name": "22℃ (16:00-17:00)",
+    "topic": "",
+    "payload": "22",
+    "payloadType": "num",
+    "repeat": "",
+    "crontab": "*/1 16 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 770,
+    "y": 1120,
+    "wires": [
+      [
+        "c3e9a061.1f4ad"
+      ]
+    ]
+  },
+  {
+    "id": "4856184e.c02c08",
+    "type": "inject",
+    "z": "3f1c4f24.8b18d",
+    "name": "18℃ (17:00-00:00)",
+    "topic": "",
+    "payload": "18",
+    "payloadType": "num",
+    "repeat": "",
+    "crontab": "*/1 17-23 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 770,
+    "y": 1160,
+    "wires": [
+      [
+        "c3e9a061.1f4ad"
+      ]
+    ]
+  },
+  {
+    "id": "bf228f66.edecd",
+    "type": "inject",
+    "z": "3f1c4f24.8b18d",
+    "name": "15℃ (00:00-16:00)",
+    "topic": "",
+    "payload": "15",
+    "payloadType": "num",
+    "repeat": "",
+    "crontab": "*/1 0-15 * * *",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 770,
+    "y": 1080,
+    "wires": [
+      [
+        "c3e9a061.1f4ad"
+      ]
+    ]
+  },
+  {
+    "id": "12021480.9a8b6c",
+    "type": "homekit-service",
+    "z": "3f1c4f24.8b18d",
+    "isParent": true,
+    "bridge": "e2253181.3cea4",
+    "accessoryCategory": "SWITCH",
+    "parentService": "",
+    "name": "HOT 2 hours",
+    "serviceName": "Switch",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "cameraConfigVideoProcessor": "",
+    "cameraConfigSource": "",
+    "cameraConfigStillImageSource": "",
+    "cameraConfigMaxStreams": "",
+    "cameraConfigMaxWidth": "",
+    "cameraConfigMaxHeight": "",
+    "cameraConfigMaxFPS": "",
+    "cameraConfigMaxBitrate": "",
+    "cameraConfigVideoCodec": "",
+    "cameraConfigAudioCodec": "",
+    "cameraConfigAudio": false,
+    "cameraConfigPacketSize": "",
+    "cameraConfigVerticalFlip": false,
+    "cameraConfigHorizontalFlip": false,
+    "cameraConfigMapVideo": "",
+    "cameraConfigMapAudio": "",
+    "cameraConfigVideoFilter": "",
+    "cameraConfigAdditionalCommandLine": "",
+    "cameraConfigDebug": false,
+    "characteristicProperties": "{}",
+    "x": 470,
+    "y": 800,
+    "wires": [
+      [
+        "c3d42fe7.15efc"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "c3d42fe7.15efc",
+    "type": "switch",
+    "z": "3f1c4f24.8b18d",
+    "name": "",
+    "property": "payload.On",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      },
+      {
+        "t": "else"
+      }
+    ],
+    "checkall": "false",
+    "repair": false,
+    "outputs": 2,
+    "x": 585,
+    "y": 800,
+    "wires": [
+      [
+        "c28f324b.85df7",
+        "c4b25a8d.436368"
+      ],
+      [
+        "c7bf0d40.f9d04",
+        "c4b25a8d.436368"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "c7bf0d40.f9d04",
+    "type": "function",
+    "z": "3f1c4f24.8b18d",
+    "name": "Back to Auto",
+    "func": "msg.payload = {\n    \"TargetHeatingCoolingState\":3\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 790,
+    "y": 860,
+    "wires": [
+      [
+        "e57f2be.71ce5d8"
+      ]
+    ]
+  },
+  {
+    "id": "c28f324b.85df7",
+    "type": "function",
+    "z": "3f1c4f24.8b18d",
+    "name": "Start Heat",
+    "func": "msg.payload = {\n    \"TargetHeatingCoolingState\":1,\n    \"TargetTemperature\":28\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 790,
+    "y": 820,
+    "wires": [
+      [
+        "e57f2be.71ce5d8"
+      ]
+    ]
+  },
+  {
+    "id": "c4b25a8d.436368",
+    "type": "trigger",
+    "z": "3f1c4f24.8b18d",
+    "op1": "",
+    "op2": "{\"On\":false}",
+    "op1type": "nul",
+    "op2type": "json",
+    "duration": "2",
+    "extend": false,
+    "units": "hr",
+    "reset": "{\"On\":false}",
+    "bytopic": "all",
+    "name": "",
+    "x": 470,
+    "y": 740,
+    "wires": [
+      [
+        "c7bf0d40.f9d04",
+        "12021480.9a8b6c"
+      ]
+    ]
+  },
+  {
+    "id": "68c74f2d.b94f5",
+    "type": "function",
+    "z": "3f1c4f24.8b18d",
+    "name": "save",
+    "func": "if (msg.payload.CurrentHeatingCoolingState !== undefined) {\n    msg.payload = msg.payload.CurrentHeatingCoolingState?true:false;\n    return msg;\n} else {\n    return null;\n}",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 1195,
+    "y": 960,
+    "wires": [
+      [
+        "8a84a294.6c39d"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "a73e7e18.4714",
+    "type": "comment",
+    "z": "3f1c4f24.8b18d",
+    "name": "Schedule",
+    "info": "",
+    "x": 720,
+    "y": 1040,
+    "wires": []
+  },
+  {
+    "id": "d4dc0efa.08a6a",
+    "type": "comment",
+    "z": "3f1c4f24.8b18d",
+    "name": "Presets",
+    "info": "",
+    "x": 450,
+    "y": 700,
+    "wires": []
+  },
+  {
+    "id": "e2253181.3cea4",
+    "type": "homekit-bridge",
+    "z": "",
+    "bridgeName": "Homekit",
+    "pinCode": "111-11-111",
+    "port": "",
+    "allowInsecureRequest": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "customMdnsConfig": false,
+    "mdnsMulticast": true,
+    "mdnsInterface": "",
+    "mdnsPort": "",
+    "mdnsIp": "",
+    "mdnsTtl": "",
+    "mdnsLoopback": true,
+    "mdnsReuseAddr": true,
+    "allowMessagePassthrough": true
+  },
+  {
+    "id": "c0e9510b.07ed5",
+    "type": "deconz-server",
+    "z": "",
+    "name": "Conbee-v2",
+    "ip": "127.0.0.1",
+    "port": "80",
+    "apikey": "AAAAAAAAA",
+    "ws_port": "443",
+    "secure": false,
+    "polling": ""
+  }
+]
