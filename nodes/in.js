@@ -204,7 +204,7 @@ module.exports = function(RED) {
                         else if ([1010, 2010, 3010, 4010, 5010, 6010].indexOf(state['buttonevent']) >= 0) characteristic.ProgrammableSwitchEvent = 5;
                         if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
 
-                        
+
                         //index of btn
                         if ([1001, 1002, 1004, 1005, 1006, 1010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 1;
                         else if ([2001, 2002, 2004, 2005, 2006, 2010].indexOf(state['buttonevent']) >= 0) characteristic.ServiceLabelIndex = 2;
@@ -262,8 +262,8 @@ module.exports = function(RED) {
                         characteristic.Saturation = Math.ceil(state['sat'] / 2.55);
                         if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
                     }
-
-                    if (state['ct'] !== undefined) {
+                    
+                    if (state['ct'] !== undefined && state['hue'] === undefined) { //lightbulb bug: use hue or ct
                         characteristic.ColorTemperature = state['ct'];
                         if (state['ct'] < 140) characteristic.ColorTemperature = 140;
                         else if (state['ct'] > 500) characteristic.ColorTemperature = 500;
