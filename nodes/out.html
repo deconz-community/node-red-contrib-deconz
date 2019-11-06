@@ -179,7 +179,7 @@
                                     options: deconzOptions
                                 };
                                 $('#node-input-payloadType').val(node.payloadType);
-                                // $('#node-input-payloadType').typedInput('type', 'deconz_payload');
+                                $('#node-input-payloadType').typedInput('type', 'deconz_payload');
                                 $('#node-input-payload').typedInput('types', [payloadTypes, 'msg', 'flow', 'global', 'str', 'num', 'date']);
                                 $('#node-input-payload').typedInput('type', 'deconz_payload');
                             } else {
@@ -223,8 +223,14 @@
 
 
             //init typedInput
+            var payloadTypes = {
+                value: 'deconz_payload',
+                label: 'deCONZ',
+                icon: 'icons/node-red-contrib-deconz/icon-color.png',
+                options: []
+            };
             $('#node-input-payload').typedInput({
-                types: ['msg', 'flow', 'global', 'str', 'num'],
+                types: [payloadTypes, 'msg', 'flow', 'global', 'str', 'num'],
                 default: 'msg',
                 value: 'payload',
                 typeField: $('#node-input-payloadType'),
