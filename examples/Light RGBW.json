@@ -1,0 +1,182 @@
+[
+  {
+    "id": "e4fd51a1.d2e83",
+    "type": "deconz-output",
+    "z": "c59f3951.c876c8",
+    "name": "Lamp",
+    "server": "c0e9510b.07ed5",
+    "device": "00:12:4b:00:1c:43:2b:38-0b",
+    "device_name": "Light RGBW : Extended color light",
+    "command": "homekit",
+    "commandType": "homekit",
+    "payload": "payload",
+    "payloadType": "msg",
+    "transitionTime": "0",
+    "x": 810,
+    "y": 1420,
+    "wires": []
+  },
+  {
+    "id": "890997c.ec67368",
+    "type": "homekit-service",
+    "z": "c59f3951.c876c8",
+    "isParent": false,
+    "bridge": "e2253181.3cea4",
+    "accessoryCategory": "LIGHTBULB",
+    "parentService": "b6fcfc69.3c2d9",
+    "name": "Lamp HS",
+    "serviceName": "Lightbulb",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "cameraConfigVideoProcessor": "ffmpeg",
+    "cameraConfigSource": "",
+    "cameraConfigStillImageSource": "",
+    "cameraConfigMaxStreams": 2,
+    "cameraConfigMaxWidth": 1280,
+    "cameraConfigMaxHeight": 720,
+    "cameraConfigMaxFPS": 10,
+    "cameraConfigMaxBitrate": 300,
+    "cameraConfigVideoCodec": "libx264",
+    "cameraConfigAudioCodec": "libfdk_aac",
+    "cameraConfigAudio": false,
+    "cameraConfigPacketSize": 1316,
+    "cameraConfigVerticalFlip": false,
+    "cameraConfigHorizontalFlip": false,
+    "cameraConfigMapVideo": "0:0",
+    "cameraConfigMapAudio": "0:1",
+    "cameraConfigVideoFilter": "scale=1280:720",
+    "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+    "cameraConfigDebug": false,
+    "cameraConfigSnapshotOutput": "disabled",
+    "characteristicProperties": "{\n    \"Brightness\":{\n        \"minValue\":0,\n        \"maxValue\":100,\n        \"minStep\":1\n    },\n    \"Hue\":{\n        \"minValue\":0,\n        \"maxValue\":360,\n        \"minStep\":1\n    },\n    \"Saturation\":{\n        \"minValue\":0,\n        \"maxValue\":100,\n        \"minStep\":1\n    }\n}",
+    "x": 640,
+    "y": 1400,
+    "wires": [
+      [
+        "e4fd51a1.d2e83"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "4cd65f42.2aecf",
+    "type": "deconz-input",
+    "z": "c59f3951.c876c8",
+    "name": "Lamp",
+    "server": "c0e9510b.07ed5",
+    "device": "00:12:4b:00:1c:43:2b:38-0b",
+    "device_name": "Light RGBW : Extended color light",
+    "state": "on",
+    "output": "always",
+    "outputAtStartup": true,
+    "x": 430,
+    "y": 1420,
+    "wires": [
+      [],
+      [
+        "ce537714.5cd2b8"
+      ]
+    ]
+  },
+  {
+    "id": "ce537714.5cd2b8",
+    "type": "function",
+    "z": "c59f3951.c876c8",
+    "name": "",
+    "func": "var msgHs = msg; \nif (msgHs.payload.ColorTemperature !== undefined) {\n    delete msgHs.payload.ColorTemperature;\n}\nif (!Object.keys(msgHs)) msgHs = null;\n\n\nvar msgCt = msg;\nif (msgCt.payload.Hue !== undefined) {\n    delete msgCt.payload.Hue;\n}\nif (msgCt.payload.Saturation !== undefined) {\n    delete msgCt.payload.Saturation;\n}\nif (!Object.keys(msgCt)) msgCt = null;\n\nreturn [msgHs, msgCt];",
+    "outputs": 2,
+    "noerr": 0,
+    "x": 535,
+    "y": 1420,
+    "wires": [
+      [
+        "890997c.ec67368"
+      ],
+      [
+        "b6fcfc69.3c2d9"
+      ]
+    ],
+    "l": false
+  },
+  {
+    "id": "b6fcfc69.3c2d9",
+    "type": "homekit-service",
+    "z": "c59f3951.c876c8",
+    "isParent": true,
+    "bridge": "e2253181.3cea4",
+    "accessoryCategory": "LIGHTBULB",
+    "parentService": "",
+    "name": "Lamp CT",
+    "serviceName": "Lightbulb",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "cameraConfigVideoProcessor": "ffmpeg",
+    "cameraConfigSource": "",
+    "cameraConfigStillImageSource": "",
+    "cameraConfigMaxStreams": 2,
+    "cameraConfigMaxWidth": 1280,
+    "cameraConfigMaxHeight": 720,
+    "cameraConfigMaxFPS": 10,
+    "cameraConfigMaxBitrate": 300,
+    "cameraConfigVideoCodec": "libx264",
+    "cameraConfigAudioCodec": "libfdk_aac",
+    "cameraConfigAudio": false,
+    "cameraConfigPacketSize": 1316,
+    "cameraConfigVerticalFlip": false,
+    "cameraConfigHorizontalFlip": false,
+    "cameraConfigMapVideo": "0:0",
+    "cameraConfigMapAudio": "0:1",
+    "cameraConfigVideoFilter": "scale=1280:720",
+    "cameraConfigAdditionalCommandLine": "-tune zerolatency",
+    "cameraConfigDebug": false,
+    "cameraConfigSnapshotOutput": "disabled",
+    "characteristicProperties": "{\n    \"Brightness\":{\n        \"minValue\":0,\n        \"maxValue\":100,\n        \"minStep\":1\n    },\n    \"ColorTemperature\":{\n        \"minValue\":140,\n        \"maxValue\":500,\n        \"minStep\":1\n    }\n}",
+    "x": 640,
+    "y": 1460,
+    "wires": [
+      [
+        "e4fd51a1.d2e83"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "c0e9510b.07ed5",
+    "type": "deconz-server",
+    "z": "",
+    "name": "Conbee-v2",
+    "ip": "192.168.1.15",
+    "port": "80",
+    "apikey": "02BA6A91A3",
+    "ws_port": "443",
+    "secure": false,
+    "polling": ""
+  },
+  {
+    "id": "e2253181.3cea4",
+    "type": "homekit-bridge",
+    "z": "",
+    "bridgeName": "Macos",
+    "pinCode": "111-11-111",
+    "port": "",
+    "allowInsecureRequest": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "customMdnsConfig": false,
+    "mdnsMulticast": true,
+    "mdnsInterface": "",
+    "mdnsPort": "",
+    "mdnsIp": "",
+    "mdnsTtl": "",
+    "mdnsLoopback": true,
+    "mdnsReuseAddr": true,
+    "allowMessagePassthrough": true
+  }
+]

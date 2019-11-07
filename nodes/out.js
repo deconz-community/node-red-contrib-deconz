@@ -1,3 +1,4 @@
+const DeconzHelper = require('../lib/DeconzHelper.js');
 var request = require('request');
 
 module.exports = function(RED) {
@@ -249,22 +250,21 @@ module.exports = function(RED) {
             if (payload.On !== undefined) {
                 msg['on'] = payload.On;
             } else if (payload.Brightness !== undefined) {
-                msg['bri'] = Math.ceil(payload.Brightness * 2.55);
-                if (msg['bri'] >= 254) msg['bri'] = 255;
+                msg['bri'] =  DeconzHelper.convertRange(payload.Brightness, [0,100], [0,255]);
+                if (payload.Brightness >= 254) payload.Brightness = 255;
                 msg['on'] = payload.Brightness > 0
             } else if (payload.Hue !== undefined) {
-                msg['hue'] = Math.ceil(payload.Hue * 182.04);
+                msg['hue'] = DeconzHelper.convertRange(payload.Hue,  [0,360], [0,65535]);
                 msg['on'] = true;
             } else if (payload.Saturation !== undefined) {
-                msg['sat'] = Math.ceil(payload.Saturation * 2.55);
+                msg['sat'] = DeconzHelper.convertRange(payload.Saturation, [0,100], [0,255]);
                 msg['on'] = true;
             } else if (payload.ColorTemperature !== undefined) {
-                msg['ct'] = payload.ColorTemperature;
-                if (msg['ct'] <= 153) msg['ct'] = 153;
+                msg['ct'] = DeconzHelper.convertRange(payload.ColorTemperature, [140,500], [153,500]);
                 msg['on'] = true;
             } else if (payload.TargetPosition !== undefined) {
                 msg['on'] = payload.TargetPosition > 0;
-                msg['bri'] = Math.ceil(payload.TargetPosition * 2.55);
+                msg['bri'] = DeconzHelper.convertRange(payload.TargetPosition, [0,100], [0,255]);
             }
 
 

@@ -1,9 +1,13 @@
+const DeconzHelper = require('../lib/DeconzHelper.js');
+
+
 module.exports = function(RED) {
     class deConzItemIn {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
             var node = this;
+            node.lastSendTimestamp = null;
             node.config = config;
 
             //get server node
@@ -117,6 +121,7 @@ module.exports = function(RED) {
 
             node.oldState = device.state[node.config.state];
             node.prevUpdateTime = device.state['lastupdated'];
+            node.lastSendTimestamp = new Date().getTime();
         };
 
 
@@ -150,7 +155,8 @@ module.exports = function(RED) {
             }
 
             var msg = {};
-
+// console.log(device.state);
+// console.log(new Date().getTime()-node.lastSendTimestamp);
             var characteristic = {};
             if (state !== undefined){
                 //by types
@@ -249,26 +255,29 @@ module.exports = function(RED) {
                     }
 
                     if (state['bri'] !== undefined) {
-                        characteristic.Brightness = Math.ceil(state['bri'] / 2.55);
+                        characteristic.Brightness = DeconzHelper.convertRange(state['bri'], [0,255], [0,100]);
                         if (no_reponse) characteristic.Brightness = "NO_RESPONSE";
                     }
 
-                    if (state['hue'] !== undefined) {
-                        characteristic.Hue = Math.ceil(state['hue'] / 182.04);
-                        if (no_reponse) characteristic.Hue = "NO_RESPONSE";
-                    }
+                    //colors
+                    // if (state['colormode'] === 'hs' || state['colormode'] === 'xy') {
+                        if (state['hue'] !== undefined) {
+                            characteristic.Hue = DeconzHelper.convertRange(state['hue'], [0, 65535], [0, 360]);
+                            if (no_reponse) characteristic.Hue = "NO_RESPONSE";
+                        }
 
-                    if (state['sat'] !== undefined) {
-                        characteristic.Saturation = Math.ceil(state['sat'] / 2.55);
-                        if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
-                    }
-                    
-                    if (state['ct'] !== undefined && state['hue'] === undefined) { //lightbulb bug: use hue or ct
-                        characteristic.ColorTemperature = state['ct'];
-                        if (state['ct'] < 140) characteristic.ColorTemperature = 140;
-                        else if (state['ct'] > 500) characteristic.ColorTemperature = 500;
-                        if (no_reponse) characteristic.ColorTemperature = "NO_RESPONSE";
-                    }
+                        if (state['sat'] !== undefined) {
+                            characteristic.Saturation = DeconzHelper.convertRange(state['sat'], [0, 255], [0, 100]);
+                            if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
+                        }
+
+                    // } else if (state['colormode'] === 'ct') {
+                        if (state['ct'] !== undefined) { //lightbulb bug: use hue or ct
+                            characteristic.ColorTemperature = DeconzHelper.convertRange(state['ct'], [153, 500], [140, 500]);
+                            if (no_reponse) characteristic.ColorTemperature = "NO_RESPONSE";
+                        }
+                    // }
+
                 }
             }
 

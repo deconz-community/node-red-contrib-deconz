@@ -1,0 +1,92 @@
+[
+  {
+    "id": "f0b24f50.5debf",
+    "type": "deconz-input",
+    "z": "dae8637c.368b7",
+    "name": "",
+    "server": "539a1c84.7e99f4",
+    "device": "00:15:8d:00:02:d4:0d:c1-01",
+    "device_name": "Light 1 : Color temperature light",
+    "state": "on",
+    "outputAtStartup": true,
+    "x": 350,
+    "y": 440,
+    "wires": [
+      [],
+      [
+        "9c96778a.818e68"
+      ]
+    ]
+  },
+  {
+    "id": "9c96778a.818e68",
+    "type": "homekit-service",
+    "z": "dae8637c.368b7",
+    "isParent": true,
+    "bridge": "8e4d0c4d.ceb44",
+    "parentService": "f84ba7e0.ff5868",
+    "name": "Light 1",
+    "serviceName": "Lightbulb",
+    "topic": "",
+    "filter": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "characteristicProperties": "{}",
+    "x": 570,
+    "y": 440,
+    "wires": [
+      [
+        "167d3589.1f3f9a"
+      ]
+    ]
+  },
+  {
+    "id": "167d3589.1f3f9a",
+    "type": "deconz-output",
+    "z": "dae8637c.368b7",
+    "name": "",
+    "server": "539a1c84.7e99f4",
+    "device": "00:15:8d:00:02:d4:0d:c1-01",
+    "device_name": "Light 1 : Color temperature light",
+    "command": "homekit",
+    "commandType": "homekit",
+    "payload": "payload",
+    "payloadType": "msg",
+    "transitionTime": "",
+    "x": 790,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "539a1c84.7e99f4",
+    "type": "deconz-server",
+    "z": "",
+    "name": "Conbee2",
+    "ip": "127.0.0.1",
+    "port": "80",
+    "apikey": "F18D851E01",
+    "ws_port": "443",
+    "secure": false
+  },
+  {
+    "id": "8e4d0c4d.ceb44",
+    "type": "homekit-bridge",
+    "z": "",
+    "bridgeName": "Node-Red-macos2",
+    "pinCode": "111-11-111",
+    "port": "",
+    "allowInsecureRequest": false,
+    "manufacturer": "Default Manufacturer",
+    "model": "Default Model",
+    "serialNo": "Default Serial Number",
+    "customMdnsConfig": false,
+    "mdnsMulticast": true,
+    "mdnsInterface": "",
+    "mdnsPort": "",
+    "mdnsIp": "",
+    "mdnsTtl": "",
+    "mdnsLoopback": true,
+    "mdnsReuseAddr": true
+  }
+]
