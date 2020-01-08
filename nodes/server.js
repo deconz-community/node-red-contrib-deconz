@@ -216,8 +216,8 @@ module.exports = function(RED) {
                dataParsed.uniqueid = "group_" + dataParsed.id;
             }
 
-            for (var nodeId in this.devices) {
-                var item = this.devices[nodeId];
+            for (var nodeId in that.devices) {
+                var item = that.devices[nodeId];
                 var node = RED.nodes.getNode(nodeId);
 
                 if (dataParsed.uniqueid === item) {
@@ -228,13 +228,12 @@ module.exports = function(RED) {
                             serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
                             if (node.type === "deconz-input") {
-                                // console.log(dataParsed);
                                 node.sendState(dataParsed);
                             }
                         }
                     } else {
                         console.log('ERROR: cant get '+nodeId+' node, removed from list');
-                        delete node.devices[nodeId];
+                        delete that.devices[nodeId];
 
                         if ("server" in node) {
                             var serverNode = RED.nodes.getNode(node.server.id);
