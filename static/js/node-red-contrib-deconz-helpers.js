@@ -262,13 +262,14 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
 
 function deconz_initSettings(callback, inputSettings) {
-    var settings = {
-        name:false,
-        ip:false,
-        port:false,
-        apikey:false,
-        ws_port:false
-    };
+    settings = inputSettings;
+    // var settings = {
+    //     name:false,
+    //     ip:false,
+    //     port:false,
+    //     apikey:false,
+    //     ws_port:false
+    // };
 
     $.get("https://phoscon.de/discover", function( data ) {}).done(function(data) {
         if (!data.length) {
@@ -276,9 +277,9 @@ function deconz_initSettings(callback, inputSettings) {
             return false;
         }
 
-        settings.name = data[0].name;
-        settings.ip = data[0].internalipaddress;
-        settings.port = data[0].internalport;
+        if ((settings.name).length <= 0) settings.name = data[0].name;
+        if ((settings.ip).length <= 0) settings.ip = data[0].internalipaddress;
+        if ((settings.port).length <= 0) settings.port = data[0].internalport;
 
         // deconz_getApiKey(callback, settings.ip, settings.port);
 
@@ -301,12 +302,35 @@ function deconz_initSettings(callback, inputSettings) {
                                 settings.ws_port = response.websocketport;
                             }
                         },
-                        error: function (err) {
-                            var response = (JSON.parse(err.responseText));
-                            var resp = response[0];
-                            if ('error' in resp) {
-                                alert(resp.error.description);
+                        error: function (jqXHR, exception) {
+                            var msg = '';
+                            if (jqXHR.status === 0) {
+                                msg = 'Not connect. Try to enter deconz local IP address eg. 192.168.1.20';
+                                if (settings.port == 40850) {
+                                    msg = 'HomeAssistant? Fill only IP-address of your HA server.';
+                                    alert(msg);
+                                    return;
+                                }
+                            } else if (jqXHR.status == 404) {
+                                msg = 'Requested page not found. [404]';
+                            } else if (jqXHR.status == 500) {
+                                msg = 'Internal Server Error [500].';
+                            } else if (exception === 'parsererror') {
+                                msg = 'Requested JSON parse failed.';
+                            } else if (exception === 'timeout') {
+                                msg = 'Time out error.';
+                            } else if (exception === 'abort') {
+                                msg = 'Ajax request aborted.';
+                            } else {
+                                var response  = (JSON.parse(jqXHR.responseText));
+                                var resp = response[0];
+                                if ('error' in resp) {
+                                    msg = resp.error.description;
+                                } else {
+                                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                                }
                             }
+                            alert(msg);
                         },
                         complete: function() {
                             callback(settings);
@@ -315,16 +339,37 @@ function deconz_initSettings(callback, inputSettings) {
                     });
                 }
             },
-            error: function (err) {
-                var response = (JSON.parse(err.responseText));
-                var resp = response[0];
-                if ('error' in resp) {
-                    alert(resp.error.description);
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect. Try to enter deconz local IP address eg. 192.168.1.20';
+                    if (settings.port == 40850) {
+                        msg = 'HomeAssistant? Fill only IP-address of your HA server.';
+                        alert(msg);
+                        return;
+                    }
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    var response  = (JSON.parse(jqXHR.responseText));
+                    var resp = response[0];
+                    if ('error' in resp) {
+                        msg = resp.error.description;
+                    } else {
+                        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                    }
                 }
-
-                callback(settings);
-                return settings;
+                alert(msg);
             },
+
             complete: function() {
 
             }
@@ -333,56 +378,68 @@ function deconz_initSettings(callback, inputSettings) {
         alert( "Remote server did not answer. Internet problems?" );
     });
 }
-
-function deconz_getApiKey(callback, ip, port) {
-    $.ajax({
-        type: "POST",
-        dataType: 'json',
-        url: 'http://'+settings.ip+':'+settings.port+'/api',
-        data: JSON.stringify({"devicetype":"Node-red"}),
-        success: function(response){
-            var resp = response[0];
-            if ('success' in resp) {
-                settings.apikey = resp.success.username;
-
-                $.ajax({
-                    type: "GET",
-                    dataType: 'json',
-                    url: 'http://'+settings.ip+':'+settings.port+'/api/'+settings.apikey+'/config',
-                    success: function(response){
-                        if ('websocketport' in response) {
-                            settings.ws_port = response.websocketport;
-                        }
-                    },
-                    error: function (err) {
-                        var response = (JSON.parse(err.responseText));
-                        var resp = response[0];
-                        if ('error' in resp) {
-                            alert(resp.error.description);
-                        }
-                    },
-                    complete: function() {
-                        callback(settings);
-                        return settings;
-                    }
-                });
-            }
-        },
-        error: function (err) {
-            var response = (JSON.parse(err.responseText));
-            var resp = response[0];
-            if ('error' in resp) {
-                alert(resp.error.description);
-            }
-
-            callback(settings);
-            return settings;
-        },
-        complete: function() {
-
-        }
-    });
-}
+//
+// function deconz_getApiKey(callback, ip, port) {
+//     $.ajax({
+//         type: "POST",
+//         dataType: 'json',
+//         url: 'http://'+settings.ip+':'+settings.port+'/api',
+//         data: JSON.stringify({"devicetype":"Node-red"}),
+//         success: function(response){
+//             var resp = response[0];
+//             if ('success' in resp) {
+//                 settings.apikey = resp.success.username;
+//
+//                 $.ajax({
+//                     type: "GET",
+//                     dataType: 'json',
+//                     url: 'http://192.168.1.20:'+settings.port+'/api/'+settings.apikey+'/config',
+//                     success: function(response){
+//                         if ('websocketport' in response) {
+//                             settings.ws_port = response.websocketport;
+//                         }
+//                     },
+//                     error: function (err) {
+//                         alert(err);
+//                         alert('2');
+//                         console.log(err);
+//                         // var response = (JSON.parse(err.responseText));
+//                         // var resp = response[0];
+//                         // if ('error' in resp) {
+//                         //     alert(resp.error.description);
+//                         // }
+//                     },
+//                     complete: function() {
+//                         callback(settings);
+//                         return settings;
+//                     }
+//                 });
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = '';
+//             if (jqXHR.status === 0) {
+//                 msg = 'Not connect.\n Verify Network.';
+//             } else if (jqXHR.status == 404) {
+//                 msg = 'Requested page not found. [404]';
+//             } else if (jqXHR.status == 500) {
+//                 msg = 'Internal Server Error [500].';
+//             } else if (exception === 'parsererror') {
+//                 msg = 'Requested JSON parse failed.';
+//             } else if (exception === 'timeout') {
+//                 msg = 'Time out error.';
+//             } else if (exception === 'abort') {
+//                 msg = 'Ajax request aborted.';
+//             } else {
+//                 msg = 'Uncaught Error.\n' + jqXHR.responseText;
+//             }
+//             alert(msg);
+//         },
+//         complete: function() {
+//
+//         }
+//     });
+// }
 
 
 /**
