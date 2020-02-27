@@ -1,5 +1,6 @@
 .form-row label.l-width {
-    width: 130px;
+    width: 25%;
+    min-width: 120px;
 }
 .s-width {width:70% !important;}
 
