@@ -19,6 +19,10 @@
         <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
     </div>
     <div class="form-row">
+        <label for="node-input-topic" class="l-width"><i class="fa fa-tasks"></i> <span data-i18n="node-red:common.label.topic">Topic</span></label>
+        <input type="text" id="node-input-topic" autocomplete="off" dir="">
+    </div>
+    <div class="form-row">
         <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
         <select id="node-input-state" class="s-width"  data-i18n="[placeholder]multiselect.complete_payload"></select>
     </div>
@@ -59,6 +63,10 @@
             },
             device_name: {
                 value: null
+            },
+            topic: {
+                value: null,
+                required: false
             },
             state: {
                 value: ""

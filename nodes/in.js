@@ -112,6 +112,7 @@ module.exports = function(RED) {
             //outputs
             node.send([
                 {
+                    topic: node.config.topic,
                     payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
                     payload_raw: device,
                     meta: node.server.getDevice(node.config.device)
@@ -294,6 +295,7 @@ module.exports = function(RED) {
 
             if (Object.keys(characteristic).length === 0) return null; //empty response
 
+            msg.topic = node.config.topic;
             msg.payload = characteristic;
             return msg;
         }
