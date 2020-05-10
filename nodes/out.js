@@ -35,7 +35,6 @@ module.exports = function(RED) {
 
                 this.on('input', function (message) {
                     clearTimeout(node.cleanTimer);
-
                     var payload;
                     switch (node.payloadType) {
                         case 'flow':

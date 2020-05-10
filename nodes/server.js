@@ -235,7 +235,7 @@ module.exports = function(RED) {
                         console.log('ERROR: cant get '+nodeId+' node, removed from list');
                         delete that.devices[nodeId];
 
-                        if ("server" in node) {
+                        if (node && "server" in node) {
                             var serverNode = RED.nodes.getNode(node.server.id);
                             delete serverNode.items[dataParsed.uniqueid];
                         }
