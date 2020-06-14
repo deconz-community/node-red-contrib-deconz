@@ -16,7 +16,7 @@ Available nodes are:
 
 <h3>Home Assistant</h3>
 Do not forget to open ports:
-<img src="https://github.com/andreypopov/node-red-contrib-deconz/blob/master/readme/3.png?raw=true">
+<img src="https://github.com/andreypopov/node-red-contrib-deconz/blob/master/readme/ha.png?raw=true">
 
 
 [![Watch YouTube video](https://img.youtube.com/vi/i3TiZiuNofM/0.jpg)](https://www.youtube.com/watch?v=i3TiZiuNofM)
