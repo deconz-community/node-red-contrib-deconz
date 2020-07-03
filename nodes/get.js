@@ -51,13 +51,13 @@ module.exports = function(RED) {
                         node.meta = deviceMeta;
 
                         //status
-                        if ("state" in deviceMeta && "reachable" in deviceMeta.state && deviceMeta.state.reachable === false) {
+                        if ("state" in deviceMeta && deviceMeta.state !== undefined && "reachable" in deviceMeta.state && deviceMeta.state.reachable === false) {
                             node.status({
                                 fill: "red",
                                 shape: "ring",
                                 text: "node-red-contrib-deconz/get:status.not_reachable"
                             });
-                        } else if ("config" in deviceMeta && "reachable" in deviceMeta.config && deviceMeta.config.reachable === false) {
+                        } else if ("config" in deviceMeta && deviceMeta.config !== undefined && "reachable" in deviceMeta.config && deviceMeta.config.reachable === false) {
                             node.status({
                                 fill: "red",
                                 shape: "ring",
