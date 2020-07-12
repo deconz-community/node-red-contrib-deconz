@@ -224,7 +224,7 @@ module.exports = function(RED) {
                     if (node && "server" in node) {
                         //update server items db
                         var serverNode = RED.nodes.getNode(node.server.id);
-                        if ("items" in serverNode && dataParsed.uniqueid in serverNode.items) {
+                        if ("state" in dataParsed && dataParsed.state !== undefined && "items" in serverNode && dataParsed.uniqueid in serverNode.items) {
                             serverNode.items[dataParsed.uniqueid].state = dataParsed.state;
 
                             if (node.type === "deconz-input") {
