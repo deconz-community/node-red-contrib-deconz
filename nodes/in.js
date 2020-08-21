@@ -296,6 +296,7 @@ module.exports = function(RED) {
             if (Object.keys(characteristic).length === 0) return null; //empty response
 
             msg.topic = node.config.topic;
+            msg.lastupdated = device.state['lastupdated'];
             msg.payload = characteristic;
             return msg;
         }
