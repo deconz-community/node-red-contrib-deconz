@@ -1,4 +1,10 @@
-# I WILL NOT SUPPORT THIS PROJECT ANYMORE. 
+# Changes!
+
+Hi, I'm Dennis the Community Manager of deCONZ. I've tried to invite Andrey over but he mentioned that he stopped development. I've asked him to transfer the repository so we can advance on it later. @Zehir wil probably take over development sometime soon! Please bear with us.
+
+I'd like to thank @Andreypopov for his contributions!
+
+# @andreypopov WILL NOT SUPPORT THIS PROJECT ANYMORE. 
 I don't use deconz. Moved to https://flows.nodered.org/node/node-red-contrib-zigbee2mqtt <br>
 and the most advanced project (in beta) https://flows.nodered.org/node/node-red-contrib-spruthub
 
