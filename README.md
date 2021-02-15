@@ -1,3 +1,7 @@
+# I WILL NOT SUPPORT THIS PROJECT ANYMORE. 
+I don't use deconz. Moved to https://flows.nodered.org/node/node-red-contrib-zigbee2mqtt <br>
+and the most advanced project (in beta) https://flows.nodered.org/node/node-red-contrib-spruthub
+
 # node-red-contrib-deconz
 Node-Red Nodes for deCONZ connectivity.
 
