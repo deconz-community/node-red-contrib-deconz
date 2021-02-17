@@ -161,8 +161,10 @@ module.exports = function(RED) {
                             if (command == 'bri') post['on'] = payload > 0 ? true : false;
                             post[command] = payload;
                         }
-                        if (parseInt(config.transitionTime) >= 0) {
-                            post['transitiontime'] = parseInt(config.transitionTime);
+
+						let transitionTime = RED.util.evaluateNodeProperty(config.transitionTime, config.transitionTimeType || "num", node, message);
+                        if (parseInt(transitionTime) >= 0) {
+                            post['transitiontime'] = parseInt(transitionTime);
                         }
 
                         node.postData(url, post);

@@ -32,7 +32,8 @@
     <h4><span data-i18n="label.options"></span></h4>
     <div class="form-row">
         <label for="node-input-transitionTime" class="l-width"><span data-i18n="label.transition_time"></span></label>
-        <input type="number" id="node-input-transitionTime" data-i18n="[placeholder]placeholder.transition_time">
+        <input type="text" id="node-input-transitionTime" data-i18n="[placeholder]placeholder.transition_time">
+        <input type="hidden" id="node-input-transitionTimeType">
     </div>
 </script>
 
@@ -70,7 +71,10 @@
             },
             transitionTime: {
                 value: null
-            }
+            },
+            transitionTimeType: {
+                value: 'num',
+            },
         },
         inputLabels: "event",
         paletteLabel: 'out',
@@ -116,6 +120,12 @@
                 value: 'topic',
                 typeField: $('#node-input-commandType'),
             });
+
+            $("#node-input-transitionTime").typedInput({
+                type:"num",
+                types:["num", "msg", "flow","global"],
+                typeField: "#node-input-transitionTimeType"
+            })
 
             $('#node-input-device').on('change', function(type, value) {
                 $('#node-input-command').trigger('change');
