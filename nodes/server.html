@@ -14,10 +14,13 @@
         <input type="text" id="node-config-input-port">
     </div>
     <div class="form-row">
-        <label for="node-config-input-apikey" class="l-width"><i class="icon-lock"></i> <span data-i18n="label.api_key"></span></label>
-        <input type="text" id="node-config-input-apikey">
+        <label for="node-config-input-secured_apikey" class="l-width"><i class="icon-lock"></i> <span data-i18n="label.api_key"></span></label>
+        <input type="text" id="node-config-input-secured_apikey">
     </div>
-        <div class="form-row">
+    <div class="form-row" id="secured_apikey_warning_message_update" style="display: none;">
+        <div class="form-tips form-warning" data-i18n="[html]tip.secured_apikey_warning_message_update"></div>
+    </div>
+    <div class="form-row">
         <label for="node-config-input-ws_port" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.websocket_port"></span></label>
         <input type="text" id="node-config-input-ws_port">
     </div>
@@ -52,9 +55,10 @@
                 value: '',
                 required: true
             },
+            // Not used anymore but needed in case of upgrading from 1.2.0 or lower to save it in credentials
             apikey: {
                 value: '',
-                required: true
+                required: false
             },
             ws_port: {
                 value: '',
@@ -72,11 +76,25 @@
                 }
             },
         },
+        credentials:{
+            secured_apikey: {
+                value: '',
+                required: true
+            }
+        },
         label: function() {
             return this.name ||  this.ip+':'+this.port;
         },
         oneditprepare: function () {
             var node = this;
+
+            // Load
+            if(node.credentials.secured_apikey === undefined && node.apikey !== undefined){
+                $('#secured_apikey_warning_message_update').show();
+                $('#node-config-input-secured_apikey').val(node.apikey);
+                node.apikey = undefined;
+            }
+
             var $refreshBtn = $('#force-refresh');
 
             $refreshBtn.on('click', function(){
@@ -90,7 +108,7 @@
                     if (settings.name) $('#node-config-input-name').val(settings.name);
                     if (settings.ip) $('#node-config-input-ip').val(settings.ip);
                     if (settings.port) $('#node-config-input-port').val(settings.port);
-                    if (settings.apikey) $('#node-config-input-apikey').val(settings.apikey);
+                    if (settings.apikey) $('#node-config-input-secured_apikey').val(settings.apikey);
                     if (settings.ws_port) $('#node-config-input-ws_port').val(settings.ws_port);
                 }, currentSettings);
             });

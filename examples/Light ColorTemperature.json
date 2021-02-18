@@ -65,7 +65,6 @@
     "name": "Conbee2",
     "ip": "127.0.0.1",
     "port": "80",
-    "apikey": "F18D851E01",
     "ws_port": "443",
     "secure": false
   },

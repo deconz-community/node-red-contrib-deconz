@@ -15,7 +15,11 @@ module.exports = function(RED) {
             node.port = n.port;
             node.ws_port = n.ws_port;
             node.secure = n.secure || false;
-            node.apikey = n.apikey;
+
+            // Prior 1.2.0 the apikey was not stored in credentials
+            if(node.credentials.secured_apikey === undefined && n.apikey !== undefined){
+                node.credentials.secured_apikey = n.apikey;
+            }
             node.devices = {};
 
             node.setMaxListeners(255);
@@ -52,7 +56,7 @@ module.exports = function(RED) {
                 node.discoverProcess = true;
                 // node.log('discoverDevices: Refreshing devices list');
 
-                var url = "http://" + node.ip + ":" + node.port + "/api/" + node.apikey;
+                var url = "http://" + node.ip + ":" + node.port + "/api/" + node.credentials.secured_apikey;
                 // node.log('discoverDevices: Requesting: ' + url);
 
 
@@ -246,6 +250,10 @@ module.exports = function(RED) {
         }
     }
 
-    RED.nodes.registerType('deconz-server', ServerNode, {});
+    RED.nodes.registerType('deconz-server', ServerNode, {
+        credentials:{
+            secured_apikey: {type: "text"}
+        }
+    });
 };
 

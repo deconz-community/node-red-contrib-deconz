@@ -10,5 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Adding the possibility to change progamatically the "Transition Time". #107
 
+### Security
+Please edit server configuration and click on update to save the API Key in node-red credentials.
+- API Key is now stored in node-red credentials. #94
+
 ## [1.2.0] - 2020-07-12 ![Relative date](https://img.shields.io/date/1594559914?label=)
  - Lastest version from [@andreypopov](https://github.com/andreypopov).

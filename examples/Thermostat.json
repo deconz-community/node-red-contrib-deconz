@@ -484,7 +484,6 @@
     "name": "Conbee-v2",
     "ip": "127.0.0.1",
     "port": "80",
-    "apikey": "AAAAAAAAA",
     "ws_port": "443",
     "secure": false,
     "polling": ""

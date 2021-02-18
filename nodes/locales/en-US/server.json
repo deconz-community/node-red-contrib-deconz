@@ -14,6 +14,7 @@
         "name": "Name"
     },
     "tip": {
-        "deploy": "<b>Important:</b> deploy server node to get devices list"
+        "deploy": "<b>Important:</b> deploy server node to get devices list",
+        "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault"
     }
 }
