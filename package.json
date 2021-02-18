@@ -3,6 +3,13 @@
     "name": "Andrey Popov",
     "email": "andrey_popov@me.com"
   },
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/andreypopov/node-red-contrib-deconz/issues/"
   },
