@@ -153,7 +153,6 @@
     "name": "Conbee-v2",
     "ip": "192.168.1.15",
     "port": "80",
-    "apikey": "02BA6A91A3",
     "ws_port": "443",
     "secure": false,
     "polling": ""

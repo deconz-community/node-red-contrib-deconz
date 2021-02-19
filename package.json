@@ -1,10 +1,18 @@
 {
   "author": {
     "name": "Andrey Popov",
-    "email": "andrey_popov@me.com"
+    "email": "andrey_popov@me.com",
+    "url" : "https://github.com/andreypopov"
   },
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
   "bugs": {
-    "url": "https://github.com/andreypopov/node-red-contrib-deconz/issues/"
+    "url": "https://github.com/deconz-community/node-red-contrib-deconz/issues/"
   },
   "dependencies": {
     "events": "latest",
@@ -13,7 +21,7 @@
     "ws": "latest"
   },
   "description": "deCONZ connectivity nodes for node-red",
-  "homepage": "https://github.com/andreypopov/node-red-contrib-deconz",
+  "homepage": "https://github.com/deconz-community/node-red-contrib-deconz",
   "keywords": [
     "deconz",
     "drezden",
@@ -35,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andreypopov/node-red-contrib-deconz.git"
+    "url": "git+https://github.com/deconz-community/node-red-contrib-deconz.git"
   },
-  "version": "1.2.0"
+  "version": "1.3.0"
 }
