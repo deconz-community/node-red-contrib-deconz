@@ -1,28 +1,28 @@
 {
-    "label": {
-        "name": "Name",
-        "server": "Server",
-        "device": "Device",
-        "refresh": "Refresh",
-        "refresh_devices_list": "Refresh Devices List",
-        "start_output": "Start Output",
-        "start_output_help": "Send state on start"
-    },
-    "placeholder": {
-        "name": "Name"
-    },
-    "tip": {
-        "init": "<b>Important:</b> battery status may not be immediately available after pairing, depends of manufacturer (eg. xiaomi about 1 hour)"
-    },
-    "status": {
-        "disconnected": "disconnected",
-        "connected": "connected",
-        "server_node_error": "server node error",
-        "not_reachable": "not reachable",
-        "device_not_set": "device not set",
-        "reconnecting": "reconnecting..."
-    },
-    "multiselect": {
-        "none_selected": "None selected"
-    }
+  "label": {
+    "name": "Name",
+    "server": "Server",
+    "device": "Device",
+    "refresh": "Refresh",
+    "refresh_devices_list": "Refresh Devices List",
+    "start_output": "Start Output",
+    "start_output_help": "Send state on start"
+  },
+  "placeholder": {
+    "name": "Name"
+  },
+  "tip": {
+    "init": "<b>Important:</b> battery status may not be immediately available after pairing, depends of manufacturer (eg. xiaomi about 1 hour)"
+  },
+  "status": {
+    "disconnected": "disconnected",
+    "connected": "connected",
+    "server_node_error": "server node error",
+    "not_reachable": "not reachable",
+    "device_not_set": "device not set",
+    "reconnecting": "reconnecting..."
+  },
+  "multiselect": {
+    "none_selected": "None selected"
+  }
 }

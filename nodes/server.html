@@ -1,42 +1,51 @@
 <script type="text/html" data-template-name="deconz-server">
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
 
     <div class="form-row">
-        <label for="node-config-input-name" class="l-width"><i class="icon-bookmark"></i> <span data-i18n="label.name"></span></label>
+        <label for="node-config-input-name" class="l-width"><i class="icon-bookmark"></i> <span
+                data-i18n="label.name"></span></label>
         <input type="text" id="node-config-input-name">
     </div>
     <div class="form-row">
-        <label for="node-config-input-ip" class="l-width"><i class="icon-globe"></i> <span data-i18n="label.ip_address"></span></label>
+        <label for="node-config-input-ip" class="l-width"><i class="icon-globe"></i> <span
+                data-i18n="label.ip_address"></span></label>
         <input type="text" id="node-config-input-ip">
     </div>
     <div class="form-row">
-        <label for="node-config-input-port" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.port"></span></label>
+        <label for="node-config-input-port" class="l-width"><i class="icon-tag"></i> <span
+                data-i18n="label.port"></span></label>
         <input type="text" id="node-config-input-port">
     </div>
     <div class="form-row">
-        <label for="node-config-input-secured_apikey" class="l-width"><i class="icon-lock"></i> <span data-i18n="label.api_key"></span></label>
+        <label for="node-config-input-secured_apikey" class="l-width"><i class="icon-lock"></i> <span
+                data-i18n="label.api_key"></span></label>
         <input type="text" id="node-config-input-secured_apikey">
     </div>
     <div class="form-row" id="secured_apikey_warning_message_update" style="display: none;">
         <div class="form-tips form-warning" data-i18n="[html]tip.secured_apikey_warning_message_update"></div>
     </div>
     <div class="form-row">
-        <label for="node-config-input-ws_port" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.websocket_port"></span></label>
+        <label for="node-config-input-ws_port" class="l-width"><i class="icon-tag"></i> <span
+                data-i18n="label.websocket_port"></span></label>
         <input type="text" id="node-config-input-ws_port">
     </div>
     <div class="form-row">
         <label for="node-config-input-secure" class="l-width"><i class="icon-tag"></i> SSL</label>
-        <input type="checkbox" id="node-config-input-secure" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.use_secured_ssl"></span></input>
+        <input type="checkbox" id="node-config-input-secure"
+               style="display: inline-block; width: auto; vertical-align: top;"> <span
+            data-i18n="label.use_secured_ssl"></span></input>
     </div>
     <div class="form-row">
-        <label for="node-input-polling" class="l-width"><i class="icon-time"></i> <span data-i18n="label.polling"></span></label>
+        <label for="node-input-polling" class="l-width"><i class="icon-time"></i> <span
+                data-i18n="label.polling"></span></label>
         <input type="text" id="node-config-input-polling" placeholder="15">
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.magick"></span></label>
-        <a style="width: 70%" class="red-ui-button" id="force-refresh" name="force-refresh"><span data-i18n="label.get_settings"></span></a>
-	</div>
-	<div class="form-tips" data-i18n="[html]tip.deploy"></div>
+        <a style="width: 70%" class="red-ui-button" id="force-refresh" name="force-refresh"><span
+                data-i18n="label.get_settings"></span></a>
+    </div>
+    <div class="form-tips" data-i18n="[html]tip.deploy"></div>
 </script>
 
 <script type='text/javascript'>
@@ -76,20 +85,20 @@
                 }
             },
         },
-        credentials:{
+        credentials: {
             secured_apikey: {
                 value: '',
                 required: true
             }
         },
-        label: function() {
-            return this.name ||  this.ip+':'+this.port;
+        label: function () {
+            return this.name || this.ip + ':' + this.port;
         },
         oneditprepare: function () {
             var node = this;
 
             // Load
-            if(node.credentials.secured_apikey === undefined && node.apikey !== undefined){
+            if (node.credentials.secured_apikey === undefined && node.apikey !== undefined) {
                 $('#secured_apikey_warning_message_update').show();
                 $('#node-config-input-secured_apikey').val(node.apikey);
                 node.apikey = undefined;
@@ -97,14 +106,14 @@
 
             var $refreshBtn = $('#force-refresh');
 
-            $refreshBtn.on('click', function(){
+            $refreshBtn.on('click', function () {
                 var currentSettings = {
-                    name:$('#node-config-input-name').val(),
-                    ip:$('#node-config-input-ip').val(),
-                    port:$('#node-config-input-port').val(),
+                    name: $('#node-config-input-name').val(),
+                    ip: $('#node-config-input-ip').val(),
+                    port: $('#node-config-input-port').val(),
                 };
 
-                deconz_initSettings(function(settings){
+                deconz_initSettings(function (settings) {
                     if (settings.name) $('#node-config-input-name').val(settings.name);
                     if (settings.ip) $('#node-config-input-ip').val(settings.ip);
                     if (settings.port) $('#node-config-input-port').val(settings.port);

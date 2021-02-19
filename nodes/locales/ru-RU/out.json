@@ -1,31 +1,31 @@
 {
-    "label": {
-        "name": "Название",
-        "server": "Сервер",
-        "device": "Устройство",
-        "refresh": "Обновить",
-        "refresh_devices_list": "Обновить список",
-        "command": "Команда",
-        "payload": "Данные",
-        "options": "Параметры",
-        "transition_time": "Время изменения"
-    },
-    "placeholder": {
-        "name": "Название",
-        "transition_time": "10 = 1 секунда"
-    },
-    "status": {
-        "disconnected": "отключено",
-        "connected": "подключено",
-        "server_node_error": "ошибка сервера",
-        "not_reachable": "недоступен",
-        "device_not_set": "нет устройства",
-        "reconnecting": "подключение...",
-        "ok": "ок",
-        "error": "ошибка",
-        "connection": "ошибка соединения"
-    },
-    "multiselect": {
-        "none_selected": "Не выбран"
-    }
+  "label": {
+    "name": "Название",
+    "server": "Сервер",
+    "device": "Устройство",
+    "refresh": "Обновить",
+    "refresh_devices_list": "Обновить список",
+    "command": "Команда",
+    "payload": "Данные",
+    "options": "Параметры",
+    "transition_time": "Время изменения"
+  },
+  "placeholder": {
+    "name": "Название",
+    "transition_time": "10 = 1 секунда"
+  },
+  "status": {
+    "disconnected": "отключено",
+    "connected": "подключено",
+    "server_node_error": "ошибка сервера",
+    "not_reachable": "недоступен",
+    "device_not_set": "нет устройства",
+    "reconnecting": "подключение...",
+    "ok": "ок",
+    "error": "ошибка",
+    "connection": "ошибка соединения"
+  },
+  "multiselect": {
+    "none_selected": "Не выбран"
+  }
 }

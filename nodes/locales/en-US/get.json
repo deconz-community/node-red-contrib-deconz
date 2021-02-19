@@ -1,27 +1,26 @@
 {
-    "label": {
-        "name": "Name",
-        "server": "Server",
-        "device": "Device",
-        "state": "State",
-        "refresh": "Refresh",
-        "refresh_devices_list": "Refresh Devices List"
-    },
-    "placeholder": {
-        "name": "Name"
-    },
-    "status": {
-        "disconnected": "disconnected",
-        "connected": "connected",
-        "server_node_error": "server node error",
-        "not_reachable": "not reachable",
-        "device_not_set": "device not set",
-        "reconnecting": "reconnecting...",
-        "received": "received"
-    },
-    "multiselect": {
-        "none_selected": "None selected",
-        "complete_payload": "Complete state payload"
-    }
-
+  "label": {
+    "name": "Name",
+    "server": "Server",
+    "device": "Device",
+    "state": "State",
+    "refresh": "Refresh",
+    "refresh_devices_list": "Refresh Devices List"
+  },
+  "placeholder": {
+    "name": "Name"
+  },
+  "status": {
+    "disconnected": "disconnected",
+    "connected": "connected",
+    "server_node_error": "server node error",
+    "not_reachable": "not reachable",
+    "device_not_set": "device not set",
+    "reconnecting": "reconnecting...",
+    "received": "received"
+  },
+  "multiselect": {
+    "none_selected": "None selected",
+    "complete_payload": "Complete state payload"
+  }
 }
