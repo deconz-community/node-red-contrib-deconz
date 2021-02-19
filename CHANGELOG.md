@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased] :construction:
+
+## [1.3.0] - 2021-02-19 ![Relative date](https://img.shields.io/date/1613738128?label=)
 ### Added
 - Adding the possibility to change progamatically the "Transition Time". #107
 
