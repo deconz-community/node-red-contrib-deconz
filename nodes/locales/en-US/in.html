@@ -1,33 +1,47 @@
-<script type="text/x-red" data-help-name="deconz-input">
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+<script type="text/html" data-help-name="deconz-input">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
     <p>This node listens for messages sent from your deconz.</p>
     <h3>Configuration</h3>
     <dl class="message-properties">
-        <dt class="optional">Name <span class="property-type">string</span></dt><dd>Provide a custom name for this node.</dd>
-        <dt>Server <span class="property-type">object</span></dt><dd>Choose the deconz server instance to use.</dd>
-        <dt>Device <span class="property-type">string</span></dt><dd>Select device to listen to.</dd>
-        <dt class="optional">Topic <span class="property-type">string</span></dt><dd>An optional property that can be configured in the node.</dd>
-        <dt class="optional">State <span class="property-type">string</span></dt><dd>The node indicates the connection status to deconz via a status indicator and affects payload.</dd>
+        <dt class="optional">Name <span class="property-type">string</span></dt>
+        <dd>Provide a custom name for this node.</dd>
+        <dt>Server <span class="property-type">object</span></dt>
+        <dd>Choose the deconz server instance to use.</dd>
+        <dt>Device <span class="property-type">string</span></dt>
+        <dd>Select device to listen to.</dd>
+        <dt class="optional">Topic <span class="property-type">string</span></dt>
+        <dd>An optional property that can be configured in the node.</dd>
+        <dt class="optional">State <span class="property-type">string</span></dt>
+        <dd>The node indicates the connection status to deconz via a status indicator and affects payload.</dd>
         <dt class="optional">Output <span class="property-type">string</span></dt>
         <dd>
             <ul>
                 <li><b>Always:</b> Any incoming message from deCONZ</li>
-                <li><b>On state change:</b> Output only when state changes. (Only works when specific state output is selected.)</li>
-                <li><b>On update:</b> Output only when 'lastupdated' field changes. (This can be useful for switches and only works when specific state output is selected.)</li>
+                <li><b>On state change:</b> Output only when state changes. (Only works when specific state output is
+                    selected.)
+                </li>
+                <li><b>On update:</b> Output only when 'lastupdated' field changes. (This can be useful for switches and
+                    only works when specific state output is selected.)
+                </li>
             </ul>
         </dd>
-        <dt class="optional">Start output <span class="property-type">boolean</span></dt><dd>Output state at startup.</dd>
+        <dt class="optional">Start output <span class="property-type">boolean</span></dt>
+        <dd>Output state at startup.</dd>
     </dl>
 
     <h3>Outputs</h3>
     <h5>Raw output</h5>
     <dl class="message-properties">
-        <dt>payload <span class="property-type">string or object</span></dt><dd>Complete data or chosen state parameter.</dd>
-        <dt>payload_raw<span class="property-type">object</span></dt><dd>Full event data.</dd>
-        <dt>meta<span class="property-type">object</span></dt><dd>Full device or group data.</dd>
+        <dt>payload <span class="property-type">string or object</span></dt>
+        <dd>Complete data or chosen state parameter.</dd>
+        <dt>payload_raw<span class="property-type">object</span></dt>
+        <dd>Full event data.</dd>
+        <dt>meta<span class="property-type">object</span></dt>
+        <dd>Full device or group data.</dd>
     </dl>
     <h5>Homekit output</h5>
     <dl class="message-properties">
-        <dt>payload <span class="property-type">object</span></dt><dd>Object formatted for homekit node</dd>
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>Object formatted for homekit node</dd>
     </dl>
 </script>

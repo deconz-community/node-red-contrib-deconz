@@ -2,19 +2,20 @@ function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) 
     $.getJSON('deconz/gwscanner', {})
         .done(function (data, textStatus, jqXHR) {
             console.log(data);
-        }).fail(function (jqXHR, textStatus, errorThrown) {});
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+    });
 }
 
 function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
     options = $.extend({
-        filterType:'',
-        disableReadonly:false,
-        refresh:false,
-        allowEmpty:false,
-        deviceType:false,
-        batteryFilter:false,
-        groups:false
+        filterType: '',
+        disableReadonly: false,
+        refresh: false,
+        allowEmpty: false,
+        deviceType: false,
+        batteryFilter: false,
+        groups: false
     }, options);
 
     function deconz_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
@@ -30,7 +31,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                 .done(function (data, textStatus, jqXHR) {
                     try {
                         // if (options.allowEmpty) {
-                            // selectedItemElement.html('<option value="" disabled selected>Select device</option>');
+                        // selectedItemElement.html('<option value="" disabled selected>Select device</option>');
                         // }
 
                         var optgroup = '';
@@ -42,7 +43,7 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                         var itemList = [];
                         var groupList = [];
-                        $.each(data.items, function(index, value) {
+                        $.each(data.items, function (index, value) {
                             if (value.meta.device_type === "groups") {
                                 groupList.push(value)
                             } else {
@@ -50,35 +51,35 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
                             }
                         });
                         var itemsByName = itemList.slice(0);
-                        if ( groupList.length > 0 ) {
+                        if (groupList.length > 0) {
                             var groupsByName = groupList.slice(0);
-                            groupsByName.sort(function(a,b) {
+                            groupsByName.sort(function (a, b) {
                                 var x = a.device_name.toLowerCase();
                                 var y = b.device_name.toLowerCase();
                                 return x < y ? -1 : x > y ? 1 : 0;
                             });
                         }
-                        itemsByName.sort(function(a,b) {
+                        itemsByName.sort(function (a, b) {
                             var x = a.device_name.toLowerCase();
                             var y = b.device_name.toLowerCase();
                             return x < y ? -1 : x > y ? 1 : 0;
                         });
 
                         if (options.groups && groupsByName) {
-                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.groups") });
+                            groupHtml = $('<optgroup/>', {label: RED._("node-red-contrib-deconz/in:multiselect.groups")});
                             groupHtml.appendTo(selectedItemElement);
 
-                            $.each(groupsByName, function(index, value) {
+                            $.each(groupsByName, function (index, value) {
                                 if (value.meta.device_type == "groups") {
-                                    $('<option  value="group_' + value.meta.id +'">&#9675;&nbsp;' +value.meta.name +' (lights: '+value.meta.lights.length+(value.meta.scenes.length?", scenes: "+value.meta.scenes.length:"")+')</option>').appendTo(groupHtml);
+                                    $('<option  value="group_' + value.meta.id + '">&#9675;&nbsp;' + value.meta.name + ' (lights: ' + value.meta.lights.length + (value.meta.scenes.length ? ", scenes: " + value.meta.scenes.length : "") + ')</option>').appendTo(groupHtml);
                                 }
                             });
 
-                            groupHtml = $('<optgroup/>', { label: RED._("node-red-contrib-deconz/in:multiselect.devices") });
+                            groupHtml = $('<optgroup/>', {label: RED._("node-red-contrib-deconz/in:multiselect.devices")});
                             groupHtml.appendTo(selectedItemElement);
                         }
 
-                        $.each(itemsByName, function(index, value) {
+                        $.each(itemsByName, function (index, value) {
                             disabled = '';
                             nameSuffix = '';
 
@@ -88,16 +89,16 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 
                             if (options.batteryFilter &&
                                 (!("meta" in value)
-                                || !("config" in value.meta)
-                                || !("battery" in value.meta.config)
+                                    || !("config" in value.meta)
+                                    || !("battery" in value.meta.config)
                                 )
                             ) {
 
                                 return true;
                             }
 
-                            var parentElement = (options.groups && groupHtml)?groupHtml:selectedItemElement;
-                            $('<option'+ disabled+' value="' + value.uniqueid +'">&#9679;&nbsp;' + value.device_name + (nameSuffix?' ('+nameSuffix+')':'') +'</option>').appendTo(parentElement);
+                            var parentElement = (options.groups && groupHtml) ? groupHtml : selectedItemElement;
+                            $('<option' + disabled + ' value="' + value.uniqueid + '">&#9679;&nbsp;' + value.device_name + (nameSuffix ? ' (' + nameSuffix + ')' : '') + '</option>').appendTo(parentElement);
                         });
 
                         // Enable item selection
@@ -171,9 +172,9 @@ function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
 function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}) {
 
     options = $.extend({
-        filterType:'',
-        disableReadonly:false,
-        refresh:false
+        filterType: '',
+        disableReadonly: false,
+        refresh: false
     }, options);
 
     function deconz_updateItemStateList(controller, selectedItemElement, itemName) {
@@ -184,17 +185,17 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
         if (controller && uniqueId) {
             $.getJSON('deconz/statelist', {
                 controllerID: controller.id,
-                uniqueid:uniqueId
+                uniqueid: uniqueId
             })
                 .done(function (data, textStatus, jqXHR) {
                     try {
 
-                        selectedItemElement.html('<option value="0">'+ RED._("node-red-contrib-deconz/in:multiselect.complete_payload")+'</option>');
+                        selectedItemElement.html('<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>');
 
 
-                        $.each(data, function(index, value) {
+                        $.each(data, function (index, value) {
                             // $('<option  value="' + index +'">'+index+'</option>').appendTo(selectedItemElement);
-                            $('<option  value="' + index +'">'+index+' ('+value+')</option>').appendTo(selectedItemElement);
+                            $('<option  value="' + index + '">' + index + ' (' + value + ')</option>').appendTo(selectedItemElement);
                         });
 
                         // Enable item selection
@@ -202,7 +203,7 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
 
 
                         // Finally, set the value of the input select to the selected value
-                        if (selectedItemElement.find('option[value='+itemName+']').length) {
+                        if (selectedItemElement.find('option[value=' + itemName + ']').length) {
                             selectedItemElement.val(itemName);
                         } else {
                             selectedItemElement.val(selectedItemElement.find('option').eq(0).attr('value'));
@@ -239,8 +240,6 @@ function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}
     var selectedItemElement = $(selectedItemElementName);
 
 
-
-
     // Initialize bootstrap multiselect form
     selectedItemElement.multipleSelect('destroy');
     selectedItemElement.multipleSelect({
@@ -271,9 +270,10 @@ function deconz_initSettings(callback, inputSettings) {
     //     ws_port:false
     // };
 
-    $.get("https://phoscon.de/discover", function( data ) {}).done(function(data) {
+    $.get("https://phoscon.de/discover", function (data) {
+    }).done(function (data) {
         if (!data.length) {
-            alert( "Can't discover your device, enter settings manually" );
+            alert("Can't discover your device, enter settings manually");
             return false;
         }
 
@@ -286,9 +286,9 @@ function deconz_initSettings(callback, inputSettings) {
         $.ajax({
             type: "POST",
             dataType: 'json',
-            url: 'http://'+settings.ip+':'+settings.port+'/api',
-            data: JSON.stringify({"devicetype":"Node-red"}),
-            success: function(response){
+            url: 'http://' + settings.ip + ':' + settings.port + '/api',
+            data: JSON.stringify({"devicetype": "Node-red"}),
+            success: function (response) {
                 var resp = response[0];
                 if ('success' in resp) {
                     settings.apikey = resp.success.username;
@@ -296,8 +296,8 @@ function deconz_initSettings(callback, inputSettings) {
                     $.ajax({
                         type: "GET",
                         dataType: 'json',
-                        url: 'http://'+settings.ip+':'+settings.port+'/api/'+settings.apikey+'/config',
-                        success: function(response){
+                        url: 'http://' + settings.ip + ':' + settings.port + '/api/' + settings.apikey + '/config',
+                        success: function (response) {
                             if ('websocketport' in response) {
                                 settings.ws_port = response.websocketport;
                             }
@@ -322,7 +322,7 @@ function deconz_initSettings(callback, inputSettings) {
                             } else if (exception === 'abort') {
                                 msg = 'Ajax request aborted.';
                             } else {
-                                var response  = (JSON.parse(jqXHR.responseText));
+                                var response = (JSON.parse(jqXHR.responseText));
                                 var resp = response[0];
                                 if ('error' in resp) {
                                     msg = resp.error.description;
@@ -332,7 +332,7 @@ function deconz_initSettings(callback, inputSettings) {
                             }
                             alert(msg);
                         },
-                        complete: function() {
+                        complete: function () {
                             callback(settings);
                             return settings;
                         }
@@ -359,7 +359,7 @@ function deconz_initSettings(callback, inputSettings) {
                 } else if (exception === 'abort') {
                     msg = 'Ajax request aborted.';
                 } else {
-                    var response  = (JSON.parse(jqXHR.responseText));
+                    var response = (JSON.parse(jqXHR.responseText));
                     var resp = response[0];
                     if ('error' in resp) {
                         msg = resp.error.description;
@@ -370,14 +370,15 @@ function deconz_initSettings(callback, inputSettings) {
                 alert(msg);
             },
 
-            complete: function() {
+            complete: function () {
 
             }
         });
-    }).fail(function() {
-        alert( "Remote server did not answer. Internet problems?" );
+    }).fail(function () {
+        alert("Remote server did not answer. Internet problems?");
     });
 }
+
 //
 // function deconz_getApiKey(callback, ip, port) {
 //     $.ajax({
@@ -457,7 +458,7 @@ function deconz_truncateWithEllipses(text, max = 30) {
 }
 
 function deconz_filterDeviceName(name) {
-    var result =  name.replace(/ *\([^)]*\) */g, ""); //remove (lights: 1)
+    var result = name.replace(/ *\([^)]*\) */g, ""); //remove (lights: 1)
     result = result.replace(new RegExp('●', 'g'), '');
     result = result.trim();
     return result;

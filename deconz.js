@@ -25,7 +25,7 @@ module.exports = function (RED) {
         if (controller && controller.constructor.name === "ServerNode") {
             controller.getItemsList(function (items, groups) {
                 if (items) {
-                    res.json({items:items, groups:groups});
+                    res.json({items: items, groups: groups});
                 } else {
                     res.status(404).end();
                 }

@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
     class deConzItemEvent {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -88,5 +88,6 @@ module.exports = function(RED) {
         }
 
     }
+
     RED.nodes.registerType('deconz-event', deConzItemEvent);
 };

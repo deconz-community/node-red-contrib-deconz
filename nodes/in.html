@@ -1,33 +1,40 @@
-<script type="text/x-red" data-template-name="deconz-input">
-    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css" />
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+<script type="text/html" data-template-name="deconz-input">
+    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css"/>
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
 
     <div class="form-row">
-        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span
+                data-i18n="label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
     </div>
     <div class="form-row">
-        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
+                data-i18n="label.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
-        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span data-i18n="label.device"></span></label>
+        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span
+                data-i18n="label.device"></span></label>
         <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
     </div>
     <div class="form-row">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span data-i18n="label.refresh_devices_list"></span></a>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
+                data-i18n="label.refresh_devices_list"></span></a>
     </div>
     <div class="form-row">
-        <label for="node-input-topic" class="l-width"><i class="fa fa-tasks"></i> <span data-i18n="node-red:common.label.topic">Topic</span></label>
+        <label for="node-input-topic" class="l-width"><i class="fa fa-tasks"></i> <span
+                data-i18n="node-red:common.label.topic">Topic</span></label>
         <input type="text" id="node-input-topic" autocomplete="off" dir="">
     </div>
     <div class="form-row">
-        <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span data-i18n="label.state"></span></label>
-        <select id="node-input-state" class="s-width"  data-i18n="[placeholder]multiselect.complete_payload"></select>
+        <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span
+                data-i18n="label.state"></span></label>
+        <select id="node-input-state" class="s-width" data-i18n="[placeholder]multiselect.complete_payload"></select>
     </div>
     <div class="form-row">
-        <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span data-i18n="label.output"></span></label>
+        <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span
+                data-i18n="label.output"></span></label>
         <select id="node-input-output" class="s-width">
             <option value="always" data-i18n="label.always">Always</option>
             <option value="onchange" data-i18n="label.on_state_change">On state change</option>
@@ -35,12 +42,16 @@
         </select>
     </div>
     <div class="form-row">
-        <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span data-i18n="label.start_output_1"></span></label>
-        <input type="checkbox" id="node-input-outputAtStartup" checked="checked" style="display: inline-block; width: auto; vertical-align: top;"> <span data-i18n="label.start_output_help"></span></input>
+        <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span
+                data-i18n="label.start_output_1"></span></label>
+        <input type="checkbox" id="node-input-outputAtStartup" checked="checked"
+               style="display: inline-block; width: auto; vertical-align: top;"> <span
+            data-i18n="label.start_output_help"></span></input>
     </div>
-        <div class="form-row">
-        <label for='node-input-outputAtStartup2' class="l-width"><i class='fa fa-share-square'></i> <span data-i18n="label.start_output_2"></span></label>
-         <span data-i18n="label.always"></span>
+    <div class="form-row">
+        <label for='node-input-outputAtStartup2' class="l-width"><i class='fa fa-share-square'></i> <span
+                data-i18n="label.start_output_2"></span></label>
+        <span data-i18n="label.always"></span>
     </div>
 </script>
 
@@ -72,7 +83,7 @@
                 value: ""
             },
             output: {
-               value: "always"
+                value: "always"
             },
             outputAtStartup: {
                 value: true,
@@ -88,9 +99,9 @@
             var label = 'deconz-input';
             if (this.name) {
                 label = this.name;
-            } else if (typeof(this.device_name) == 'string' && this.device_name.length) {
+            } else if (typeof (this.device_name) == 'string' && this.device_name.length) {
                 label = this.device_name;
-            } else if (typeof(this.device) == 'string' && this.device.length) {
+            } else if (typeof (this.device) == 'string' && this.device.length) {
                 label = this.device;
             }
 
@@ -113,7 +124,7 @@
                 var selectedState = $('#node-input-state option:selected').val();
                 var selectedDevice = $('#node-input-device option:selected').val();
 
-                if ( (selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
+                if ((selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
                     $outputSelect.closest('.form-row').show();
                 } else {
                     $outputSelect.closest('.form-row').hide();
@@ -122,30 +133,38 @@
                 $outputSelect.multipleSelect('refresh');
             }
 
-            $('#node-input-state').on("change", function() {
+            $('#node-input-state').on("change", function () {
                 state = $('#node-input-state option:selected').val();
-                if (state) { node.state = state; }
-                if (parseInt(state) === 0) {$outputSelect.val('always').multipleSelect('refresh');}
+                if (state) {
+                    node.state = state;
+                }
+                if (parseInt(state) === 0) {
+                    $outputSelect.val('always').multipleSelect('refresh');
+                }
                 updateOutput();
             });
 
             //$('#node-input-device').change(updateOutput)
-            setTimeout(function(){
+            setTimeout(function () {
                 var $deviceInput = $('#node-input-device');
 
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty:true, groups:true});
+                deconz_getItemList(node.device, '#node-input-device', {allowEmpty: true, groups: true});
 
-                $deviceInput.on("change", function(){
+                $deviceInput.on("change", function () {
                     deconz_getItemStateList(0, '#node-input-state');
                     device = $('#node-input-device option:selected').val();
-                    if (!device.match(/^\d/) && !device.match(/^group_/)) { node.state = 0; }
+                    if (!device.match(/^\d/) && !device.match(/^group_/)) {
+                        node.state = 0;
+                    }
                     updateOutput();
                 });
                 setTimeout(function () {
                     deconz_getItemStateList(node.state, '#node-input-state');
-                },100);
+                }, 100);
 
-                if (!node.output) { $outputSelect.val('always').multipleSelect('refresh'); }
+                if (!node.output) {
+                    $outputSelect.val('always').multipleSelect('refresh');
+                }
 
             }, 100); //we need small timeout, too fire change event for server select
         },

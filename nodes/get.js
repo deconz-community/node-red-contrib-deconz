@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
     class deConzItemGet {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -39,7 +39,7 @@ module.exports = function(RED) {
                 });
             }
 
-            if (typeof(config.device) == 'string'  && config.device.length) {
+            if (typeof (config.device) == 'string' && config.device.length) {
                 node.status({}); //clean
 
                 node.on('input', function (message_in) {
@@ -67,17 +67,17 @@ module.exports = function(RED) {
                             node.status({
                                 fill: "green",
                                 shape: "dot",
-                                text: (config.state in node.meta.state)?(node.meta.state[config.state]).toString():"node-red-contrib-deconz/get:status.received",
+                                text: (config.state in node.meta.state) ? (node.meta.state[config.state]).toString() : "node-red-contrib-deconz/get:status.received",
                             });
 
                             node.send({
-                                payload:(config.state in node.meta.state)?node.meta.state[config.state]:node.meta.state,
+                                payload: (config.state in node.meta.state) ? node.meta.state[config.state] : node.meta.state,
                                 payload_in: message_in.payload,
-                                meta:deviceMeta,
+                                meta: deviceMeta,
                             });
                         }
 
-                        node.cleanTimer = setTimeout(function(){
+                        node.cleanTimer = setTimeout(function () {
                             node.status({}); //clean
                         }, 3000);
                     } else {

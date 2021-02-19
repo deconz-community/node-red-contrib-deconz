@@ -1,26 +1,26 @@
 {
-    "label": {
-        "name": "Название",
-        "server": "Сервер",
-        "device": "Устройство",
-        "state": "Статус",
-        "refresh": "Обновить",
-        "refresh_devices_list": "Обновить список"
-    },
-    "placeholder": {
-        "name": "Название"
-    },
-    "status": {
-        "disconnected": "отключено",
-        "connected": "подключено",
-        "server_node_error": "ошибка сервера",
-        "not_reachable": "недоступен",
-        "device_not_set": "нет устройства",
-        "reconnecting": "подключение...",
-        "received": "получено"
-    },
-    "multiselect": {
-        "none_selected": "Не выбран",
-        "complete_payload": "Все данные массивом"
-    }
+  "label": {
+    "name": "Название",
+    "server": "Сервер",
+    "device": "Устройство",
+    "state": "Статус",
+    "refresh": "Обновить",
+    "refresh_devices_list": "Обновить список"
+  },
+  "placeholder": {
+    "name": "Название"
+  },
+  "status": {
+    "disconnected": "отключено",
+    "connected": "подключено",
+    "server_node_error": "ошибка сервера",
+    "not_reachable": "недоступен",
+    "device_not_set": "нет устройства",
+    "reconnecting": "подключение...",
+    "received": "получено"
+  },
+  "multiselect": {
+    "none_selected": "Не выбран",
+    "complete_payload": "Все данные массивом"
+  }
 }

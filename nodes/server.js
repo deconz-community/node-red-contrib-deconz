@@ -1,7 +1,7 @@
 var request = require('request');
 const DeconzSocket = require('../lib/deconz-socket');
 
-module.exports = function(RED) {
+module.exports = function (RED) {
     class ServerNode {
         constructor(n) {
             RED.nodes.createNode(this, n);
@@ -17,14 +17,14 @@ module.exports = function(RED) {
             node.secure = n.secure || false;
 
             // Prior 1.2.0 the apikey was not stored in credentials
-            if(node.credentials.secured_apikey === undefined && n.apikey !== undefined){
+            if (node.credentials.secured_apikey === undefined && n.apikey !== undefined) {
                 node.credentials.secured_apikey = n.apikey;
             }
             node.devices = {};
 
             node.setMaxListeners(255);
             node.refreshDiscoverTimer = null;
-            node.refreshDiscoverInterval = n.polling >= 3? n.polling*1000 : 15000;
+            node.refreshDiscoverInterval = n.polling >= 3 ? n.polling * 1000 : 15000;
 
             node.socket = new DeconzSocket({
                 hostname: this.ip,
@@ -41,10 +41,12 @@ module.exports = function(RED) {
 
             node.on('close', () => this.onClose());
 
-            node.discoverDevices(function(){}, true);
+            node.discoverDevices(function () {
+            }, true);
 
             this.refreshDiscoverTimer = setInterval(function () {
-                node.discoverDevices(function(){}, true);
+                node.discoverDevices(function () {
+                }, true);
             }, node.refreshDiscoverInterval);
         }
 
@@ -76,7 +78,7 @@ module.exports = function(RED) {
                         return;
                     }
 
-                    node.oldItemsList = node.items !== undefined?node.items:undefined;
+                    node.oldItemsList = node.items !== undefined ? node.items : undefined;
                     node.items = [];
                     if (dataParsed) {
                         for (var index in dataParsed.sensors) {
@@ -84,7 +86,8 @@ module.exports = function(RED) {
                             prop.device_type = 'sensors';
                             prop.device_id = parseInt(index);
 
-                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
+                            } else {
                                 node.items[prop.uniqueid] = prop;
                                 node.emit("onNewDevice", prop.uniqueid);
                             }
@@ -96,7 +99,8 @@ module.exports = function(RED) {
                             prop.device_type = 'lights';
                             prop.device_id = parseInt(index);
 
-                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
+                            } else {
                                 node.items[prop.uniqueid] = prop;
                                 node.emit("onNewDevice", prop.uniqueid);
                             }
@@ -110,7 +114,8 @@ module.exports = function(RED) {
                             prop.device_id = groupid;
                             prop.uniqueid = groupid;
 
-                            if (node.oldItemsList !== undefined && prop.uniqueid  in node.oldItemsList) {} else {
+                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
+                            } else {
                                 node.items[prop.uniqueid] = prop;
                                 node.emit("onNewDevice", prop.uniqueid);
                             }
@@ -151,7 +156,7 @@ module.exports = function(RED) {
 
         getItemsList(callback, forceRefresh = false) {
             var node = this;
-            node.discoverDevices(function(items){
+            node.discoverDevices(function (items) {
                 node.items_list = [];
                 for (var index in items) {
                     var prop = items[index];
@@ -214,10 +219,12 @@ module.exports = function(RED) {
             var that = this;
             that.emit('onSocketMessage', dataParsed);
 
-            if (dataParsed.r == "scenes") { return; }
+            if (dataParsed.r == "scenes") {
+                return;
+            }
 
             if (dataParsed.r == "groups") {
-               dataParsed.uniqueid = "group_" + dataParsed.id;
+                dataParsed.uniqueid = "group_" + dataParsed.id;
             }
 
             for (var nodeId in that.devices) {
@@ -236,7 +243,7 @@ module.exports = function(RED) {
                             }
                         }
                     } else {
-                        console.log('ERROR: cant get '+nodeId+' node, removed from list');
+                        console.log('ERROR: cant get ' + nodeId + ' node, removed from list');
                         delete that.devices[nodeId];
 
                         if (node && "server" in node) {
@@ -251,7 +258,7 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType('deconz-server', ServerNode, {
-        credentials:{
+        credentials: {
             secured_apikey: {type: "text"}
         }
     });

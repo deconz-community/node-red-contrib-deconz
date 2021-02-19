@@ -1,12 +1,14 @@
-<script type="text/x-red" data-template-name="deconz-event">
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css" />
+<script type="text/html" data-template-name="deconz-event">
+    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
 
     <div class="form-row">
-        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span data-i18n="label.name"></span></label>
+        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span
+                data-i18n="label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
     </div>
     <div class="form-row">
-        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span data-i18n="label.server"></span></label>
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
+                data-i18n="label.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
 </script>
@@ -36,9 +38,9 @@
             var label = 'deconz-event';
             if (this.name) {
                 label = this.name;
-            } else if (typeof(this.device_name) == 'string' && this.device_name.length) {
+            } else if (typeof (this.device_name) == 'string' && this.device_name.length) {
                 label = this.device_name;
-            } else if (typeof(this.device) == 'string' && this.device.length) {
+            } else if (typeof (this.device) == 'string' && this.device.length) {
                 label = this.device;
             }
 

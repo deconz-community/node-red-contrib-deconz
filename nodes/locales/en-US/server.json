@@ -1,20 +1,20 @@
 {
-    "label": {
-        "name": "Name",
-        "ip_address": "IP-Address",
-        "port": "Port",
-        "api_key": "API Key",
-        "websocket_port": "WebSocket Port",
-        "get_settings": "Get Settings",
-        "use_secured_ssl": "Use secured SSL connection",
-        "magick": "Magick",
-        "polling": "Polling, sec"
-    },
-    "placeholder": {
-        "name": "Name"
-    },
-    "tip": {
-        "deploy": "<b>Important:</b> deploy server node to get devices list",
-        "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault"
-    }
+  "label": {
+    "name": "Name",
+    "ip_address": "IP-Address",
+    "port": "Port",
+    "api_key": "API Key",
+    "websocket_port": "WebSocket Port",
+    "get_settings": "Get Settings",
+    "use_secured_ssl": "Use secured SSL connection",
+    "magick": "Magick",
+    "polling": "Polling, sec"
+  },
+  "placeholder": {
+    "name": "Name"
+  },
+  "tip": {
+    "deploy": "<b>Important:</b> deploy server node to get devices list",
+    "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault"
+  }
 }

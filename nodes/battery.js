@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
     class deConzItemBattery {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -57,9 +57,9 @@ module.exports = function(RED) {
                         });
                     } else {
                         node.status({
-                            fill:  (battery >= 20)?((battery >= 50)?"green":"yellow"):"red",
+                            fill: (battery >= 20) ? ((battery >= 50) ? "green" : "yellow") : "red",
                             shape: "dot",
-                            text: battery+'%'
+                            text: battery + '%'
                         });
                     }
 
@@ -81,7 +81,7 @@ module.exports = function(RED) {
                     node.server.devices[node.id] = deviceMeta.uniqueid;
                     node.meta = deviceMeta;
                     if (node.config.outputAtStartup) {
-                        setTimeout(function(){
+                        setTimeout(function () {
                             node.sendState(deviceMeta);
                         }, 1500); //we need this timeout after restart of node-red  (homekit delays)
                     }
@@ -107,9 +107,9 @@ module.exports = function(RED) {
 
             //battery status
             if ("config" in device) {
-                if (device.config['battery'] !== undefined && device.config['battery'] != null){
+                if (device.config['battery'] !== undefined && device.config['battery'] != null) {
                     characteristic.BatteryLevel = parseInt(device.config['battery']);
-                    characteristic.StatusLowBattery = parseInt(device.config['battery'])<=15?1:0;
+                    characteristic.StatusLowBattery = parseInt(device.config['battery']) <= 15 ? 1 : 0;
 
                     msg.payload = characteristic;
                     // msg.topic = "battery";
@@ -161,6 +161,7 @@ module.exports = function(RED) {
         }
 
     }
+
     RED.nodes.registerType('deconz-battery', deConzItemBattery);
 };
 
