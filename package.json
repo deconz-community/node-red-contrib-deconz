@@ -45,5 +45,5 @@
     "type": "git",
     "url": "git+https://github.com/deconz-community/node-red-contrib-deconz.git"
   },
-  "version": "1.3.0"
+  "version": "1.3.1"
 }
