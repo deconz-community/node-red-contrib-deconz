@@ -163,9 +163,9 @@ module.exports = function (RED) {
                         post[command] = payload;
                     }
 
-                    let transitionTime = RED.util.evaluateNodeProperty(config.transitionTime, config.transitionTimeType || "num", node, message);
-                    if (parseInt(transitionTime) >= 0) {
-                        post['transitiontime'] = parseInt(transitionTime);
+                    let transitionTime = parseInt(RED.util.evaluateNodeProperty(config.transitionTime, config.transitionTimeType || "num", node, message));
+                    if (config.transitionTime !== "" && transitionTime >= 0) {
+                        post['transitiontime'] = transitionTime;
                     }
 
                     node.postData(url, post);
