@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 :memo: The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased] :construction:
+
+## [1.3.1] - 2021-02-20 ![Relative date](https://img.shields.io/date/1613827429?label=)
+### Fixed
+- Removed unwanted transition time on out node when the transition time is not set. #118
 
 ## [1.3.0] - 2021-02-19 ![Relative date](https://img.shields.io/date/1613738128?label=)
 ### Added
