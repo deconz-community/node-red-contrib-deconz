@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "events": "latest",
-    "multiple-select": "^1.4.1",
+    "multiple-select": "^1.5.2",
     "request": "latest",
     "ws": "latest"
   },

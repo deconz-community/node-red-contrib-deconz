@@ -1,5 +1,6 @@
 var request = require('request');
 var NODE_PATH = '/deconz/';
+const path = require('path');
 
 module.exports = function (RED) {
     /**
@@ -13,6 +14,16 @@ module.exports = function (RED) {
         res.sendFile(req.params[0], options);
     });
 
+    /**
+     * Enable http route to multiple-select static files
+     */
+    RED.httpAdmin.get(NODE_PATH + 'multiple-select/*', function (req, res) {
+        var options = {
+            root: path.dirname(require.resolve('multiple-select')),
+            dotfiles: 'deny'
+        };
+        res.sendFile(req.params[0], options);
+    });
 
     /**
      * Enable http route to JSON itemlist for each controller (controller id passed as GET query parameter)
