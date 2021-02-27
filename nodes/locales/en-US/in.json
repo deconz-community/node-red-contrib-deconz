@@ -16,7 +16,8 @@
     "devices": "Devices",
     "light_groups": "Light Groups",
     "search_type": "Search",
-    "query": "Query"
+    "query": "Query",
+    "query_result": "Query result"
   },
   "placeholder": {
     "name": "Name"
@@ -34,6 +35,7 @@
     "devices": "Devices",
     "filter_devices": "Filter devices...",
     "refresh": "Refresh devices list",
+    "refresh_query": "Refresh query result",
     "none_selected": "None selected",
     "complete_payload": "Complete state payload",
     "each_state": "Each state payload"

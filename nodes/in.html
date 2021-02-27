@@ -27,16 +27,34 @@
         <input type="hidden" id="node-input-search_type">
     </div>
 
+    <div class="form-row deconz-query-selector">
+        <label for="node-input-query_result" class="l-width"><i class="fa fa-crosshairs"></i> <span
+                data-i18n="label.query_result"></span></label>
+        <select id="node-input-query_result" class="s-width multiple-select" multiple="multiple"
+                data-i18n="[placeholder]multiselect.none_selected"></select>
+    </div>
+
+
+    <div class="form-row deconz-query-selector">
+        <label for="force-refresh-query-result" class="l-width"><i class="fa fa-refresh"></i> <span
+                data-i18n="label.refresh"></span></label>
+        <a class="red-ui-button s-width" id="force-refresh-query-result" name="force-refresh-query-result"><span
+                data-i18n="multiselect.refresh_query"></span></a>
+    </div>
+
+
     <div class="form-row deconz-device-selector">
         <label for="node-input-device_list" class="l-width"><i class="fa fa-crosshairs"></i> <span
                 data-i18n="label.device"></span></label>
         <select id="node-input-device_list" class="s-width multiple-select" multiple="multiple"
                 data-i18n="[placeholder]multiselect.none_selected"></select>
     </div>
+
     <div class="form-row" id="input_device_warning_message_update" style="display: none;">
         <div class="form-tips form-warning"
              data-i18n="[html]node-red-contrib-deconz/server:tip.input_device_warning_message_update"></div>
     </div>
+
     <div class="form-row deconz-device-selector">
         <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
         <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
@@ -168,7 +186,6 @@
 
 
             if (true === false) {
-
 
 
                 //$('#node-input-device_list').change(updateOutput)

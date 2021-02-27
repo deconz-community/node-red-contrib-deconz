@@ -14,9 +14,12 @@ function deconz_initNodeEditor(node, options = {}) {
         elements: {
             server: '#node-input-server',
             querySelect: '#node-input-query',
+            queryResultSelect: '#node-input-query_result',
             deviceSelect: '#node-input-device_list',
             deviceShowHideSelector: '.deconz-device-selector',
+            queryShowHideSelector: '.deconz-query-selector',
             refreshButton: '#force-refresh',
+            refreshQueryResultButton: '#force-refresh-query-result',
             stateSelect: '#node-input-state',
             outputSelect: '#node-input-output',
         },
@@ -37,8 +40,10 @@ function deconz_initNodeEditor(node, options = {}) {
     let elements = {
         serverSelect: $(options.elements.server),
         querySelect: $(options.elements.querySelect),
+        queryResultSelect: $(options.elements.queryResultSelect),
         deviceSelect: $(options.elements.deviceSelect),
         refreshButton: $(options.elements.refreshButton),
+        refreshQueryResultButton: $(options.elements.refreshQueryResultButton),
         stateSelect: $(options.elements.stateSelect),
         outputSelect: $(options.elements.outputSelect)
     };
@@ -68,9 +73,11 @@ function deconz_initNodeEditor(node, options = {}) {
 
         let updateDeviceDisplay = function (type, value) {
             if (type === "device") {
-                $(options.elements.deviceShowHideSelector).show()
+                $(options.elements.deviceShowHideSelector).show();
+                $(options.elements.queryShowHideSelector).hide();
             } else {
                 $(options.elements.deviceShowHideSelector).hide()
+                $(options.elements.queryShowHideSelector).show();
             }
         }
 
@@ -81,43 +88,110 @@ function deconz_initNodeEditor(node, options = {}) {
             //console.log({event: event, type: type, value: value})
             if (type === true) return
             //console.log("onchange updateDeviceDisplay called")
-            updateDeviceDisplay(type, value)
+
+            let t = elements.querySelect.typedInput('type');
+            let v = elements.querySelect.typedInput('value');
+
+            switch (t) {
+                case 'device':
+                    deconz_updateDeviceList(serverNode, node, elements, {}, options);
+                    break;
+                case 'jon':
+                case'jsonata':
+                    deconz_updateDeviceList(serverNode, node, elements, {
+                        queryMode: true
+                    }, options);
+                    break;
+            }
+
+
+            updateDeviceDisplay(t, v)
         });
 
 
     }
 
     // Init device selector
-    if (elements.deviceSelect.length) {
-
-        let savedData = {
-            device: node.device,
-            device_list: node.device_list
-        };
-
-
-        deconz_initNodeEditorDeviceList(serverNode, node, elements, options, function (success) {
-            if (success) {
-                deconz_initNodeEditorStateList(serverNode, node, elements, options, function (success) {
-                    if (success) {
-                        deconz_initNodeEditorOutputList(serverNode, node, elements, options, function (success) {
-                            if (success) {
-
-                            } else {
-                                //TODO handle error loading
-                            }
-                        })
-                    } else {
-                        //TODO handle error loading
-                    }
-                });
-            } else {
-                //TODO handle error loading
-            }
-        })
-    }
+    deconz_initNodeEditorDeviceList(serverNode, node, elements, options, function (success) {
+        if (success) {
+            deconz_initNodeEditorStateList(serverNode, node, elements, options, function (success) {
+                if (success) {
+                    deconz_initNodeEditorOutputList(serverNode, node, elements, options, function (success) {
+                        if (success) {
+                            deconz_initNodeEditorQueryResultList(serverNode, node, elements, options, function (success) {
+                                if (success) {
+                                } else {
+                                    //TODO handle error loading
+                                }
+                            })
+                        } else {
+                            //TODO handle error loading
+                        }
+                    })
+                } else {
+                    //TODO handle error loading
+                }
+            });
+        } else {
+            //TODO handle error loading
+        }
+    })
 }
 
+
+function deconz_initNodeEditorQueryResultList(serverNode, node, elements, globalOptions, callback) {
+
+    elements.queryResultSelect.multipleSelect({
+        maxHeight: 300,
+        dropWidth: 320,
+        width: 320,
+        single: false,
+        filter: true,
+        selectAll: false,
+        filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
+        numberDisplayed: 1,
+        disableIfEmpty: true,
+        showClear: false
+    });
+
+    // Initial call to populate item list
+    //console.log("Initial -> deconz_updateDeviceList")
+    deconz_updateDeviceList(serverNode, node, elements, {
+        refresh: false,
+        queryMode: true
+    }, globalOptions);
+
+
+    /* TODO useless?
+    // onChange event handler in case a new controller gets selected
+    elements.querySelect.change(function (event) {
+        //console.log("onchange -> serverSelect deconz_updateDeviceList")
+        deconz_updateDeviceList(serverNode, node, elements, {
+            queryMode: true,
+            callback: function () {
+                deconz_updateItemStateList(serverNode, node, elements, {queryMode: true}, globalOptions);
+            }
+        }, globalOptions);
+
+
+    });
+
+     */
+
+
+    // onClick event handler for refresh button
+    elements.refreshQueryResultButton.click(function (event) {
+        // Force a refresh of the item list
+        //console.log("onclick -> refreshButton deconz_updateDeviceList")
+        deconz_updateDeviceList(serverNode, node, elements, {
+            refresh: true,
+            queryMode: true
+        }, globalOptions);
+    });
+
+    callback(true);
+
+}
 
 function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptions, callback) {
     //console.log("------ deconz_initNodeEditorDeviceList ------")
@@ -180,15 +254,22 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
 
 function deconz_updateDeviceList(serverNode, node, elements, options, globalOptions) {
 
-    let itemsSelected;
-    let savedData;
+    let itemsSelected = [];
+    let savedData = {};
+    let query;
 
     options = $.extend({
         refresh: true,
+        queryMode: false,
         useSavedData: false,
         useSelectedData: false,
         callback: $.noop
     }, options);
+
+    let targetSelect = elements.deviceSelect;
+    if (options.queryMode) {
+        targetSelect = elements.queryResultSelect
+    }
 
     if (options.useSavedData) {
         savedData = {
@@ -197,22 +278,31 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
         };
     }
     if (options.useSelectedData) {
-        itemsSelected = elements.deviceSelect.multipleSelect('getSelects')
+        itemsSelected = targetSelect.multipleSelect('getSelects')
     }
 
-    let selectedItemElement = elements.deviceSelect;
     // Remove all previous and/or static (if any) elements from 'select' input element
-    elements.deviceSelect.children().remove();
+    targetSelect.children().remove();
 
     if (serverNode) {
-        $.getJSON('deconz/itemlist', {
-            controllerID: serverNode.id,
-            forceRefresh: options.refresh
-        })
-            .done(function (data, textStatus, jqXHR) {
-                try {
 
+        let params = {
+            controllerID: serverNode.id,
+            forceRefresh: options.refresh,
+        }
+
+        if (options.queryMode) {
+            params.query = elements.querySelect.typedInput('value');
+            params.queryType = elements.querySelect.typedInput('type');
+            params.nodeID = node.id;
+        }
+
+        $.getJSON('deconz/itemlist', params)
+            .done(function (data, textStatus, jqXHR) {
+
+                try {
                     let itemList = {};
+
                     Object.keys(data.items).forEach(function (key) {
                         let item = data.items[key]
                         let device_type = item.meta.type;
@@ -239,6 +329,7 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                         itemList[device_type].push(item)
                     });
 
+
                     Object.keys(itemList).sort().forEach(function (group_key) {
 
                         // Sort devices by name
@@ -249,6 +340,7 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                         });
 
                         let groupHtml = $('<optgroup/>', {label: group_key});
+
 
                         Object.keys(itemList[group_key]).forEach(function (device_key) {
                             let meta = itemList[group_key][device_key].meta
@@ -267,19 +359,20 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                                 .appendTo(groupHtml);
 
                         });
-                        groupHtml.appendTo(elements.deviceSelect);
+
+                        groupHtml.appendTo(targetSelect);
 
                     });
 
                     // Enable item selection
-                    elements.deviceSelect.multipleSelect('enable');
+                    targetSelect.multipleSelect('enable');
                     // // Rebuild bootstrap multiselect form
-                    elements.deviceSelect.multipleSelect('refresh');
+                    targetSelect.multipleSelect('refresh');
                     // Finally, set the value of the input select to the selected value
 
-                    if (itemsSelected === undefined) {
+                    if (!options.queryMode && itemsSelected === undefined) {
                         // Load from old saved data
-                        if (savedData.device !== null) {
+                        if (savedData && savedData.device !== null) {
                             let query = {};
                             if (savedData.device.substr(0, 5) === "group") {
                                 query.device_type = "group"
@@ -297,72 +390,28 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                                 Object.keys(data.items).forEach(function (key) {
                                     itemsSelected.push(data.items[key].path)
                                 });
-                                selectedItemElement.multipleSelect('setSelects', itemsSelected);
+                                targetSelect.multipleSelect('setSelects', itemsSelected);
                                 $('#input_device_warning_message_update').show();
 
                             }).fail(function (jqXHR, textStatus, errorThrown) {
                                 // Disable item selection if no items were retrieved
-                                elements.deviceSelect.multipleSelect('disable');
-                                elements.deviceSelect.multipleSelect('refresh');
+                                targetSelect.multipleSelect('disable');
+                                targetSelect.multipleSelect('refresh');
                                 //console.error(`Error: ${errorThrown}`);
                             });
-                        } else {
-                            elements.deviceSelect.multipleSelect('setSelects', savedData.device_list);
+                        } else if (savedData && savedData.device_list) {
+                            targetSelect.multipleSelect('setSelects', savedData.device_list);
                         }
-
-
-                        /*
-                        if (nodeQuery !== null) {
-
-                            // TODO handle loading query
-                            console.log(nodeQuery)
-
-
-                        } else if (nodeDevice !== null) {
-                            let query = {};
-                            if (nodeDevice.substr(0, 5) === "group") {
-                                query.device_type = "group"
-                                query.device_id = nodeDevice.substr(6)
-                            } else {
-                                query.uniqueid = nodeDevice
-                            }
-
-                            $.getJSON('deconz/itemlist', {
-                                controllerID: controller.id,
-                                forceRefresh: refresh,
-                                query: JSON.stringify(query)
-                            }).done(function (data, textStatus, jqXHR) {
-                                itemsSelected = []
-                                Object.keys(data.items).forEach(function (key) {
-                                    itemsSelected.push(JSON.stringify(data.items[key].query))
-                                });
-                                selectedItemElement.multipleSelect('setSelects', itemsSelected);
-                                $('#input_device_warning_message_update').show();
-
-                            }).fail(function (jqXHR, textStatus, errorThrown) {
-                                // Disable item selection if no items were retrieved
-                                selectedItemElement.multipleSelect('disable');
-                                selectedItemElement.multipleSelect('refresh');
-                                //console.error(`Error: ${errorThrown}`);
-                            });
-                        } else {
-                            // Nothing to select
-                        }
-
-                         */
 
                     }
 
-                    if (itemsSelected !== undefined) {
-                        elements.deviceSelect.multipleSelect('setSelects', itemsSelected);
+
+                    if (options.queryMode) {
+                        targetSelect.multipleSelect('checkAll');
+                    } else if (itemsSelected !== undefined) {
+                        targetSelect.multipleSelect('setSelects', itemsSelected);
                     }
 
-                    // // Trim selected item string length with elipsis
-                    /* TODO used ?
-                    var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
-                    var sHTML = selectItemSpanElement.html();
-                    selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
-                     */
                     options.callback(true);
 
                 } catch (error) {
@@ -373,16 +422,16 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
                 // Disable item selection if no items were retrieved
-                selectedItemElement.multipleSelect('disable');
-                selectedItemElement.multipleSelect('refresh');
+                targetSelect.multipleSelect('disable');
+                targetSelect.multipleSelect('refresh');
                 //console.error(`Error: ${errorThrown}`);
                 options.callback(false);
             });
 
     } else {
         // Disable item selection if no (valid) controller was selected
-        selectedItemElement.multipleSelect('disable');
-        selectedItemElement.multipleSelect('refresh');
+        targetSelect.multipleSelect('disable');
+        targetSelect.multipleSelect('refresh');
         options.callback(false);
     }
 }
@@ -459,12 +508,10 @@ function deconz_initNodeEditorStateList(serverNode, node, elements, globalOption
 
 }
 
-
 function deconz_updateItemStateList(serverNode, node, elements, options, globalOptions) {
-
-
     let statesSelected;
     let savedData;
+    let queryMode = elements.querySelect.typedInput('type') !== 'device';
 
     options = $.extend({
         refresh: true,
@@ -492,16 +539,36 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
 
     let devices = elements.deviceSelect.multipleSelect('getSelects');
 
-    if (serverNode && devices) {
+    let finishUpdate = function () {
+
+        elements.stateSelect.multipleSelect('enable');
+        elements.stateSelect.multipleSelect('refresh');
+
+        if (options.useSavedData) elements.stateSelect.multipleSelect('setSelects', savedData);
+        if (options.useSelectedData) elements.stateSelect.multipleSelect('setSelects', statesSelected);
+
+        if (elements.stateSelect.multipleSelect('getSelects').length === 0) {
+            elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue);
+        }
+
+        options.callback(true);
+    }
+
+    if (queryMode) {
+        elements.stateSelect.html(
+            '<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>' +
+            '<option value="1">' + RED._("node-red-contrib-deconz/in:multiselect.each_state") + '</option>'
+        );
+        finishUpdate();
+
+    } else if (serverNode && devices) {
         $.getJSON('deconz/statelist', {
             controllerID: serverNode.id,
             devices: JSON.stringify(devices)
         })
             .done(function (data, textStatus, jqXHR) {
 
-
                 try {
-
                     let html = '<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>'
 
                     if (!$.isEmptyObject(data.count)) {
@@ -527,23 +594,10 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
                     if (!$.isEmptyObject(data.count)) {
                         groupHtml.appendTo(elements.stateSelect);
                     }
-
                     // Enable item selection
-                    elements.stateSelect.multipleSelect('enable');
-                    elements.stateSelect.multipleSelect('refresh');
-                    if (options.useSavedData) elements.stateSelect.multipleSelect('setSelects', savedData);
-                    if (options.useSelectedData) elements.stateSelect.multipleSelect('setSelects', statesSelected);
 
+                    finishUpdate();
 
-                    if (elements.stateSelect.multipleSelect('getSelects').length === 0) {
-                        elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue);
-                    }
-
-                    if ($.isEmptyObject(data.count)) {
-                        elements.stateSelect.multipleSelect('disable');
-                    }
-
-                    options.callback(true);
                 } catch (error) {
                     console.error('Error #4534');
                     console.log(error);
@@ -612,7 +666,6 @@ function deconz_updateOutputList(serverNode, node, elements, options, globalOpti
     }
 
     options.callback(true);
-
 }
 
 

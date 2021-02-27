@@ -32,9 +32,15 @@ module.exports = function (RED) {
         let config = req.query;
         let controller = RED.nodes.getNode(config.controllerID);
         let forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
-        let query = req.query.query;
-        if (query !== undefined) {
-            query = JSON.parse(query);
+        let query;
+
+        if (req.query.query !== undefined && ['json', 'jsonata'].includes(req.query.queryType)) {
+            query = RED.util.evaluateNodeProperty(
+                req.query.query,
+                req.query.queryType,
+                RED.nodes.getNode(req.query.nodeID),
+                {}, undefined
+            )
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
