@@ -6,257 +6,613 @@ function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) 
     });
 }
 
-function deconz_getItemList(nodeItem, selectedItemElementName, options = {}) {
+function deconz_initNodeEditor(node, options = {}) {
+    //console.log("--- deconz_initNodeEditor ---")
 
     options = $.extend({
-        filterType: '',
-        disableReadonly: false,
-        refresh: false,
-        allowEmpty: false,
-        deviceType: false,
-        batteryFilter: false,
-        groups: false
+        ready: false, // TODO use that to drop events
+        elements: {
+            server: '#node-input-server',
+            querySelect: '#node-input-query',
+            deviceSelect: '#node-input-device_list',
+            deviceShowHideSelector: '.deconz-device-selector',
+            refreshButton: '#force-refresh',
+            stateSelect: '#node-input-state',
+            outputSelect: '#node-input-output',
+        },
+        queryAllowedTypes: ['deconz-device', 'json', 'jsonata'],
+        itemList: {
+            deviceType: false,
+            batteryFilter: false,
+        },
+        stateList: {
+            filterType: '',
+            disableReadonly: false,
+            refresh: false,
+            defaultValue: "0",
+            eachStateValue: "1",
+        }
     }, options);
 
-    function deconz_updateItemList(controller, selectedItemElement, itemName, refresh = false) {
-        // Remove all previous and/or static (if any) elements from 'select' input element
-        selectedItemElement.children().remove();
+    let elements = {
+        serverSelect: $(options.elements.server),
+        querySelect: $(options.elements.querySelect),
+        deviceSelect: $(options.elements.deviceSelect),
+        refreshButton: $(options.elements.refreshButton),
+        stateSelect: $(options.elements.stateSelect),
+        outputSelect: $(options.elements.outputSelect)
+    };
 
+    let serverNode = RED.nodes.node(elements.serverSelect.val());
 
-        if (controller) {
-            $.getJSON('deconz/itemlist', {
-                controllerID: controller.id,
-                forceRefresh: refresh
-            })
-                .done(function (data, textStatus, jqXHR) {
-                    try {
-                        // if (options.allowEmpty) {
-                        // selectedItemElement.html('<option value="" disabled selected>Select device</option>');
-                        // }
+    // Init Query field
+    if (elements.querySelect.length) {
 
-                        var optgroup = '';
-                        var disabled = '';
-                        var nameSuffix = '';
-                        // var selected = false;
-                        var groupHtml = '';
-                        var prevName = '';
-
-                        var itemList = [];
-                        var groupList = [];
-                        $.each(data.items, function (index, value) {
-                            if (value.meta.device_type === "groups") {
-                                groupList.push(value)
-                            } else {
-                                itemList.push(value)
-                            }
-                        });
-                        var itemsByName = itemList.slice(0);
-                        if (groupList.length > 0) {
-                            var groupsByName = groupList.slice(0);
-                            groupsByName.sort(function (a, b) {
-                                var x = a.device_name.toLowerCase();
-                                var y = b.device_name.toLowerCase();
-                                return x < y ? -1 : x > y ? 1 : 0;
-                            });
-                        }
-                        itemsByName.sort(function (a, b) {
-                            var x = a.device_name.toLowerCase();
-                            var y = b.device_name.toLowerCase();
-                            return x < y ? -1 : x > y ? 1 : 0;
-                        });
-
-                        if (options.groups && groupsByName) {
-                            groupHtml = $('<optgroup/>', {label: RED._("node-red-contrib-deconz/in:multiselect.groups")});
-                            groupHtml.appendTo(selectedItemElement);
-
-                            $.each(groupsByName, function (index, value) {
-                                if (value.meta.device_type == "groups") {
-                                    $('<option  value="group_' + value.meta.id + '">&#9675;&nbsp;' + value.meta.name + ' (lights: ' + value.meta.lights.length + (value.meta.scenes.length ? ", scenes: " + value.meta.scenes.length : "") + ')</option>').appendTo(groupHtml);
-                                }
-                            });
-
-                            groupHtml = $('<optgroup/>', {label: RED._("node-red-contrib-deconz/in:multiselect.devices")});
-                            groupHtml.appendTo(selectedItemElement);
-                        }
-
-                        $.each(itemsByName, function (index, value) {
-                            disabled = '';
-                            nameSuffix = '';
-
-                            if (options.deviceType && options.deviceType != value.meta.device_type) {
-                                return true;
-                            }
-
-                            if (options.batteryFilter &&
-                                (!("meta" in value)
-                                    || !("config" in value.meta)
-                                    || !("battery" in value.meta.config)
-                                )
-                            ) {
-
-                                return true;
-                            }
-
-                            var parentElement = (options.groups && groupHtml) ? groupHtml : selectedItemElement;
-                            $('<option' + disabled + ' value="' + value.uniqueid + '">&#9679;&nbsp;' + value.device_name + (nameSuffix ? ' (' + nameSuffix + ')' : '') + '</option>').appendTo(parentElement);
-                        });
-
-                        // Enable item selection
-                        selectedItemElement.multipleSelect('enable');
-                        // Finally, set the value of the input select to the selected value
-                        selectedItemElement.val(itemName);
-                        // // Rebuild bootstrap multiselect form
-                        selectedItemElement.multipleSelect('refresh');
-                        // // Trim selected item string length with elipsis
-                        var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
-                        var sHTML = selectItemSpanElement.html();
-                        selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
-                    } catch (error) {
-                        console.error('Error #4534');
-                        console.log(error);
-                    }
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    // Disable item selection if no items were retrieved
-                    selectedItemElement.multipleSelect('disable');
-                    selectedItemElement.multipleSelect('refresh');
-                    //console.error(`Error: ${errorThrown}`);
-                });
-
-        } else {
-            // Disable item selection if no (valid) controller was selected
-            selectedItemElement.multipleSelect('disable');
-            selectedItemElement.multipleSelect('refresh');
+        // Replace deconz device type
+        let index = options.queryAllowedTypes.indexOf('deconz-device')
+        if (index !== -1) {
+            options.queryAllowedTypes[index] = {
+                value: "device",
+                label: RED._("node-red-contrib-deconz/in:label.device"),
+                icon: "icons/node-red-contrib-deconz/deconz.png ",
+                hasValue: false
+            }
         }
+
+        // Init typed input
+        elements.querySelect.typedInput({
+            type: "text",
+            types: options.queryAllowedTypes,
+            typeField: "#node-input-search_type"
+        })
+
+        let updateDeviceDisplay = function (type, value) {
+            if (type === "device") {
+                $(options.elements.deviceShowHideSelector).show()
+            } else {
+                $(options.elements.deviceShowHideSelector).hide()
+            }
+        }
+
+        //console.log("Initial -> updateDeviceDisplay")
+        updateDeviceDisplay(node.search_type, node.query)
+        elements.querySelect.on('change', function (event, type, value) {
+            // See https://github.com/node-red/node-red/issues/2883
+            //console.log({event: event, type: type, value: value})
+            if (type === true) return
+            //console.log("onchange updateDeviceDisplay called")
+            updateDeviceDisplay(type, value)
+        });
+
+
     }
 
+    // Init device selector
+    if (elements.deviceSelect.length) {
 
-    var deServerElement = $('#node-input-server');
-    var refreshListElement = $('#force-refresh');
-    var selectedItemElement = $(selectedItemElementName);
+        let savedData = {
+            device: node.device,
+            device_list: node.device_list
+        };
 
-    var attr = $(this).attr('multiple');
 
+        deconz_initNodeEditorDeviceList(serverNode, node, elements, options, function (success) {
+            if (success) {
+                deconz_initNodeEditorStateList(serverNode, node, elements, options, function (success) {
+                    if (success) {
+                        deconz_initNodeEditorOutputList(serverNode, node, elements, options, function (success) {
+                            if (success) {
+
+                            } else {
+                                //TODO handle error loading
+                            }
+                        })
+                    } else {
+                        //TODO handle error loading
+                    }
+                });
+            } else {
+                //TODO handle error loading
+            }
+        })
+    }
+}
+
+
+function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptions, callback) {
+    //console.log("------ deconz_initNodeEditorDeviceList ------")
 
     // Initialize bootstrap multiselect form
-    selectedItemElement.multipleSelect({
+    elements.deviceSelect.multipleSelect({
         maxHeight: 300,
         dropWidth: 320,
         width: 320,
-        single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false),
+        single: !(elements.deviceSelect.attr('multiple') === "multiple"),
         filter: true,
         filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
-
         includeResetOption: true,
         includeResetDivider: true,
         resetText: RED._("node-red-contrib-deconz/in:multiselect.refresh"),
         numberDisplayed: 1,
         disableIfEmpty: true,
         nSelectedText: 'selected',
-        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected")
+        nonSelectedText: RED._("node-red-contrib-deconz/in:multiselect.none_selected"),
+        showClear: true
     });
 
     // Initial call to populate item list
-    deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, false);
+    //console.log("Initial -> deconz_updateDeviceList")
+    deconz_updateDeviceList(serverNode, node, elements, {
+        refresh: false,
+        useSavedData: true,
+        callback: callback
+    }, globalOptions);
+
+    let refreshCallback = function () {
+        deconz_updateItemStateList(serverNode, node, elements, {
+            useSelectedData: true,
+            callback: function () {
+                deconz_updateOutputList(serverNode, node, elements, {}, globalOptions)
+            }
+        }, globalOptions)
+
+    };
     // onChange event handler in case a new controller gets selected
-    deServerElement.change(function (event) {
-        deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+    elements.serverSelect.change(function (event) {
+        //console.log("onchange -> serverSelect deconz_updateDeviceList")
+        deconz_updateDeviceList(serverNode, node, elements, {
+            useSavedData: true,
+            callback: refreshCallback
+        }, globalOptions);
     });
-    refreshListElement.click(function (event) {
+
+    // onClick event handler for refresh button
+    elements.refreshButton.click(function (event) {
         // Force a refresh of the item list
-        deconz_updateItemList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem, true);
+        //console.log("onclick -> refreshButton deconz_updateDeviceList")
+        deconz_updateDeviceList(serverNode, node, elements, {
+            useSelectedData: true,
+            callback: refreshCallback
+        }, globalOptions);
     });
+
 }
 
+function deconz_updateDeviceList(serverNode, node, elements, options, globalOptions) {
 
-function deconz_getItemStateList(nodeItem, selectedItemElementName, options = {}) {
+    let itemsSelected;
+    let savedData;
 
     options = $.extend({
-        filterType: '',
-        disableReadonly: false,
-        refresh: false
+        refresh: true,
+        useSavedData: false,
+        useSelectedData: false,
+        callback: $.noop
     }, options);
 
-    function deconz_updateItemStateList(controller, selectedItemElement, itemName) {
-        // Remove all previous and/or static (if any) elements from 'select' input element
-        selectedItemElement.children().remove();
-
-        var uniqueId = $('#node-input-device').val();
-        if (controller && uniqueId) {
-            $.getJSON('deconz/statelist', {
-                controllerID: controller.id,
-                uniqueid: uniqueId
-            })
-                .done(function (data, textStatus, jqXHR) {
-                    try {
-
-                        selectedItemElement.html('<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>');
-
-
-                        $.each(data, function (index, value) {
-                            // $('<option  value="' + index +'">'+index+'</option>').appendTo(selectedItemElement);
-                            $('<option  value="' + index + '">' + index + ' (' + value + ')</option>').appendTo(selectedItemElement);
-                        });
-
-                        // Enable item selection
-                        selectedItemElement.multipleSelect('enable');
-
-
-                        // Finally, set the value of the input select to the selected value
-                        if (selectedItemElement.find('option[value=' + itemName + ']').length) {
-                            selectedItemElement.val(itemName);
-                        } else {
-                            selectedItemElement.val(selectedItemElement.find('option').eq(0).attr('value'));
-                        }
-                        selectedItemElement.multipleSelect('destroy');
-
-                        // Trim selected item string length with elipsis
-                        var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
-                        var sHTML = selectItemSpanElement.html();
-                        selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
-
-                    } catch (error) {
-                        console.error('Error #4534');
-                        console.log(error);
-                    }
-
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    // Disable item selection if no items were retrieved
-                    selectedItemElement.multipleSelect('disable');
-                    selectedItemElement.multipleSelect('refresh');
-                    //console.error(`Error: ${errorThrown}`);
-                });
-
-        } else {
-            // Disable item selection if no (valid) controller was selected
-            selectedItemElement.multipleSelect('disable');
-            selectedItemElement.multipleSelect('refresh');
-        }
+    if (options.useSavedData) {
+        savedData = {
+            device: node.device,
+            device_list: node.device_list
+        };
+    }
+    if (options.useSelectedData) {
+        itemsSelected = elements.deviceSelect.multipleSelect('getSelects')
     }
 
+    let selectedItemElement = elements.deviceSelect;
+    // Remove all previous and/or static (if any) elements from 'select' input element
+    elements.deviceSelect.children().remove();
 
-    var deServerElement = $('#node-input-server');
-    var selectedItemElement = $(selectedItemElementName);
+    if (serverNode) {
+        $.getJSON('deconz/itemlist', {
+            controllerID: serverNode.id,
+            forceRefresh: options.refresh
+        })
+            .done(function (data, textStatus, jqXHR) {
+                try {
 
+                    let itemList = {};
+                    Object.keys(data.items).forEach(function (key) {
+                        let item = data.items[key]
+                        let device_type = item.meta.type;
+
+                        // Filter on device_type
+                        // TODO probably removed when allow setting config of sensors
+                        if (globalOptions.itemList.deviceType && globalOptions.itemList.deviceType !== device_type) {
+                            return true;
+                        }
+
+                        // Keep only battery powered devices
+                        if (globalOptions.itemList.batteryFilter &&
+                            (!("meta" in item)
+                                || !("config" in item.meta)
+                                || !("battery" in item.meta.config))
+                        ) {
+                            return true;
+                        }
+
+                        if (itemList[device_type] === undefined) {
+                            itemList[device_type] = [];
+                        }
+
+                        itemList[device_type].push(item)
+                    });
+
+                    Object.keys(itemList).sort().forEach(function (group_key) {
+
+                        // Sort devices by name
+                        itemList[group_key].sort(function (a, b) {
+                            let x = a.device_name.toLowerCase();
+                            let y = b.device_name.toLowerCase();
+                            return x < y ? -1 : x > y ? 1 : 0;
+                        });
+
+                        let groupHtml = $('<optgroup/>', {label: group_key});
+
+                        Object.keys(itemList[group_key]).forEach(function (device_key) {
+                            let meta = itemList[group_key][device_key].meta
+
+                            let label = meta.name;
+                            if (meta.device_type === "groups") {
+                                label += ' (lights: ' + meta.lights.length;
+                                if (meta.scenes.length) {
+                                    label += ", scenes: " + meta.scenes.length
+                                }
+                                label += ")"
+                            }
+
+                            $('<option>' + label + '</option>')
+                                .attr("value", itemList[group_key][device_key].path)
+                                .appendTo(groupHtml);
+
+                        });
+                        groupHtml.appendTo(elements.deviceSelect);
+
+                    });
+
+                    // Enable item selection
+                    elements.deviceSelect.multipleSelect('enable');
+                    // // Rebuild bootstrap multiselect form
+                    elements.deviceSelect.multipleSelect('refresh');
+                    // Finally, set the value of the input select to the selected value
+
+                    if (itemsSelected === undefined) {
+                        // Load from old saved data
+                        if (savedData.device !== null) {
+                            let query = {};
+                            if (savedData.device.substr(0, 5) === "group") {
+                                query.device_type = "group"
+                                query.device_id = savedData.device.substr(6)
+                            } else {
+                                query.uniqueid = savedData.device
+                            }
+
+                            $.getJSON('deconz/itemlist', {
+                                controllerID: serverNode.id,
+                                forceRefresh: options.refresh,
+                                query: JSON.stringify(query)
+                            }).done(function (data, textStatus, jqXHR) {
+                                itemsSelected = []
+                                Object.keys(data.items).forEach(function (key) {
+                                    itemsSelected.push(data.items[key].path)
+                                });
+                                selectedItemElement.multipleSelect('setSelects', itemsSelected);
+                                $('#input_device_warning_message_update').show();
+
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                // Disable item selection if no items were retrieved
+                                elements.deviceSelect.multipleSelect('disable');
+                                elements.deviceSelect.multipleSelect('refresh');
+                                //console.error(`Error: ${errorThrown}`);
+                            });
+                        } else {
+                            elements.deviceSelect.multipleSelect('setSelects', savedData.device_list);
+                        }
+
+
+                        /*
+                        if (nodeQuery !== null) {
+
+                            // TODO handle loading query
+                            console.log(nodeQuery)
+
+
+                        } else if (nodeDevice !== null) {
+                            let query = {};
+                            if (nodeDevice.substr(0, 5) === "group") {
+                                query.device_type = "group"
+                                query.device_id = nodeDevice.substr(6)
+                            } else {
+                                query.uniqueid = nodeDevice
+                            }
+
+                            $.getJSON('deconz/itemlist', {
+                                controllerID: controller.id,
+                                forceRefresh: refresh,
+                                query: JSON.stringify(query)
+                            }).done(function (data, textStatus, jqXHR) {
+                                itemsSelected = []
+                                Object.keys(data.items).forEach(function (key) {
+                                    itemsSelected.push(JSON.stringify(data.items[key].query))
+                                });
+                                selectedItemElement.multipleSelect('setSelects', itemsSelected);
+                                $('#input_device_warning_message_update').show();
+
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                // Disable item selection if no items were retrieved
+                                selectedItemElement.multipleSelect('disable');
+                                selectedItemElement.multipleSelect('refresh');
+                                //console.error(`Error: ${errorThrown}`);
+                            });
+                        } else {
+                            // Nothing to select
+                        }
+
+                         */
+
+                    }
+
+                    if (itemsSelected !== undefined) {
+                        elements.deviceSelect.multipleSelect('setSelects', itemsSelected);
+                    }
+
+                    // // Trim selected item string length with elipsis
+                    /* TODO used ?
+                    var selectItemSpanElement = $(`span.multiselect-selected-text:contains("${itemName}")`);
+                    var sHTML = selectItemSpanElement.html();
+                    selectItemSpanElement.html(deconz_truncateWithEllipses(sHTML, 35));
+                     */
+                    options.callback(true);
+
+                } catch (error) {
+                    console.error('Error #4534');
+                    console.log(error);
+                    options.callback(false);
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                // Disable item selection if no items were retrieved
+                selectedItemElement.multipleSelect('disable');
+                selectedItemElement.multipleSelect('refresh');
+                //console.error(`Error: ${errorThrown}`);
+                options.callback(false);
+            });
+
+    } else {
+        // Disable item selection if no (valid) controller was selected
+        selectedItemElement.multipleSelect('disable');
+        selectedItemElement.multipleSelect('refresh');
+        options.callback(false);
+    }
+}
+
+function deconz_initNodeEditorStateList(serverNode, node, elements, globalOptions, callback) {
+    //console.log("--------- deconz_initNodeEditorStateList ---------")
 
     // Initialize bootstrap multiselect form
-    selectedItemElement.multipleSelect('destroy');
-    selectedItemElement.multipleSelect({
+    //elements.stateSelect.multipleSelect('destroy');
+
+    let complete = globalOptions.stateList.defaultValue;
+    let each_state = globalOptions.stateList.eachStateValue;
+
+    elements.stateSelect.multipleSelect({
         numberDisplayed: 1,
         dropWidth: 320,
         width: 320,
-        single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false)
+        single: elements.stateSelect.attr('multiple') !== "multiple",
+        selectAll: false,
+        filter: true,
+        onClick: function (view) {
+            if (!view.selected) return;
+            switch (view.value) {
+                case complete:
+                case each_state:
+                    elements.stateSelect.multipleSelect('setSelects', [view.value]);
+                    break;
+                default:
+                    elements.stateSelect.multipleSelect('uncheck', complete);
+                    elements.stateSelect.multipleSelect('uncheck', each_state);
+                    break;
+            }
+        },
+        onUncheckAll: function () {
+            elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue)
+        },
+        onOptgroupClick: function (view) {
+            if (!view.selected) return;
+            elements.stateSelect.multipleSelect('uncheck', globalOptions.stateList.defaultValue);
+            elements.stateSelect.multipleSelect('uncheck', globalOptions.stateList.eachStateValue);
+        },
     });
 
+    // Initial call to populate state list
+    //console.log("Initial -> deconz_updateItemStateList")
+    deconz_updateItemStateList(serverNode, node, elements, {
+        refresh: false,
+        useSavedData: true,
+        callback: callback
+    }, globalOptions);
 
-    // Initial call to populate item list
-    deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
+    let refreshCallback = function () {
+        deconz_updateOutputList(serverNode, node, elements, {}, globalOptions)
+    };
 
     // onChange event handler in case a new controller gets selected
-    deServerElement.change(function (event) {
-        deconz_updateItemStateList(RED.nodes.node(deServerElement.val()), selectedItemElement, selectedItemElement.val() || nodeItem);
+    elements.serverSelect.change(function (event) {
+        //console.log("onchange serverSelect deconz_updateItemStateList")
+        deconz_updateItemStateList(serverNode, node, elements, {
+            useSavedData: true,
+            callback: refreshCallback
+        }, globalOptions);
     });
+
+    // onClick event handler for refresh button
+    elements.deviceSelect.change(function (event) {
+        // Force a refresh of the item list
+        //console.log("change deviceSelect -> deconz_updateItemStateList")
+        deconz_updateItemStateList(serverNode, node, elements, {
+            useSelectedData: true,
+            callback: refreshCallback
+        }, globalOptions);
+    });
+
+}
+
+
+function deconz_updateItemStateList(serverNode, node, elements, options, globalOptions) {
+
+
+    let statesSelected;
+    let savedData;
+
+    options = $.extend({
+        refresh: true,
+        useSavedData: false,
+        useSelectedData: false,
+        callback: $.noop
+    }, options);
+
+    if (options.useSavedData) {
+        savedData = node.state;
+        if (!Array.isArray(savedData)) {
+            savedData = [savedData];
+        }
+        if (savedData.length === 0) {
+            savedData = [globalOptions.stateList.defaultValue];
+        }
+    }
+
+    if (options.useSelectedData) {
+        statesSelected = elements.stateSelect.multipleSelect('getSelects')
+    }
+
+    // Remove all previous and/or static (if any) elements from 'select' input element
+    elements.stateSelect.children().remove();
+
+    let devices = elements.deviceSelect.multipleSelect('getSelects');
+
+    if (serverNode && devices) {
+        $.getJSON('deconz/statelist', {
+            controllerID: serverNode.id,
+            devices: JSON.stringify(devices)
+        })
+            .done(function (data, textStatus, jqXHR) {
+
+
+                try {
+
+                    let html = '<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>'
+
+                    if (!$.isEmptyObject(data.count)) {
+                        html += '<option value="1">' + RED._("node-red-contrib-deconz/in:multiselect.each_state") + '</option>'
+                    }
+
+                    elements.stateSelect.html(html);
+
+                    let groupHtml = $('<optgroup/>', {label: "State"});
+
+                    Object.keys(data.count).sort().forEach(function (state) {
+                        let sample = data.sample[state];
+                        let count = data.count[state];
+                        let label = state;
+                        if (count !== devices.length) {
+                            label += " [" + count + "/" + devices.length + "]";
+                        }
+                        label += " (" + sample + ")";
+
+                        $('<option>' + label + '</option>').attr('value', state).appendTo(groupHtml);
+                    })
+
+                    if (!$.isEmptyObject(data.count)) {
+                        groupHtml.appendTo(elements.stateSelect);
+                    }
+
+                    // Enable item selection
+                    elements.stateSelect.multipleSelect('enable');
+                    elements.stateSelect.multipleSelect('refresh');
+                    if (options.useSavedData) elements.stateSelect.multipleSelect('setSelects', savedData);
+                    if (options.useSelectedData) elements.stateSelect.multipleSelect('setSelects', statesSelected);
+
+
+                    if (elements.stateSelect.multipleSelect('getSelects').length === 0) {
+                        elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue);
+                    }
+
+                    if ($.isEmptyObject(data.count)) {
+                        elements.stateSelect.multipleSelect('disable');
+                    }
+
+                    options.callback(true);
+                } catch (error) {
+                    console.error('Error #4534');
+                    console.log(error);
+                    options.callback(false);
+                }
+
+
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                // Disable item selection if no items were retrieved
+                elements.stateSelect.multipleSelect('disable');
+                elements.stateSelect.multipleSelect('refresh');
+                //console.error(`Error: ${errorThrown}`);
+                options.callback(false);
+            });
+
+    } else {
+        // Disable item selection if no (valid) controller was selected
+        elements.stateSelect.multipleSelect('disable');
+        elements.stateSelect.multipleSelect('refresh');
+        options.callback(false);
+    }
+}
+
+
+function deconz_initNodeEditorOutputList(serverNode, node, elements, globalOptions, callback) {
+    //console.log("--------------- deconz_initNodeEditorOutputList ---------------")
+
+    // Initialize bootstrap multiselect form
+    elements.outputSelect.multipleSelect({
+        maxHeight: 300,
+        dropWidth: 320,
+        single: true,
+        placeholder: "Always"
+    });
+
+
+    // Initial call to populate output list
+    //console.log("Initial -> deconz_updateOutputList")
+    deconz_updateOutputList(serverNode, node, elements, {
+        useSavedData: true,
+        callback: callback
+    }, globalOptions);
+
+    elements.stateSelect.on("change", function () {
+        //console.log("change stateSelect -> deconz_updateOutputList")
+        deconz_updateOutputList(serverNode, node, elements, {}, globalOptions);
+    });
+
+}
+
+function deconz_updateOutputList(serverNode, node, elements, options, globalOptions) {
+
+    options = $.extend({
+        useSavedData: false,
+        callback: $.noop
+    }, options);
+
+    // If Complete state payload selected
+    if (elements.stateSelect.multipleSelect('getSelects').includes(globalOptions.stateList.defaultValue)) {
+        elements.outputSelect.multipleSelect('disable');
+        elements.outputSelect.multipleSelect('setSelects', 'always');
+    } else {
+        elements.outputSelect.multipleSelect('enable')
+        if (options.useSavedData) elements.outputSelect.multipleSelect('setSelects', node.output)
+    }
+
+    options.callback(true);
+
 }
 
 
@@ -343,14 +699,14 @@ function deconz_initSettings(callback, inputSettings) {
                 var msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect. Try to enter deconz local IP address eg. 192.168.1.20';
-                    if (settings.port == 40850) {
+                    if (settings.port === 40850) {
                         msg = 'HomeAssistant? Fill only IP-address of your HA server.';
                         alert(msg);
                         return;
                     }
-                } else if (jqXHR.status == 404) {
+                } else if (jqXHR.status === 404) {
                     msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
+                } else if (jqXHR.status === 500) {
                     msg = 'Internal Server Error [500].';
                 } else if (exception === 'parsererror') {
                     msg = 'Requested JSON parse failed.';

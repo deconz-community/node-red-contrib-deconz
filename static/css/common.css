@@ -1,3 +1,4 @@
+
 .form-row label.l-width {
     width: 25%;
     min-width: 120px;
@@ -13,10 +14,31 @@
     line-height: 34px !important;
 }
 
+.ms-choice span {
+    padding-right: 24px !important;
+}
+
+.ms-choice .icon-close {
+    font-size: 30px !important;
+    margin-right: 8px !important;
+    margin-top: -2px !important;
+}
+
 .ms-search input {
     width: 100% !important;
 }
 
-.ms-drop li label {
+.ms-drop li label input {
     width: 20px !important;
+    height: 16px !important;
+    margin-top: 3px !important;
 }
+
+.ms-drop li label span {
+    padding-left: 20px !important;
+}
+
+.deconz-node .red-ui-typedInput-container {
+    width: 70% !important;
+}
+

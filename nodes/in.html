@@ -7,30 +7,46 @@
                 data-i18n="label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
     </div>
-    <div class="form-row">
-        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
-                data-i18n="label.server"></span></label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span
-                data-i18n="label.device"></span></label>
-        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
-                data-i18n="label.refresh_devices_list"></span></a>
-    </div>
+
     <div class="form-row">
         <label for="node-input-topic" class="l-width"><i class="fa fa-tasks"></i> <span
                 data-i18n="node-red:common.label.topic">Topic</span></label>
         <input type="text" id="node-input-topic" autocomplete="off" dir="">
     </div>
+
+    <div class="form-row">
+        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
+                data-i18n="label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+
+    <div class="form-row deconz-node">
+        <label for="node-input-query" class="l-width"><i class="fa fa-search"></i> <span
+                data-i18n="label.query"></span></label>
+        <input type="text" id="node-input-query">
+        <input type="hidden" id="node-input-search_type">
+    </div>
+
+    <div class="form-row deconz-device-selector">
+        <label for="node-input-device_list" class="l-width"><i class="fa fa-crosshairs"></i> <span
+                data-i18n="label.device"></span></label>
+        <select id="node-input-device_list" class="s-width multiple-select" multiple="multiple"
+                data-i18n="[placeholder]multiselect.none_selected"></select>
+    </div>
+    <div class="form-row" id="input_device_warning_message_update" style="display: none;">
+        <div class="form-tips form-warning"
+             data-i18n="[html]node-red-contrib-deconz/server:tip.input_device_warning_message_update"></div>
+    </div>
+    <div class="form-row deconz-device-selector">
+        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
+        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
+                data-i18n="label.refresh_devices_list"></span></a>
+    </div>
     <div class="form-row">
         <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span
                 data-i18n="label.state"></span></label>
-        <select id="node-input-state" class="s-width" data-i18n="[placeholder]multiselect.complete_payload"></select>
+        <select id="node-input-state" class="s-width multiple-select" multiple="multiple"
+                data-i18n="[placeholder]multiselect.complete_payload"></select>
     </div>
     <div class="form-row">
         <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span
@@ -68,12 +84,24 @@
                 type: "deconz-server",
                 required: true
             },
-            device: {
-                value: null,
-                required: true
-            },
             device_name: {
                 value: null
+            },
+            search_type: {
+                value: "device_list",
+                required: true
+            },
+            device: { // Since device select rework this is unused but kept for migration
+                value: null,
+                required: false
+            },
+            device_list: {
+                value: null,
+                required: false
+            },
+            query: {
+                value: "{}",
+                required: false
             },
             topic: {
                 value: null,
@@ -108,77 +136,90 @@
             return label;
         },
         oneditprepare: function () {
-            var node = this;
-            var $outputSelect = $("#node-input-output");
+            //node de test : 3fe277cf.0c1388
+            let node = this;
+            let outputSelect = $("#node-input-output");
+            let querySelect = $("#node-input-query");
 
-            // Initialize bootstrap multiselect form
-            $outputSelect.multipleSelect({
-                maxHeight: 300,
-                dropWidth: 320,
-                single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false),
-                placeholder: "Always"
-            });
+            node.search_type = node.search_type || "device";
+            node.device = node.device || null; // Probably useless
+            node.device_list = node.device_list || null;
+            node.query = node.query || "{}";
 
-
-            var updateOutput = function () {
-                var selectedState = $('#node-input-state option:selected').val();
-                var selectedDevice = $('#node-input-device option:selected').val();
-
-                if ((selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
-                    $outputSelect.closest('.form-row').show();
-                } else {
-                    $outputSelect.closest('.form-row').hide();
-                }
-
-                $outputSelect.multipleSelect('refresh');
+            // TODO Useless ?
+            if (node.device_list !== null && !Array.isArray(node.device_list)) {
+                node.device_list = [node.device_list];
             }
 
-            $('#node-input-state').on("change", function () {
-                state = $('#node-input-state option:selected').val();
-                if (state) {
-                    node.state = state;
-                }
-                if (parseInt(state) === 0) {
-                    $outputSelect.val('always').multipleSelect('refresh');
-                }
-                updateOutput();
+
+            /*
+            $('#node-input-server').on('change', function (event, type, value) {
+                let toto = $('#node-input-server').val();
+                console.log({
+                    event, type, value, toto
+                })
             });
+            */
 
-            //$('#node-input-device').change(updateOutput)
+
             setTimeout(function () {
-                var $deviceInput = $('#node-input-device');
-
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty: true, groups: true});
-
-                $deviceInput.on("change", function () {
-                    deconz_getItemStateList(0, '#node-input-state');
-                    device = $('#node-input-device option:selected').val();
-                    if (!device.match(/^\d/) && !device.match(/^group_/)) {
-                        node.state = 0;
-                    }
-                    updateOutput();
-                });
-                setTimeout(function () {
-                    deconz_getItemStateList(node.state, '#node-input-state');
-                }, 100);
-
-                if (!node.output) {
-                    $outputSelect.val('always').multipleSelect('refresh');
-                }
-
+                deconz_initNodeEditor(node);
             }, 100); //we need small timeout, too fire change event for server select
+
+
+            if (true === false) {
+
+
+
+                //$('#node-input-device_list').change(updateOutput)
+                setTimeout(function () {
+                    let deviceInput = $('#node-input-device_list');
+
+                    //deconz_getItemList('#node-input-device_list', {device: node.device, device_list: node.device_list});
+
+
+                    // TODO Fix that
+                    deviceInput.on("change", function () {
+                        console.log("onchange -> deconz_getItemStateList")
+                        //deconz_getItemStateList('#node-input-state', undefined);
+
+                        /*
+                        device = $('#node-input-device_list option:selected').val();
+                        if (!device.match(/^\d/) && !device.match(/^group_/)) {
+                            node.state = 0;
+                        }
+                        */
+                        //updateOutput();
+                    });
+
+
+                    setTimeout(function () {
+                        console.log("initial -> deconz_getItemStateList")
+                        //deconz_getItemStateList('#node-input-state', node.state);
+                    }, 100);
+
+
+                    if (!node.output) {
+                        outputSelect.val('always').multipleSelect('refresh');
+                    }
+
+                }, 100); //we need small timeout, too fire change event for server select
+
+            }
         },
         oneditsave: function () {
-            var selectedOptions = $('#node-input-device option:selected');
-            if (selectedOptions) {
-                this.device = selectedOptions.map(function () {
-                    return $(this).val();
-                });
+            let node = this;
 
-                this.device_name = deconz_filterDeviceName(selectedOptions.text());
+            let selectedOptions = $('#node-input-device_list').multipleSelect('getSelects')
+
+            if (selectedOptions.length > 0) {
+                node.device_name = selectedOptions.length + " selected" //TODO
             } else {
-                this.device_name = this.device = null;
+                node.device_name = null;
             }
+
+            node.device = undefined;
+
         }
     });
 </script>

@@ -7,8 +7,8 @@ module.exports = function (RED) {
             RED.nodes.createNode(this, n);
 
             var node = this;
+            node.resources = ['groups', 'lights', 'sensors'];
             node.items = undefined;
-            node.items_list = undefined;
             node.discoverProcess = false;
             node.name = n.name;
             node.ip = n.ip;
@@ -41,101 +41,91 @@ module.exports = function (RED) {
 
             node.on('close', () => this.onClose());
 
-            node.discoverDevices(function () {
-            }, true);
+            node.discoverDevices(undefined, true);
 
             this.refreshDiscoverTimer = setInterval(function () {
-                node.discoverDevices(function () {
-                }, true);
+                node.discoverDevices(undefined, true);
             }, node.refreshDiscoverInterval);
         }
 
 
         discoverDevices(callback, forceRefresh = false) {
-            var node = this;
+            let node = this;
 
-            if (forceRefresh || node.items === undefined) {
-                node.discoverProcess = true;
-                // node.log('discoverDevices: Refreshing devices list');
-
-                var url = "http://" + node.ip + ":" + node.port + "/api/" + node.credentials.secured_apikey;
-                // node.log('discoverDevices: Requesting: ' + url);
-
-
-                request.get(url, function (error, result, data) {
-
-                    if (error) {
-                        node.discoverProcess = false;
-                        callback(false);
-                        return;
-                    }
-
-                    try {
-                        var dataParsed = JSON.parse(data);
-                    } catch (e) {
-                        node.discoverProcess = false;
-                        callback(false);
-                        return;
-                    }
-
-                    node.oldItemsList = node.items !== undefined ? node.items : undefined;
-                    node.items = [];
-                    if (dataParsed) {
-                        for (var index in dataParsed.sensors) {
-                            var prop = dataParsed.sensors[index];
-                            prop.device_type = 'sensors';
-                            prop.device_id = parseInt(index);
-
-                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
-                            } else {
-                                node.items[prop.uniqueid] = prop;
-                                node.emit("onNewDevice", prop.uniqueid);
-                            }
-                            node.items[prop.uniqueid] = prop;
-                        }
-
-                        for (var index in dataParsed.lights) {
-                            var prop = dataParsed.lights[index];
-                            prop.device_type = 'lights';
-                            prop.device_id = parseInt(index);
-
-                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
-                            } else {
-                                node.items[prop.uniqueid] = prop;
-                                node.emit("onNewDevice", prop.uniqueid);
-                            }
-                            node.items[prop.uniqueid] = prop;
-                        }
-
-                        for (var index in dataParsed.groups) {
-                            var prop = dataParsed.groups[index];
-                            prop.device_type = 'groups';
-                            var groupid = "group_" + parseInt(index);
-                            prop.device_id = groupid;
-                            prop.uniqueid = groupid;
-
-                            if (node.oldItemsList !== undefined && prop.uniqueid in node.oldItemsList) {
-                            } else {
-                                node.items[prop.uniqueid] = prop;
-                                node.emit("onNewDevice", prop.uniqueid);
-                            }
-                            node.items[prop.uniqueid] = prop;
-                        }
-                    }
-
-                    node.discoverProcess = false;
-                    callback(node.items);
-                    return node.items;
-                });
-            } else {
+            if (!(forceRefresh || node.items === undefined)) {
                 node.log('discoverDevices: Using cached devices');
-                callback(node.items);
+                if (callback !== undefined) {
+                    callback(node.items);
+                }
                 return node.items;
             }
+
+            node.discoverProcess = true;
+
+            let url = "http://" + node.ip + ":" + node.port + "/api/" + node.credentials.secured_apikey;
+
+            request.get(url, function (error, result, data) {
+
+                if (error) {
+                    node.discoverProcess = false;
+                    if (callback !== undefined) {
+                        callback(false);
+                    }
+                    return;
+                }
+
+                try {
+                    var dataParsed = JSON.parse(data);
+                } catch (e) {
+                    node.discoverProcess = false;
+                    if (callback !== undefined) {
+                        callback(false);
+                    }
+                    return;
+                }
+
+                node.oldItemsList = node.items /*!== undefined ? node.items : undefined*/ /* I don't understand the check here */;
+                node.items = {};
+                if (dataParsed) {
+
+                    node.resources.forEach(function (resource) {
+                        node.items[resource] = {};
+
+                        Object.keys(dataParsed[resource]).forEach(function (key) {
+
+                            let data = dataParsed[resource][key]
+
+                            data.device_type = resource;
+                            data.device_id = parseInt(key);
+                            let object_index = node.getPathByDevice(data, false)
+
+                            if (!(node.oldItemsList !== undefined && object_index in node.oldItemsList[resource])) {
+                                node.items[resource][object_index] = data;
+                                // TODO handle the new signature for onNewDevice
+                                node.emit("onNewDevice", resource, object_index);
+                            }
+
+                            node.items[resource][object_index] = data;
+
+                        })
+
+                    });
+
+                }
+
+                node.discoverProcess = false;
+
+                if (callback !== undefined) {
+                    callback(node.items);
+                }
+                return node.items;
+            });
+
+
         }
 
         getDiscoverProcess() {
-            var node = this;
+            let node = this;
             return node.discoverProcess;
         }
 
@@ -154,22 +144,110 @@ module.exports = function (RED) {
             return result;
         }
 
-        getItemsList(callback, forceRefresh = false) {
-            var node = this;
-            node.discoverDevices(function (items) {
-                node.items_list = [];
-                for (var index in items) {
-                    var prop = items[index];
+        getPathByDevice(device, includeDeviceType = true) {
+            let ref = "";
+            if (includeDeviceType) ref += device.device_type + "/"
+            if (device.uniqueid !== undefined) {
+                ref += "uniqueid/" + device.uniqueid
+            } else {
+                ref += "device_id/" + device.device_id
+            }
+            return ref;
+        }
 
-                    node.items_list.push({
-                        device_name: prop.name + ' : ' + prop.type,
-                        uniqueid: prop.uniqueid,
-                        meta: prop
-                    });
+        getDeviceByPath(path) {
+            let node = this;
+            let result = false;
+            let parts = path.split("/")
+            let device_type = parts.shift()
+            let sub_path = parts.join("/")
+            if (node.items !== undefined && node.items && node.items[device_type] && node.items[device_type][sub_path]) {
+                return node.items[device_type][sub_path];
+            }
+            return result;
+        }
+
+        getQuery(meta) {
+            let query = {
+                device_type: meta.device_type,
+                limit: 1
+            };
+
+            if (meta.uniqueid !== undefined) {
+                query.uniqueid = meta.uniqueid
+            } else {
+                query.device_id = meta.device_id
+                if (meta.device_type !== "groups") {
+                    query.unsafe = true;
+                }
+            }
+
+            return query
+        }
+
+        matchQuery(query, meta) {
+            // Direct match
+            if (!['device_type', 'uniqueid', 'device_id'].every((value) => {
+                return query[value] === undefined ? true : query[value] === meta[value];
+            })) {
+                return false;
+            }
+
+            // Query match
+            if (query.match !== undefined) {
+                return false;
+                //TODO need some work on that to make it work
+
+                let matchMethod = function (value) {
+                    console.log(value)
+                    return query[value] === meta[value];
                 }
 
-                callback(node.items_list);
-                return node.items_list;
+                switch (query.match_method) {
+                    case "AND":
+                    case undefined:
+                        if (!query.match.every(matchMethod)) {
+                            return false;
+                        }
+                        break;
+                    case "OR":
+                        if (!query.match.some(matchMethod)) {
+                            return false;
+                        }
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        getItemsList(callback, query, forceRefresh = false) {
+            let node = this;
+            node.discoverDevices(function (devices) {
+                let items_list = [];
+                if (devices) {
+                    Object.keys(devices).forEach(function (resource) {
+                        // Filter on query.device_type to optimise ? Worth it ?
+                        Object.keys(devices[resource]).forEach(function (uniqueid) {
+                            let device = devices[resource][uniqueid]
+
+                            // Todo Handle limit
+                            if (query === undefined || node.matchQuery(query, device)) {
+                                items_list.push({
+                                    device_name: device.name + ' : ' + device.type,
+                                    resource: resource,
+                                    uniqueid: device.uniqueid,
+                                    meta: device,
+                                    query: node.getQuery(device),
+                                    path: node.getPathByDevice(device)
+                                });
+                            }
+
+                        });
+                    });
+                }
+                callback(items_list);
+                return items_list;
             }, forceRefresh);
         }
 

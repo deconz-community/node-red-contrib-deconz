@@ -29,33 +29,47 @@ module.exports = function (RED) {
      * Enable http route to JSON itemlist for each controller (controller id passed as GET query parameter)
      */
     RED.httpAdmin.get(NODE_PATH + 'itemlist', function (req, res) {
-        var config = req.query;
-        var controller = RED.nodes.getNode(config.controllerID);
-        var forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
+        let config = req.query;
+        let controller = RED.nodes.getNode(config.controllerID);
+        let forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
+        let query = req.query.query;
+        if (query !== undefined) {
+            query = JSON.parse(query);
+        }
 
         if (controller && controller.constructor.name === "ServerNode") {
-            controller.getItemsList(function (items, groups) {
+            controller.getItemsList(function (items) {
                 if (items) {
-                    res.json({items: items, groups: groups});
+                    res.json({items: items});
                 } else {
                     res.status(404).end();
                 }
-            }, forceRefresh);
+            }, query, forceRefresh);
         } else {
             res.status(404).end();
         }
     });
 
     RED.httpAdmin.get(NODE_PATH + 'statelist', function (req, res) {
-        var config = req.query;
-        var controller = RED.nodes.getNode(config.controllerID);
-        if (controller && controller.constructor.name === "ServerNode") {
-            var item = controller.getDevice(config.uniqueid);
-            if (item) {
-                res.json(item.state);
-            } else {
-                res.status(404).end();
-            }
+        let config = req.query;
+        let controller = RED.nodes.getNode(config.controllerID);
+        let devicesIDs = JSON.parse(config.devices);
+
+        if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
+
+            let sample = {};
+            let count = {};
+
+            devicesIDs.forEach(function (deviceID) {
+                let result = controller.getDeviceByPath(deviceID)
+                if (!result) return false;
+                Object.keys(result.state).forEach(function (state) {
+                    count[state] = (count[state] || 0) + 1
+                    sample[state] = result.state[state]
+                });
+            })
+
+            res.json({count: count, sample: sample});
         } else {
             res.status(404).end();
         }
