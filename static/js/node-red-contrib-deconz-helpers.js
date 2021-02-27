@@ -96,7 +96,7 @@ function deconz_initNodeEditor(node, options = {}) {
                 case 'device':
                     deconz_updateDeviceList(serverNode, node, elements, {}, options);
                     break;
-                case 'jon':
+                case 'json':
                 case'jsonata':
                     deconz_updateDeviceList(serverNode, node, elements, {
                         queryMode: true
@@ -256,7 +256,6 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
 
     let itemsSelected = [];
     let savedData = {};
-    let query;
 
     options = $.extend({
         refresh: true,
