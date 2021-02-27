@@ -1,5 +1,8 @@
-var request = require('request');
+const request = require('request');
 const DeconzSocket = require('../lib/deconz-socket');
+const dotProp = require('dot-prop');
+const compareVersions = require('compare-versions');
+
 
 module.exports = function (RED) {
     class ServerNode {
@@ -185,7 +188,131 @@ module.exports = function (RED) {
             return query
         }
 
+
+        matchSubQuery(meta, conditions, operator, depth = 1) {
+            let node = this
+
+            let matchMethod = function (value) {
+                let target = dotProp.get(meta, value);
+
+                if (target === undefined) return false;
+
+                switch (typeof conditions[value]) {
+                    case "undefined":
+                        break;
+                    case "function":
+                        break;
+                    case "symbol":
+                        break;
+                    case "bigint":
+                        break;
+                    case "boolean":
+                    case "number":
+                    case "string":
+                        return conditions[value] === target;
+                    case "object":
+                        if (Array.isArray(conditions[value])) {
+                            return conditions[value].some(target)
+                        } else {
+                            switch (conditions[value].type) {
+                                case "compare":
+                                    let left = target;
+                                    let right = conditions[value].value
+                                    let operator = conditions[value].operator
+
+                                    switch (conditions[value].convertTo) {
+                                        case "boolean":
+                                            left = Boolean(left)
+                                            break;
+                                        case "number":
+                                            left = Number(left)
+                                            break;
+                                        case "bigint":
+                                            left = BigInt(left)
+                                            break;
+                                        case "string":
+                                            left = left.toString()
+                                            break;
+                                        case "date":
+                                            left = Date.parse(left)
+                                            right = Date.parse(right)
+                                            break;
+                                        case "version":
+                                            let versionOperator = operator;
+                                            switch (versionOperator) {
+                                                case "===":
+                                                case "==":
+                                                    versionOperator = "=";
+                                                    break;
+                                                case "!==":
+                                                case "!=":
+                                                    return left !== right;
+                                            }
+                                            return compareVersions.compare(left, right, versionOperator)
+                                    }
+
+                                    switch (operator) {
+                                        case '===':
+                                            return left === right;
+                                        case '!==':
+                                            return left !== right;
+                                        case '==':
+                                            return left == right;
+                                        case '!=':
+                                            return left != right;
+                                        case '>':
+                                            return left > right;
+                                        case '>=':
+                                            return left >= right;
+                                        case '<':
+                                            return left < right;
+                                        case '<=':
+                                            return left <= right;
+                                        default :
+                                            return false;
+                                    }
+                                case "sub_match":
+                                    return node.matchSubQuery(
+                                        meta,
+                                        conditions[value].conditions,
+                                        conditions[value].operator,
+                                        depth + 1
+                                    );
+                                case "date":
+                                    let tDate = Date.parse(target);
+                                    if (conditions[value].before) {
+                                        let before = Date.parse(conditions[value].before);
+                                        if (typeof before !== "number" || tDate >= before) return false;
+                                    }
+
+                                    if (conditions[value].after) {
+                                        let after = Date.parse(conditions[value].after);
+                                        if (typeof after !== "number" || tDate <= after) return false;
+                                    }
+                                    return !(!conditions[value].before && !conditions[value].after);
+
+                                case "regex":
+                                    return (new RegExp(conditions[value].regex, conditions[value].flag))
+                                        .test(String(target));
+                                default:
+                                    console.error("Unknown match type : " + conditions[value].type);
+                                    return false;
+                            }
+                        }
+                    default:
+                        console.error("Unknown data type : " + typeof conditions[value])
+                        return false;
+                }
+            }
+
+            return (operator === "OR")
+                ? Object.keys(conditions).some(matchMethod)
+                : Object.keys(conditions).every(matchMethod)
+        }
+
+
         matchQuery(query, meta) {
+
             // Direct match
             if (!['device_type', 'uniqueid', 'device_id'].every((value) => {
                 return query[value] === undefined ? true : query[value] === meta[value];
@@ -195,27 +322,7 @@ module.exports = function (RED) {
 
             // Query match
             if (query.match !== undefined) {
-                return false;
-                //TODO need some work on that to make it work
-
-                let matchMethod = function (value) {
-                    console.log(value)
-                    return query[value] === meta[value];
-                }
-
-                switch (query.match_method) {
-                    case "AND":
-                    case undefined:
-                        if (!query.match.every(matchMethod)) {
-                            return false;
-                        }
-                        break;
-                    case "OR":
-                        if (!query.match.some(matchMethod)) {
-                            return false;
-                        }
-                        break;
-                }
+                return this.matchSubQuery(meta, query.match, query.match_method)
             }
 
             return true;
