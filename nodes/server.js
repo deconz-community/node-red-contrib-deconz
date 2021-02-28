@@ -312,6 +312,9 @@ module.exports = function (RED) {
 
 
         matchQuery(query, meta) {
+            if (Object.keys(query).lenth === 0) {
+                return false;
+            }
 
             // Direct match
             if (!['device_type', 'uniqueid', 'device_id'].every((value) => {

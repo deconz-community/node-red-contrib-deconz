@@ -33,14 +33,19 @@ module.exports = function (RED) {
         let controller = RED.nodes.getNode(config.controllerID);
         let forceRefresh = config.forceRefresh ? ['1', 'yes', 'true'].includes(config.forceRefresh.toLowerCase()) : false;
         let query;
+        let queryType = req.query.queryType || 'json';
 
-        if (req.query.query !== undefined && ['json', 'jsonata'].includes(req.query.queryType)) {
-            query = RED.util.evaluateNodeProperty(
-                req.query.query,
-                req.query.queryType,
-                RED.nodes.getNode(req.query.nodeID),
-                {}, undefined
-            )
+        try {
+            if (req.query.query !== undefined && ['json', 'jsonata'].includes(queryType)) {
+                query = RED.util.evaluateNodeProperty(
+                    req.query.query,
+                    queryType,
+                    RED.nodes.getNode(req.query.nodeID),
+                    {}, undefined
+                )
+            }
+        } catch (e) {
+            // TODO display error to the user
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
