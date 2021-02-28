@@ -142,7 +142,7 @@
         paletteLabel: 'in',
         icon: "deconz.png",
         label: function () {
-            var label = 'deconz-input';
+            let label = 'deconz-input';
             if (this.name) {
                 label = this.name;
             } else if (typeof (this.device_name) == 'string' && this.device_name.length) {
@@ -154,82 +154,31 @@
             return label;
         },
         oneditprepare: function () {
-            //node de test : 3fe277cf.0c1388
             let node = this;
-            let outputSelect = $("#node-input-output");
-            let querySelect = $("#node-input-query");
 
             node.search_type = node.search_type || "device";
             node.device = node.device || null; // Probably useless
             node.device_list = node.device_list || null;
             node.query = node.query || "{}";
 
-            // TODO Useless ?
-            if (node.device_list !== null && !Array.isArray(node.device_list)) {
-                node.device_list = [node.device_list];
-            }
-
-
             /*
-            $('#node-input-server').on('change', function (event, type, value) {
-                let toto = $('#node-input-server').val();
-                console.log({
-                    event, type, value, toto
-                })
-            });
-            */
-
-
+             * We need small timeout, too fire change event for server select,
+             * it's because the configuration node send bad event on loading.
+             * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
+             */
             setTimeout(function () {
                 deconz_initNodeEditor(node);
-            }, 100); //we need small timeout, too fire change event for server select
+            }, 100);
 
-
-            if (true === false) {
-
-
-                //$('#node-input-device_list').change(updateOutput)
-                setTimeout(function () {
-                    let deviceInput = $('#node-input-device_list');
-
-                    //deconz_getItemList('#node-input-device_list', {device: node.device, device_list: node.device_list});
-
-
-                    // TODO Fix that
-                    deviceInput.on("change", function () {
-                        console.log("onchange -> deconz_getItemStateList")
-                        //deconz_getItemStateList('#node-input-state', undefined);
-
-                        /*
-                        device = $('#node-input-device_list option:selected').val();
-                        if (!device.match(/^\d/) && !device.match(/^group_/)) {
-                            node.state = 0;
-                        }
-                        */
-                        //updateOutput();
-                    });
-
-
-                    setTimeout(function () {
-                        console.log("initial -> deconz_getItemStateList")
-                        //deconz_getItemStateList('#node-input-state', node.state);
-                    }, 100);
-
-
-                    if (!node.output) {
-                        outputSelect.val('always').multipleSelect('refresh');
-                    }
-
-                }, 100); //we need small timeout, too fire change event for server select
-
-            }
         },
         oneditsave: function () {
             let node = this;
-
-            let selectedOptions = $('#node-input-device_list').multipleSelect('getSelects')
-
-            if (selectedOptions.length > 0) {
+            // Update device name
+            let deviceListElement = $('#node-input-device_list');
+            let selectedOptions = deviceListElement.multipleSelect('getSelects')
+            if (selectedOptions.length === 1) {
+                node.device_name = deviceListElement.multipleSelect('getSelects', 'text').shift()
+            } else if (selectedOptions.length > 0) {
                 node.device_name = selectedOptions.length + " selected" //TODO
             } else {
                 node.device_name = null;

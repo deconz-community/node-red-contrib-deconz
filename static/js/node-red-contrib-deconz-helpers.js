@@ -7,8 +7,6 @@ function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) 
 }
 
 function deconz_initNodeEditor(node, options = {}) {
-    //console.log("--- deconz_initNodeEditor ---")
-
     options = $.extend({
         ready: false, // TODO use that to drop events
         elements: {
@@ -81,13 +79,10 @@ function deconz_initNodeEditor(node, options = {}) {
             }
         }
 
-        //console.log("Initial -> updateDeviceDisplay")
         updateDeviceDisplay(node.search_type, node.query)
         elements.querySelect.on('change', function (event, type, value) {
             // See https://github.com/node-red/node-red/issues/2883
-            //console.log({event: event, type: type, value: value})
             if (type === true) return
-            //console.log("onchange updateDeviceDisplay called")
 
             let t = elements.querySelect.typedInput('type');
             let v = elements.querySelect.typedInput('value');
@@ -161,34 +156,14 @@ function deconz_initNodeEditorQueryResultList(serverNode, node, elements, global
     });
 
     // Initial call to populate item list
-    //console.log("Initial -> deconz_updateDeviceList")
     deconz_updateDeviceList(serverNode, node, elements, {
         refresh: false,
         queryMode: true
     }, globalOptions);
 
-
-    /* TODO useless?
-    // onChange event handler in case a new controller gets selected
-    elements.querySelect.change(function (event) {
-        //console.log("onchange -> serverSelect deconz_updateDeviceList")
-        deconz_updateDeviceList(serverNode, node, elements, {
-            queryMode: true,
-            callback: function () {
-                deconz_updateItemStateList(serverNode, node, elements, {queryMode: true}, globalOptions);
-            }
-        }, globalOptions);
-
-
-    });
-
-     */
-
-
     // onClick event handler for refresh button
     elements.refreshQueryResultButton.click(function (event) {
         // Force a refresh of the item list
-        //console.log("onclick -> refreshButton deconz_updateDeviceList")
         deconz_updateDeviceList(serverNode, node, elements, {
             refresh: true,
             queryMode: true
@@ -200,8 +175,6 @@ function deconz_initNodeEditorQueryResultList(serverNode, node, elements, global
 }
 
 function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptions, callback) {
-    //console.log("------ deconz_initNodeEditorDeviceList ------")
-
     // Initialize bootstrap multiselect form
     elements.deviceSelect.multipleSelect({
         maxHeight: 300,
@@ -221,7 +194,6 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
     });
 
     // Initial call to populate item list
-    //console.log("Initial -> deconz_updateDeviceList")
     deconz_updateDeviceList(serverNode, node, elements, {
         refresh: false,
         useSavedData: true,
@@ -239,7 +211,6 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
     };
     // onChange event handler in case a new controller gets selected
     elements.serverSelect.change(function (event) {
-        //console.log("onchange -> serverSelect deconz_updateDeviceList")
         deconz_updateDeviceList(serverNode, node, elements, {
             useSavedData: true,
             callback: refreshCallback
@@ -249,7 +220,6 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
     // onClick event handler for refresh button
     elements.refreshButton.click(function (event) {
         // Force a refresh of the item list
-        //console.log("onclick -> refreshButton deconz_updateDeviceList")
         deconz_updateDeviceList(serverNode, node, elements, {
             useSelectedData: true,
             callback: refreshCallback
@@ -366,7 +336,7 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
 
                     // Enable item selection
                     targetSelect.multipleSelect('enable');
-                    // // Rebuild bootstrap multiselect form
+                    // Rebuild bootstrap multiselect form
                     targetSelect.multipleSelect('refresh');
                     // Finally, set the value of the input select to the selected value
                     if (!options.queryMode) {
@@ -442,10 +412,7 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
 }
 
 function deconz_initNodeEditorStateList(serverNode, node, elements, globalOptions, callback) {
-    //console.log("--------- deconz_initNodeEditorStateList ---------")
-
     // Initialize bootstrap multiselect form
-    //elements.stateSelect.multipleSelect('destroy');
 
     let complete = globalOptions.stateList.defaultValue;
     let each_state = globalOptions.stateList.eachStateValue;
@@ -481,7 +448,6 @@ function deconz_initNodeEditorStateList(serverNode, node, elements, globalOption
     });
 
     // Initial call to populate state list
-    //console.log("Initial -> deconz_updateItemStateList")
     deconz_updateItemStateList(serverNode, node, elements, {
         refresh: false,
         useSavedData: true,
@@ -494,7 +460,6 @@ function deconz_initNodeEditorStateList(serverNode, node, elements, globalOption
 
     // onChange event handler in case a new controller gets selected
     elements.serverSelect.change(function (event) {
-        //console.log("onchange serverSelect deconz_updateItemStateList")
         deconz_updateItemStateList(serverNode, node, elements, {
             useSavedData: true,
             callback: refreshCallback
@@ -504,7 +469,6 @@ function deconz_initNodeEditorStateList(serverNode, node, elements, globalOption
     // onClick event handler for refresh button
     elements.deviceSelect.change(function (event) {
         // Force a refresh of the item list
-        //console.log("change deviceSelect -> deconz_updateItemStateList")
         deconz_updateItemStateList(serverNode, node, elements, {
             useSelectedData: true,
             callback: refreshCallback
@@ -629,8 +593,6 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
 
 
 function deconz_initNodeEditorOutputList(serverNode, node, elements, globalOptions, callback) {
-    //console.log("--------------- deconz_initNodeEditorOutputList ---------------")
-
     // Initialize bootstrap multiselect form
     elements.outputSelect.multipleSelect({
         maxHeight: 300,
@@ -641,14 +603,12 @@ function deconz_initNodeEditorOutputList(serverNode, node, elements, globalOptio
 
 
     // Initial call to populate output list
-    //console.log("Initial -> deconz_updateOutputList")
     deconz_updateOutputList(serverNode, node, elements, {
         useSavedData: true,
         callback: callback
     }, globalOptions);
 
     elements.stateSelect.on("change", function () {
-        //console.log("change stateSelect -> deconz_updateOutputList")
         deconz_updateOutputList(serverNode, node, elements, {}, globalOptions);
     });
 
