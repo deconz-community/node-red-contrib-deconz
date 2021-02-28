@@ -261,7 +261,6 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
 function deconz_updateDeviceList(serverNode, node, elements, options, globalOptions) {
 
     let itemsSelected = [];
-    let savedData = {};
 
     options = $.extend({
         refresh: true,
@@ -276,12 +275,6 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
         targetSelect = elements.queryResultSelect
     }
 
-    if (options.useSavedData) {
-        savedData = {
-            device: node.device,
-            device_list: node.device_list
-        };
-    }
     if (options.useSelectedData) {
         itemsSelected = targetSelect.multipleSelect('getSelects')
     }
@@ -334,7 +327,6 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                         itemList[device_type].push(item)
                     });
 
-
                     Object.keys(itemList).sort().forEach(function (group_key) {
 
                         // Sort devices by name
@@ -378,13 +370,17 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                     targetSelect.multipleSelect('refresh');
                     // Finally, set the value of the input select to the selected value
                     if (!options.queryMode) {
-                        if (itemsSelected === undefined) {
+                        if (options.useSavedData) {
+                            let savedData = {
+                                device: node.device,
+                                device_list: node.device_list
+                            };
                             // Load from old saved data
-                            if (savedData && savedData.device !== null) {
+                            if (savedData.device !== null) {
                                 let query = {};
                                 if (savedData.device.substr(0, 5) === "group") {
-                                    query.device_type = "group"
-                                    query.device_id = savedData.device.substr(6)
+                                    query.device_type = "groups"
+                                    query.device_id = Number(savedData.device.substr(6))
                                 } else {
                                     query.uniqueid = savedData.device
                                 }
@@ -396,7 +392,9 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                                 }).done(function (data, textStatus, jqXHR) {
                                     itemsSelected = []
                                     Object.keys(data.items).forEach(function (key) {
-                                        itemsSelected.push(data.items[key].path)
+                                        if (data.items[key].query_match) {
+                                            itemsSelected.push(data.items[key].path)
+                                        }
                                     });
                                     targetSelect.multipleSelect('setSelects', itemsSelected);
                                     $('#input_device_warning_message_update').show();
@@ -407,15 +405,16 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                                     targetSelect.multipleSelect('refresh');
                                     //console.error(`Error: ${errorThrown}`);
                                 });
-                            } else if (savedData && savedData.device_list) {
+                            } else if (savedData.device_list) {
                                 targetSelect.multipleSelect('setSelects', savedData.device_list);
                             }
 
+                        } else if (options.useSelectedData) {
+                            if (itemsSelected !== undefined) {
+                                targetSelect.multipleSelect('setSelects', itemsSelected);
+                            }
                         }
 
-                        if (itemsSelected !== undefined) {
-                            targetSelect.multipleSelect('setSelects', itemsSelected);
-                        }
                     }
 
                     options.callback(true);
