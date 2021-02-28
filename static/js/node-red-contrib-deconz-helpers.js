@@ -151,7 +151,13 @@ function deconz_initNodeEditorQueryResultList(serverNode, node, elements, global
         filterPlaceholder: RED._("node-red-contrib-deconz/in:multiselect.filter_devices"),
         numberDisplayed: 1,
         disableIfEmpty: true,
-        showClear: false
+        showClear: false,
+        hideOptgroupCheckboxes: true,
+        filterGroup: true,
+        // Make the select read only, not pretty but multipleSelect don't allow readonly list, disable hide all options
+        onClick: function (view) {
+            elements.queryResultSelect.multipleSelect(view.selected ? 'uncheck' : 'check', view.value)
+        }
     });
 
     // Initial call to populate item list
@@ -353,9 +359,12 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                                 label += ")"
                             }
 
-                            $('<option>' + label + '</option>')
-                                .attr("value", itemList[group_key][device_key].path)
-                                .appendTo(groupHtml);
+                            let opt = $('<option>' + label + '</option>')
+                                .attr("value", itemList[group_key][device_key].path);
+                            if (options.queryMode && itemList[group_key][device_key].query_match) {
+                                opt.attr("selected", true);
+                            }
+                            opt.appendTo(groupHtml);
 
                         });
 
@@ -368,47 +377,45 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
                     // // Rebuild bootstrap multiselect form
                     targetSelect.multipleSelect('refresh');
                     // Finally, set the value of the input select to the selected value
+                    if (!options.queryMode) {
+                        if (itemsSelected === undefined) {
+                            // Load from old saved data
+                            if (savedData && savedData.device !== null) {
+                                let query = {};
+                                if (savedData.device.substr(0, 5) === "group") {
+                                    query.device_type = "group"
+                                    query.device_id = savedData.device.substr(6)
+                                } else {
+                                    query.uniqueid = savedData.device
+                                }
 
-                    if (!options.queryMode && itemsSelected === undefined) {
-                        // Load from old saved data
-                        if (savedData && savedData.device !== null) {
-                            let query = {};
-                            if (savedData.device.substr(0, 5) === "group") {
-                                query.device_type = "group"
-                                query.device_id = savedData.device.substr(6)
-                            } else {
-                                query.uniqueid = savedData.device
+                                $.getJSON('deconz/itemlist', {
+                                    controllerID: serverNode.id,
+                                    forceRefresh: options.refresh,
+                                    query: JSON.stringify(query)
+                                }).done(function (data, textStatus, jqXHR) {
+                                    itemsSelected = []
+                                    Object.keys(data.items).forEach(function (key) {
+                                        itemsSelected.push(data.items[key].path)
+                                    });
+                                    targetSelect.multipleSelect('setSelects', itemsSelected);
+                                    $('#input_device_warning_message_update').show();
+
+                                }).fail(function (jqXHR, textStatus, errorThrown) {
+                                    // Disable item selection if no items were retrieved
+                                    targetSelect.multipleSelect('disable');
+                                    targetSelect.multipleSelect('refresh');
+                                    //console.error(`Error: ${errorThrown}`);
+                                });
+                            } else if (savedData && savedData.device_list) {
+                                targetSelect.multipleSelect('setSelects', savedData.device_list);
                             }
 
-                            $.getJSON('deconz/itemlist', {
-                                controllerID: serverNode.id,
-                                forceRefresh: options.refresh,
-                                query: JSON.stringify(query)
-                            }).done(function (data, textStatus, jqXHR) {
-                                itemsSelected = []
-                                Object.keys(data.items).forEach(function (key) {
-                                    itemsSelected.push(data.items[key].path)
-                                });
-                                targetSelect.multipleSelect('setSelects', itemsSelected);
-                                $('#input_device_warning_message_update').show();
-
-                            }).fail(function (jqXHR, textStatus, errorThrown) {
-                                // Disable item selection if no items were retrieved
-                                targetSelect.multipleSelect('disable');
-                                targetSelect.multipleSelect('refresh');
-                                //console.error(`Error: ${errorThrown}`);
-                            });
-                        } else if (savedData && savedData.device_list) {
-                            targetSelect.multipleSelect('setSelects', savedData.device_list);
                         }
 
-                    }
-
-
-                    if (options.queryMode) {
-                        targetSelect.multipleSelect('checkAll');
-                    } else if (itemsSelected !== undefined) {
-                        targetSelect.multipleSelect('setSelects', itemsSelected);
+                        if (itemsSelected !== undefined) {
+                            targetSelect.multipleSelect('setSelects', itemsSelected);
+                        }
                     }
 
                     options.callback(true);

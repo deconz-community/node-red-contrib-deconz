@@ -338,17 +338,23 @@ module.exports = function (RED) {
                         Object.keys(devices[resource]).forEach(function (uniqueid) {
                             let device = devices[resource][uniqueid]
 
+                            let result = {
+                                device_name: device.name + ' : ' + device.type,
+                                resource: resource,
+                                uniqueid: device.uniqueid,
+                                meta: device,
+                                query: node.getQuery(device),
+                                path: node.getPathByDevice(device),
+                                query_match: false
+                            };
+
+
                             // Todo Handle limit
                             if (query === undefined || node.matchQuery(query, device)) {
-                                items_list.push({
-                                    device_name: device.name + ' : ' + device.type,
-                                    resource: resource,
-                                    uniqueid: device.uniqueid,
-                                    meta: device,
-                                    query: node.getQuery(device),
-                                    path: node.getPathByDevice(device)
-                                });
+                                result.query_match = true;
                             }
+
+                            items_list.push(result);
 
                         });
                     });
