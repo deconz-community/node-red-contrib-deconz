@@ -1,26 +1,41 @@
 const DeconzHelper = require('../lib/DeconzHelper.js');
-
+const dotProp = require('dot-prop');
 
 module.exports = function (RED) {
     class deConzItemIn {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
-            var node = this;
+            let node = this;
             node.lastSendTimestamp = null;
             node.config = config;
+            node.updateOldSettings();
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
+
+                node.status({
+                    fill: "blue",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/in:status.starting"
+                });
+
                 node.server.on('onClose', () => this.onClose());
                 node.server.on('onSocketError', () => this.onSocketError());
                 node.server.on('onSocketClose', () => this.onSocketClose());
                 node.server.on('onSocketOpen', () => this.onSocketOpen());
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-                node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
+                node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
 
-                node.sendLastState(); //tested for duplicate send with onSocketOpen
+                if (node.config.search_type === "device") {
+                    node.config.device_list.forEach(function (item) {
+                        node.server.registerNodeByDevicePath(node.config.id, item)
+                    });
+                } else {
+                    node.server.registerNodeWithQuery(node.config.id)
+                }
+
             } else {
                 node.status({
                     fill: "red",
@@ -30,32 +45,37 @@ module.exports = function (RED) {
             }
         }
 
+        updateOldSettings() {
+            let node = this;
+
+            // Handle old device save format
+            if (typeof (node.config.device) == 'string' && node.config.device.length) {
+                let device = node.server.getDevice(node.config.device);
+                if (device) {
+                    node.config.device_list = [node.server.getPathByDevice(device)];
+                } else {
+                    node.config.device_list = [];
+                }
+            }
+        }
 
         sendLastState() {
-            var node = this;
+            let node = this;
+            if (node.config.search_type === "device") {
+                node.config.device_list.forEach(function (item) {
+                    let deviceMeta = node.server.getDeviceByPath(item);
+                    node.send(deviceMeta, true, true, true);
+                });
+            } else {
+                //TODO handle queries
+            }
+
+
+            //console.log(node.config)
+
+
             if (typeof (node.config.device) == 'string' && node.config.device.length) {
-                var deviceMeta = node.server.getDevice(node.config.device);
-                if (deviceMeta !== undefined && deviceMeta && "uniqueid" in deviceMeta) {
-                    node.server.devices[node.id] = deviceMeta.uniqueid;
-                    node.meta = deviceMeta;
-                    if (node.config.outputAtStartup) {
-                        setTimeout(function () {
-                            node.sendState(deviceMeta, true);
-                        }, 1500); //we need this timeout after restart of node-red  (homekit delays)
-                    } else {
-                        setTimeout(function () {
-                            node.status({}); //clean
-                            node.getState(deviceMeta);
-                            node.sendStateHomekitOnly(deviceMeta); //always send for homekit
-                        }, 1500); //update status with the same delay
-                    }
-                } else {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/in:status.disconnected"
-                    });
-                }
+
             } else {
                 node.status({
                     fill: "red",
@@ -66,7 +86,7 @@ module.exports = function (RED) {
         }
 
         getState(device) {
-            var node = this;
+            let node = this;
 
             if (device.state === undefined) {
                 return;
@@ -87,7 +107,7 @@ module.exports = function (RED) {
                         text: "node-red-contrib-deconz/in:status.not_reachable"
                     });
                 } else {
-                    var nodeState = (node.config.state in device.state) ? (device.state[node.config.state]) : null;
+                    let nodeState = (node.config.state in device.state) ? (device.state[node.config.state]) : null;
                     node.status({
                         fill: "green",
                         shape: "dot",
@@ -104,55 +124,51 @@ module.exports = function (RED) {
             }
         };
 
-        sendState(device, force = false) {
-            var node = this;
-            device = node.getState(device);
-            if (!device) {
-                return;
-            }
+        sendState(device, force = false, sendState = true, sendHomekit = true, raw_payload = undefined) {
+            let node = this;
+            if (sendState === false && sendHomekit === false) return;
+            //console.log("sendState!")
 
+
+            //TODO fix state changes
+            /*
+            device = node.getState(device);
+            if (!device) return;
             //filter output
             if (!force && 'onchange' === node.config.output && device.state[node.config.state] === node.oldState) return;
             if (!force && 'onupdate' === node.config.output && device.state['lastupdated'] === node.prevUpdateTime) return;
+             */
 
-            //outputs
-            node.send([
-                {
+            //TODO handle state format
+
+            let output = [undefined, undefined];
+            if (sendState) {
+                output[0] = {
                     topic: node.config.topic,
                     payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                    payload_raw: device,
-                    meta: node.server.getDevice(node.config.device)
-                },
-                node.formatHomeKit(device)
-            ]);
+                    payload_raw: raw_payload || device,
+                    meta: device
+                };
+            }
+
+            if (sendHomekit) output[1] = node.formatHomeKit(device)
+            //outputs
+            node.send(output);
 
             node.oldState = device.state[node.config.state];
             node.prevUpdateTime = device.state['lastupdated'];
             node.lastSendTimestamp = new Date().getTime();
         };
 
-
-        sendStateHomekitOnly(device) {
-            var node = this;
-            device = node.getState(device);
-            if (!device) {
-                return;
-            }
-
-            //outputs
-            node.send([
-                null,
-                node.formatHomeKit(device)
-            ]);
-        };
-
         formatHomeKit(device, options) {
-            var node = this;
-            var state = device.state;
-            var config = device.config;
-            var deviceMeta = node.server.getDevice(node.config.device);
+            return {};
 
-            var no_reponse = false;
+            let node = this;
+            let state = device.state;
+            let config = device.config;
+            let deviceMeta = node.server.getDevice(node.config.device);
+
+            let no_reponse = false;
             if (state !== undefined && state['reachable'] !== undefined && state['reachable'] != null && state['reachable'] === false) {
                 no_reponse = true;
             }
@@ -163,10 +179,10 @@ module.exports = function (RED) {
                 no_reponse = true;
             }
 
-            var msg = {};
+            let msg = {};
 // console.log(device.state);
 // console.log(new Date().getTime()-node.lastSendTimestamp);
-            var characteristic = {};
+            let characteristic = {};
             if (state !== undefined) {
                 //by types
                 if ("type" in deviceMeta && (deviceMeta.type).toLowerCase() === 'window covering device') {
@@ -309,14 +325,13 @@ module.exports = function (RED) {
             return msg;
         }
 
-
         onSocketPongTimeout() {
-            var node = this;
+            let node = this;
             node.onSocketError();
         }
 
         onSocketError() {
-            var node = this;
+            let node = this;
             node.status({
                 fill: "yellow",
                 shape: "dot",
@@ -324,7 +339,7 @@ module.exports = function (RED) {
             });
 
             //send NO_RESPONSE
-            var deviceMeta = node.server.getDevice(node.config.device);
+            let deviceMeta = node.server.getDevice(node.config.device);
             if (deviceMeta) {
                 node.send([
                     null,
@@ -334,12 +349,12 @@ module.exports = function (RED) {
         }
 
         onClose() {
-            var node = this;
+            let node = this;
             node.onSocketClose();
         }
 
         onSocketClose() {
-            var node = this;
+            let node = this;
             node.status({
                 fill: "red",
                 shape: "dot",
@@ -348,16 +363,43 @@ module.exports = function (RED) {
         }
 
         onSocketOpen() {
-            var node = this;
+            let node = this;
             node.sendLastState();
         }
 
-        onNewDevice(uniqueid) {
-            var node = this;
-            if (node.config.device === uniqueid) {
-                node.sendLastState();
+
+        onNewDevice(resource, object_index, initialDiscovery) {
+            let node = this;
+            let device = node.server.items[resource][object_index];
+
+            let sendState = function () {
+                if (initialDiscovery) {
+                    setTimeout(function () {
+                        node.sendState(device, true, node.config.outputAtStartup, true);
+                    }, 1500); //we need this timeout after restart of node-red  (homekit delays)
+                } else {
+                    node.sendState(device, true);
+                }
+            }
+
+            if (node.config.search_type === "device") {
+                if (node.config.device_list.includes(resource + "/" + object_index)) {
+                    sendState();
+                }
+            } else {
+                let query = RED.util.evaluateNodeProperty(
+                    node.config.query,
+                    node.config.search_type,
+                    RED.nodes.getNode(node.config.id), // TODO Maybe I can use `node` directly
+                    {}, undefined
+                )
+
+                if (node.server.matchQuery(query, device)) {
+                    sendState();
+                }
             }
         }
+
     }
 
     RED.nodes.registerType('deconz-input', deConzItemIn);

@@ -28,7 +28,8 @@
     "server_node_error": "server node error",
     "not_reachable": "not reachable",
     "device_not_set": "device not set",
-    "reconnecting": "reconnecting..."
+    "reconnecting": "reconnecting...",
+    "starting": "starting..."
   },
   "multiselect": {
     "groups": "Light Groups",
