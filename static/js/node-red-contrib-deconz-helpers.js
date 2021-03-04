@@ -20,6 +20,8 @@ function deconz_initNodeEditor(node, options = {}) {
             refreshQueryResultButton: '#force-refresh-query-result',
             stateSelect: '#node-input-state',
             outputSelect: '#node-input-output',
+            configSelect: '#node-input-config',
+            outputConfigSelect: '#node-input-config_output',
         },
         queryAllowedTypes: ['deconz-device', 'json', 'jsonata'],
         itemList: {
@@ -31,7 +33,16 @@ function deconz_initNodeEditor(node, options = {}) {
             disableReadonly: false,
             refresh: false,
             defaultValue: "0",
-            eachStateValue: "1",
+            eachValue: "1",
+            eachChangedValue: "2",
+        },
+        configList: {
+            filterType: '',
+            disableReadonly: false,
+            refresh: false,
+            defaultValue: "0",
+            eachValue: "1",
+            eachChangedValue: "2",
         }
     }, options);
 
@@ -43,7 +54,9 @@ function deconz_initNodeEditor(node, options = {}) {
         refreshButton: $(options.elements.refreshButton),
         refreshQueryResultButton: $(options.elements.refreshQueryResultButton),
         stateSelect: $(options.elements.stateSelect),
-        outputSelect: $(options.elements.outputSelect)
+        outputSelect: $(options.elements.outputSelect),
+        configSelect: $(options.elements.configSelect),
+        outputConfigSelect: $(options.elements.outputConfigSelect)
     };
 
     let serverNode = RED.nodes.node(elements.serverSelect.val());
@@ -109,24 +122,29 @@ function deconz_initNodeEditor(node, options = {}) {
     // Init device selector
     deconz_initNodeEditorDeviceList(serverNode, node, elements, options, function (success) {
         if (success) {
-            deconz_initNodeEditorStateList(serverNode, node, elements, options, function (success) {
+            ['state', 'config'].forEach(function (type) {
+                deconz_initNodeEditorStateConfigList(serverNode, node, elements, options, type, function (success) {
+                    if (success) {
+                        deconz_initNodeEditorStateConfigOutputList(serverNode, node, elements, options, type, function (success) {
+                            if (success) {
+
+                            } else {
+                                //TODO handle error loading
+                            }
+                        })
+                    } else {
+                        //TODO handle error loading
+                    }
+                });
+            })
+
+            deconz_initNodeEditorQueryResultList(serverNode, node, elements, options, function (success) {
                 if (success) {
-                    deconz_initNodeEditorOutputList(serverNode, node, elements, options, function (success) {
-                        if (success) {
-                            deconz_initNodeEditorQueryResultList(serverNode, node, elements, options, function (success) {
-                                if (success) {
-                                } else {
-                                    //TODO handle error loading
-                                }
-                            })
-                        } else {
-                            //TODO handle error loading
-                        }
-                    })
                 } else {
                     //TODO handle error loading
                 }
-            });
+            })
+
         } else {
             //TODO handle error loading
         }
@@ -200,20 +218,22 @@ function deconz_initNodeEditorDeviceList(serverNode, node, elements, globalOptio
         callback: callback
     }, globalOptions);
 
-    let refreshCallback = function () {
-        deconz_updateItemStateList(serverNode, node, elements, {
+    let refreshCallback = function (type) {
+        deconz_updateItemConfigStateList(serverNode, node, elements, {
             useSelectedData: true,
             callback: function () {
-                deconz_updateOutputList(serverNode, node, elements, {}, globalOptions)
+                deconz_updateStateConfigOutputList(serverNode, node, elements, {}, globalOptions, type)
             }
-        }, globalOptions)
+        }, globalOptions, type)
 
     };
     // onChange event handler in case a new controller gets selected
     elements.serverSelect.change(function (event) {
         deconz_updateDeviceList(serverNode, node, elements, {
             useSavedData: true,
-            callback: refreshCallback
+            callback: function () {
+                refreshCallback('state')
+            }
         }, globalOptions);
     });
 
@@ -411,73 +431,126 @@ function deconz_updateDeviceList(serverNode, node, elements, options, globalOpti
     }
 }
 
-function deconz_initNodeEditorStateList(serverNode, node, elements, globalOptions, callback) {
+function deconz_initNodeEditorStateConfigList(serverNode, node, elements, globalOptions, type, callback) {
     // Initialize bootstrap multiselect form
+    let itemSelect;
+    let outputSelect;
+    let complete;
+    let each_item;
+    let each_changed_item;
 
-    let complete = globalOptions.stateList.defaultValue;
-    let each_state = globalOptions.stateList.eachStateValue;
 
-    elements.stateSelect.multipleSelect({
+    switch (type) {
+        case 'state':
+            itemSelect = elements.stateSelect;
+            outputSelect = elements.outputSelect;
+            complete = globalOptions.stateList.defaultValue;
+            each_item = globalOptions.stateList.eachValue;
+            each_changed_item = globalOptions.stateList.eachChangedValue;
+            break;
+        case 'config':
+            itemSelect = elements.configSelect;
+            outputSelect = elements.outputConfigSelect;
+            complete = globalOptions.configList.defaultValue;
+            each_item = globalOptions.configList.eachValue;
+            each_changed_item = globalOptions.configList.eachChangedValue;
+            break;
+        default:
+            return false;
+    }
+
+    itemSelect.multipleSelect({
         numberDisplayed: 1,
         dropWidth: 320,
         width: 320,
-        single: elements.stateSelect.attr('multiple') !== "multiple",
+        single: itemSelect.attr('multiple') !== "multiple",
         selectAll: false,
         filter: true,
         onClick: function (view) {
             if (!view.selected) return;
             switch (view.value) {
                 case complete:
-                case each_state:
-                    elements.stateSelect.multipleSelect('setSelects', [view.value]);
+                case each_item:
+                case each_changed_item:
+                    itemSelect.multipleSelect('setSelects', [view.value]);
                     break;
                 default:
-                    elements.stateSelect.multipleSelect('uncheck', complete);
-                    elements.stateSelect.multipleSelect('uncheck', each_state);
+                    itemSelect.multipleSelect('uncheck', complete);
+                    itemSelect.multipleSelect('uncheck', each_item);
                     break;
             }
         },
         onUncheckAll: function () {
-            elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue)
+            itemSelect.multipleSelect('setSelects', complete)
         },
         onOptgroupClick: function (view) {
             if (!view.selected) return;
-            elements.stateSelect.multipleSelect('uncheck', globalOptions.stateList.defaultValue);
-            elements.stateSelect.multipleSelect('uncheck', globalOptions.stateList.eachStateValue);
+            itemSelect.multipleSelect('uncheck', complete);
+            itemSelect.multipleSelect('uncheck', each_item);
+            itemSelect.multipleSelect('uncheck', each_changed_item);
         },
     });
 
     // Initial call to populate state list
-    deconz_updateItemStateList(serverNode, node, elements, {
+    deconz_updateItemConfigStateList(serverNode, node, elements, {
         refresh: false,
         useSavedData: true,
         callback: callback
-    }, globalOptions);
+    }, globalOptions, type);
 
     let refreshCallback = function () {
-        deconz_updateOutputList(serverNode, node, elements, {}, globalOptions)
+        deconz_updateStateConfigOutputList(serverNode, node, elements, {}, globalOptions, type)
     };
 
     // onChange event handler in case a new controller gets selected
     elements.serverSelect.change(function (event) {
-        deconz_updateItemStateList(serverNode, node, elements, {
+        deconz_updateItemConfigStateList(serverNode, node, elements, {
             useSavedData: true,
             callback: refreshCallback
-        }, globalOptions);
+        }, globalOptions, type);
     });
 
     // onClick event handler for refresh button
     elements.deviceSelect.change(function (event) {
         // Force a refresh of the item list
-        deconz_updateItemStateList(serverNode, node, elements, {
+        deconz_updateItemConfigStateList(serverNode, node, elements, {
             useSelectedData: true,
             callback: refreshCallback
-        }, globalOptions);
+        }, globalOptions, type);
     });
 
 }
 
-function deconz_updateItemStateList(serverNode, node, elements, options, globalOptions) {
+
+function deconz_updateItemConfigStateList(serverNode, node, elements, options, globalOptions, type) {
+
+
+    let itemSelect;
+    let outputSelect;
+    let complete;
+    let each_item;
+    let each_changed_item;
+
+    switch (type) {
+        case 'state':
+            itemSelect = elements.stateSelect;
+            outputSelect = elements.outputSelect;
+            complete = globalOptions.stateList.defaultValue;
+            each_item = globalOptions.stateList.eachValue;
+            each_changed_item = globalOptions.stateList.eachChangedValue;
+            break;
+        case 'config':
+            itemSelect = elements.configSelect;
+            outputSelect = elements.outputConfigSelect;
+            complete = globalOptions.configList.defaultValue;
+            each_item = globalOptions.configList.eachValue;
+            each_changed_item = globalOptions.configList.eachChangedValue;
+            break;
+        default:
+            return false;
+    }
+
+
     let statesSelected;
     let savedData;
     let queryMode = elements.querySelect.typedInput('type') !== 'device';
@@ -490,61 +563,68 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
     }, options);
 
     if (options.useSavedData) {
-        savedData = node.state;
+        savedData = node[type];
         if (!Array.isArray(savedData)) {
             savedData = [savedData];
         }
         if (savedData.length === 0) {
-            savedData = [globalOptions.stateList.defaultValue];
+            savedData = [complete];
         }
     }
 
     if (options.useSelectedData) {
-        statesSelected = elements.stateSelect.multipleSelect('getSelects')
+        statesSelected = itemSelect.multipleSelect('getSelects')
     }
 
     // Remove all previous and/or static (if any) elements from 'select' input element
-    elements.stateSelect.children().remove();
+    itemSelect.children().remove();
 
     let devices = elements.deviceSelect.multipleSelect('getSelects');
 
     let finishUpdate = function () {
 
-        elements.stateSelect.multipleSelect('enable');
-        elements.stateSelect.multipleSelect('refresh');
+        itemSelect.multipleSelect('enable');
+        itemSelect.multipleSelect('refresh');
 
-        if (options.useSavedData) elements.stateSelect.multipleSelect('setSelects', savedData);
-        if (options.useSelectedData) elements.stateSelect.multipleSelect('setSelects', statesSelected);
+        if (options.useSavedData) itemSelect.multipleSelect('setSelects', savedData);
+        if (options.useSelectedData) itemSelect.multipleSelect('setSelects', statesSelected);
 
-        if (elements.stateSelect.multipleSelect('getSelects').length === 0) {
-            elements.stateSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue);
+        if (itemSelect.multipleSelect('getSelects').length === 0) {
+            itemSelect.multipleSelect('setSelects', globalOptions.stateList.defaultValue);
         }
 
         options.callback(true);
     }
 
     if (queryMode) {
-        elements.stateSelect.html(
-            '<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>' +
-            '<option value="1">' + RED._("node-red-contrib-deconz/in:multiselect.each_state") + '</option>'
+        //TODO update that
+        //TODO mettre a jour le state/config list quand on selectionne le mode query
+
+        itemSelect.html(
+            '<option value="' + complete + '">' + RED._("node-red-contrib-deconz/server:editor.itemlist_" + type + "_complete_payload") + '</option>' +
+            '<option value="' + each_item + '">' + RED._("node-red-contrib-deconz/in:multiselect.each_state") + '</option>' +
+            '<option value="' + each_changed_item + '">' + RED._("node-red-contrib-deconz/in:multiselect.each_changed_state") + '</option>'
         );
         finishUpdate();
 
     } else if (serverNode && devices) {
-        $.getJSON('deconz/statelist', {
+        let t = type
+        t = "state"
+        $.getJSON('deconz/' + t + 'list', {
             controllerID: serverNode.id,
             devices: JSON.stringify(devices)
         })
             .done(function (data, textStatus, jqXHR) {
 
                 try {
-                    let html = '<option value="0">' + RED._("node-red-contrib-deconz/in:multiselect.complete_payload") + '</option>'
-
+                    //TODO update that
+                    let html = '<option value="' + complete + '">' + RED._("node-red-contrib-deconz/server:editor.itemlist_" + type + "_complete_payload") + '</option>'
                     if (!$.isEmptyObject(data.count)) {
                         html += '<option value="1">' + RED._("node-red-contrib-deconz/in:multiselect.each_state") + '</option>'
+                        html += '<option value="2">' + RED._("node-red-contrib-deconz/in:multiselect.each_changed_state") + '</option>'
                     }
 
-                    elements.stateSelect.html(html);
+                    itemSelect.html(html);
 
                     let groupHtml = $('<optgroup/>', {label: "State"});
 
@@ -561,7 +641,7 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
                     })
 
                     if (!$.isEmptyObject(data.count)) {
-                        groupHtml.appendTo(elements.stateSelect);
+                        groupHtml.appendTo(itemSelect);
                     }
                     // Enable item selection
 
@@ -577,22 +657,22 @@ function deconz_updateItemStateList(serverNode, node, elements, options, globalO
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
                 // Disable item selection if no items were retrieved
-                elements.stateSelect.multipleSelect('disable');
-                elements.stateSelect.multipleSelect('refresh');
+                itemSelect.multipleSelect('disable');
+                itemSelect.multipleSelect('refresh');
                 //console.error(`Error: ${errorThrown}`);
                 options.callback(false);
             });
 
     } else {
         // Disable item selection if no (valid) controller was selected
-        elements.stateSelect.multipleSelect('disable');
-        elements.stateSelect.multipleSelect('refresh');
+        itemSelect.multipleSelect('disable');
+        itemSelect.multipleSelect('refresh');
         options.callback(false);
     }
 }
 
 
-function deconz_initNodeEditorOutputList(serverNode, node, elements, globalOptions, callback) {
+function deconz_initNodeEditorStateConfigOutputList(serverNode, node, elements, globalOptions, type, callback) {
     // Initialize bootstrap multiselect form
     elements.outputSelect.multipleSelect({
         maxHeight: 300,
@@ -603,18 +683,18 @@ function deconz_initNodeEditorOutputList(serverNode, node, elements, globalOptio
 
 
     // Initial call to populate output list
-    deconz_updateOutputList(serverNode, node, elements, {
+    deconz_updateStateConfigOutputList(serverNode, node, elements, {
         useSavedData: true,
         callback: callback
-    }, globalOptions);
+    }, globalOptions, type);
 
     elements.stateSelect.on("change", function () {
-        deconz_updateOutputList(serverNode, node, elements, {}, globalOptions);
+        deconz_updateStateConfigOutputList(serverNode, node, elements, {}, globalOptions, type);
     });
 
 }
 
-function deconz_updateOutputList(serverNode, node, elements, options, globalOptions) {
+function deconz_updateStateConfigOutputList(serverNode, node, elements, options, globalOptions, type) {
 
     options = $.extend({
         useSavedData: false,

@@ -11,6 +11,9 @@ module.exports = function (RED) {
             node.config = config;
             node.updateOldSettings();
 
+            // Format : {__PATH__ : {"buttonevent": 1002}}
+            node.oldStates = {'state': {}, 'config': {}};
+
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
@@ -57,6 +60,16 @@ module.exports = function (RED) {
                     node.config.device_list = [];
                 }
             }
+
+            // Handle old state save format
+            if (!Array.isArray(node.config.state)) {
+                node.config.state = [node.config.state];
+            }
+
+            if (node.config.config_output === undefined) {
+                node.config.config_output = "always";
+            }
+
         }
 
         sendLastState() {
@@ -85,42 +98,68 @@ module.exports = function (RED) {
             }
         }
 
-        getState(device) {
+        getStatePayload(device) {
+            let node = this;
+            return (node.config.state in device.state) ? device.state[node.config.state] : device.state;
+        }
+
+
+        setStateCache(device_path, state, value) {
+            let node = this;
+            if (!(device_path in node.oldStates)) node.oldStates[device_path] = {};
+            node.oldStates[device_path][state] = value;
+        }
+
+        getStateCache(device_path, state) {
+            let node = this;
+            if (!(device_path in node.oldStates)) return undefined;
+            return node.oldStates[device_path][state];
+        }
+
+        checkAndUpdateStateCache(device_path, state, newValue) {
+            let node = this;
+            let prev = node.getStateCache(device_path, state)
+            if (prev !== newValue) {
+                node.setStateCache(device_path, state, value)
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        updateNodeStatus(device) {
             let node = this;
 
             if (device.state === undefined) {
                 return;
                 // console.log("CODE: #66");
                 // console.log(device);
+            }
+            //status
+            if (dotProp.has(device, 'state.reachable') && device.state.reachable === false) {
+                node.status({
+                    fill: "red",
+                    shape: "ring",
+                    text: "node-red-contrib-deconz/in:status.not_reachable"
+                });
+            } else if (dotProp.has(device, 'config.reachable') && device.config.reachable === false) {
+                node.status({
+                    fill: "red",
+                    shape: "ring",
+                    text: "node-red-contrib-deconz/in:status.not_reachable"
+                });
             } else {
-                //status
-                if ("state" in device && "reachable" in device.state && device.state.reachable === false) {
-                    node.status({
-                        fill: "red",
-                        shape: "ring",
-                        text: "node-red-contrib-deconz/in:status.not_reachable"
-                    });
-                } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
-                    node.status({
-                        fill: "red",
-                        shape: "ring",
-                        text: "node-red-contrib-deconz/in:status.not_reachable"
-                    });
-                } else {
-                    let nodeState = (node.config.state in device.state) ? (device.state[node.config.state]) : null;
-                    node.status({
-                        fill: "green",
-                        shape: "dot",
-                        text: nodeState !== null ? nodeState.toString() : "node-red-contrib-deconz/in:status.connected"
-                    });
+
+                //TODO maybe check if it's an array first or change it in migration config
+                let nodeState;
+                if (!(node.config.state.includes('0') || node.config.state.includes('1') || node.config.state.length > 1)) {
+                    nodeState = dotProp.get(device, 'state.' + node.config.state[0]);
                 }
-                if (node.oldState === undefined && device.state[node.config.state]) {
-                    node.oldState = device.state[node.config.state];
-                }
-                if (node.prevUpdateTime === undefined && device.state['lastupdated']) {
-                    node.prevUpdateTime = device.state['lastupdated'];
-                }
-                return (device)
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: nodeState !== undefined ? nodeState.toString() : "node-red-contrib-deconz/in:status.connected"
+                });
             }
         };
 
@@ -128,6 +167,32 @@ module.exports = function (RED) {
             let node = this;
             if (sendState === false && sendHomekit === false) return;
             //console.log("sendState!")
+
+            node.updateNodeStatus(device);
+
+            let device_path = node.server.getPathByDevice(device);
+
+            let changed = {};
+            // Check if I should send to output
+            if (!force) {
+                ['config', 'state'].forEach(function (key) {
+                    if (dotProp.has(device, 'state')) {
+                        Object.keys(dotProp.get(device, key)).forEach(function (state_name) {
+                            let newValuePath = key + '.' + state_name;
+                            let oldValuePath = key + '.' + device_path + '.' + state_name
+
+                            let newValue = dotProp.get(device, newValuePath);
+                            let oldValue = dotProp.get(node.oldStates, oldValuePath);
+
+                            if (newValue !== oldValue) {
+                                if (!(key in changed)) changed[key] = [];
+                                changed[key].push(state_name)
+                                dotProp.set(node.oldStates, oldValuePath, newValue)
+                            }
+                        })
+                    }
+                })
+            }
 
 
             //TODO fix state changes
@@ -145,7 +210,8 @@ module.exports = function (RED) {
             if (sendState) {
                 output[0] = {
                     topic: node.config.topic,
-                    payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                    //payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                    payload: node.getStatePayload(device),
                     payload_raw: raw_payload || device,
                     meta: device
                 };

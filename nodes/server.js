@@ -90,7 +90,7 @@ module.exports = function (RED) {
         discoverDevices(callback, forceRefresh = false, initialDiscovery = false) {
             let node = this;
 
-            if (!(forceRefresh || node.items === undefined)) {
+            if (!(forceRefresh || node.items === undefined) || node.getDiscoverProcess()) {
                 node.log('discoverDevices: Using cached devices');
                 if (callback !== undefined) {
                     callback(node.items);
@@ -460,14 +460,37 @@ module.exports = function (RED) {
             that.emit('onSocketOpen');
         }
 
-        onSocketMessage(dataParsed) {
+        updateDevice(device_path, dataParsed) {
+            let node = this;
+            let device = node.getDeviceByPath(device_path);
+            let changed = {};
+
+            if (dotProp.has(dataParsed, 'name')) {
+                device.name = dotProp.get(dataParsed, 'name')
+                changed.name = true;
+            }
+
+            ['config', 'state'].forEach(function (key) {
+                if (dotProp.has(dataParsed, key)) {
+                    Object.keys(dotProp.get(dataParsed, key)).forEach(function (state_name) {
+                        let valuePath = key + '.' + state_name;
+                        let newValue = dotProp.get(dataParsed, valuePath);
+                        let oldValue = dotProp.get(device, valuePath);
+                        if (newValue !== oldValue) {
+                            if (!(key in changed)) changed[key] = [];
+                            changed[key].push(state_name)
+                            dotProp.set(device, valuePath, newValue)
+                        }
+                    })
+                }
+            })
+            return changed;
+        }
+
+        onSocketMessageChanged(dataParsed) {
             let that = this;
-            that.emit('onSocketMessage', dataParsed); //Used by event node
-
-            //TODO handle scenes changes
-            if (dataParsed.r === "scenes") return;
-
-            let path = that.formatPath(dataParsed.r, dataParsed.uniqueid, dataParsed.id)
+            let path = that.formatPath(dataParsed.r, dataParsed.uniqueid, dataParsed.id);
+            let changed = that.updateDevice(path, dataParsed);
 
             // Handle nodesByDevicePath
             if (that.nodesByDevicePath[path] !== undefined && that.nodesByDevicePath[path].length > 0) {
@@ -507,6 +530,41 @@ module.exports = function (RED) {
                     }
                 }
             })
+        }
+
+
+        onSocketMessageSceneCalled(dataParsed) {
+            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed))
+            // TODO implement
+        }
+
+
+        onSocketMessage(dataParsed) {
+            let that = this;
+            that.emit('onSocketMessage', dataParsed); //Used by event node
+
+            switch (dataParsed.t) {
+                case "event":
+                    switch (dataParsed.e) {
+                        case "added":
+                        case "deleted":
+                            that.discoverDevices(undefined, true);
+                            break;
+                        case "changed":
+                            that.onSocketMessageChanged(dataParsed);
+                            break;
+                        case "scene-called":
+                            that.onSocketMessageSceneCalled(dataParsed);
+                            break;
+                        default:
+                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed))
+                            break;
+                    }
+                    break;
+                default:
+                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed))
+                    break;
+            }
         }
     }
 
