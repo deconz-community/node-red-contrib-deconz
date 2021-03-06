@@ -42,7 +42,7 @@
     width: 70% !important;
 }
 
-.deconz-separator {
+.deconz-editor .separator {
     display: flex;
     align-items: center;
     text-align: center;
@@ -51,17 +51,22 @@
     font-size: 1.5em;
 }
 
-.deconz-separator::before,
-.deconz-separator::after {
+.deconz-editor .separator::before,
+.deconz-editor .separator::after {
     content: '';
     flex: 1;
     border-bottom: 3px solid #2D3239;
 }
 
-.deconz-separator:not(:empty)::before {
+.deconz-editor .separator:not(:empty)::before {
     margin-right: 20px;
 }
 
-.deconz-separator:not(:empty)::after {
+.deconz-editor .separator:not(:empty)::after {
     margin-left: 20px;
+}
+
+.deconz-editor .form-row label i.fa {
+    width: 15px;
+    text-align: center;
 }

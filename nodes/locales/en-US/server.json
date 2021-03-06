@@ -93,7 +93,7 @@
           }
         },
         "output": {
-          "label": "Output",
+          "label": "Config output",
           "options": {
             "always": "Always",
             "onchange": "On config change",
