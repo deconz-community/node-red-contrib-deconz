@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] :construction:
 
+## [1.3.2] - 2021-03-06 ![Relative date](https://img.shields.io/date/1615059740?label=)
+### Fixed
+- Device list was empty. #89
+
 ## [1.3.1] - 2021-02-20 ![Relative date](https://img.shields.io/date/1613827429?label=)
 ### Fixed
 - Removed unwanted transition time on out node when the transition time is not set. #118
