@@ -176,6 +176,7 @@ module.exports = function (RED) {
             // Check if I should send to output
             if (!force) {
                 ['config', 'state'].forEach(function (key) {
+                    /*
                     if (dotProp.has(device, 'state')) {
                         Object.keys(dotProp.get(device, key)).forEach(function (state_name) {
                             let newValuePath = key + '.' + state_name;
@@ -191,6 +192,8 @@ module.exports = function (RED) {
                             }
                         })
                     }
+
+                     */
                 })
             }
 

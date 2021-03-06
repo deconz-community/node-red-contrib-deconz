@@ -42,3 +42,26 @@
     width: 70% !important;
 }
 
+.deconz-separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.deconz-separator::before,
+.deconz-separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 3px solid #2D3239;
+}
+
+.deconz-separator:not(:empty)::before {
+    margin-right: 20px;
+}
+
+.deconz-separator:not(:empty)::after {
+    margin-left: 20px;
+}

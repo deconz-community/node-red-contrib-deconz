@@ -21,7 +21,11 @@
     "light_groups": "Light Groups",
     "search_type": "Search",
     "query": "Query",
-    "query_result": "Query result"
+    "query_result": "Query result",
+    "output_device_separator": "Devices selection",
+    "output_state_separator": "Output State",
+    "output_homekit_separator": "Output Homekit",
+    "output_3_separator": "Output Config"
   },
   "placeholder": {
     "name": "Name"

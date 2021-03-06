@@ -61,30 +61,29 @@ module.exports = function (RED) {
         }
     });
 
-    RED.httpAdmin.get(NODE_PATH + 'statelist', function (req, res) {
-        let config = req.query;
-        let controller = RED.nodes.getNode(config.controllerID);
-        let devicesIDs = JSON.parse(config.devices);
-
-        if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
-
-            let sample = {};
-            let count = {};
-
-            devicesIDs.forEach(function (deviceID) {
-                let result = controller.getDeviceByPath(deviceID)
-                if (!result) return false;
-                Object.keys(result.state).forEach(function (state) {
-                    count[state] = (count[state] || 0) + 1
-                    sample[state] = result.state[state]
-                });
-            })
-
-            res.json({count: count, sample: sample});
-        } else {
-            res.status(404).end();
-        }
-    });
+    ['state', 'config'].forEach(function (type) {
+        RED.httpAdmin.get(NODE_PATH + type + 'list', function (req, res) {
+            let config = req.query;
+            let controller = RED.nodes.getNode(config.controllerID);
+            let devicesIDs = JSON.parse(config.devices);
+            if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
+                let sample = {};
+                let count = {};
+                devicesIDs.forEach(function (deviceID) {
+                    let result = controller.getDeviceByPath(deviceID)
+                    if (result && result[type]) {
+                        Object.keys(result[type]).forEach(function (item) {
+                            count[item] = (count[item] || 0) + 1
+                            sample[item] = result[type][item]
+                        });
+                    }
+                })
+                res.json({count: count, sample: sample});
+            } else {
+                res.status(404).end();
+            }
+        });
+    })
 
     RED.httpAdmin.get(NODE_PATH + 'getScenesByDevice', function (req, res) {
         var config = req.query;

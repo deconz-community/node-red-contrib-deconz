@@ -19,7 +19,92 @@
     "input_device_warning_message_update": "<b>Important:</b> The device save format changed. Please click on Done to save with the new format."
   },
   "editor": {
-    "itemlist_state_complete_payload": "Complete state payload",
-    "itemlist_config_complete_payload": "Complete config payload"
+    "multiselect": {
+      "none_selected": "None selected"
+    },
+    "inputs": {
+      "server": {
+        "label": "Server"
+      },
+      "device": {
+        "separator": "Devices selection",
+        "query": {
+          "label": "Query",
+          "options": {
+            "device": "Device"
+          }
+        },
+        "device": {
+          "label": "Device",
+          "filter": "Filter devices..."
+        },
+        "query_result": {
+          "label": "Query result"
+        },
+        "refresh": {
+          "label": "Refresh",
+          "button_text": "Refresh devices List"
+        },
+        "refresh_query": {
+          "label": "Refresh",
+          "button_text": "Refresh query result"
+        }
+      },
+      "state": {
+        "separator": "Output #1 : State",
+        "payload": {
+          "label": "State payload",
+          "group_label": "State",
+          "options": {
+            "complete": "Complete state payload",
+            "each": "Each state payload",
+            "each_changed": "Each changed state payload"
+          }
+        },
+        "output": {
+          "label": "State output",
+          "options": {
+            "always": "Always",
+            "onchange": "On state change",
+            "onupdate": "On update"
+          }
+        },
+        "start_output": {
+          "label": "Start output",
+          "text": "Send state on start"
+        }
+      },
+      "homekit": {
+        "separator": "Output #2 : Homekit",
+        "start_output": {
+          "label": "Start output",
+          "text": "Send homekit on start"
+        }
+      },
+      "config": {
+        "separator": "Output #3 : Config",
+        "payload": {
+          "label": "Config payload",
+          "group_label": "Config",
+          "options": {
+            "complete": "Complete config payload",
+            "each": "Each config payload",
+            "each_changed": "Each changed config payload"
+          }
+        },
+        "output": {
+          "label": "Output",
+          "options": {
+            "always": "Always",
+            "onchange": "On config change",
+            "onupdate": "On update"
+          }
+        },
+        "start_output": {
+          "label": "Start output",
+          "text": "Send config on start"
+        }
+      }
+    }
   }
 }
