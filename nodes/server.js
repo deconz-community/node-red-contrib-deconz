@@ -158,7 +158,7 @@ module.exports = function (RED) {
             var node = this;
             node.discoverDevices(function (items) {
                 node.items_list = [];
-                for (var index in items) {
+                Object.keys(items).forEach(function (index) {
                     var prop = items[index];
 
                     node.items_list.push({
@@ -166,7 +166,8 @@ module.exports = function (RED) {
                         uniqueid: prop.uniqueid,
                         meta: prop
                     });
-                }
+                });
+
 
                 callback(node.items_list);
                 return node.items_list;
