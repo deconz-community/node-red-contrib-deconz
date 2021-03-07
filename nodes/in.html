@@ -162,6 +162,16 @@
                    style="display: inline-block; width: auto; vertical-align: top;">
             <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.text"></span>
         </div>
+
+        <div class="form-row">
+            <label for='node-input-homekit_output_on_error' class="l-width">
+                <i class='fa fa-external-link-square'></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label"></span>
+            </label>
+            <input type="checkbox" id="node-input-homekit_output_on_error" checked="checked"
+                   style="display: inline-block; width: auto; vertical-align: top;">
+            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text"></span>
+        </div>
         <!--#endregion -->
 
         <!--#region --- Section Output #3 Config --- -->
@@ -265,6 +275,10 @@
                 value: true,
                 required: true,
             },
+            homekit_output_on_error: {
+                value: true,
+                required: true,
+            },
             config: {
                 value: ""
             },
@@ -303,6 +317,7 @@
             node.config_output = node.config_output || "always";
             node.outputAtStartup = node.outputAtStartup || true;
             node.homekit_output_at_startup = node.homekit_output_at_startup || true;
+            node.homekit_output_on_error = node.homekit_output_on_error || true;
             node.config_output_at_startup = node.config_output_at_startup || true;
 
             /*

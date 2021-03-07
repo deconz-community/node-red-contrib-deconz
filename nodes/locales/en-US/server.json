@@ -18,6 +18,17 @@
     "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault.",
     "input_device_warning_message_update": "<b>Important:</b> The device save format changed. Please click on Done to save with the new format."
   },
+  "status": {
+    "disconnected": "disconnected",
+    "connected": "connected",
+    "server_node_error": "server node error",
+    "not_reachable": "not reachable",
+    "device_not_set": "device not set",
+    "reconnecting": "reconnecting...",
+    "starting": "starting...",
+    "query_error": "can't read device query",
+    "only_always": "Complete payload only accept Always as output setting"
+  },
   "editor": {
     "multiselect": {
       "none_selected": "None selected"
@@ -57,8 +68,7 @@
           "group_label": "State",
           "options": {
             "complete": "Complete state payload",
-            "each": "Each state payload",
-            "each_changed": "Each changed state payload"
+            "each": "Each state payload"
           }
         },
         "output": {
@@ -71,14 +81,18 @@
         },
         "start_output": {
           "label": "Start output",
-          "text": "Send state on start"
+          "text": "Send state on start or socket reconnect."
         }
       },
       "homekit": {
         "separator": "Output #2 : Homekit",
         "start_output": {
           "label": "Start output",
-          "text": "Send homekit on start"
+          "text": "Send homekit on start or socket reconnect."
+        },
+        "error_output": {
+          "label": "Error output",
+          "text": "Send NO_RESPONSE on socket error."
         }
       },
       "config": {
@@ -88,8 +102,7 @@
           "group_label": "Config",
           "options": {
             "complete": "Complete config payload",
-            "each": "Each config payload",
-            "each_changed": "Each changed config payload"
+            "each": "Each config payload"
           }
         },
         "output": {
@@ -102,7 +115,7 @@
         },
         "start_output": {
           "label": "Start output",
-          "text": "Send config on start"
+          "text": "Send config on start or socket reconnect."
         }
       }
     }

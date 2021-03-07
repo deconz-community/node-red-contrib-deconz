@@ -7,12 +7,11 @@ module.exports = function (RED) {
             RED.nodes.createNode(this, config);
 
             let node = this;
-            node.lastSendTimestamp = null;
             node.config = config;
             node.updateOldSettings();
 
-            // Format : {__PATH__ : {"buttonevent": 1002}}
-            node.oldStates = {'state': {}, 'config': {}};
+            // Format : {'state':{__PATH__ : {"buttonevent": 1002}}}
+            node.oldValues = {'state': {}, 'config': {} /*, 'name': false*/};
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -66,37 +65,37 @@ module.exports = function (RED) {
                 node.config.state = [node.config.state];
             }
 
+            if (!Array.isArray(node.config.config)) {
+                node.config.config = node.config.config ? [node.config.config] : [];
+            }
+
+            if (node.config.output === undefined) {
+                node.config.output = "always";
+            }
+
             if (node.config.config_output === undefined) {
                 node.config.config_output = "always";
             }
 
+            if (node.config.homekit_output_at_startup === undefined) {
+                node.config.homekit_output_at_startup = true;
+            }
+
+            if (node.config.config_output_at_startup === undefined) {
+                node.config.config_output_at_startup = true;
+            }
+
         }
 
-        sendLastState() {
+        haveConnectedOutput(type) {
             let node = this;
-            if (node.config.search_type === "device") {
-                node.config.device_list.forEach(function (item) {
-                    let deviceMeta = node.server.getDeviceByPath(item);
-                    node.send(deviceMeta, true, true, true);
-                });
-            } else {
-                //TODO handle queries
-            }
-
-
-            //console.log(node.config)
-
-
-            if (typeof (node.config.device) == 'string' && node.config.device.length) {
-
-            } else {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/in:status.device_not_set"
-                });
-            }
+            let index = {state: 0, homekit: 1, config: 2};
+            if (!(type in index)) return false;
+            if (!Array.isArray(node.config.wires)) return false;
+            if (!Array.isArray(node.config.wires[index[type]])) return false;
+            return node.config.wires[index[type]].length > 0;
         }
+
 
         getStatePayload(device) {
             let node = this;
@@ -104,23 +103,23 @@ module.exports = function (RED) {
         }
 
 
-        setStateCache(device_path, state, value) {
+        setStateCache(type, device_path, state, value) {
             let node = this;
-            if (!(device_path in node.oldStates)) node.oldStates[device_path] = {};
-            node.oldStates[device_path][state] = value;
+            if (!(device_path in node.oldValues[type])) node.oldValues[type][device_path] = {};
+            node.oldValues[type][device_path][state] = value;
         }
 
-        getStateCache(device_path, state) {
+        getStateCache(type, device_path, state) {
             let node = this;
-            if (!(device_path in node.oldStates)) return undefined;
-            return node.oldStates[device_path][state];
+            if (!(device_path in node.oldValues[type])) return undefined;
+            return node.oldValues[type][device_path][state];
         }
 
-        checkAndUpdateStateCache(device_path, state, newValue) {
+        checkAndUpdateCache(type, device_path, state, newValue) {
             let node = this;
-            let prev = node.getStateCache(device_path, state)
+            let prev = node.getStateCache(type, device_path, state)
             if (prev !== newValue) {
-                node.setStateCache(device_path, state, value)
+                node.setStateCache(type, device_path, state, newValue)
                 return true;
             } else {
                 return false;
@@ -140,102 +139,214 @@ module.exports = function (RED) {
                 node.status({
                     fill: "red",
                     shape: "ring",
-                    text: "node-red-contrib-deconz/in:status.not_reachable"
+                    text: "node-red-contrib-deconz/server:status.not_reachable"
                 });
             } else if (dotProp.has(device, 'config.reachable') && device.config.reachable === false) {
                 node.status({
                     fill: "red",
                     shape: "ring",
-                    text: "node-red-contrib-deconz/in:status.not_reachable"
+                    text: "node-red-contrib-deconz/server:status.not_reachable"
                 });
             } else {
 
                 //TODO maybe check if it's an array first or change it in migration config
                 let nodeState;
-                if (!(node.config.state.includes('0') || node.config.state.includes('1') || node.config.state.length > 1)) {
+                // If only one state selected
+                if (!(
+                    node.config.state.includes('0') || // O = Complete state payload
+                    node.config.state.includes('1') || // 1 = Each state payload
+                    node.config.state.includes('2') || // 2 = Each changed state payload
+                    node.config.state.length > 1)
+                ) {
                     nodeState = dotProp.get(device, 'state.' + node.config.state[0]);
                 }
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: nodeState !== undefined ? nodeState.toString() : "node-red-contrib-deconz/in:status.connected"
+                    text: nodeState !== undefined ? nodeState.toString() : "node-red-contrib-deconz/server:status.connected"
                 });
             }
         };
 
-        sendState(device, force = false, sendState = true, sendHomekit = true, raw_payload = undefined) {
+
+        sendLastState() {
             let node = this;
-            if (sendState === false && sendHomekit === false) return;
-            //console.log("sendState!")
+            // Make sure server is ready
+            if (!node.server.ready) return false;
+
+            let devices = node.getDevices();
+            if (devices.length > 0) {
+                devices.forEach(function (device) {
+                    node.sendState(
+                        device,
+                        device,
+                        false,
+                        node.config.outputAtStartup,
+                        node.config.homekit_output_at_startup,
+                        node.config.config_output_at_startup
+                    )
+                });
+            } else {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.device_not_set"
+                });
+            }
+        }
+
+        sendTo(outputName, payload) {
+            let node = this;
+            switch (outputName) {
+                case 'state':
+                    return node.send([payload, undefined, undefined]);
+                case 'homekit':
+                    return node.send([undefined, payload, undefined]);
+                case 'config':
+                    return node.send([undefined, undefined, payload]);
+            }
+        }
+
+        sendState(
+            device,
+            raw_payload = undefined,
+            force = false,
+            sendState = true,
+            sendHomekit = true,
+            sendConfig = true
+        ) {
+            let node = this;
+
+            //Make sure to send to something
+            sendState = sendState && node.haveConnectedOutput('state')
+            sendHomekit = sendHomekit && node.haveConnectedOutput('homekit')
+            sendConfig = sendConfig && node.haveConnectedOutput('config')
+
+            // If nothing to send return now
+            if (sendState === false && sendHomekit === false && sendConfig === false) return;
 
             node.updateNodeStatus(device);
 
+            // Add device path to meta
             let device_path = node.server.getPathByDevice(device);
+            if (!('device_path' in device)) {
+                device.device_path = device_path;
+            }
 
+            // Get what values have changed and update cache
             let changed = {};
-            // Check if I should send to output
-            if (!force) {
-                ['config', 'state'].forEach(function (key) {
-                    /*
-                    if (dotProp.has(device, 'state')) {
-                        Object.keys(dotProp.get(device, key)).forEach(function (state_name) {
-                            let newValuePath = key + '.' + state_name;
-                            let oldValuePath = key + '.' + device_path + '.' + state_name
+            let domains = [];
+            if (sendState && node.config.output !== 'always') {
+                domains.push('state')
+            }
 
-                            let newValue = dotProp.get(device, newValuePath);
-                            let oldValue = dotProp.get(node.oldStates, oldValuePath);
+            if (sendConfig && node.config.config_output !== 'always') {
+                domains.push('config')
+            }
 
-                            if (newValue !== oldValue) {
-                                if (!(key in changed)) changed[key] = [];
-                                changed[key].push(state_name)
-                                dotProp.set(node.oldStates, oldValuePath, newValue)
-                            }
-                        })
+            domains.forEach(function (key) {
+                if (dotProp.has(device, key)) {
+                    Object.keys(dotProp.get(device, key)).forEach(function (state_name) {
+                        if (node.checkAndUpdateCache(key, device_path, state_name, dotProp.get(device, key + '.' + state_name))) {
+                            if (!(key in changed)) changed[key] = [];
+                            changed[key].push(state_name);
+                        }
+                    })
+                }
+            });
+
+            // TODO filtrer avec la liste des états/config sélectionnés
+            if (sendState && node.config.output === 'onupdate') {
+                sendState = Array.isArray(changed['state']) && changed['state'].includes('lastupdated');
+            }
+
+            if (sendConfig && node.config.config_output === 'onupdate') {
+                sendConfig = Array.isArray(changed['config']) && changed['config'].length > 0;
+            }
+
+            let baseMsg = {
+                topic: node.config.topic,
+                //payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
+                payload_raw: raw_payload || device,
+                meta: device
+            };
+
+            let sendToOutputs = function (type) {
+                // Still need to check if output is On change
+                if (node.config[type].includes('0')) {
+                    // Complete payload
+                    switch (node.config.output) {
+                        case 'always':
+                            node.sendTo(type, Object.assign({}, baseMsg, {
+                                payload: device[type],
+                                payload_domain: type,
+                            }))
+                            break;
+                        case 'onchange':
+                        case 'onupdate':
+                            // The javascript methods in browser block that but in case ...
+                            node.status({
+                                fill: "red",
+                                shape: "ring",
+                                text: "node-red-contrib-deconz/server:status.complete_only_always"
+                            });
+                            break;
+                    }
+                } else if (node.config[type].includes('1') || node.config[type].length > 0) {
+                    // Each payload or state list
+
+                    // In case of name change ignore it
+                    if (!(type in device)) return;
+
+                    let states = [];
+
+                    if (node.config[type].includes('1')) {
+                        states = Object.keys(device[type])
+                    } else if (node.config[type].length > 0) {
+                        states = node.config[type]
                     }
 
-                     */
-                })
+                    states.forEach(function (state) {
+                        switch (node.config.output) {
+                            case 'always':
+                            case 'onupdate':
+                                node.sendTo(type, Object.assign({}, baseMsg, {
+                                    payload: device[type][state],
+                                    payload_domain: type,
+                                    payload_type: state
+                                }))
+                                break;
+                            case 'onchange':
+                                if (Array.isArray(changed[type]) && changed[type].includes(state)) {
+                                    node.sendTo(type, Object.assign({}, baseMsg, {
+                                        payload: device[type][state],
+                                        payload_domain: type,
+                                        payload_type: state,
+                                    }))
+                                }
+                                break;
+                        }
+                    });
+                } else {
+                    // Should never happen
+                    console.warn(
+                        "Error #9453 : This should not happen, please report on github: "
+                        + "https://github.com/deconz-community/node-red-contrib-deconz/issues"
+                    )
+                }
             }
 
+            if (sendState) sendToOutputs('state');
+            if (sendHomekit) node.sendTo('homekit', node.formatHomeKit(device));
+            if (sendConfig) sendToOutputs('config');
 
-            //TODO fix state changes
-            /*
-            device = node.getState(device);
-            if (!device) return;
-            //filter output
-            if (!force && 'onchange' === node.config.output && device.state[node.config.state] === node.oldState) return;
-            if (!force && 'onupdate' === node.config.output && device.state['lastupdated'] === node.prevUpdateTime) return;
-             */
-
-            //TODO handle state format
-
-            let output = [undefined, undefined];
-            if (sendState) {
-                output[0] = {
-                    topic: node.config.topic,
-                    //payload: (node.config.state in device.state) ? device.state[node.config.state] : device.state,
-                    payload: node.getStatePayload(device),
-                    payload_raw: raw_payload || device,
-                    meta: device
-                };
-            }
-
-            if (sendHomekit) output[1] = node.formatHomeKit(device)
-            //outputs
-            node.send(output);
-
-            node.oldState = device.state[node.config.state];
-            node.prevUpdateTime = device.state['lastupdated'];
-            node.lastSendTimestamp = new Date().getTime();
         };
 
         formatHomeKit(device, options) {
-            return {};
-
             let node = this;
             let state = device.state;
             let config = device.config;
-            let deviceMeta = node.server.getDevice(node.config.device);
+            let deviceMeta = device;
 
             let no_reponse = false;
             if (state !== undefined && state['reachable'] !== undefined && state['reachable'] != null && state['reachable'] === false) {
@@ -249,8 +360,6 @@ module.exports = function (RED) {
             }
 
             let msg = {};
-// console.log(device.state);
-// console.log(new Date().getTime()-node.lastSendTimestamp);
             let characteristic = {};
             if (state !== undefined) {
                 //by types
@@ -404,17 +513,17 @@ module.exports = function (RED) {
             node.status({
                 fill: "yellow",
                 shape: "dot",
-                text: "node-red-contrib-deconz/in:status.reconnecting"
+                text: "node-red-contrib-deconz/server:status.reconnecting"
             });
 
             //send NO_RESPONSE
-            let deviceMeta = node.server.getDevice(node.config.device);
-            if (deviceMeta) {
+            node.getDevices().forEach(function (device) {
                 node.send([
-                    null,
-                    node.formatHomeKit(deviceMeta, {reachable: false})
+                    undefined,
+                    node.formatHomeKit(device, {reachable: false}),
+                    undefined
                 ]);
-            }
+            });
         }
 
         onClose() {
@@ -427,15 +536,17 @@ module.exports = function (RED) {
             node.status({
                 fill: "red",
                 shape: "dot",
-                text: "node-red-contrib-deconz/in:status.disconnected"
+                text: "node-red-contrib-deconz/server:status.disconnected"
             });
         }
 
         onSocketOpen() {
             let node = this;
-            node.sendLastState();
+            // This will skip the first socket open, the first states are sent through onNewDevice event.
+            if (node.server.ready) {
+                node.sendLastState();
+            }
         }
-
 
         onNewDevice(resource, object_index, initialDiscovery) {
             let node = this;
@@ -443,11 +554,19 @@ module.exports = function (RED) {
 
             let sendState = function () {
                 if (initialDiscovery) {
+                    // On node-red start
                     setTimeout(function () {
-                        node.sendState(device, true, node.config.outputAtStartup, true);
+                        node.sendState(
+                            device,
+                            device,
+                            true,
+                            node.config.outputAtStartup,
+                            node.config.homekit_output_at_startup,
+                            node.config.config_output_at_startup
+                        );
                     }, 1500); //we need this timeout after restart of node-red  (homekit delays)
                 } else {
-                    node.sendState(device, true);
+                    node.sendState(device, device);
                 }
             }
 
@@ -456,17 +575,57 @@ module.exports = function (RED) {
                     sendState();
                 }
             } else {
-                let query = RED.util.evaluateNodeProperty(
-                    node.config.query,
-                    node.config.search_type,
-                    RED.nodes.getNode(node.config.id), // TODO Maybe I can use `node` directly
-                    {}, undefined
-                )
-
-                if (node.server.matchQuery(query, device)) {
-                    sendState();
+                try {
+                    let query = RED.util.evaluateNodeProperty(
+                        node.config.query,
+                        node.config.search_type,
+                        RED.nodes.getNode(node.config.id), // TODO Maybe I can use `node` directly
+                        {}, undefined
+                    )
+                    if (node.server.matchQuery(query, device)) {
+                        sendState();
+                    }
+                } catch (e) {
+                    node.status({
+                        fill: "red",
+                        shape: "ring",
+                        text: "node-red-contrib-deconz/server:status.query_error"
+                    });
                 }
+
             }
+        }
+
+        getDevices() {
+            let node = this;
+            let devices = [];
+
+            switch (node.config.search_type) {
+                case 'device':
+                    node.config.device_list.forEach(function (path) {
+                        devices.push(node.server.getDeviceByPath(path));
+                    })
+                    break;
+                case 'json':
+                case 'jsonata':
+                    try {
+                        let query = RED.util.evaluateNodeProperty(
+                            node.config.query,
+                            node.config.search_type,
+                            RED.nodes.getNode(node.config.id), // TODO Maybe I can use `node` directly
+                            {}, undefined
+                        )
+                        if (node.server.matchQuery(query, device)) {
+                            devices.push(device)
+                        }
+                    } catch (e) {
+                        node.status({fill: "red", shape: "ring", text: "Error, cant read query"});
+                        return false;
+                    }
+                    break;
+            }
+
+            return devices;
         }
 
     }

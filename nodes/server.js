@@ -13,6 +13,7 @@ module.exports = function (RED) {
             node.resources = ['groups', 'lights', 'sensors'];
             node.items = undefined;
             node.discoverProcess = false;
+            node.ready = false;
             node.name = n.name;
             node.ip = n.ip;
             node.port = n.port;
@@ -49,10 +50,14 @@ module.exports = function (RED) {
 
             node.on('close', () => this.onClose());
 
-            node.discoverDevices(undefined, true, true);
+            let updateReady = function (result) {
+                node.ready = result !== false;
+            }
+
+            node.discoverDevices(updateReady, true, true);
 
             this.refreshDiscoverTimer = setInterval(function () {
-                node.discoverDevices(undefined, true);
+                node.discoverDevices(updateReady, true);
             }, node.refreshDiscoverInterval);
         }
 
@@ -504,7 +509,14 @@ module.exports = function (RED) {
                     }
                     let device = that.getDeviceByPath(path);
                     if (node.type === "deconz-input") {
-                        node.sendState(device, false, true, true, dataParsed);
+                        node.sendState(
+                            device,
+                            dataParsed,
+                            false,
+                            'state' in dataParsed,
+                            'state' in dataParsed,
+                            'config' in dataParsed || 'name' in dataParsed
+                        );
                     }
                 })
             }
@@ -519,14 +531,25 @@ module.exports = function (RED) {
                 }
                 let device = that.getDeviceByPath(path);
                 if (node.type === "deconz-input") {
-                    let query = RED.util.evaluateNodeProperty(
-                        node.config.query,
-                        node.config.search_type,
-                        node,
-                        {}, undefined
-                    )
-                    if (node.server.matchQuery(query, device)) {
-                        node.sendState(device, false, true, true, dataParsed);
+                    try {
+                        let query = RED.util.evaluateNodeProperty(
+                            node.config.query,
+                            node.config.search_type,
+                            node,
+                            {}, undefined
+                        )
+                        if (node.server.matchQuery(query, device)) {
+                            node.sendState(
+                                device,
+                                dataParsed,
+                                false,
+                                'state' in dataParsed,
+                                'state' in dataParsed,
+                                'config' in dataParsed || 'name' in dataParsed
+                            );
+                        }
+                    } catch (e) {
+                        node.status({fill: "red", shape: "ring", text: "Error, cant read query"});
                     }
                 }
             })

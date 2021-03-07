@@ -37,16 +37,14 @@ function deconz_initNodeEditor(node, options = {}) {
             disableReadonly: false,
             refresh: false,
             defaultValue: "0",
-            eachValue: "1",
-            eachChangedValue: "2",
+            eachValue: "1"
         },
         configList: {
             filterType: '',
             disableReadonly: false,
             refresh: false,
             defaultValue: "0",
-            eachValue: "1",
-            eachChangedValue: "2",
+            eachValue: "1"
         }
     }, options);
 
@@ -452,13 +450,11 @@ function deconz_initNodeEditorStateConfigList(serverNode, node, elements, global
             switch (view.value) {
                 case e.complete:
                 case e.each_item:
-                case e.each_changed_item:
                     e.itemSelect.multipleSelect('setSelects', [view.value]);
                     break;
                 default:
                     e.itemSelect.multipleSelect('uncheck', e.complete);
                     e.itemSelect.multipleSelect('uncheck', e.each_item);
-                    e.itemSelect.multipleSelect('uncheck', e.each_changed_item);
                     break;
             }
         },
@@ -469,7 +465,6 @@ function deconz_initNodeEditorStateConfigList(serverNode, node, elements, global
             if (!view.selected) return;
             e.itemSelect.multipleSelect('uncheck', e.complete);
             e.itemSelect.multipleSelect('uncheck', e.each_item);
-            e.itemSelect.multipleSelect('uncheck', e.each_changed_item);
         },
     });
 
@@ -511,14 +506,12 @@ function getElementsOfType(elements, globalOptions, type) {
             e.outputSelect = elements.stateOutputSelect;
             e.complete = globalOptions.stateList.defaultValue;
             e.each_item = globalOptions.stateList.eachValue;
-            e.each_changed_item = globalOptions.stateList.eachChangedValue;
             break;
         case 'config':
             e.itemSelect = elements.configSelect;
             e.outputSelect = elements.configOutputSelect;
             e.complete = globalOptions.configList.defaultValue;
             e.each_item = globalOptions.configList.eachValue;
-            e.each_changed_item = globalOptions.configList.eachChangedValue;
             break;
         default:
             return false;
@@ -581,8 +574,7 @@ function deconz_updateItemConfigStateList(serverNode, node, elements, options, g
 
         e.itemSelect.html(
             '<option value="' + e.complete + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>' +
-            '<option value="' + e.each_item + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>' +
-            '<option value="' + e.each_changed_item + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each_changed") + '</option>'
+            '<option value="' + e.each_item + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>'
         );
         finishUpdate();
 
@@ -598,7 +590,6 @@ function deconz_updateItemConfigStateList(serverNode, node, elements, options, g
                     let html = '<option value="' + e.complete + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>';
                     if (!$.isEmptyObject(data.count)) {
                         html += '<option value="' + e.each_item + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>';
-                        html += '<option value="' + e.each_changed_item + '">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each_changed") + '</option>';
                     }
 
                     e.itemSelect.html(html);
