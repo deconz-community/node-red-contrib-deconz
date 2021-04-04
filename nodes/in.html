@@ -100,125 +100,156 @@
         </div>
         <!--#endregion -->
 
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.outputs.separator"></div>
+        <!-- --- Output list --- -->
+        <input type="hidden" id="node-input-outputs"/>
+        <div class="form-row node-input-output-container-row">
+            <ol id="node-input-output-container"></ol>
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Old Stuff --- -->
+
         <!--#region --- Section Output #1 State --- -->
+        <!--
         <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.state.separator"></div>
+        -->
 
         <!-- --- State Payload --- -->
-        <div class="form-row">
-            <label for="node-input-state" class="l-width">
-                <i class="fa fa-ellipsis-h"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.payload.label"></span>
-            </label>
-            <select id="node-input-state"
-                    class="s-width multiple-select"
-                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.state.payload.options.complete"
-                    multiple="multiple"
-            ></select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-state" class="l-width">
+               <i class="fa fa-ellipsis-h"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.payload.label"></span>
+           </label>
+           <select id="node-input-state"
+                   class="s-width multiple-select"
+                   data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.state.payload.options.complete"
+                   multiple="multiple"
+           ></select>
+       </div>
+       -->
 
         <!-- --- State Output --- -->
-        <div class="form-row">
-            <label for="node-input-output" class="l-width">
-                <i class="fa fa-sign-out"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.label"></span>
-            </label>
-            <select id="node-input-output" class="s-width">
-                <option value="always"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.always"
-                ></option>
-                <option value="onchange"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onchange"
-                ></option>
-                <option value="onupdate"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onupdate"
-                ></option>
-            </select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-output" class="l-width">
+               <i class="fa fa-sign-out"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.label"></span>
+           </label>
+           <select id="node-input-output" class="s-width">
+               <option value="always"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.always"
+               ></option>
+               <option value="onchange"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onchange"
+               ></option>
+               <option value="onupdate"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onupdate"
+               ></option>
+           </select>
+       </div>
+       -->
 
         <!-- --- State Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-outputAtStartup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.label"></span>
-            </label>
-            <input type="checkbox"
-                   id="node-input-outputAtStartup"
-                   checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-outputAtStartup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.label"></span>
+           </label>
+           <input type="checkbox"
+                  id="node-input-outputAtStartup"
+                  checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.text"></span>
+       </div>
+       -->
         <!--#endregion -->
 
         <!--#region --- Section Output #2 Homekit --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.separator"></div>
+        <!--
+       <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.separator"></div>
+       -->
 
         <!-- --- Homekit Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-homekit_output_at_startup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-homekit_output_at_startup" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-homekit_output_at_startup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-homekit_output_at_startup" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.text"></span>
+       </div>
 
-        <div class="form-row">
-            <label for='node-input-homekit_output_on_error' class="l-width">
-                <i class='fa fa-external-link-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-homekit_output_on_error" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text"></span>
-        </div>
+       <div class="form-row">
+           <label for='node-input-homekit_output_on_error' class="l-width">
+               <i class='fa fa-external-link-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-homekit_output_on_error" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text"></span>
+       </div>
+       -->
         <!--#endregion -->
 
         <!--#region --- Section Output #3 Config --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.config.separator"></div>
+        <!--
+       <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.config.separator"></div>
+       -->
 
         <!-- --- Config Payload --- -->
-        <div class="form-row">
-            <label for="node-input-config" class="l-width">
-                <i class="fa fa-ellipsis-h"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.payload.label"></span>
-            </label>
-            <select id="node-input-config"
-                    class="s-width multiple-select"
-                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.config.payload.options.complete"
-                    multiple="multiple"
-            ></select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-config" class="l-width">
+               <i class="fa fa-ellipsis-h"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.payload.label"></span>
+           </label>
+           <select id="node-input-config"
+                   class="s-width multiple-select"
+                   data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.config.payload.options.complete"
+                   multiple="multiple"
+           ></select>
+       </div>
+       -->
 
         <!-- --- Config Output --- -->
-        <div class="form-row">
-            <label for="node-input-config_output" class="l-width">
-                <i class="fa fa-sign-out"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.label"></span>
-            </label>
-            <select id="node-input-config_output" class="s-width">
-                <option value="always"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.always"
-                ></option>
-                <option value="onchange"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onchange"
-                ></option>
-                <option value="onupdate"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onupdate"
-                ></option>
-            </select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-config_output" class="l-width">
+               <i class="fa fa-sign-out"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.label"></span>
+           </label>
+           <select id="node-input-config_output" class="s-width">
+               <option value="always"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.always"
+               ></option>
+               <option value="onchange"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onchange"
+               ></option>
+               <option value="onupdate"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onupdate"
+               ></option>
+           </select>
+       </div>
+       -->
 
         <!-- --- Config Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-config_output_at_startup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-config_output_at_startup" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-config_output_at_startup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-config_output_at_startup" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.text"></span>
+       </div>
+       -->
+        <!--#endregion -->
         <!--#endregion -->
 
     </div>
@@ -233,20 +264,24 @@
             name: {
                 value: ""
             },
+            topic: {
+                value: null,
+                required: false
+            },
+            /*
+            TODO config migration
+            config_version:{
+                value: 1,
+                required: true
+            },
+            */
             server: {
                 type: "deconz-server",
                 required: true
             },
-            device_name: {
-                value: null
-            },
             search_type: {
                 value: "device_list",
                 required: true
-            },
-            device: { // Since device select rework this is unused but kept for migration
-                value: null,
-                required: false
             },
             device_list: {
                 value: null,
@@ -256,7 +291,19 @@
                 value: "{}",
                 required: false
             },
-            topic: {
+            outputs: {value: 1},
+            output_rules: {
+                value: [
+                    {type: 'state', payload: "__complete__", when: "always", onstart: true},
+                    //{type: 'homekit', onstart: true, onerror: true},
+                    //{type: 'config', payload: "__complete__", when: "always", onstart: true},
+                ]
+            },
+            /*
+            device_name: {
+                value: null
+            },
+            device: { // Since device select rework this is unused but kept for migration
                 value: null,
                 required: false
             },
@@ -289,10 +336,14 @@
                 value: true,
                 required: true,
             }
+            */
         },
         inputs: 0,
-        outputs: 3,
-        outputLabels: ["state", "homekit", "config"],
+        outputs: 1,
+        outputLabels: function (index) {
+            //TODO mettre plus de détail sur le nom
+            return "output #" + index;
+        },
         paletteLabel: 'in',
         icon: "deconz.png",
         label: function () {
@@ -314,20 +365,93 @@
             node.device = node.device || null; // Probably useless
             node.device_list = node.device_list || null;
             node.query = node.query || "{}";
-            node.config_output = node.config_output || "always";
-            node.outputAtStartup = node.outputAtStartup || true;
-            node.homekit_output_at_startup = node.homekit_output_at_startup || true;
-            node.homekit_output_on_error = node.homekit_output_on_error || true;
-            node.config_output_at_startup = node.config_output_at_startup || true;
+
+
+            node.editor = new DeconzMainEditor(node, {})
+
+            node.editor.init().then(value => {
+                console.log("init done!");
+                console.log(value);
+            })
+
+            if (false) {
+
+
+                /*
+                node.config_output = node.config_output || "always";
+                node.outputAtStartup = node.outputAtStartup || true;
+                node.homekit_output_at_startup = node.homekit_output_at_startup || true;
+                node.homekit_output_on_error = node.homekit_output_on_error || true;
+                node.config_output_at_startup = node.config_output_at_startup || true;
+                */
+
+                let outputCount = $("#node-input-outputs").val("{}");
+
+                /*
+                $("#node-input-output-container").css('min-height', '150px')*//*.css('min-width', '450px').editableList({
+                    addItem: function (container, i, opt) {
+                        console.log({opt: opt})
+
+                        container.css({
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap'
+                        });
+                        let row = $('<p>Coucou</p>').appendTo(container);
+
+                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
+                        currentOutputs[opt.hasOwnProperty('i') ? opt.i : opt._i] = i;
+                        outputCount.val(JSON.stringify(currentOutputs));
+                    },
+                    removeItem: function (opt) {
+                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
+                        if (opt.hasOwnProperty('i')) {
+                            currentOutputs[opt.i] = -1;
+                        } else {
+                            delete currentOutputs[opt._i];
+                        }
+                        let rules = $("#node-input-output-container").editableList('items');
+                        rules.each(function (i) {
+                            $(this).find(".node-input-output-index").html(i + 1);
+                            let data = $(this).data('data');
+                            currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
+                        });
+                        outputCount.val(JSON.stringify(currentOutputs));
+                    },
+                    resizeItem: function (item) {
+                        return 200;
+                    },
+                    sortItems: function (items) {
+                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
+                        let rules = $("#node-input-output-container").editableList('items');
+                        rules.each(function (i) {
+                            $(this).find(".node-input-output-index").html(i + 1);
+                            let data = $(this).data('data');
+                            currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
+                        });
+                        outputCount.val(JSON.stringify(currentOutputs));
+                    },
+                    sortable: true,
+                    removable: true
+                });
+
+                for (let i = 0; i < this.output_rules.length; i++) {
+                    $("#node-input-output-container").editableList('addItem', {rule: this.output_rules[i], index: i});
+                }
+                */
+
+            }
 
             /*
              * We need small timeout, too fire change event for server select,
              * it's because the configuration node send bad event on loading.
              * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
              */
+            /*
             setTimeout(function () {
                 deconz_initNodeEditor(node);
             }, 100);
+
+             */
 
         },
         oneditsave: function () {
