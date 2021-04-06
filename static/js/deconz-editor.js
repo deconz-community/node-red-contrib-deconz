@@ -142,18 +142,12 @@ class DeconzMainEditor extends DeconzEditor {
         }, options));
 
         this.subEditor = {};
-        this.initPromises = [];
 
-        if (this.options.have.device) {
-            this.subEditor.device = new DeconzDeviceEditor(this.node, this.options.device);
-        }
-        if (this.options.have.query) {
-            this.subEditor.query = new DeconzQueryEditor(this.node, this.options.query);
-        }
+        // TODO pourquoi le device dois être init avant le query ???
+        if (this.options.have.device) this.subEditor.device = new DeconzDeviceEditor(this.node, this.options.device);
+        if (this.options.have.query) this.subEditor.query = new DeconzQueryEditor(this.node, this.options.query);
+        if (this.options.have.output_rules) this.subEditor.output_rules = new DeconzOutputRuleListEditor(this.node, this.options.output_rules);
 
-        if (this.options.have.output_rules) {
-            this.subEditor.output_rules = new DeconzOutputRuleListEditor(this.node, this.options.output_rules);
-        }
 
     }
 
@@ -176,16 +170,14 @@ class DeconzMainEditor extends DeconzEditor {
         await super.init();
         this.serverNode = RED.nodes.node(this.$elements.server.val());
 
-        let initPromises = [];
-        Object.values(this.subEditor).forEach(editor => {
-            initPromises.push(editor.init(this));
-        });
-        await Promise.all(initPromises);
+        for (const editor of Object.values(this.subEditor)) {
+            await editor.init(this);
+        }
 
         let connectPromises = [];
-        Object.values(this.subEditor).forEach(editor => {
+        for (const editor of Object.values(this.subEditor)) {
             connectPromises.push(editor.connect());
-        });
+        }
         await Promise.all(connectPromises);
 
     }
@@ -348,6 +340,24 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
         };
     }
 
+
+    get type() {
+        return this.$elements.select.typedInput('type');
+    }
+
+    set type(val) {
+        this.$elements.list.typedInput('type', val);
+    }
+
+    get value() {
+        return this.$elements.select.typedInput('value');
+    }
+
+    set value(val) {
+        this.$elements.list.typedInput('value', val);
+    }
+
+
     get xhrParams() {
         let params = super.xhrParams;
         params.query = this.$elements.select.typedInput('value');
@@ -415,6 +425,14 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
             showHide: '.deconz-device-selector',
             refreshButton: '#force-refresh',
         };
+    }
+
+    get value() {
+        return this.$elements.list.multipleSelect('getSelects');
+    }
+
+    set value(val) {
+        this.$elements.list.multipleSelect('setSelects', val);
     }
 
     async init(mainEditor) {
@@ -566,6 +584,9 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
 class DeconzOutputRuleEditor extends DeconzEditor {
 
     constructor(node, options = {}) {
+        options = $.extend({
+            enableEachState: true
+        }, options);
         super(node, options);
     }
 
@@ -600,20 +621,19 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             rule = this.defaultRule;
         }
 
-        /*
+
         container.css({
             overflow: 'hidden',
             whiteSpace: 'nowrap'
         });
 
-         */
 
-        //await this.addInput(container, 'type', 'list', $('<input/>').attr('id', 'toto'));
+
         await this.generateTypeField(container, rule);
         await this.generatePayloadField(container, rule);
-        //await this.generateOutputField(container, rule);
-        //await this.generateOnStartField(container, rule);
-        //await this.generateOnErrorField(container, rule);
+        await this.generateOutputField(container, rule);
+        await this.generateOnStartField(container, rule);
+        await this.generateOnErrorField(container, rule);
 
         await super.init();
         await this.initPayloadList();
@@ -649,45 +669,91 @@ class DeconzOutputRuleEditor extends DeconzEditor {
     async initPayloadList() {
 
         // TODO réutiliser la couleur : $('.red-ui-typedInput-type-select').css('background-color')
+        let list = this.$elements.payload;
 
-        this.$elements.payload.multipleSelect({
+        list.addClass('multiple-select');
+        list.multipleSelect({
             numberDisplayed: 1,
-            single: this.$elements.payload.attr('multiple') !== "multiple",
+            single: false,
             selectAll: false,
             filter: true,
             container: '.node-input-output-container-row',
-
-            /*
-            onClick: function (view) {
+            onClick: (view) => {
                 if (!view.selected) return;
                 switch (view.value) {
-                    case e.complete:
-                    case e.each_item:
-                        e.itemSelect.multipleSelect('setSelects', [view.value]);
+                    case '__complete__':
+                    case '__each__':
+                        list.multipleSelect('setSelects', [view.value]);
                         break;
                     default:
-                        e.itemSelect.multipleSelect('uncheck', e.complete);
-                        e.itemSelect.multipleSelect('uncheck', e.each_item);
+                        list.multipleSelect('uncheck', '__complete__');
+                        list.multipleSelect('uncheck', '__each__');
                         break;
                 }
             },
-            onUncheckAll: function () {
-                e.itemSelect.multipleSelect('setSelects', e.complete);
+            onUncheckAll: () => {
+                list.multipleSelect('setSelects', '__complete__');
             },
-            onOptgroupClick: function (view) {
+            onOptgroupClick: (view) => {
                 if (!view.selected) return;
-                e.itemSelect.multipleSelect('uncheck', e.complete);
-                e.itemSelect.multipleSelect('uncheck', e.each_item);
+                list.multipleSelect('uncheck', '__complete__');
+                list.multipleSelect('uncheck', '__each__');
             },
-
-             */
         });
 
         await this.updatePayloadList();
     }
 
+    async getPayloadList() {
+        return $.getJSON('deconz/' + this.$elements.type.val() + 'list', {
+            controllerID: this.listEditor.mainEditor.serverNode.id,
+            devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
+        });
+    }
+
     async updatePayloadList() {
+
+        this.$elements.payload.multipleSelect('disable');
+        this.$elements.payload.children().remove();
+
+        let queryType = this.listEditor.mainEditor.subEditor.query.type;
+        let devices = this.listEditor.mainEditor.subEditor.device.value;
+        let type = this.$elements.type.val();
+
+        let data = await this.getPayloadList();
+
+        let html = '<option value="__complete__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>';
+        if (this.options.enableEachState === true) {
+            html += '<option value="__each__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>';
+        }
+
+        this.$elements.payload.html(html);
+
+        let groupHtml = $('<optgroup/>', {
+            label: RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.group_label")
+        });
+
+        Object.keys(data.count).sort().forEach((item) => {
+            let sample = data.sample[item];
+            let count = data.count[item];
+            let label = item;
+            if (count !== devices.length) {
+                label += " [" + count + "/" + devices.length + "]";
+            }
+            label += " (" + sample + ")";
+
+            $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
+        });
+
+        if (!$.isEmptyObject(data.count)) {
+            groupHtml.appendTo(this.$elements.payload);
+        }
+
         //this.$elements.payload
+        console.log(this.$elements.type.val());
+
+        // Enable item selection
+        this.$elements.payload.multipleSelect('refresh').multipleSelect('enable');
 
     }
 
