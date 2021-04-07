@@ -142,6 +142,7 @@ class DeconzMainEditor extends DeconzEditor {
         }, options));
 
         this.subEditor = {};
+        this.initDone = false;
 
         // TODO pourquoi le device dois être init avant le query ???
         if (this.options.have.device) this.subEditor.device = new DeconzDeviceEditor(this.node, this.options.device);
@@ -170,9 +171,14 @@ class DeconzMainEditor extends DeconzEditor {
         await super.init();
         this.serverNode = RED.nodes.node(this.$elements.server.val());
 
+        // We save the init promise in the instance to pause the output rule before connecting
+        this.initPromises = [];
         for (const editor of Object.values(this.subEditor)) {
-            await editor.init(this);
+            this.initPromises.push(editor.init(this));
         }
+        await Promise.all(this.initPromises);
+        this.initDone = true;
+        delete this.initPromises; // Can this cause issue ?
 
         let connectPromises = [];
         for (const editor of Object.values(this.subEditor)) {
@@ -180,6 +186,14 @@ class DeconzMainEditor extends DeconzEditor {
         }
         await Promise.all(connectPromises);
 
+    }
+
+    /**
+     * Check if the main sub editors are initialized
+     * @returns {Promise<void>}
+     */
+    async isInitialized() {
+        if (!this.initDone) await Promise.all(this.initPromises);
     }
 
     async updateQueryDeviceDisplay(options) {
@@ -507,21 +521,15 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
     async init(mainEditor) {
         await super.init();
         this.mainEditor = mainEditor;
-        this.ruleEditor = [];
 
         this.$elements.outputs.val(this.outputs);
 
         this.$elements.list.editableList({
-            addItem: (container, index, opt) => {
-
+            addItem: (row, index, data) => {
 
                 let ruleEditor = new DeconzOutputRuleEditor(this.node);
-                return ruleEditor.init(this, index, container, opt.rule)
-                    .then(() => {
-                        this.ruleEditor.push(ruleEditor);
-                        console.log({container, index, opt});
-                        console.log("done #" + index);
-                    });
+                ruleEditor.init(this, index, row, data.rule);
+
 
                 /*
                 let currentOutputs = JSON.parse(this.$elements.outputs.val() || "{}");
@@ -572,14 +580,15 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
         });
 
         for (let i = 0; i < this.node.output_rules.length; i++) {
-            this.$elements.list.editableList('addItem', {rule: this.node.output_rules[i], index: i});
+            this.$elements.list.editableList('addItem', {
+                rule: this.node.output_rules[i],
+                index: i
+            });
         }
 
     }
 
-
 }
-
 
 class DeconzOutputRuleEditor extends DeconzEditor {
 
@@ -616,53 +625,89 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         this.listEditor = listEditor;
         this.index = index;
 
-
         if (rule.type === undefined) {
             rule = this.defaultRule;
         }
-
 
         container.css({
             overflow: 'hidden',
             whiteSpace: 'nowrap'
         });
 
-
-
         await this.generateTypeField(container, rule);
+
         await this.generatePayloadField(container, rule);
         await this.generateOutputField(container, rule);
         await this.generateOnStartField(container, rule);
         await this.generateOnErrorField(container, rule);
 
         await super.init();
+
+        await this.listEditor.mainEditor.isInitialized();
+
         await this.initPayloadList();
-
+        await super.connect();
 
     }
 
-
-    async generateTypeField(container, rule) {
-        await this.generateSimpleListField(container, {
-            id: this.elements.type,
-            labelText: "Payload Type",
-            labelIcon: "ellipsis-h",
-            choices: [
-                ['state', 'state'],
-                ['config', 'config'],
-                ['homekit', 'homekit'],
-            ],
-            currentValue: rule.type
+    async connect() {
+        await super.connect();
+        this.$elements.type.on('change', () => {
+            let type = this.$elements.type.typedInput('type');
+            let value = this.$elements.type.typedInput('value');
+            console.log(`type.change ${type} - ${value}`);
         });
     }
 
-    async generatePayloadField(container, rule) {
-        await this.generateSimpleListField(container, {
-            id: this.elements.payload,
-            labelText: "Payload",
-            labelIcon: "ellipsis-h"
+
+    async updatePayloadList() {
+
+        this.$elements.payload.multipleSelect('disable');
+        this.$elements.payload.children().remove();
+
+        let queryType = this.listEditor.mainEditor.subEditor.query.type;
+        let devices = this.listEditor.mainEditor.subEditor.device.value;
+        let type = this.$elements.type.val();
+
+        //TODO update that / remove
+        if (type !== 'state' && type !== 'config') return;
+
+        let data = await $.getJSON('deconz/' + this.$elements.type.val() + 'list', {
+            controllerID: this.listEditor.mainEditor.serverNode.id,
+            devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
         });
 
+        let html = '<option value="__complete__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>';
+        if (this.options.enableEachState === true) {
+            html += '<option value="__each__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>';
+        }
+
+        this.$elements.payload.html(html);
+
+        let groupHtml = $('<optgroup/>', {
+            label: RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.group_label")
+        });
+
+        Object.keys(data.count).sort().forEach((item) => {
+            let sample = data.sample[item];
+            let count = data.count[item];
+            let label = item;
+            if (count !== devices.length) {
+                label += " [" + count + "/" + devices.length + "]";
+            }
+            label += " (" + sample + ")";
+
+            $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
+        });
+
+        if (!$.isEmptyObject(data.count)) {
+            groupHtml.appendTo(this.$elements.payload);
+        }
+
+        //this.$elements.payload
+
+        // Enable item selection
+        this.$elements.payload.multipleSelect('refresh').multipleSelect('enable');
 
     }
 
@@ -704,57 +749,29 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         await this.updatePayloadList();
     }
 
-    async getPayloadList() {
-        return $.getJSON('deconz/' + this.$elements.type.val() + 'list', {
-            controllerID: this.listEditor.mainEditor.serverNode.id,
-            devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
+
+    //#region HTML Inputs
+
+    async generateTypeField(container, rule) {
+        await this.generateSimpleListField(container, {
+            id: this.elements.type,
+            labelText: "Payload Type",
+            labelIcon: "ellipsis-h",
+            choices: [
+                ['state', 'state'],
+                ['config', 'config'],
+                ['homekit', 'homekit'],
+            ],
+            currentValue: rule.type
         });
     }
 
-    async updatePayloadList() {
-
-        this.$elements.payload.multipleSelect('disable');
-        this.$elements.payload.children().remove();
-
-        let queryType = this.listEditor.mainEditor.subEditor.query.type;
-        let devices = this.listEditor.mainEditor.subEditor.device.value;
-        let type = this.$elements.type.val();
-
-        let data = await this.getPayloadList();
-
-        let html = '<option value="__complete__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>';
-        if (this.options.enableEachState === true) {
-            html += '<option value="__each__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>';
-        }
-
-        this.$elements.payload.html(html);
-
-        let groupHtml = $('<optgroup/>', {
-            label: RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.group_label")
+    async generatePayloadField(container, rule) {
+        await this.generateSimpleListField(container, {
+            id: this.elements.payload,
+            labelText: "Payload",
+            labelIcon: "ellipsis-h"
         });
-
-        Object.keys(data.count).sort().forEach((item) => {
-            let sample = data.sample[item];
-            let count = data.count[item];
-            let label = item;
-            if (count !== devices.length) {
-                label += " [" + count + "/" + devices.length + "]";
-            }
-            label += " (" + sample + ")";
-
-            $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
-        });
-
-        if (!$.isEmptyObject(data.count)) {
-            groupHtml.appendTo(this.$elements.payload);
-        }
-
-        //this.$elements.payload
-        console.log(this.$elements.type.val());
-
-        // Enable item selection
-        this.$elements.payload.multipleSelect('refresh').multipleSelect('enable');
-
     }
 
     async generateOutputField(container, rule) {
@@ -790,6 +807,10 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             currentValue: rule.onerror,
         });
     }
+
+    //#endregion
+
+    //#region HTML Helpers
 
     async generateSimpleListField(container, options) {
         let input = $('<select/>', {id: options.id});
@@ -844,5 +865,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
         return row;
     }
+
+    //#endregion
 
 }
