@@ -1,12 +1,25 @@
 <script type='text/javascript'>
-    $.getScript('deconz/multiple-select/multiple-select.min.js');
-    $.getScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
-    $.getScript('deconz/static/js/deconz-editor.js');
+    (() => {
+        // https://balpha.de/2011/10/jquery-script-insertion-and-its-consequences-for-debugging/
+        let loadScript = (path) => {
+            let result = $.Deferred(),
+                script = document.createElement("script");
+            script.async = true;
+            script.type = "text/javascript";
+            script.src = path;
+            script.onload = script.onreadystatechange = (_, isAbort) => {
+                if (!script.readyState || /loaded|complete/.test(script.readyState)) {
+                    if (isAbort) result.reject();
+                    else result.resolve();
+                }
+            };
+            script.onerror = () => result.reject();
+            $("head")[0].appendChild(script);
+            return result.promise();
+        };
+
+        loadScript('deconz/multiple-select/multiple-select.min.js');
+        loadScript('deconz/static/js/node-red-contrib-deconz-helpers.js');
+        loadScript('deconz/static/js/deconz-editor.js');
+    })();
 </script>
-
-
-
-
-
-
-
