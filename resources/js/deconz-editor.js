@@ -97,6 +97,9 @@
 /**
  *  @property {Object.<string, JQuery>} $elements
  */
+
+const NRCD = 'node-red-contrib-deconz';
+
 class DeconzEditor {
 
     constructor(node, options = {}) {
@@ -222,7 +225,7 @@ class DeconzDeviceListEditor extends DeconzEditor {
     }
 
     get xhrURL() {
-        return 'deconz/itemlist';
+        return `${NRCD}/itemlist`;
     }
 
     get xhrParams() {
@@ -395,8 +398,8 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
         if (this.mainEditor.options.have.device) {
             options.push({
                 value: "device",
-                label: RED._("node-red-contrib-deconz/server:editor.inputs.device.query.options.device"),
-                icon: "icons/node-red-contrib-deconz/deconz.png ",
+                label: RED._(`${NRCD}/server:editor.inputs.device.query.options.device`),
+                icon: `icons/${NRCD}/deconz.png`,
                 hasValue: false
             });
         }
@@ -508,6 +511,7 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
 
     constructor(node, options = {}) {
         super(node, options);
+        this.rules = {};
     }
 
     get elements() {
@@ -524,90 +528,119 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
         this.$elements.outputs.val(this.outputs);
 
         this.$elements.list.editableList({
-            addItem: (row, index, data) => {
-
-                let ruleEditor = new DeconzOutputRuleEditor(this.node);
-                ruleEditor.init(this, index, row, data.rule);
-
-
-                /*
-                let currentOutputs = JSON.parse(this.$elements.outputs.val() || "{}");
-
-                console.log(currentOutputs);
-
-                currentOutputs[opt.hasOwnProperty('i') ? opt.i : opt._i] = index;
-                this.$elements.outputs.val(JSON.stringify(currentOutputs));
-
-                 */
+            sortable: true,
+            removable: true,
+            height: 'auto',
+            //header: $("<div>").append($.parseHTML("<div style='width:40%; display: inline-grid'>Name</div><div style='display: inline-grid'>Type</div>")),
+            addItem: (row, index, rule) => {
+                // Create rule editor
+                let ruleEditor = new DeconzOutputRuleEditor(this.node, this, row);
+                // Store rule editor reference
+                rule.uniqueId = ruleEditor.uniqueId;
+                this.rules[rule.uniqueId] = ruleEditor;
+                // Init rule editor
+                ruleEditor.init(rule, index);
             },
-            removeItem: (opt) => {
-                /*
-                let currentOutputs = JSON.parse(this.$elements.outputs.val() || "{}");
-                if (opt.hasOwnProperty('i')) {
-                    currentOutputs[opt.i] = -1;
+            removeItem: (rule) => {
+                if (rule.uniqueId && this.rules[rule.uniqueId]) {
+                    delete this.rules[rule.uniqueId];
                 } else {
-                    delete currentOutputs[opt._i];
+                    throw new Error(`Error while removing the rule, the rule ${rule.uniqueId} does not exist.`);
                 }
-                let rules = this.$elements.list.editableList('items');
-                rules.each(function (i) {
-                    $(this).find(".node-input-output-index").html(i + 1);
-                    let data = $(this).data('data');
-                    currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
-                });
-                this.$elements.outputs.val(JSON.stringify(currentOutputs));
-
-                 */
-            },
-            resizeItem: (item) => {
-                return 200;
             },
             sortItems: (items) => {
-                /*
-                let currentOutputs = JSON.parse(this.$elements.outputs.val() || "{}");
-                let rules = this.$elements.list.editableList('items');
-                rules.each(function (i) {
-                    $(this).find(".node-input-output-index").html(i + 1);
-                    let data = $(this).data('data');
-                    currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
+                // Update rule index
+                items.each((index, item) => {
+                    if (this.rules[item.attr('id')]) {
+                        this.rules[item.attr('id')].index = index;
+                    } else {
+                        throw new Error(`Error while moving the rule, the rule ${index + 1} does not exist.`);
+                    }
                 });
-                this.$elements.outputs.val(JSON.stringify(currentOutputs));
-
-                 */
-            },
-            sortable: true,
-            removable: true
+            }
         });
 
-        for (let i = 0; i < this.node.output_rules.length; i++) {
-            this.$elements.list.editableList('addItem', {
-                rule: this.node.output_rules[i],
-                index: i
-            });
-        }
+        this.$elements.list.editableList('addItems', this.node.output_rules);
 
+    }
+
+    get value() {
+        let result = [];
+        for (const rule of Object.values(this.rules).sort((a, b) => a.index - b.index)) {
+            result.push(rule.value);
+        }
+        return result;
     }
 
 }
 
 class DeconzOutputRuleEditor extends DeconzEditor {
 
-    constructor(node, options = {}) {
+    constructor(node, listEditor, container, options = {}) {
         options = $.extend({
             enableEachState: true
         }, options);
+
         super(node, options);
+
+        this.listEditor = listEditor;
+        container.uniqueId();
+        this.uniqueId = container.attr('id');
+        this.container = container;
+
+
     }
 
     get elements() {
         return {
             //list: 'node-input-output-container',
-            type: `node-input-output-rule-${this.index}-type`,
-            payload: `node-input-output-rule-${this.index}-payload`,
-            onstart: `node-input-output-rule-${this.index}-onstart`,
-            onerror: `node-input-output-rule-${this.index}-onerror`,
-            output: `node-input-output-rule-${this.index}-output`,
+            type: `node-input-output-rule-${this.uniqueId}-type`,
+            payload: `node-input-output-rule-${this.uniqueId}-payload`,
+            output: `node-input-output-rule-${this.uniqueId}-output`,
+            onstart: `node-input-output-rule-${this.uniqueId}-onstart`,
+            onerror: `node-input-output-rule-${this.uniqueId}-onerror`,
+            outputButton: `node-input-output-rule-${this.uniqueId}-output-button`
         };
     }
+
+    set value(rule) {
+        if (rule.type) this.$elements.type.val(rule.type);
+        if (rule.payload) this.$elements.payload.multipleSelect('setSelects', rule.payload);
+        if (rule.output) this.$elements.output.val(rule.output);
+        if (rule.onstart) this.$elements.onstart.val(rule.onstart);
+        if (rule.onerror) this.$elements.onerror.val(rule.onerror);
+    }
+
+    get value() {
+        let value = {};
+        value.type = this.$elements.type.val();
+
+        switch (value.type) {
+            case 'state':
+            case 'config':
+                value.output = this.$elements.output.val();
+                value.payload = this.$elements.payload.multipleSelect('getSelects');
+                value.onstart = this.$elements.onstart.val();
+                break;
+            case 'homekit':
+                value.onstart = this.$elements.onstart.val();
+                value.onerror = this.$elements.onerror.val();
+                break;
+        }
+
+        return value;
+    }
+
+    set index(value) {
+        if (value !== undefined && this.$elements && this.$elements.outputButton)
+            this.$elements.outputButton.find(".node-input-rule-index").html(value + 1);
+        this._index = value;
+    }
+
+    get index() {
+        return this._index;
+    }
+
 
     /**
      *
@@ -617,45 +650,108 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         //{type: 'homekit', onstart: true, onerror: true},
         //{type: 'config', payload: "__complete__", output: "always", onstart: true},
 
-        return {type: 'state', payload: ["__complete__"], output: "always", onstart: true};
+        return {type: 'state', payload: ["__complete__"], output: "always", onstart: true, onerror: true};
     }
 
-    async init(listEditor, index, container, rule) {
-        this.listEditor = listEditor;
-        this.index = index;
+    async init(rule, index) {
+        this._index = index;
 
-        if (rule.type === undefined) {
+        if (rule === undefined || rule.type === undefined) {
             rule = this.defaultRule;
         }
 
-        container.css({
+        /*
+        this.container.css({
             overflow: 'hidden',
             whiteSpace: 'nowrap'
         });
 
-        await this.generateTypeField(container, rule);
+         */
 
-        await this.generatePayloadField(container, rule);
-        await this.generateOutputField(container, rule);
-        await this.generateOnStartField(container, rule);
-        await this.generateOnErrorField(container, rule);
+
+        await this.generateTypeField(this.container, rule.type);
+
+        await this.generateOutputButton(this.container);
+
+        await this.generatePayloadField(this.container);
+        await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
+        await this.generateOnStartField(this.container, rule.onstart !== undefined ? rule.onstart : this.defaultRule.onstart);
+        await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
 
         await super.init();
 
         await this.listEditor.mainEditor.isInitialized();
 
         await this.initPayloadList();
-        await super.connect();
+        await this.updateShowHide(rule.type);
+        await this.connect();
 
     }
 
     async connect() {
         await super.connect();
         this.$elements.type.on('change', () => {
-            let type = this.$elements.type.typedInput('type');
-            let value = this.$elements.type.typedInput('value');
-            console.log(`type.change ${type} - ${value}`);
+            let type = this.$elements.type.val();
+            if (['state', 'config'].includes(type)) this.updatePayloadList();
+            this.updateShowHide(type);
         });
+
+        // Add button to get connected nodes of the output. This is using not documented API so can be broken at anytime.
+        this.$elements.outputButton.on('click', () => {
+            try {
+                let nodes = RED.nodes.filterLinks({source: this.node, sourcePort: this.index}).map((l) => {
+                    let result = l.target.type;
+                    if (l.target.name !== "") {
+                        return result + ':' + l.target.name;
+                    } else if (l.target._def.label !== undefined) {
+                        return result + ':' + l.target._def.label();
+                    } else {
+                        return result;
+                    }
+                });
+
+                let myNotification = RED.notify(`The output ${this.index + 1} is sending message to ${nodes.length} nodes :<br>${nodes.join('<br>')}`, {
+                    modal: true,
+                    timeout: 5000,
+                    buttons: [{
+                        'text': 'okay',
+                        'class': 'primary',
+                        'click': () => myNotification.close()
+                    }]
+                });
+
+            } catch (e) {
+                let myNotification = RED.notify(`This is using not documented API so can be broken at anytime.<br>Error while getting connected nodes: ${e.toString()}`, {
+                    modal: true,
+                    timeout: 10000,
+                    type: 'error',
+                    buttons: [{
+                        'text': 'okay',
+                        'class': 'primary',
+                        'click': () => myNotification.close()
+                    }]
+                });
+            }
+
+        });
+    }
+
+    async updateShowHide(type) {
+        switch (type) {
+            case 'state':
+            case 'config':
+                this.$elements.payload.closest('.form-row').show();
+                this.$elements.output.closest('.form-row').show();
+                //this.$elements.onstart.closest('.form-row').show(); // Always displayed
+                this.$elements.onerror.closest('.form-row').hide();
+                break;
+            case 'homekit':
+                this.$elements.payload.closest('.form-row').hide();
+                this.$elements.output.closest('.form-row').hide();
+                //this.$elements.onstart.closest('.form-row').show(); // Always displayed
+                this.$elements.onerror.closest('.form-row').show();
+                break;
+        }
     }
 
 
@@ -671,20 +767,20 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         //TODO update that / remove
         if (type !== 'state' && type !== 'config') return;
 
-        let data = await $.getJSON('deconz/' + this.$elements.type.val() + 'list', {
+        let data = await $.getJSON(NRCD + '/' + this.$elements.type.val() + 'list', {
             controllerID: this.listEditor.mainEditor.serverNode.id,
             devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
         });
 
-        let html = '<option value="__complete__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.complete") + '</option>';
+        let html = '<option value="__complete__">' + RED._(`${NRCD}/server:editor.inputs.${type}.payload.options.complete`) + '</option>';
         if (this.options.enableEachState === true) {
-            html += '<option value="__each__">' + RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.options.each") + '</option>';
+            html += '<option value="__each__">' + RED._(`${NRCD}/server:editor.inputs.${type}.payload.options.each`) + '</option>';
         }
 
         this.$elements.payload.html(html);
 
         let groupHtml = $('<optgroup/>', {
-            label: RED._("node-red-contrib-deconz/server:editor.inputs." + type + ".payload.group_label")
+            label: RED._(`${NRCD}/server:editor.inputs.${type}.payload.group_label`)
         });
 
         Object.keys(data.count).sort().forEach((item) => {
@@ -722,6 +818,9 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             selectAll: false,
             filter: true,
             container: '.node-input-output-container-row',
+            /*
+            This make sure that you can select (one or more state) or complete or each
+             */
             onClick: (view) => {
                 if (!view.selected) return;
                 switch (view.value) {
@@ -751,7 +850,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
     //#region HTML Inputs
 
-    async generateTypeField(container, rule) {
+    async generateTypeField(container, value) {
         await this.generateSimpleListField(container, {
             id: this.elements.type,
             labelText: "Payload Type",
@@ -761,11 +860,23 @@ class DeconzOutputRuleEditor extends DeconzEditor {
                 ['config', 'config'],
                 ['homekit', 'homekit'],
             ],
-            currentValue: rule.type
+            currentValue: value
         });
     }
 
-    async generatePayloadField(container, rule) {
+
+    async generateOutputButton(container) {
+        $('<a/>', {
+            id: this.elements.outputButton,
+            class: 'red-ui-button top-right-badge'
+        }).append(
+            `&nbsp;&#8594;&nbsp;<span class="node-input-rule-index">${this.index + 1}</span>&nbsp;`
+        ).appendTo(container);
+
+    }
+
+
+    async generatePayloadField(container) {
         await this.generateSimpleListField(container, {
             id: this.elements.payload,
             labelText: "Payload",
@@ -773,37 +884,37 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         });
     }
 
-    async generateOutputField(container, rule) {
+    async generateOutputField(container, value) {
         await this.generateSimpleListField(container, {
             id: this.elements.output,
             labelText: "Output",
             labelIcon: "sign-out",
             choices: [
-                ['always', 'node-red-contrib-deconz/server:editor.inputs.config.output.options.always'],
-                ['onchange', 'node-red-contrib-deconz/server:editor.inputs.config.output.options.onchange'],
-                ['onupdate', 'node-red-contrib-deconz/server:editor.inputs.config.output.options.onupdate'],
+                ['always', `${NRCD}/server:editor.inputs.config.output.options.always`],
+                ['onchange', `${NRCD}/server:editor.inputs.config.output.options.onchange`],
+                ['onupdate', `${NRCD}/server:editor.inputs.config.output.options.onupdate`],
             ],
-            currentValue: rule.output
+            currentValue: value
         });
     }
 
-    async generateOnStartField(container, rule) {
+    async generateOnStartField(container, value) {
         await this.generateCheckboxField(container, {
             id: this.elements.onstart,
-            labelText: 'node-red-contrib-deconz/server:editor.inputs.state.start_output.label',
+            labelText: `${NRCD}/server:editor.inputs.state.start_output.label`,
             labelIcon: 'share-square',
-            descText: 'node-red-contrib-deconz/server:editor.inputs.state.start_output.text',
-            currentValue: rule.onstart,
+            descText: `${NRCD}/server:editor.inputs.state.start_output.text`,
+            currentValue: value,
         });
     }
 
-    async generateOnErrorField(container, rule) {
+    async generateOnErrorField(container, value) {
         await this.generateCheckboxField(container, {
             id: this.elements.onerror,
-            labelText: 'node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label',
+            labelText: `${NRCD}/server:editor.inputs.homekit.error_output.label`,
             labelIcon: 'external-link-square',
-            descText: 'node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text',
-            currentValue: rule.onerror,
+            descText: `${NRCD}/server:editor.inputs.homekit.error_output.text`,
+            currentValue: value,
         });
     }
 
@@ -826,7 +937,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         let row = await this.generateInputWithLabel(RED._(options.labelText), RED._(options.labelIcon), input);
         container.append(row);
 
-        if (options.currentValue) input.val(options.currentValue);
+        if (options.currentValue !== undefined) input.val(options.currentValue);
     }
 
     async generateCheckboxField(container, options) {

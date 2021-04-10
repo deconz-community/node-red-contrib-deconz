@@ -102,7 +102,6 @@
 
         <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.outputs.separator"></div>
         <!-- --- Output list --- -->
-        <input type="hidden" id="node-input-outputs"/>
         <div class="form-row node-input-output-container-row">
             <ol id="node-input-output-container"></ol>
         </div>
@@ -295,8 +294,8 @@
             output_rules: {
                 value: [
                     {type: 'state', payload: "__complete__", output: "always", onstart: true},
-                    //{type: 'homekit', onstart: true, onerror: true},
-                    //{type: 'config', payload: "__complete__", when: "always", onstart: true},
+                    {type: 'homekit', onstart: true, onerror: true},
+                    {type: 'config', payload: "__complete__", when: "always", onstart: true},
                 ]
             },
             /*
@@ -341,8 +340,13 @@
         inputs: 0,
         outputs: 1,
         outputLabels: function (index) {
-            //TODO mettre plus de détail sur le nom
-            return "output #" + index;
+            let node = this;
+            let rule = node.output_rules[index];
+            let desc = `#${index + 1} - ${rule.type}`;
+            if (Array.isArray(rule.payload)) {
+                desc += "/" + rule.payload.join();
+            }
+            return desc;
         },
         paletteLabel: 'in',
         icon: "deconz.png",
@@ -467,10 +471,13 @@
                 node.device_name = null;
             }
 
+            node.output_rules = node.editor.subEditor.output_rules.value;
+            node.outputs = node.output_rules.length;
             node.device = undefined;
 
         }
     });
+
 </script>
 
 

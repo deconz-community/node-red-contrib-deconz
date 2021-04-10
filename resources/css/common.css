@@ -42,6 +42,14 @@
     width: 70% !important;
 }
 
+.deconz-editor .top-right-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 8px;
+    margin-right: 8px;
+}
+
 .deconz-help .separator,
 .deconz-editor .separator {
     display: flex;
