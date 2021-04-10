@@ -1,5 +1,5 @@
 function deconz_gatewayScanner(nodeItem, selectedItemElementName, options = {}) {
-    $.getJSON('deconz/gwscanner', {})
+    $.getJSON('node-red-contrib-deconz/gwscanner', {})
         .done(function (data, textStatus, jqXHR) {
             console.log(data);
         }).fail(function (jqXHR, textStatus, errorThrown) {

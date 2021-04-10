@@ -1,17 +1,7 @@
-const NODE_PATH = '/deconz/';
+const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
 
 module.exports = function (RED) {
-    /**
-     * Enable http route to static files
-     */
-    RED.httpAdmin.get(NODE_PATH + 'static/*', function (req, res) {
-        let options = {
-            root: __dirname + '/static/',
-            dotfiles: 'deny'
-        };
-        res.sendFile(req.params[0], options);
-    });
 
     /**
      * Enable http route to multiple-select static files
@@ -82,7 +72,7 @@ module.exports = function (RED) {
                 res.status(404).end();
             }
         });
-    })
+    });
 
     RED.httpAdmin.get(NODE_PATH + 'getScenesByDevice', function (req, res) {
         let config = req.query;

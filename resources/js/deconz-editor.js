@@ -94,7 +94,6 @@
  * @property {String} [output] - Can be 'always', 'onchange' or 'onupdate'
  */
 
-
 /**
  *  @property {Object.<string, JQuery>} $elements
  */
