@@ -128,6 +128,17 @@ class DeconzEditor {
     async connect() {
     }
 
+    sendError(msg, timeout = 10000) {
+        let myNotification = RED.notify(msg, {
+            timeout: timeout,
+            type: 'error',
+            buttons: [{
+                'text': 'okay',
+                'class': 'primary',
+                'click': () => myNotification.close()
+            }]
+        });
+    }
 
 }
 
@@ -200,19 +211,33 @@ class DeconzMainEditor extends DeconzEditor {
 
     async updateQueryDeviceDisplay(options) {
         let type = this.subEditor.query.$elements.select.typedInput('type');
-
         switch (type) {
             case 'device':
                 await this.subEditor.device.updateList(options);
                 break;
             case 'json':
             case 'jsonata':
-                await this.subEditor.query.updateList(options);
+                console.log("update ?");
+                if (this.subEditor.query.$elements.select.typedInput('validate')) {
+                    console.log("yes!");
+                    await this.subEditor.query.updateList(options);
+                }
                 break;
         }
 
         await this.subEditor.device.display(type === 'device');
         await this.subEditor.query.display(type !== 'device');
+
+    }
+
+
+    oneditsave() {
+        switch (this.node.type) {
+            case 'deconz-input':
+                this.node.output_rules = this.subEditor.output_rules.value;
+                this.node.outputs = this.node.output_rules.length;
+                break;
+        }
     }
 
 }
@@ -261,18 +286,28 @@ class DeconzDeviceListEditor extends DeconzEditor {
 
         let params = this.xhrParams;
         params.forceRefresh = options.refresh;
-        let result = await $.getJSON(this.xhrURL, params);
-        let devices = this.formatItemList(result.items);
 
-        // Remove all previous and/or static (if any) elements from 'select' input element
+        let result = await $.getJSON(this.xhrURL, params).catch((t, u) => {
+            this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
+        });
+
+        if (result && result.error_message) {
+            console.warn(result.error_message);
+        }
+
+        // Remove all previous elements from 'select' input element
         list.children().remove();
+        if (result && result.items) {
+            let devices = this.formatItemList(result.items);
+            this.generateHtmlItemList(devices, this.$elements.list);
+        }
 
-        this.generateHtmlItemList(devices, this.$elements.list);
-
-        // Rebuild bootstrap multiselect form
-        this.$elements.list.multipleSelect('refresh');
+        // Rebuild bootstrap multipleSelect form
+        list.multipleSelect('refresh');
         // Enable item selection
-        this.$elements.list.multipleSelect('enable');
+        if (result && result.items) {
+            list.multipleSelect('enable');
+        }
 
     }
 
@@ -326,7 +361,6 @@ class DeconzDeviceListEditor extends DeconzEditor {
                 }
                 let opt = $('<option>' + label + '</option>')
                     .attr("value", item.path);
-                // TODO move that ?
                 if (queryMode && item.query_match) {
                     opt.attr("selected", '');
                 }
@@ -376,8 +410,8 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
 
     get xhrParams() {
         let params = super.xhrParams;
-        params.query = this.$elements.select.typedInput('value');
-        params.queryType = this.$elements.select.typedInput('type');
+        params.query = this.value;
+        params.queryType = this.type;
         params.nodeID = this.node.id;
         return params;
     }
@@ -386,6 +420,25 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
         await super.init();
         this.mainEditor = mainEditor;
         this.initTypedInput();
+
+        this.$elements.list.multipleSelect({
+            maxHeight: 300,
+            dropWidth: 320,
+            width: 320,
+            single: false,
+            filter: true,
+            selectAll: false,
+            filterPlaceholder: RED._("node-red-contrib-deconz/server:editor.inputs.device.device.filter_devices"),
+            numberDisplayed: 1,
+            disableIfEmpty: true,
+            showClear: false,
+            hideOptgroupCheckboxes: true,
+            filterGroup: true,
+            // Make the select read only, not pretty but multipleSelect don't allow readonly list, disable hide all options
+            onClick: (view) => {
+                this.$elements.list.multipleSelect(view.selected ? 'uncheck' : 'check', view.value);
+            }
+        });
 
         await this.mainEditor.updateQueryDeviceDisplay({
             useSavedData: true
@@ -408,7 +461,7 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
         this.$elements.select.typedInput({
             type: "text",
             types: options.concat(this.options.allowedTypes),
-            typeField: "node-input-search_type"
+            typeField: "#node-input-search_type"
         });
 
 
@@ -417,11 +470,16 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
 
     async connect() {
         await super.connect();
-
-        this.$elements.select.on('change', () => this.mainEditor.updateQueryDeviceDisplay({
-            useSavedData: true
-        }));
-        this.$elements.refreshButton.on('click', () => this.updateList());
+        this.$elements.select.on('change', () => {
+            this.mainEditor.updateQueryDeviceDisplay({
+                useSavedData: true
+            });
+            this.mainEditor.subEditor.output_rules.refresh();
+        });
+        this.$elements.refreshButton.on('click', () => {
+            this.updateList();
+            this.mainEditor.subEditor.output_rules.refresh();
+        });
     }
 
 }
@@ -454,15 +512,34 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
     async init(mainEditor) {
         await super.init();
         this.mainEditor = mainEditor;
+
+        this.$elements.list.multipleSelect({
+            maxHeight: 300,
+            dropWidth: 320,
+            width: 320,
+            single: (this.$elements.list.attr('multiple') !== "multiple"),
+            filter: true,
+            filterPlaceholder: RED._("node-red-contrib-deconz/server:editor.inputs.device.device.filter"),
+            showClear: true
+        });
+
     }
 
 
     async connect() {
         await super.connect();
 
-        this.$elements.refreshButton.on('click', () => this.updateList({
-            useSelectedData: true
-        }));
+        this.$elements.refreshButton.on('click', () => {
+            this.updateList({
+                    useSelectedData: true
+                }
+            );
+            this.mainEditor.subEditor.output_rules.refresh();
+        });
+
+        this.$elements.list.on('change', () => {
+            this.mainEditor.subEditor.output_rules.refresh();
+        });
 
     }
 
@@ -531,7 +608,23 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
             sortable: true,
             removable: true,
             height: 'auto',
-            //header: $("<div>").append($.parseHTML("<div style='width:40%; display: inline-grid'>Name</div><div style='display: inline-grid'>Type</div>")),
+            addButton: false,
+            buttons: [{
+                label: "add state",
+                icon: "fa fa-plus",
+                title: "Add state output",
+                click: () => this.$elements.list.editableList('addItem', {type: 'state'})
+            }, {
+                label: "add config",
+                icon: "fa fa-plus",
+                title: "Add config output",
+                click: () => this.$elements.list.editableList('addItem', {type: 'config'})
+            }, {
+                label: "add homekit",
+                icon: "fa fa-plus",
+                title: "Add homekit output",
+                click: () => this.$elements.list.editableList('addItem', {type: 'homekit'})
+            }],
             addItem: (row, index, rule) => {
                 // Create rule editor
                 let ruleEditor = new DeconzOutputRuleEditor(this.node, this, row);
@@ -543,7 +636,13 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
             },
             removeItem: (rule) => {
                 if (rule.uniqueId && this.rules[rule.uniqueId]) {
+                    let deletedIndex = this.rules[rule.uniqueId].index;
+                    // Remove old editor
                     delete this.rules[rule.uniqueId];
+                    // Shift index -1 of rules after the deleted one
+                    for (const rule of Object.values(this.rules)) {
+                        if (rule.index > deletedIndex) rule.index--;
+                    }
                 } else {
                     throw new Error(`Error while removing the rule, the rule ${rule.uniqueId} does not exist.`);
                 }
@@ -570,6 +669,12 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
             result.push(rule.value);
         }
         return result;
+    }
+
+    refresh() {
+        for (const rule of Object.values(this.rules)) {
+            rule.updatePayloadList();
+        }
     }
 
 }
@@ -620,11 +725,11 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             case 'config':
                 value.output = this.$elements.output.val();
                 value.payload = this.$elements.payload.multipleSelect('getSelects');
-                value.onstart = this.$elements.onstart.val();
+                value.onstart = this.$elements.onstart.is(":checked");
                 break;
             case 'homekit':
-                value.onstart = this.$elements.onstart.val();
-                value.onerror = this.$elements.onerror.val();
+                value.onstart = this.$elements.onstart.is(":checked");
+                value.onerror = this.$elements.onerror.is(":checked");
                 break;
         }
 
@@ -660,15 +765,6 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             rule = this.defaultRule;
         }
 
-        /*
-        this.container.css({
-            overflow: 'hidden',
-            whiteSpace: 'nowrap'
-        });
-
-         */
-
-
         await this.generateTypeField(this.container, rule.type);
 
         await this.generateOutputButton(this.container);
@@ -682,7 +778,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
         await this.listEditor.mainEditor.isInitialized();
 
-        await this.initPayloadList();
+        await this.initPayloadList(rule.payload);
         await this.updateShowHide(rule.type);
         await this.connect();
 
@@ -721,16 +817,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
                 });
 
             } catch (e) {
-                let myNotification = RED.notify(`This is using not documented API so can be broken at anytime.<br>Error while getting connected nodes: ${e.toString()}`, {
-                    modal: true,
-                    timeout: 10000,
-                    type: 'error',
-                    buttons: [{
-                        'text': 'okay',
-                        'class': 'primary',
-                        'click': () => myNotification.close()
-                    }]
-                });
+                this.sendError(`This is using not documented API so can be broken at anytime.<br>Error while getting connected nodes: ${e.toString()}`);
             }
 
         });
@@ -756,7 +843,6 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
 
     async updatePayloadList() {
-
         this.$elements.payload.multipleSelect('disable');
         this.$elements.payload.children().remove();
 
@@ -764,13 +850,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         let devices = this.listEditor.mainEditor.subEditor.device.value;
         let type = this.$elements.type.val();
 
-        //TODO update that / remove
-        if (type !== 'state' && type !== 'config') return;
-
-        let data = await $.getJSON(NRCD + '/' + this.$elements.type.val() + 'list', {
-            controllerID: this.listEditor.mainEditor.serverNode.id,
-            devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
-        });
+        if (type === 'homekit') return;
 
         let html = '<option value="__complete__">' + RED._(`${NRCD}/server:editor.inputs.${type}.payload.options.complete`) + '</option>';
         if (this.options.enableEachState === true) {
@@ -779,40 +859,48 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
         this.$elements.payload.html(html);
 
-        let groupHtml = $('<optgroup/>', {
-            label: RED._(`${NRCD}/server:editor.inputs.${type}.payload.group_label`)
-        });
+        if (queryType === 'device') {
+            let data = await $.getJSON(`${NRCD}/${type}list`, {
+                controllerID: this.listEditor.mainEditor.serverNode.id,
+                devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
+            });
 
-        Object.keys(data.count).sort().forEach((item) => {
-            let sample = data.sample[item];
-            let count = data.count[item];
-            let label = item;
-            if (count !== devices.length) {
-                label += " [" + count + "/" + devices.length + "]";
+            let groupHtml = $('<optgroup/>', {
+                label: RED._(`${NRCD}/server:editor.inputs.${type}.payload.group_label`)
+            });
+
+            Object.keys(data.count).sort().forEach((item) => {
+                let sample = data.sample[item];
+                let count = data.count[item];
+                let label = item;
+                if (count !== devices.length) {
+                    label += " [" + count + "/" + devices.length + "]";
+                }
+                label += " (" + sample + ")";
+
+                $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
+            });
+
+            if (!$.isEmptyObject(data.count)) {
+                groupHtml.appendTo(this.$elements.payload);
             }
-            label += " (" + sample + ")";
-
-            $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
-        });
-
-        if (!$.isEmptyObject(data.count)) {
-            groupHtml.appendTo(this.$elements.payload);
         }
-
-        //this.$elements.payload
 
         // Enable item selection
         this.$elements.payload.multipleSelect('refresh').multipleSelect('enable');
 
     }
 
-    async initPayloadList() {
+    async initPayloadList(value) {
 
         // TODO réutiliser la couleur : $('.red-ui-typedInput-type-select').css('background-color')
         let list = this.$elements.payload;
 
         list.addClass('multiple-select');
         list.multipleSelect({
+            maxHeight: 300,
+            dropWidth: 300,
+            width: 220,
             numberDisplayed: 1,
             single: false,
             selectAll: false,
@@ -845,6 +933,9 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         });
 
         await this.updatePayloadList();
+
+        if (value) list.multipleSelect('setSelects', value);
+
     }
 
 
@@ -889,7 +980,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             id: this.elements.output,
             labelText: "Output",
             labelIcon: "sign-out",
-            choices: [
+            choices: [ //TODO remove config from name
                 ['always', `${NRCD}/server:editor.inputs.config.output.options.always`],
                 ['onchange', `${NRCD}/server:editor.inputs.config.output.options.onchange`],
                 ['onupdate', `${NRCD}/server:editor.inputs.config.output.options.onupdate`],
@@ -941,36 +1032,40 @@ class DeconzOutputRuleEditor extends DeconzEditor {
     }
 
     async generateCheckboxField(container, options) {
+
         let input = $('<input/>', {
             id: options.id,
             //class: 's-width',
             type: 'checkbox',
-            style: 'display: inline-block; width: auto !important; vertical-align: top;'
+            style: 'display: table-cell; width: 14px;vertical-align: top;margin-right: 5px',
+            checked: options.currentValue
         });
 
         let row = await this.generateInputWithLabel(RED._(options.labelText), RED._(options.labelIcon), input);
-
-        row.append($('<span/>').html(RED._(options.descText)));
+        row.append($('<span/>')
+            .html(RED._(options.descText))
+            .css('display', 'table-cell')
+        );
 
         container.append(row);
-
-        input.attr('checked', options.currentValue);
     }
 
     async generateInputWithLabel(labelText, labelIcon, input) {
         let row = $('<div/>', {
             class: 'form-row',
-            style: 'padding-left:5px;padding-right:15px;'
+            style: 'padding:5px;margin:0;display:table;'
         });
         let inputID = input.attr('id');
         if (inputID) {
             let labelElement = $('<label/>');
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
+            labelElement.attr('style', 'display:table-cell;');
             if (labelIcon) labelElement.append(`<i class="fa fa-${labelIcon}"></i>`);
             labelElement.append(`<span>${RED._(labelText)}</span>`);
             row.append(labelElement);
         }
+        input.css('display', 'table-cell');
         row.append(input);
 
         return row;

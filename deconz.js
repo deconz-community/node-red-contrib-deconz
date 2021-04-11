@@ -31,22 +31,18 @@ module.exports = function (RED) {
                     queryType,
                     RED.nodes.getNode(req.query.nodeID),
                     {}, undefined
-                )
+                );
             }
         } catch (e) {
-            // TODO display error to the user
+            return res.json({error_message: e.toString()});
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
-            controller.getItemsList(function (items) {
-                if (items) {
-                    res.json({items: items});
-                } else {
-                    res.status(404).end();
-                }
+            controller.getItemsList((items) => {
+                res.json({items: items || []});
             }, query, forceRefresh);
         } else {
-            res.status(404).end();
+            return res.json({error_message: "Can't find the server node. Did you press deploy ?"});
         }
     });
 

@@ -44,7 +44,7 @@
 
 .deconz-editor .top-right-badge {
     position: absolute;
-    top: 0;
+    top: 5px;
     right: 0;
     margin-top: 8px;
     margin-right: 8px;

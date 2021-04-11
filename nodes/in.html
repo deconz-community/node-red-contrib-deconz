@@ -256,6 +256,7 @@
 
 
 <script type='text/javascript'>
+
     RED.nodes.registerType('deconz-input', {
         category: 'deCONZ',
         color: '#f7aa3f',
@@ -364,117 +365,14 @@
         },
         oneditprepare: function () {
             let node = this;
-
-            node.search_type = node.search_type || "device";
-            node.device = node.device || null; // Probably useless
-            node.device_list = node.device_list || null;
-            node.query = node.query || "{}";
-
-
-            node.editor = new DeconzMainEditor(node, {})
-
-            node.editor.init().then(value => {
+            node.nodeEditor = new DeconzMainEditor(node, {});
+            node.nodeEditor.init()/*.then(value => {
                 console.log("init done!");
-                console.log(value);
-            })
-
-            if (false) {
-
-
-                /*
-                node.config_output = node.config_output || "always";
-                node.outputAtStartup = node.outputAtStartup || true;
-                node.homekit_output_at_startup = node.homekit_output_at_startup || true;
-                node.homekit_output_on_error = node.homekit_output_on_error || true;
-                node.config_output_at_startup = node.config_output_at_startup || true;
-                */
-
-                let outputCount = $("#node-input-outputs").val("{}");
-
-                /*
-                $("#node-input-output-container").css('min-height', '150px')*//*.css('min-width', '450px').editableList({
-                    addItem: function (container, i, opt) {
-                        console.log({opt: opt})
-
-                        container.css({
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap'
-                        });
-                        let row = $('<p>Coucou</p>').appendTo(container);
-
-                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
-                        currentOutputs[opt.hasOwnProperty('i') ? opt.i : opt._i] = i;
-                        outputCount.val(JSON.stringify(currentOutputs));
-                    },
-                    removeItem: function (opt) {
-                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
-                        if (opt.hasOwnProperty('i')) {
-                            currentOutputs[opt.i] = -1;
-                        } else {
-                            delete currentOutputs[opt._i];
-                        }
-                        let rules = $("#node-input-output-container").editableList('items');
-                        rules.each(function (i) {
-                            $(this).find(".node-input-output-index").html(i + 1);
-                            let data = $(this).data('data');
-                            currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
-                        });
-                        outputCount.val(JSON.stringify(currentOutputs));
-                    },
-                    resizeItem: function (item) {
-                        return 200;
-                    },
-                    sortItems: function (items) {
-                        let currentOutputs = JSON.parse(outputCount.val() || "{}");
-                        let rules = $("#node-input-output-container").editableList('items');
-                        rules.each(function (i) {
-                            $(this).find(".node-input-output-index").html(i + 1);
-                            let data = $(this).data('data');
-                            currentOutputs[data.hasOwnProperty('i') ? data.i : data._i] = i;
-                        });
-                        outputCount.val(JSON.stringify(currentOutputs));
-                    },
-                    sortable: true,
-                    removable: true
-                });
-
-                for (let i = 0; i < this.output_rules.length; i++) {
-                    $("#node-input-output-container").editableList('addItem', {rule: this.output_rules[i], index: i});
-                }
-                */
-
-            }
-
-            /*
-             * We need small timeout, too fire change event for server select,
-             * it's because the configuration node send bad event on loading.
-             * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
-             */
-            /*
-            setTimeout(function () {
-                deconz_initNodeEditor(node);
-            }, 100);
-
-             */
-
+            })*/;
         },
         oneditsave: function () {
             let node = this;
-            // Update device name
-            let deviceListElement = $('#node-input-device_list');
-            let selectedOptions = deviceListElement.multipleSelect('getSelects')
-            if (selectedOptions.length === 1) {
-                node.device_name = deviceListElement.multipleSelect('getSelects', 'text').shift()
-            } else if (selectedOptions.length > 0) {
-                node.device_name = selectedOptions.length + " selected" //TODO
-            } else {
-                node.device_name = null;
-            }
-
-            node.output_rules = node.editor.subEditor.output_rules.value;
-            node.outputs = node.output_rules.length;
-            node.device = undefined;
-
+            node.nodeEditor.oneditsave()
         }
     });
 
