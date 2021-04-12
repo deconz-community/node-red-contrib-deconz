@@ -1109,7 +1109,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
             labelElement.attr('style', 'display:table-cell;');
-            if (labelIcon) labelElement.append(`<i class="fa fa-${labelIcon}"></i>`);
+            if (labelIcon) labelElement.append(`<i class="fa fa-${labelIcon}"></i>&nbsp;`);
             labelElement.append(`<span>${RED._(labelText)}</span>`);
             row.append(labelElement);
         }
