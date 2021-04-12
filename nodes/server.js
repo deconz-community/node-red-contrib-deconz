@@ -176,20 +176,15 @@ module.exports = function (RED) {
 
         getDevice(uniqueid) {
             let node = this;
-            let result = false;
-            if (node.items !== undefined && node.items) {
-                for (let index in (node.items)) {
-                    if (node.items.hasOwnProperty(index)) {
-                        let item = (node.items)[index];
-                        if (index === uniqueid) {
-                            result = item;
-                            break;
-                        }
-                    }
+            if (node.items === undefined) {
+                return;
+            }
 
+            for (const domain of Object.values(node.items)) {
+                for (const device of Object.values(domain)) {
+                    if (device.uniqueid === uniqueid) return device;
                 }
             }
-            return result;
         }
 
         formatPath(type, uniqueID, id, includeDeviceType = true) {
