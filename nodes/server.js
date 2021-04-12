@@ -52,7 +52,7 @@ module.exports = function (RED) {
 
             let updateReady = function (result) {
                 node.ready = result !== false;
-            }
+            };
 
             node.discoverDevices(updateReady, true, true);
 
@@ -63,7 +63,7 @@ module.exports = function (RED) {
 
         registerNodeByDevicePath(nodeID, device_path) {
             let node = this;
-            if (!(device_path in node.nodesByDevicePath)) node.nodesByDevicePath[device_path] = []
+            if (!(device_path in node.nodesByDevicePath)) node.nodesByDevicePath[device_path] = [];
             if (!node.nodesByDevicePath[device_path].includes(nodeID)) node.nodesByDevicePath[device_path].push(nodeID);
 
         }
@@ -138,11 +138,11 @@ module.exports = function (RED) {
 
                         Object.keys(dataParsed[resource]).forEach(function (key) {
 
-                            let data = dataParsed[resource][key]
+                            let data = dataParsed[resource][key];
 
                             data.device_type = resource;
                             data.device_id = parseInt(key);
-                            let device_path = node.getPathByDevice(data, false)
+                            let device_path = node.getPathByDevice(data, false);
 
                             if (!(node.oldItemsList !== undefined && device_path in node.oldItemsList[resource])) {
                                 node.items[resource][device_path] = data;
@@ -152,7 +152,7 @@ module.exports = function (RED) {
 
                             node.items[resource][device_path] = data;
 
-                        })
+                        });
 
                     });
 
@@ -189,16 +189,16 @@ module.exports = function (RED) {
 
         formatPath(type, uniqueID, id, includeDeviceType = true) {
             let ref = "";
-            if (includeDeviceType) ref += type + "/"
+            if (includeDeviceType) ref += type + "/";
 
             if (type === "groups") {
-                ref += "device_id/" + id
+                ref += "device_id/" + id;
             } else {
                 if (uniqueID !== undefined) {
-                    ref += "uniqueid/" + uniqueID
+                    ref += "uniqueid/" + uniqueID;
                 } else {
-                    ref += "device_id/" + id
-                    console.warn("I found a device without uniqueID. His path is " + ref)
+                    ref += "device_id/" + id;
+                    console.warn("I found a device without uniqueID. His path is " + ref);
                 }
             }
             return ref;
@@ -206,15 +206,15 @@ module.exports = function (RED) {
 
         getPathByDevice(device, includeDeviceType = true) {
             let node = this;
-            return node.formatPath(device.device_type, device.uniqueid, device.device_id, includeDeviceType)
+            return node.formatPath(device.device_type, device.uniqueid, device.device_id, includeDeviceType);
         }
 
         getDeviceByPath(path) {
             let node = this;
             let result = false;
-            let parts = path.split("/")
-            let device_type = parts.shift()
-            let sub_path = parts.join("/")
+            let parts = path.split("/");
+            let device_type = parts.shift();
+            let sub_path = parts.join("/");
             if (node.items !== undefined && node.items && node.items[device_type] && node.items[device_type][sub_path]) {
                 return node.items[device_type][sub_path];
             }
@@ -228,20 +228,20 @@ module.exports = function (RED) {
             };
 
             if (meta.uniqueid !== undefined) {
-                query.uniqueid = meta.uniqueid
+                query.uniqueid = meta.uniqueid;
             } else {
-                query.device_id = meta.device_id
+                query.device_id = meta.device_id;
                 if (meta.device_type !== "groups") {
                     query.unsafe = true;
                 }
             }
 
-            return query
+            return query;
         }
 
 
         matchSubQuery(meta, conditions, operator, depth = 1) {
-            let node = this
+            let node = this;
 
             let matchMethod = function (value) {
                 let target = dotProp.get(meta, value);
@@ -263,30 +263,30 @@ module.exports = function (RED) {
                         return conditions[value] === target;
                     case "object":
                         if (Array.isArray(conditions[value])) {
-                            return conditions[value].some(target)
+                            return conditions[value].some(target);
                         } else {
                             switch (conditions[value].type) {
                                 case "compare":
                                     let left = target;
-                                    let right = conditions[value].value
-                                    let operator = conditions[value].operator
+                                    let right = conditions[value].value;
+                                    let operator = conditions[value].operator;
 
                                     switch (conditions[value].convertTo) {
                                         case "boolean":
-                                            left = Boolean(left)
+                                            left = Boolean(left);
                                             break;
                                         case "number":
-                                            left = Number(left)
+                                            left = Number(left);
                                             break;
                                         case "bigint":
-                                            left = BigInt(left)
+                                            left = BigInt(left);
                                             break;
                                         case "string":
-                                            left = left.toString()
+                                            left = left.toString();
                                             break;
                                         case "date":
-                                            left = Date.parse(left)
-                                            right = Date.parse(right)
+                                            left = Date.parse(left);
+                                            right = Date.parse(right);
                                             break;
                                         case "version":
                                             let versionOperator = operator;
@@ -299,7 +299,7 @@ module.exports = function (RED) {
                                                 case "!=":
                                                     return left !== right;
                                             }
-                                            return compareVersions.compare(left, right, versionOperator)
+                                            return compareVersions.compare(left, right, versionOperator);
                                     }
 
                                     switch (operator) {
@@ -308,8 +308,10 @@ module.exports = function (RED) {
                                         case '!==':
                                             return left !== right;
                                         case '==':
+                                            // noinspection EqualityComparisonWithCoercionJS
                                             return left == right;
                                         case '!=':
+                                            // noinspection EqualityComparisonWithCoercionJS
                                             return left != right;
                                         case '>':
                                             return left > right;
@@ -319,9 +321,8 @@ module.exports = function (RED) {
                                             return left < right;
                                         case '<=':
                                             return left <= right;
-                                        default :
-                                            return false;
                                     }
+                                    return false;
                                 case "sub_match":
                                     return node.matchSubQuery(
                                         meta,
@@ -345,25 +346,24 @@ module.exports = function (RED) {
                                 case "regex":
                                     return (new RegExp(conditions[value].regex, conditions[value].flag))
                                         .test(String(target));
-                                default:
-                                    console.error("Unknown match type : " + conditions[value].type);
-                                    return false;
                             }
                         }
+                        console.error("Unknown match type : " + conditions[value].type);
+                        return false;
                     default:
-                        console.error("Unknown data type : " + typeof conditions[value])
+                        console.error("Unknown data type : " + typeof conditions[value]);
                         return false;
                 }
-            }
+            };
 
-            return (operator === "OR")
-                ? Object.keys(conditions).some(matchMethod)
-                : Object.keys(conditions).every(matchMethod)
+            return (operator === "OR") ?
+                Object.keys(conditions).some(matchMethod)
+                : Object.keys(conditions).every(matchMethod);
         }
 
 
         matchQuery(query, meta) {
-            if (Object.keys(query).lenth === 0) {
+            if (Object.keys(query).length === 0) {
                 return false;
             }
 
@@ -376,7 +376,7 @@ module.exports = function (RED) {
 
             // Query match
             if (query.match !== undefined) {
-                return this.matchSubQuery(meta, query.match, query.match_method)
+                return this.matchSubQuery(meta, query.match, query.match_method);
             }
 
             return true;
@@ -390,7 +390,7 @@ module.exports = function (RED) {
                     Object.keys(devices).forEach(function (resource) {
                         // Filter on query.device_type to optimise ? Worth it ?
                         Object.keys(devices[resource]).forEach(function (uniqueid) {
-                            let device = devices[resource][uniqueid]
+                            let device = devices[resource][uniqueid];
 
                             let result = {
                                 device_name: device.name + ' : ' + device.type,
@@ -466,7 +466,7 @@ module.exports = function (RED) {
             let changed = {};
 
             if (dotProp.has(dataParsed, 'name')) {
-                device.name = dotProp.get(dataParsed, 'name')
+                device.name = dotProp.get(dataParsed, 'name');
                 changed.name = true;
             }
 
@@ -478,12 +478,12 @@ module.exports = function (RED) {
                         let oldValue = dotProp.get(device, valuePath);
                         if (newValue !== oldValue) {
                             if (!(key in changed)) changed[key] = [];
-                            changed[key].push(state_name)
-                            dotProp.set(device, valuePath, newValue)
+                            changed[key].push(state_name);
+                            dotProp.set(device, valuePath, newValue);
                         }
-                    })
+                    });
                 }
-            })
+            });
             return changed;
         }
 
@@ -513,7 +513,7 @@ module.exports = function (RED) {
                             'config' in dataParsed || 'name' in dataParsed
                         );
                     }
-                })
+                });
             }
 
             // Handle nodesWithQuery
@@ -532,7 +532,7 @@ module.exports = function (RED) {
                             node.config.search_type,
                             node,
                             {}, undefined
-                        )
+                        );
                         if (node.server.matchQuery(query, device)) {
                             node.sendState(
                                 device,
@@ -547,12 +547,12 @@ module.exports = function (RED) {
                         node.status({fill: "red", shape: "ring", text: "Error, cant read query"});
                     }
                 }
-            })
+            });
         }
 
 
         onSocketMessageSceneCalled(dataParsed) {
-            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed))
+            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
             // TODO implement
         }
 
@@ -575,12 +575,12 @@ module.exports = function (RED) {
                             that.onSocketMessageSceneCalled(dataParsed);
                             break;
                         default:
-                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed))
+                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
                             break;
                     }
                     break;
                 default:
-                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed))
+                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
                     break;
             }
         }
