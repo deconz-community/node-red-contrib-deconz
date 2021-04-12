@@ -1,17 +1,8 @@
-const NODE_PATH = '/deconz/';
+const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
+const ConfigMigration = require("./lib/config-migration");
 
 module.exports = function (RED) {
-    /**
-     * Enable http route to static files
-     */
-    RED.httpAdmin.get(NODE_PATH + 'static/*', function (req, res) {
-        let options = {
-            root: __dirname + '/static/',
-            dotfiles: 'deny'
-        };
-        res.sendFile(req.params[0], options);
-    });
 
     /**
      * Enable http route to multiple-select static files
@@ -41,22 +32,18 @@ module.exports = function (RED) {
                     queryType,
                     RED.nodes.getNode(req.query.nodeID),
                     {}, undefined
-                )
+                );
             }
         } catch (e) {
-            // TODO display error to the user
+            return res.json({error_message: e.toString()});
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
-            controller.getItemsList(function (items) {
-                if (items) {
-                    res.json({items: items});
-                } else {
-                    res.status(404).end();
-                }
+            controller.getItemsList((items) => {
+                res.json({items: items || []});
             }, query, forceRefresh);
         } else {
-            res.status(404).end();
+            return res.json({error_message: "Can't find the server node. Did you press deploy ?"});
         }
     });
 
@@ -82,7 +69,7 @@ module.exports = function (RED) {
                 res.status(404).end();
             }
         });
-    })
+    });
 
     RED.httpAdmin.get(NODE_PATH + 'getScenesByDevice', function (req, res) {
         let config = req.query;
@@ -110,4 +97,14 @@ module.exports = function (RED) {
     //         // Now start your service on this port...
     //     });
     // });
-}
+
+    RED.httpAdmin.get(NODE_PATH + 'configurationMigration', function (req, res) {
+        let data = req.query;
+        let config = JSON.parse(data.config);
+        let configMigration = new ConfigMigration(data.type, config);
+        let controller = RED.nodes.getNode(config.server);
+        let result = configMigration.migrate(controller);
+        res.json(result);
+    });
+
+};

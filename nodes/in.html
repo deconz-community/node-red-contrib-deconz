@@ -1,6 +1,6 @@
 <script type="text/html" data-template-name="deconz-input">
-    <link rel="stylesheet" href="deconz/multiple-select/multiple-select.css" type="text/css">
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css">
+    <link rel="stylesheet" href="node-red-contrib-deconz/multiple-select/multiple-select.css" type="text/css">
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css">
     <div class="deconz-editor">
         <!--#region --- Main settings --- -->
         <!-- --- Name --- -->
@@ -100,125 +100,155 @@
         </div>
         <!--#endregion -->
 
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.outputs.separator"></div>
+        <!-- --- Output list --- -->
+        <div class="form-row node-input-output-container-row">
+            <ol id="node-input-output-container"></ol>
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Old Stuff --- -->
+
         <!--#region --- Section Output #1 State --- -->
+        <!--
         <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.state.separator"></div>
+        -->
 
         <!-- --- State Payload --- -->
-        <div class="form-row">
-            <label for="node-input-state" class="l-width">
-                <i class="fa fa-ellipsis-h"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.payload.label"></span>
-            </label>
-            <select id="node-input-state"
-                    class="s-width multiple-select"
-                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.state.payload.options.complete"
-                    multiple="multiple"
-            ></select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-state" class="l-width">
+               <i class="fa fa-ellipsis-h"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.payload.label"></span>
+           </label>
+           <select id="node-input-state"
+                   class="s-width multiple-select"
+                   data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.state.payload.options.complete"
+                   multiple="multiple"
+           ></select>
+       </div>
+       -->
 
         <!-- --- State Output --- -->
-        <div class="form-row">
-            <label for="node-input-output" class="l-width">
-                <i class="fa fa-sign-out"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.label"></span>
-            </label>
-            <select id="node-input-output" class="s-width">
-                <option value="always"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.always"
-                ></option>
-                <option value="onchange"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onchange"
-                ></option>
-                <option value="onupdate"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onupdate"
-                ></option>
-            </select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-output" class="l-width">
+               <i class="fa fa-sign-out"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.label"></span>
+           </label>
+           <select id="node-input-output" class="s-width">
+               <option value="always"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.always"
+               ></option>
+               <option value="onchange"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onchange"
+               ></option>
+               <option value="onupdate"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.state.output.options.onupdate"
+               ></option>
+           </select>
+       </div>
+       -->
 
         <!-- --- State Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-outputAtStartup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.label"></span>
-            </label>
-            <input type="checkbox"
-                   id="node-input-outputAtStartup"
-                   checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-outputAtStartup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.label"></span>
+           </label>
+           <input type="checkbox"
+                  id="node-input-outputAtStartup"
+                  checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.state.start_output.text"></span>
+       </div>
+       -->
         <!--#endregion -->
 
         <!--#region --- Section Output #2 Homekit --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.separator"></div>
+        <!--
+       <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.separator"></div>
+       -->
 
         <!-- --- Homekit Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-homekit_output_at_startup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-homekit_output_at_startup" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-homekit_output_at_startup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-homekit_output_at_startup" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.start_output.text"></span>
+       </div>
 
-        <div class="form-row">
-            <label for='node-input-homekit_output_on_error' class="l-width">
-                <i class='fa fa-external-link-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-homekit_output_on_error" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text"></span>
-        </div>
+       <div class="form-row">
+           <label for='node-input-homekit_output_on_error' class="l-width">
+               <i class='fa fa-external-link-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-homekit_output_on_error" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.homekit.error_output.text"></span>
+       </div>
+       -->
         <!--#endregion -->
 
         <!--#region --- Section Output #3 Config --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.config.separator"></div>
+        <!--
+       <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.config.separator"></div>
+       -->
 
         <!-- --- Config Payload --- -->
-        <div class="form-row">
-            <label for="node-input-config" class="l-width">
-                <i class="fa fa-ellipsis-h"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.payload.label"></span>
-            </label>
-            <select id="node-input-config"
-                    class="s-width multiple-select"
-                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.config.payload.options.complete"
-                    multiple="multiple"
-            ></select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-config" class="l-width">
+               <i class="fa fa-ellipsis-h"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.payload.label"></span>
+           </label>
+           <select id="node-input-config"
+                   class="s-width multiple-select"
+                   data-i18n="[placeholder]node-red-contrib-deconz/server:editor.inputs.config.payload.options.complete"
+                   multiple="multiple"
+           ></select>
+       </div>
+       -->
 
         <!-- --- Config Output --- -->
-        <div class="form-row">
-            <label for="node-input-config_output" class="l-width">
-                <i class="fa fa-sign-out"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.label"></span>
-            </label>
-            <select id="node-input-config_output" class="s-width">
-                <option value="always"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.always"
-                ></option>
-                <option value="onchange"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onchange"
-                ></option>
-                <option value="onupdate"
-                        data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onupdate"
-                ></option>
-            </select>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for="node-input-config_output" class="l-width">
+               <i class="fa fa-sign-out"></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.label"></span>
+           </label>
+           <select id="node-input-config_output" class="s-width">
+               <option value="always"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.always"
+               ></option>
+               <option value="onchange"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onchange"
+               ></option>
+               <option value="onupdate"
+                       data-i18n="node-red-contrib-deconz/server:editor.inputs.config.output.options.onupdate"
+               ></option>
+           </select>
+       </div>
+       -->
 
         <!-- --- Config Output at Startup --- -->
-        <div class="form-row">
-            <label for='node-input-config_output_at_startup' class="l-width">
-                <i class='fa fa-share-square'></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.label"></span>
-            </label>
-            <input type="checkbox" id="node-input-config_output_at_startup" checked="checked"
-                   style="display: inline-block; width: auto; vertical-align: top;">
-            <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.text"></span>
-        </div>
+        <!--
+       <div class="form-row">
+           <label for='node-input-config_output_at_startup' class="l-width">
+               <i class='fa fa-share-square'></i>
+               <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.label"></span>
+           </label>
+           <input type="checkbox" id="node-input-config_output_at_startup" checked="checked"
+                  style="display: inline-block; width: auto; vertical-align: top;">
+           <span data-i18n="node-red-contrib-deconz/server:editor.inputs.config.start_output.text"></span>
+       </div>
+       -->
+        <!--#endregion -->
         <!--#endregion -->
 
     </div>
@@ -226,6 +256,7 @@
 
 
 <script type='text/javascript'>
+
     RED.nodes.registerType('deconz-input', {
         category: 'deCONZ',
         color: '#f7aa3f',
@@ -233,66 +264,61 @@
             name: {
                 value: ""
             },
+            topic: {
+                value: null,
+                required: false
+            },
+            config_version: {
+                value: 1,
+                required: true
+            },
             server: {
                 type: "deconz-server",
                 required: true
-            },
-            device_name: {
-                value: null
             },
             search_type: {
                 value: "device_list",
                 required: true
             },
-            device: { // Since device select rework this is unused but kept for migration
-                value: null,
-                required: false
-            },
             device_list: {
                 value: null,
                 required: false
+            },
+            device_name: {
+                value: ""
             },
             query: {
                 value: "{}",
                 required: false
             },
-            topic: {
-                value: null,
-                required: false
+            outputs: {
+                value: 1
             },
-            state: {
-                value: ""
+            output_rules: {
+                value: [
+                    {type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{type: 'homekit', onstart: true, onerror: true},
+                    //{type: 'config', payload: ["__complete__"], when: "always", onstart: true},
+                ]
             },
-            output: {
-                value: "always"
-            },
-            // Yes I know it's camelcase, that scratch my brain too
-            outputAtStartup: {
-                value: true,
-                required: true,
-            },
-            homekit_output_at_startup: {
-                value: true,
-                required: true,
-            },
-            homekit_output_on_error: {
-                value: true,
-                required: true,
-            },
-            config: {
-                value: ""
-            },
-            config_output: {
-                value: "always"
-            },
-            config_output_at_startup: {
-                value: true,
-                required: true,
-            }
+            //#region All next options are for configuration migration from legacy
+            device: {},
+            state: {},
+            output: {},
+            outputAtStartup: {}, // Yes I know it's camelcase, that scratch my brain too ;)
+            //#endregion
         },
         inputs: 0,
-        outputs: 3,
-        outputLabels: ["state", "homekit", "config"],
+        outputs: 1,
+        outputLabels: function (index) {
+            let node = this;
+            let rule = node.output_rules[index];
+            let desc = `#${index + 1} - ${rule.type}`;
+            if (Array.isArray(rule.payload)) {
+                desc += "/" + rule.payload.join();
+            }
+            return desc;
+        },
         paletteLabel: 'in',
         icon: "deconz.png",
         label: function () {
@@ -309,44 +335,17 @@
         },
         oneditprepare: function () {
             let node = this;
-
-            node.search_type = node.search_type || "device";
-            node.device = node.device || null; // Probably useless
-            node.device_list = node.device_list || null;
-            node.query = node.query || "{}";
-            node.config_output = node.config_output || "always";
-            node.outputAtStartup = node.outputAtStartup || true;
-            node.homekit_output_at_startup = node.homekit_output_at_startup || true;
-            node.homekit_output_on_error = node.homekit_output_on_error || true;
-            node.config_output_at_startup = node.config_output_at_startup || true;
-
-            /*
-             * We need small timeout, too fire change event for server select,
-             * it's because the configuration node send bad event on loading.
-             * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
-             */
-            setTimeout(function () {
-                deconz_initNodeEditor(node);
-            }, 100);
-
+            node.nodeEditor = new DeconzMainEditor(node, {});
+            node.nodeEditor.init()/*.then(value => {
+                console.log("init done!");
+            })*/;
         },
         oneditsave: function () {
             let node = this;
-            // Update device name
-            let deviceListElement = $('#node-input-device_list');
-            let selectedOptions = deviceListElement.multipleSelect('getSelects')
-            if (selectedOptions.length === 1) {
-                node.device_name = deviceListElement.multipleSelect('getSelects', 'text').shift()
-            } else if (selectedOptions.length > 0) {
-                node.device_name = selectedOptions.length + " selected" //TODO
-            } else {
-                node.device_name = null;
-            }
-
-            node.device = undefined;
-
+            node.nodeEditor.oneditsave()
         }
     });
+
 </script>
 
 

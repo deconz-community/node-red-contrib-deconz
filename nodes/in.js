@@ -207,6 +207,7 @@ module.exports = function (RED) {
             }
         }
 
+        // TODO filter old button event resent, move it to lastbuttonevent / do nothing because this can be handled by setting updated
         sendState(
             device,
             raw_payload = undefined,
@@ -342,6 +343,7 @@ module.exports = function (RED) {
 
         };
 
+        // TODO extract homekit formatter to a speratate file
         formatHomeKit(device, options) {
             let node = this;
             let state = device.state;
