@@ -172,6 +172,52 @@ class DeconzMainEditor extends DeconzEditor {
     }
 
 
+    async configurationMigration() {
+        // Check if we need configuration migration
+        if ((this.node.config_version || 0) >= this.node._def.defaults.config_version.value) {
+            return;
+        }
+
+        let config = {};
+        for (const key of Object.keys(this.node._def.defaults)) {
+            config[key] = this.node[key];
+        }
+
+        let data = {
+            type: this.node.type,
+            config: JSON.stringify(config)
+        };
+
+        let errorMsg = 'Error while migrating the configuration of the node from version ' +
+            (this.node.config_version || 0) +
+            ' to version ' +
+            this.node._def.defaults.config_version.value +
+            '.';
+
+        let result = await $.getJSON(`${NRCD}/configurationMigration`, data).catch((t, u) => {
+            this.sendError(errorMsg);
+        });
+
+        if (result.notNeeded) return;
+
+        if (result.new) {
+            for (const [key, value] of Object.entries(result.new)) {
+                this.node[key] = value;
+            }
+        }
+
+        if (result.delete && Array.isArray(result.delete)) {
+            for (const key of result.delete) {
+                delete this.node[key];
+            }
+        }
+
+        if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+            this.sendError(errorMsg + '<br><li>' + result.errors.join('</li><li>') + '</li>');
+        }
+    }
+
+
     async init() {
         /*
          * We need small timeout, too fire change event for server select,
@@ -179,6 +225,8 @@ class DeconzMainEditor extends DeconzEditor {
          * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
          */
         await new Promise(resolve => setTimeout(resolve, 100));
+
+        await this.configurationMigration();
 
         // Init Editor
         await super.init();

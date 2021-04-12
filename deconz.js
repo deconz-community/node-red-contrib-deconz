@@ -1,5 +1,6 @@
 const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
+const ConfigMigration = require("./lib/config-migration");
 
 module.exports = function (RED) {
 
@@ -96,4 +97,14 @@ module.exports = function (RED) {
     //         // Now start your service on this port...
     //     });
     // });
-}
+
+    RED.httpAdmin.get(NODE_PATH + 'configurationMigration', function (req, res) {
+        let data = req.query;
+        let config = JSON.parse(data.config);
+        let configMigration = new ConfigMigration(data.type, config);
+        let controller = RED.nodes.getNode(config.server);
+        let result = configMigration.migrate(controller);
+        res.json(result);
+    });
+
+};

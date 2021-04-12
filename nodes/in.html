@@ -268,13 +268,10 @@
                 value: null,
                 required: false
             },
-            /*
-            TODO config migration
-            config_version:{
+            config_version: {
                 value: 1,
                 required: true
             },
-            */
             server: {
                 type: "deconz-server",
                 required: true
@@ -287,56 +284,29 @@
                 value: null,
                 required: false
             },
+            device_name: {
+                value: ""
+            },
             query: {
                 value: "{}",
                 required: false
             },
-            outputs: {value: 1},
+            outputs: {
+                value: 1
+            },
             output_rules: {
                 value: [
-                    {type: 'state', payload: "__complete__", output: "always", onstart: true},
-                    {type: 'homekit', onstart: true, onerror: true},
-                    {type: 'config', payload: "__complete__", when: "always", onstart: true},
+                    {type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{type: 'homekit', onstart: true, onerror: true},
+                    //{type: 'config', payload: ["__complete__"], when: "always", onstart: true},
                 ]
             },
-            /*
-            device_name: {
-                value: null
-            },
-            device: { // Since device select rework this is unused but kept for migration
-                value: null,
-                required: false
-            },
-            state: {
-                value: ""
-            },
-            output: {
-                value: "always"
-            },
-            // Yes I know it's camelcase, that scratch my brain too
-            outputAtStartup: {
-                value: true,
-                required: true,
-            },
-            homekit_output_at_startup: {
-                value: true,
-                required: true,
-            },
-            homekit_output_on_error: {
-                value: true,
-                required: true,
-            },
-            config: {
-                value: ""
-            },
-            config_output: {
-                value: "always"
-            },
-            config_output_at_startup: {
-                value: true,
-                required: true,
-            }
-            */
+            //#region All next options are for configuration migration from legacy
+            device: {},
+            state: {},
+            output: {},
+            outputAtStartup: {}, // Yes I know it's camelcase, that scratch my brain too ;)
+            //#endregion
         },
         inputs: 0,
         outputs: 1,
