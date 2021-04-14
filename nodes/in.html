@@ -184,7 +184,13 @@
         },
         oneditprepare: function () {
             let node = this;
-            node.nodeEditor = new DeconzMainEditor(node, {});
+            node.nodeEditor = new DeconzMainEditor(node, {
+                output_rules: {
+                    type: {
+                        homekit: true
+                    }
+                }
+            });
             node.nodeEditor.init()/*.then(value => {
                 console.log("init done!");
             })*/;

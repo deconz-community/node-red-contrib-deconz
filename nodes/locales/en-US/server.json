@@ -65,13 +65,18 @@
         }
       },
       "outputs": {
-        "payload_type": {
-          "label": "Payload Type",
+        "type": {
+          "label": "Type",
           "icon": "ellipsis-h",
           "options": {
-            "state": "state",
-            "config": "config",
-            "homekit": "homekit"
+            "state": "State",
+            "config": "Config",
+            "homekit": "Homekit"
+          },
+          "add_button": {
+            "label": "Add __type__",
+            "icon": "plus",
+            "title": "Add __type__ output"
           }
         },
         "payload": {
