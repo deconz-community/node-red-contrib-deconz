@@ -65,6 +65,18 @@
         }
       },
       "outputs": {
+        "format": {
+          "label": "Format",
+          "icon": "file-code-o",
+          "options": {
+            "single": "Single x ... y ... z",
+            "array": "Array [x,y,z]",
+            "sum": "Sum x+y+z",
+            "average": "Average x+y+z/3",
+            "min": "Min X+y+Z = y",
+            "max": "Max X+y+z = X"
+          }
+        },
         "type": {
           "label": "Type",
           "icon": "file-text",

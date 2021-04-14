@@ -88,6 +88,7 @@
 /**
  * @typedef {Object} Rule
  * @property {String} type - Can be 'state', 'config', 'homekit'
+ * @property {String} format - Can be 'single', 'array', 'sum', 'average', 'min', 'max'
  * @property {String[]} [payload] - Can be '[__complete__'], ['__each__'] or any state/config value in an array.
  * @property {Boolean} onstart
  * @property {Boolean} [onerror]
@@ -153,6 +154,14 @@ class DeconzMainEditor extends DeconzEditor {
                 output_rules: true
             },
             output_rules: {
+                format: {
+                    single: true,
+                    array: false,
+                    sum: false,
+                    average: false,
+                    min: false,
+                    max: false
+                },
                 type: {
                     state: true,
                     config: true,
@@ -750,6 +759,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
     get elements() {
         return {
             //list: 'node-input-output-container',
+            format: `node-input-output-rule-${this.uniqueId}-format`,
             type: `node-input-output-rule-${this.uniqueId}-type`,
             payload: `node-input-output-rule-${this.uniqueId}-payload`,
             output: `node-input-output-rule-${this.uniqueId}-output`,
@@ -806,7 +816,14 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         //{type: 'homekit', onstart: true, onerror: true},
         //{type: 'config', payload: "__complete__", output: "always", onstart: true},
 
-        return {type: 'state', payload: ["__complete__"], output: "always", onstart: true, onerror: true};
+        return {
+            format: 'single',
+            type: 'state',
+            payload: ["__complete__"],
+            output: "always",
+            onstart: true,
+            onerror: true
+        };
     }
 
     async init(rule, index) {
@@ -817,10 +834,9 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         }
 
         await this.generatePayloadTypeField(this.container, rule.type);
-
         await this.generateOutputButton(this.container);
-
         await this.generatePayloadField(this.container);
+        await this.generatePayloadFormatField(this.container, rule.format);
         await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
         await this.generateOnStartField(this.container, rule.onstart !== undefined ? rule.onstart : this.defaultRule.onstart);
         await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
@@ -1021,7 +1037,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         let i18n = `${NRCD}/server:editor.inputs.outputs.type`;
 
         let choices = [];
-        for (const [type, enabled] of Object.entries(this.mainEditor.options.output_rules.type)) {
+        for (const [type, enabled] of Object.entries(this.listEditor.mainEditor.options.output_rules.type)) {
             if (enabled) {
                 choices.push([type, `${i18n}.options.${type}`]);
             }
@@ -1054,6 +1070,26 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             id: this.elements.payload,
             labelText: `${i18n}.label`,
             labelIcon: `${i18n}.icon`
+        });
+    }
+
+    async generatePayloadFormatField(container, value) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.format`;
+
+        let choices = [];
+        for (const [format, enabled] of Object.entries(this.listEditor.mainEditor.options.output_rules.format)) {
+            if (enabled) {
+                choices.push([format, `${i18n}.options.${format}`]);
+            }
+        }
+
+        await this.generateSimpleListField(container, {
+            id: this.elements.format,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            choices: choices,
+            currentValue: value,
+            // hidden: choices.length === 1 TODO Implement ?
         });
     }
 

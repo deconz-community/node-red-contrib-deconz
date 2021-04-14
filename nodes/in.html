@@ -145,9 +145,9 @@
             },
             output_rules: {
                 value: [
-                    {type: 'state', payload: ["__complete__"], output: "always", onstart: true},
-                    //{type: 'homekit', onstart: true, onerror: true},
-                    //{type: 'config', payload: ["__complete__"], when: "always", onstart: true},
+                    {format: 'single', type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{format: 'single', type: 'homekit', onstart: true, onerror: true},
+                    //{format: 'single', type: 'config', payload: ["__complete__"], when: "always", onstart: true},
                 ]
             },
             //#region All next options are for configuration migration from legacy

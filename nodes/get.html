@@ -130,8 +130,8 @@
             },
             output_rules: {
                 value: [
-                    {type: 'state', payload: ["__complete__"], output: "always", onstart: true},
-                    //{type: 'config', payload: ["__complete__"], when: "always", onstart: true},
+                    {format: 'single', type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{format: 'single', type: 'config', payload: ["__complete__"], when: "always", onstart: true},
                 ]
             },
             //#region All next options are for configuration migration from legacy
@@ -168,7 +168,18 @@
         },
         oneditprepare: function () {
             let node = this;
-            node.nodeEditor = new DeconzMainEditor(node, {});
+            node.nodeEditor = new DeconzMainEditor(node, {
+                output_rules: {
+                    format: {
+                        single: true,
+                        array: true,
+                        sum: true,
+                        average: true,
+                        min: true,
+                        max: true
+                    }
+                }
+            });
             node.nodeEditor.init()/*.then(value => {
                 console.log("init done!");
             })*/;
