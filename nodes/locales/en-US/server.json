@@ -31,7 +31,7 @@
   },
   "editor": {
     "multiselect": {
-      "_none_selected": "None selected"
+      "none_selected": "None selected"
     },
     "inputs": {
       "separator": {
