@@ -247,6 +247,8 @@ class DeconzMainEditor extends DeconzEditor {
         }
         await Promise.all(connectPromises);
 
+        //TODO connect server on change ?
+
     }
 
     /**
@@ -476,7 +478,7 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
             single: false,
             filter: true,
             selectAll: false,
-            filterPlaceholder: RED._("node-red-contrib-deconz/server:editor.inputs.device.device.filter_devices"),
+            filterPlaceholder: RED._(`${NRCD}/server:editor.inputs.device.device.filter`),
             numberDisplayed: 1,
             disableIfEmpty: true,
             showClear: false,
@@ -494,7 +496,6 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
     }
 
     initTypedInput() {
-
         let options = [];
         if (this.mainEditor.options.have.device) {
             options.push({
@@ -511,10 +512,7 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
             types: options.concat(this.options.allowedTypes),
             typeField: "#node-input-search_type"
         });
-
-
     }
-
 
     async connect() {
         await super.connect();
@@ -567,7 +565,7 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
             width: 320,
             single: (this.$elements.list.attr('multiple') !== "multiple"),
             filter: true,
-            filterPlaceholder: RED._("node-red-contrib-deconz/server:editor.inputs.device.device.filter"),
+            filterPlaceholder: RED._(`${NRCD}/server:editor.inputs.device.device.filter`),
             showClear: true
         });
 
@@ -813,7 +811,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             rule = this.defaultRule;
         }
 
-        await this.generateTypeField(this.container, rule.type);
+        await this.generatePayloadTypeField(this.container, rule.type);
 
         await this.generateOutputButton(this.container);
 
@@ -900,9 +898,11 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
         if (type === 'homekit') return;
 
-        let html = '<option value="__complete__">' + RED._(`${NRCD}/server:editor.inputs.${type}.payload.options.complete`) + '</option>';
+        let i18n = `${NRCD}/server:editor.inputs.outputs.payload`;
+
+        let html = '<option value="__complete__">' + RED._(`${i18n}.options.complete`) + '</option>';
         if (this.options.enableEachState === true) {
-            html += '<option value="__each__">' + RED._(`${NRCD}/server:editor.inputs.${type}.payload.options.each`) + '</option>';
+            html += '<option value="__each__">' + RED._(`${i18n}.options.each`) + '</option>';
         }
 
         this.$elements.payload.html(html);
@@ -914,17 +914,36 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             });
 
             let groupHtml = $('<optgroup/>', {
-                label: RED._(`${NRCD}/server:editor.inputs.${type}.payload.group_label`)
+                label: RED._(`${i18n}.group_label.${type}`)
             });
 
             Object.keys(data.count).sort().forEach((item) => {
                 let sample = data.sample[item];
-                let count = data.count[item];
-                let label = item;
-                if (count !== devices.length) {
-                    label += " [" + count + "/" + devices.length + "]";
+
+                if (typeof sample === 'string') {
+                    sample = `"${sample}"`;
+                } else if (Array.isArray(sample)) {
+                    sample = `[${sample.toString()}]`;
+                } else {
+                    sample = sample.toString();
                 }
-                label += " (" + sample + ")";
+
+                let label;
+
+                let count = data.count[item];
+                if (count === devices.length) {
+                    label = RED._(`${i18n}.item_list`, {
+                        name: item,
+                        sample: sample
+                    });
+                } else {
+                    label = RED._(`${i18n}.item_list_mix`, {
+                        name: item,
+                        sample: sample,
+                        item_count: count,
+                        device_count: devices.length
+                    });
+                }
 
                 $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
             });
@@ -989,15 +1008,16 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
     //#region HTML Inputs
 
-    async generateTypeField(container, value) {
+    async generatePayloadTypeField(container, value) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.payload_type`;
         await this.generateSimpleListField(container, {
             id: this.elements.type,
-            labelText: "Payload Type",
-            labelIcon: "ellipsis-h",
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
             choices: [
-                ['state', 'state'],
-                ['config', 'config'],
-                ['homekit', 'homekit'],
+                ['state', `${i18n}.options.state`],
+                ['config', `${i18n}.options.config`],
+                ['homekit', `${i18n}.options.homekit`],
             ],
             currentValue: value
         });
@@ -1016,43 +1036,47 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
 
     async generatePayloadField(container) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.payload`;
         await this.generateSimpleListField(container, {
             id: this.elements.payload,
-            labelText: "Payload",
-            labelIcon: "ellipsis-h"
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`
         });
     }
 
     async generateOutputField(container, value) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.output`;
         await this.generateSimpleListField(container, {
             id: this.elements.output,
-            labelText: "Output",
-            labelIcon: "sign-out",
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
             choices: [ //TODO remove config from name
-                ['always', `${NRCD}/server:editor.inputs.config.output.options.always`],
-                ['onchange', `${NRCD}/server:editor.inputs.config.output.options.onchange`],
-                ['onupdate', `${NRCD}/server:editor.inputs.config.output.options.onupdate`],
+                ['always', `${i18n}.options.always`],
+                ['onchange', `${i18n}.options.onchange`],
+                ['onupdate', `${i18n}.options.onupdate`],
             ],
             currentValue: value
         });
     }
 
     async generateOnStartField(container, value) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.on_start`;
         await this.generateCheckboxField(container, {
             id: this.elements.onstart,
-            labelText: `${NRCD}/server:editor.inputs.state.start_output.label`,
-            labelIcon: 'share-square',
-            descText: `${NRCD}/server:editor.inputs.state.start_output.text`,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            descText: `${i18n}.desc`,
             currentValue: value,
         });
     }
 
     async generateOnErrorField(container, value) {
+        let i18n = `${NRCD}/server:editor.inputs.outputs.on_error`;
         await this.generateCheckboxField(container, {
             id: this.elements.onerror,
-            labelText: `${NRCD}/server:editor.inputs.homekit.error_output.label`,
-            labelIcon: 'external-link-square',
-            descText: `${NRCD}/server:editor.inputs.homekit.error_output.text`,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            descText: `${i18n}.desc`,
             currentValue: value,
         });
     }
@@ -1073,7 +1097,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             }
         }
 
-        let row = await this.generateInputWithLabel(RED._(options.labelText), RED._(options.labelIcon), input);
+        let row = await this.generateInputWithLabel(options.labelText, options.labelIcon, input);
         container.append(row);
 
         if (options.currentValue !== undefined) input.val(options.currentValue);
@@ -1089,7 +1113,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             checked: options.currentValue
         });
 
-        let row = await this.generateInputWithLabel(RED._(options.labelText), RED._(options.labelIcon), input);
+        let row = await this.generateInputWithLabel(options.labelText, options.labelIcon, input);
         row.append($('<span/>')
             .html(RED._(options.descText))
             .css('display', 'table-cell')
@@ -1109,7 +1133,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
             labelElement.attr('style', 'display:table-cell;');
-            if (labelIcon) labelElement.append(`<i class="fa fa-${labelIcon}"></i>&nbsp;`);
+            if (labelIcon) labelElement.append(`<i class="fa fa-${RED._(labelIcon)}"></i>&nbsp;`);
             labelElement.append(`<span>${RED._(labelText)}</span>`);
             row.append(labelElement);
         }

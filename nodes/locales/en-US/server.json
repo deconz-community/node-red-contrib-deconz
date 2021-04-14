@@ -31,14 +31,17 @@
   },
   "editor": {
     "multiselect": {
-      "none_selected": "None selected"
+      "_none_selected": "None selected"
     },
     "inputs": {
+      "separator": {
+        "device": "Devices selection",
+        "outputs": "Outputs"
+      },
       "server": {
         "label": "Server"
       },
       "device": {
-        "separator": "Devices selection",
         "query": {
           "label": "Query",
           "options": {
@@ -61,65 +64,49 @@
           "button_text": "Refresh query result"
         }
       },
-      "state": {
-        "separator": "Output #1 : State",
-        "payload": {
-          "label": "State payload",
-          "group_label": "State",
+      "outputs": {
+        "payload_type": {
+          "label": "Payload Type",
+          "icon": "ellipsis-h",
           "options": {
-            "complete": "Complete state payload",
-            "each": "Each state payload"
+            "state": "state",
+            "config": "config",
+            "homekit": "homekit"
+          }
+        },
+        "payload": {
+          "label": "Payload",
+          "icon": "ellipsis-h",
+          "group_label": {
+            "state": "State",
+            "config": "Config"
+          },
+          "item_list": "__name__ (__sample__)",
+          "item_list_mix": "__name__ [__item_count__/__device_count__] (__sample__)",
+          "options": {
+            "complete": "Complete payload",
+            "each": "Each payload"
           }
         },
         "output": {
-          "label": "State output",
+          "label": "Output",
+          "icon": "sign-out",
           "options": {
             "always": "Always",
-            "onchange": "On state change",
+            "onchange": "On change",
             "onupdate": "On update"
           }
         },
-        "start_output": {
+        "on_start": {
           "label": "Start output",
-          "text": "Send state on start or socket reconnect."
-        }
-      },
-      "homekit": {
-        "separator": "Output #2 : Homekit",
-        "start_output": {
-          "label": "Start output",
-          "text": "Send homekit on start or socket reconnect."
+          "icon": "share-square",
+          "desc": "Send msg on start or socket reconnect."
         },
-        "error_output": {
+        "on_error": {
           "label": "Error output",
-          "text": "Send NO_RESPONSE on socket error."
+          "icon": "external-link-square",
+          "desc": "Send NO_RESPONSE on socket error."
         }
-      },
-      "config": {
-        "separator": "Output #3 : Config",
-        "payload": {
-          "label": "Config payload",
-          "group_label": "Config",
-          "options": {
-            "complete": "Complete config payload",
-            "each": "Each config payload"
-          }
-        },
-        "output": {
-          "label": "Config output",
-          "options": {
-            "always": "Always",
-            "onchange": "On config change",
-            "onupdate": "On update"
-          }
-        },
-        "start_output": {
-          "label": "Start output",
-          "text": "Send config on start or socket reconnect."
-        }
-      },
-      "get": {
-        "separator": "Output"
       }
     }
   }
