@@ -620,9 +620,10 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
         }
 
         await super.updateList(options);
-        if (options.useSavedData) {
+
+        if (options.useSavedData && Array.isArray(this.node.device_list)) {
             this.$elements.list.multipleSelect('setSelects', this.node.device_list);
-        } else if (options.useSelectedData && itemsSelected !== undefined) {
+        } else if (options.useSelectedData && Array.isArray(itemsSelected)) {
             this.$elements.list.multipleSelect('setSelects', itemsSelected);
         }
 

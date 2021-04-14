@@ -81,13 +81,6 @@
             ></select>
         </div>
 
-        <!-- --- Config updated warning message --- -->
-        <div class="form-row" id="input_device_warning_message_update" style="display: none;">
-            <div class="form-tips form-warning"
-                 data-i18n="[html]node-red-contrib-deconz/server:tip.input_device_warning_message_update"
-            ></div>
-        </div>
-
         <!-- --- Refresh devices list Button --- -->
         <div class="form-row deconz-device-selector">
             <label for="force-refresh" class="l-width">
@@ -100,6 +93,7 @@
         </div>
         <!--#endregion -->
 
+        <!--#region --- Section Output --- -->
         <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.outputs"></div>
         <!-- --- Output list --- -->
         <div class="form-row node-input-output-container-row">
@@ -120,7 +114,7 @@
                 value: ""
             },
             topic: {
-                value: null,
+                value: "",
                 required: false
             },
             config_version: {
@@ -136,7 +130,7 @@
                 required: true
             },
             device_list: {
-                value: null,
+                value: [],
                 required: false
             },
             device_name: {
@@ -202,6 +196,3 @@
     });
 
 </script>
-
-
-
