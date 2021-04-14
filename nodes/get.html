@@ -11,6 +11,7 @@
             </label>
             <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
         </div>
+
         <!-- --- Server --- -->
         <div class="form-row">
             <label for="node-input-server" class="l-width">
@@ -20,8 +21,9 @@
             <input type="text" id="node-input-server">
         </div>
         <!--#endregion -->
+
         <!--#region --- Section Device selection --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.device.separator"></div>
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.device"></div>
 
         <!-- --- Query type (Device/Json/Jsonata --- -->
         <div class="form-row deconz-node">
@@ -70,13 +72,6 @@
             ></select>
         </div>
 
-        <!-- --- Config updated warning message --- -->
-        <div class="form-row" id="input_device_warning_message_update" style="display: none;">
-            <div class="form-tips form-warning"
-                 data-i18n="[html]node-red-contrib-deconz/server:tip.input_device_warning_message_update"
-            ></div>
-        </div>
-
         <!-- --- Refresh devices list Button --- -->
         <div class="form-row deconz-device-selector">
             <label for="force-refresh" class="l-width">
@@ -89,12 +84,11 @@
         </div>
         <!--#endregion -->
 
-        <!--#region --- Section Output #1 State --- -->
-        <div class="form-row">
-            <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span
-                    data-i18n="label.state"></span></label>
-            <select id="node-input-state" class="s-width"
-                    data-i18n="[placeholder]multiselect.complete_payload"></select>
+        <!--#region --- Section Output --- -->
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.outputs"></div>
+        <!-- --- Output list --- -->
+        <div class="form-row node-input-output-container-row">
+            <ol id="node-input-output-container"></ol>
         </div>
         <!--#endregion -->
     </div>
@@ -108,36 +102,57 @@
             name: {
                 value: ""
             },
+            config_version: {
+                value: 1,
+                required: true
+            },
             server: {
                 type: "deconz-server",
                 required: true
-            },
-            device_name: {
-                value: null
             },
             search_type: {
                 value: "device_list",
                 required: true
             },
-            device: { // Since device select rework this is unused but kept for migration
-                value: null,
+            device_list: {
+                value: [],
                 required: false
             },
-            device_list: {
-                value: null,
-                required: false
+            device_name: {
+                value: ""
             },
             query: {
                 value: "{}",
                 required: false
             },
-            state: {
-                value: ""
-            }
+            outputs: {
+                value: 1
+            },
+            output_rules: {
+                value: [
+                    {type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{type: 'homekit', onstart: true, onerror: true},
+                    //{type: 'config', payload: ["__complete__"], when: "always", onstart: true},
+                ]
+            },
+            //#region All next options are for configuration migration from legacy
+            device: {},
+            state: {},
+            output: {},
+            outputAtStartup: {}, // Yes I know it's camelcase, that scratch my brain too ;)
+            //#endregion
         },
         inputs: 1,
         outputs: 1,
-        outputLabels: ["state"],
+        outputLabels: function (index) {
+            let node = this;
+            let rule = node.output_rules[index];
+            let desc = `#${index + 1} - ${rule.type}`;
+            if (Array.isArray(rule.payload)) {
+                desc += "/" + rule.payload.join();
+            }
+            return desc;
+        },
         paletteLabel: 'get',
         icon: "deconz.png",
         label: function () {
@@ -154,37 +169,14 @@
         },
         oneditprepare: function () {
             let node = this;
-            node.search_type = node.search_type || "device";
-            node.device = node.device || null; // Probably useless
-            node.device_list = node.device_list || null;
-            node.query = node.query || "{}";
-            
-            /*
-             * We need small timeout, too fire change event for server select,
-             * it's because the configuration node send bad event on loading.
-             * https://github.com/node-red/node-red/issues/2883#issuecomment-786314862
-             */
-            setTimeout(function () {
-                deconz_initNodeEditor(node);
-            }, 100);
-
+            node.nodeEditor = new DeconzMainEditor(node, {});
+            node.nodeEditor.init()/*.then(value => {
+                console.log("init done!");
+            })*/;
         },
         oneditsave: function () {
             let node = this;
-            // Update device name
-            let deviceListElement = $('#node-input-device_list');
-            let selectedOptions = deviceListElement.multipleSelect('getSelects')
-            if (selectedOptions.length === 1) {
-                node.device_name = deviceListElement.multipleSelect('getSelects', 'text').shift()
-            } else if (selectedOptions.length > 0) {
-                node.device_name = selectedOptions.length + " selected" //TODO
-            } else {
-                node.device_name = null;
-            }
-
-            node.device = undefined;
+            node.nodeEditor.oneditsave()
         }
     });
 </script>
-
-

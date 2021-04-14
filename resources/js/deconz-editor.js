@@ -284,6 +284,7 @@ class DeconzMainEditor extends DeconzEditor {
     oneditsave() {
         switch (this.node.type) {
             case 'deconz-input':
+            case 'deconz-get':
                 this.node.output_rules = this.subEditor.output_rules.value;
                 this.node.outputs = this.node.output_rules.length;
                 break;
