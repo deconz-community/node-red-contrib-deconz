@@ -156,6 +156,7 @@ class DeconzMainEditor extends DeconzEditor {
                 type: {
                     state: true,
                     config: true,
+                    state_config: true,
                     homekit: false
                 }
             }
@@ -659,10 +660,11 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
         let buttons = [];
         for (const [type, enabled] of Object.entries(this.mainEditor.options.output_rules.type)) {
             if (enabled) {
+                let type_name = RED._(`${NRCD}/server:editor.inputs.outputs.type.options.${type}`);
                 buttons.push({
-                    label: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.label`, {type}),
+                    label: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.label`, {type: type_name}),
                     icon: "fa fa-" + RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.icon`),
-                    title: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.title`, {type}),
+                    title: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.title`, {type: type_name}),
                     click: () => this.$elements.list.editableList('addItem', {type})
                 });
             }
@@ -837,7 +839,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         await super.connect();
         this.$elements.type.on('change', () => {
             let type = this.$elements.type.val();
-            if (['state', 'config'].includes(type)) this.updatePayloadList();
+            if (['state', 'config', 'state_config'].includes(type)) this.updatePayloadList();
             this.updateShowHide(type);
         });
 
@@ -916,44 +918,48 @@ class DeconzOutputRuleEditor extends DeconzEditor {
                 devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
             });
 
-            let groupHtml = $('<optgroup/>', {
-                label: RED._(`${i18n}.group_label.${type}`)
-            });
+            let type_list = (type === 'state_config') ? ['state', 'config'] : [type];
 
-            Object.keys(data.count).sort().forEach((item) => {
-                let sample = data.sample[item];
+            for (const type of type_list) {
+                let groupHtml = $('<optgroup/>', {
+                    label: RED._(`${i18n}.group_label.${type}`)
+                });
 
-                if (typeof sample === 'string') {
-                    sample = `"${sample}"`;
-                } else if (Array.isArray(sample)) {
-                    sample = `[${sample.toString()}]`;
-                } else {
-                    sample = sample.toString();
+                for (const item of Object.keys(data.count[type]).sort()) {
+                    let sample = data.sample[type][item];
+
+                    if (typeof sample === 'string') {
+                        sample = `"${sample}"`;
+                    } else if (Array.isArray(sample)) {
+                        sample = `[${sample.toString()}]`;
+                    } else {
+                        sample = sample.toString();
+                    }
+
+                    let label;
+                    let count = data.count[type][item];
+                    if (count === devices.length) {
+                        label = RED._(`${i18n}.item_list`, {
+                            name: item,
+                            sample: sample
+                        });
+                    } else {
+                        label = RED._(`${i18n}.item_list_mix`, {
+                            name: item,
+                            sample: sample,
+                            item_count: count,
+                            device_count: devices.length
+                        });
+                    }
+
+                    $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
                 }
 
-                let label;
-
-                let count = data.count[item];
-                if (count === devices.length) {
-                    label = RED._(`${i18n}.item_list`, {
-                        name: item,
-                        sample: sample
-                    });
-                } else {
-                    label = RED._(`${i18n}.item_list_mix`, {
-                        name: item,
-                        sample: sample,
-                        item_count: count,
-                        device_count: devices.length
-                    });
+                if (!$.isEmptyObject(data.count[type])) {
+                    groupHtml.appendTo(this.$elements.payload);
                 }
-
-                $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
-            });
-
-            if (!$.isEmptyObject(data.count)) {
-                groupHtml.appendTo(this.$elements.payload);
             }
+
         }
 
         // Enable item selection

@@ -47,23 +47,35 @@ module.exports = function (RED) {
         }
     });
 
-    ['state', 'config'].forEach(function (type) {
+    ['state', 'config', 'state_config'].forEach(function (type) {
         RED.httpAdmin.get(NODE_PATH + type + 'list', function (req, res) {
             let config = req.query;
             let controller = RED.nodes.getNode(config.controllerID);
             let devicesIDs = JSON.parse(config.devices);
             if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
+
+                let type_list = (type === 'state_config') ? ['state', 'config'] : [type];
+
                 let sample = {};
                 let count = {};
-                devicesIDs.forEach(function (deviceID) {
-                    let result = controller.getDeviceByPath(deviceID)
-                    if (result && result[type]) {
-                        Object.keys(result[type]).forEach(function (item) {
-                            count[item] = (count[item] || 0) + 1
-                            sample[item] = result[type][item]
-                        });
+
+                for (const type of type_list) {
+                    sample[type] = {};
+                    count[type] = {};
+                }
+
+                for (const deviceID of devicesIDs) {
+                    let device = controller.getDeviceByPath(deviceID);
+                    if (!device) continue;
+                    for (const type of type_list) {
+                        if (!device[type]) continue;
+                        for (const value of Object.keys(device[type])) {
+                            count[type][value] = (count[type][value] || 0) + 1;
+                            sample[type][value] = device[type][value];
+                        }
                     }
-                })
+                }
+
                 res.json({count: count, sample: sample});
             } else {
                 res.status(404).end();

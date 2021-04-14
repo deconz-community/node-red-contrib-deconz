@@ -67,10 +67,11 @@
       "outputs": {
         "type": {
           "label": "Type",
-          "icon": "ellipsis-h",
+          "icon": "file-text",
           "options": {
-            "state": "State",
-            "config": "Config",
+            "state": "State only",
+            "config": "Config only",
+            "state_config": "State & Config",
             "homekit": "Homekit"
           },
           "add_button": {
