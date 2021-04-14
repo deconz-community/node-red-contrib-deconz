@@ -146,11 +146,18 @@ class DeconzEditor {
 class DeconzMainEditor extends DeconzEditor {
 
     constructor(node, options = {}) {
-        super(node, $.extend({
+        super(node, $.extend(true, {
             have: {
                 query: true,
                 device: true,
-                output_rules: true,
+                output_rules: true
+            },
+            output_rules: {
+                type: {
+                    state: true,
+                    config: true,
+                    homekit: false
+                }
             }
         }, options));
 
@@ -282,12 +289,9 @@ class DeconzMainEditor extends DeconzEditor {
 
 
     oneditsave() {
-        switch (this.node.type) {
-            case 'deconz-input':
-            case 'deconz-get':
-                this.node.output_rules = this.subEditor.output_rules.value;
-                this.node.outputs = this.node.output_rules.length;
-                break;
+        if (this.options.have.output_rules) {
+            this.node.outputs = this.node.output_rules.length;
+            this.node.output_rules = this.subEditor.output_rules.value;
         }
     }
 
@@ -652,27 +656,24 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
 
         this.$elements.outputs.val(this.outputs);
 
+        let buttons = [];
+        for (const [type, enabled] of Object.entries(this.mainEditor.options.output_rules.type)) {
+            if (enabled) {
+                buttons.push({
+                    label: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.label`, {type}),
+                    icon: "fa fa-" + RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.icon`),
+                    title: RED._(`${NRCD}/server:editor.inputs.outputs.type.add_button.title`, {type}),
+                    click: () => this.$elements.list.editableList('addItem', {type})
+                });
+            }
+        }
+
         this.$elements.list.editableList({
             sortable: true,
             removable: true,
             height: 'auto',
             addButton: false,
-            buttons: [{
-                label: "add state",
-                icon: "fa fa-plus",
-                title: "Add state output",
-                click: () => this.$elements.list.editableList('addItem', {type: 'state'})
-            }, {
-                label: "add config",
-                icon: "fa fa-plus",
-                title: "Add config output",
-                click: () => this.$elements.list.editableList('addItem', {type: 'config'})
-            }, {
-                label: "add homekit",
-                icon: "fa fa-plus",
-                title: "Add homekit output",
-                click: () => this.$elements.list.editableList('addItem', {type: 'homekit'})
-            }],
+            buttons: buttons,
             addItem: (row, index, rule) => {
                 // Create rule editor
                 let ruleEditor = new DeconzOutputRuleEditor(this.node, this, row);
@@ -1011,16 +1012,20 @@ class DeconzOutputRuleEditor extends DeconzEditor {
     //#region HTML Inputs
 
     async generatePayloadTypeField(container, value) {
-        let i18n = `${NRCD}/server:editor.inputs.outputs.payload_type`;
+        let i18n = `${NRCD}/server:editor.inputs.outputs.type`;
+
+        let choices = [];
+        for (const [type, enabled] of Object.entries(this.mainEditor.options.output_rules.type)) {
+            if (enabled) {
+                choices.push([type, `${i18n}.options.${type}`]);
+            }
+        }
+
         await this.generateSimpleListField(container, {
             id: this.elements.type,
             labelText: `${i18n}.label`,
             labelIcon: `${i18n}.icon`,
-            choices: [
-                ['state', `${i18n}.options.state`],
-                ['config', `${i18n}.options.config`],
-                ['homekit', `${i18n}.options.homekit`],
-            ],
+            choices: choices,
             currentValue: value
         });
     }
