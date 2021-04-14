@@ -667,7 +667,7 @@ class DeconzOutputRuleListEditor extends DeconzEditor {
         this.$elements.outputs.val(this.outputs);
 
         let buttons = [];
-        for (const [type, enabled] of Object.entries(this.mainEditor.options.output_rules.type)) {
+        for (const [type, enabled] of Object.entries(this.options.type)) {
             if (enabled) {
                 let type_name = RED._(`${NRCD}/server:editor.inputs.outputs.type.options.${type}`);
                 buttons.push({
@@ -1037,7 +1037,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         let i18n = `${NRCD}/server:editor.inputs.outputs.type`;
 
         let choices = [];
-        for (const [type, enabled] of Object.entries(this.listEditor.mainEditor.options.output_rules.type)) {
+        for (const [type, enabled] of Object.entries(this.listEditor.options.type)) {
             if (enabled) {
                 choices.push([type, `${i18n}.options.${type}`]);
             }
@@ -1077,7 +1077,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         let i18n = `${NRCD}/server:editor.inputs.outputs.format`;
 
         let choices = [];
-        for (const [format, enabled] of Object.entries(this.listEditor.mainEditor.options.output_rules.format)) {
+        for (const [format, enabled] of Object.entries(this.listEditor.options.format)) {
             if (enabled) {
                 choices.push([format, `${i18n}.options.${format}`]);
             }
