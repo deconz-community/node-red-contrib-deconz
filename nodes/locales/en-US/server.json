@@ -81,9 +81,9 @@
           "label": "Type",
           "icon": "file-text",
           "options": {
-            "state": "State only",
-            "config": "Config only",
-            "state_config": "State & Config",
+            "attribute": "Attribute",
+            "state": "State",
+            "config": "Config",
             "homekit": "Homekit"
           },
           "add_button": {
@@ -96,6 +96,7 @@
           "label": "Payload",
           "icon": "ellipsis-h",
           "group_label": {
+            "attribute": "Attribute",
             "state": "State",
             "config": "Config"
           },

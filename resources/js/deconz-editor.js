@@ -163,9 +163,9 @@ class DeconzMainEditor extends DeconzEditor {
                     max: false
                 },
                 type: {
+                    attribute: true,
                     state: true,
                     config: true,
-                    state_config: true,
                     homekit: false
                 }
             }
@@ -855,7 +855,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
         await super.connect();
         this.$elements.type.on('change', () => {
             let type = this.$elements.type.val();
-            if (['state', 'config', 'state_config'].includes(type)) this.updatePayloadList();
+            if (['attribute', 'state', 'config'].includes(type)) this.updatePayloadList();
             this.updateShowHide(type);
         });
 
@@ -892,6 +892,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
 
     async updateShowHide(type) {
         switch (type) {
+            case 'attribute':
             case 'state':
             case 'config':
                 this.$elements.payload.closest('.form-row').show();
@@ -934,7 +935,7 @@ class DeconzOutputRuleEditor extends DeconzEditor {
                 devices: JSON.stringify(this.listEditor.mainEditor.subEditor.device.value)
             });
 
-            let type_list = (type === 'state_config') ? ['state', 'config'] : [type];
+            let type_list = (type === 'attribute') ? ['attribute', 'state', 'config'] : [type];
 
             for (const type of type_list) {
                 let groupHtml = $('<optgroup/>', {

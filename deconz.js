@@ -47,19 +47,25 @@ module.exports = function (RED) {
         }
     });
 
-    ['state', 'config', 'state_config'].forEach(function (type) {
+    ['attribute', 'state', 'config'].forEach(function (type) {
         RED.httpAdmin.get(NODE_PATH + type + 'list', function (req, res) {
             let config = req.query;
             let controller = RED.nodes.getNode(config.controllerID);
             let devicesIDs = JSON.parse(config.devices);
+            const isAttribute = type === 'attribute';
             if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
 
-                let type_list = (type === 'state_config') ? ['state', 'config'] : [type];
+                let type_list = (isAttribute) ? ['state', 'config'] : [type];
 
                 let sample = {};
                 let count = {};
 
-                for (const type of type_list) {
+                for (const _type of type_list) {
+                    sample[_type] = {};
+                    count[_type] = {};
+                }
+
+                if (isAttribute) {
                     sample[type] = {};
                     count[type] = {};
                 }
@@ -67,11 +73,20 @@ module.exports = function (RED) {
                 for (const deviceID of devicesIDs) {
                     let device = controller.getDeviceByPath(deviceID);
                     if (!device) continue;
-                    for (const type of type_list) {
-                        if (!device[type]) continue;
-                        for (const value of Object.keys(device[type])) {
+
+                    if (isAttribute) {
+                        for (const value of Object.keys(device)) {
+                            if (type_list.includes(value)) continue;
                             count[type][value] = (count[type][value] || 0) + 1;
-                            sample[type][value] = device[type][value];
+                            sample[type][value] = device[value];
+                        }
+                    }
+
+                    for (const _type of type_list) {
+                        if (!device[_type]) continue;
+                        for (const value of Object.keys(device[_type])) {
+                            count[_type][value] = (count[_type][value] || 0) + 1;
+                            sample[_type][value] = device[_type][value];
                         }
                     }
                 }
