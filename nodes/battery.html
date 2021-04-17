@@ -185,6 +185,9 @@
         oneditprepare: function () {
             let node = this;
             node.nodeEditor = new DeconzMainEditor(node, {
+                have: {
+                    output_rules: true
+                },
                 device: {
                     batteryFilter: true
                 }

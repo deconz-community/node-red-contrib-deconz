@@ -169,6 +169,9 @@
         oneditprepare: function () {
             let node = this;
             node.nodeEditor = new DeconzMainEditor(node, {
+                have: {
+                    output_rules: true
+                },
                 output_rules: {
                     format: {
                         single: true,

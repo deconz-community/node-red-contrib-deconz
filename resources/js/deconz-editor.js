@@ -151,7 +151,7 @@ class DeconzMainEditor extends DeconzEditor {
             have: {
                 query: true,
                 device: true,
-                output_rules: true
+                output_rules: false,
             },
             output_rules: {
                 format: {
