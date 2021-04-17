@@ -126,6 +126,72 @@
           "icon": "external-link-square",
           "desc": "Send NO_RESPONSE on socket error."
         }
+      },
+      "commands": {
+        "type": {
+          "label": "Type",
+          "icon": "file-code-o",
+          "options": {
+            "deconz": {
+              "label": "Deconz",
+              "icon": "",
+              "options": {
+                "light": {
+                  "label": "Lights",
+                  "fields": {
+                    "on": {
+                      "label": "On",
+                      "icon": "lightbulb-o",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change"
+                        },
+                        "set": {
+                          "label": "Turn",
+                          "options": {
+                            "true": {
+                              "label": "On"
+                            },
+                            "false": {
+                              "label": "Off"
+                            }
+                          }
+                        },
+                        "toogle": {
+                          "label": "Toogle"
+                        }
+                      }
+                    }
+                  }
+                },
+                "cover": {
+                  "label": "Windows Cover"
+                },
+                "sensor": {
+                  "label": "Sensors"
+                },
+                "group": {
+                  "label": "Groups"
+                }
+              }
+            },
+            "homekit": {
+              "label": "HomeKit"
+            },
+            "custom": {
+              "label": "Custom",
+              "icon": "cogs"
+            },
+            "animation": {
+              "label": "Animation",
+              "icon": "spinner"
+            },
+            "pause": {
+              "label": "Pause",
+              "icon": "pause"
+            }
+          }
+        }
       }
     }
   }
