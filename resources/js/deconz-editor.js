@@ -143,6 +143,21 @@ class DeconzEditor {
 
 
     //#region HTML Helpers
+
+    getIcon(i18n, name) {
+        const _icon = `${i18n}.options.${name}.icon`;
+        const icon = RED._(_icon);
+        if (icon === 'deconz') {
+            return 'icons/node-red-contrib-deconz/icon-color.png';
+        } else if (icon === 'homekit') {
+            return 'icons/node-red-contrib-deconz/homekit-logo.png';
+        } else if (RED.nodes.fontAwesome.getIconList().includes(`fa-${icon}`)) {
+            return `fa fa-${icon}`;
+        } else if (_icon !== icon) {
+            return icon;
+        }
+    }
+
     async generateSimpleListField(container, options) {
         let input = $('<select/>', {id: options.id});
 
@@ -155,21 +170,16 @@ class DeconzEditor {
             }
         }
 
-        let row = await this.generateInputWithLabel(options.labelText, options.labelIcon, input);
+        let row = await this.generateInputWithLabelDeprecated(options.labelText, options.labelIcon, input);
         container.append(row);
 
         if (options.currentValue !== undefined) input.val(options.currentValue);
     }
 
-
-    async generateTypedInputField(container, options) {
-        options = $.extend({
-            addDefaultTypes: true,
-        }, options);
-
-
+    async generateTypedInput(container, options) {
         let input = $('<input/>', {
             id: options.id,
+            placeholder: RED._(options.placeholder)
             //class: 's-width',
         });
 
@@ -181,13 +191,15 @@ class DeconzEditor {
 
         input.append(inputType);
 
-        let row = await this.generateInputWithLabel(options.labelText, options.labelIcon, input);
-        row.append($('<span/>')
-            .html(RED._(options.descText))
-            .css('display', 'table-cell')
-        );
+        return input;
+    }
 
-        container.append(row);
+
+    async initTypedInput(input, options) {
+        options = $.extend({
+            addDefaultTypes: true,
+            displayOnlyIcon: false
+        }, options);
 
         let typedInputOptions = $.extend({
             default: "msg",
@@ -203,13 +215,81 @@ class DeconzEditor {
             typedInputOptions.types.push('jsonata');
         }
 
-        input.typedInput(typedInputOptions);
+        if (options.displayOnlyIcon) {
+            // TODO Why this ? -> https://github.com/node-red/node-red/issues/2941
+            let valueLabel = function (a, b) {
+                let typeDefinition;
+                for (const type of this.typeList) {
+                    if (typeof type !== 'object') continue;
+                    if (type.value === this.propertyType) {
+                        typeDefinition = type;
+                    }
+                }
+                if (typeDefinition === undefined) return;
+                if (typeDefinition.icon === undefined) return;
+                if (!RED.nodes.fontAwesome.getIconList().includes(typeDefinition.icon.substr(3))) return;
 
-        //TODO handle smartValue;
+                this.oldValue = this.input.val();
+                this.input.val("");
+                this.valueLabelContainer.hide();
+                this.selectLabel.html(`<i class="${typeDefinition.icon}" style="min-width: 13px;margin-right: 4px;"></i>`);
+                this.selectTrigger.addClass('red-ui-typedInput-full-width');
+                this.selectLabel.show();
+            };
+            for (let type of typedInputOptions.types) {
+                if (typeof type === 'string') continue;
+                type.hasValue = true;
+                type.valueLabel = valueLabel;
+            }
+        }
+
+        input.typedInput(typedInputOptions);
 
         if (options.currentType !== undefined) input.typedInput('type', options.currentValue);
         if (options.currentValue !== undefined) input.typedInput('value', options.currentValue);
+
     }
+
+    async generateTypedInputField(container, options) {
+        let input = await this.generateTypedInput(container, options);
+
+        let row = await this.generateInputWithLabel(input, {
+            label: options.labelText,
+            icon: options.labelIcon,
+            title: options.title,
+        });
+        row.append($('<span/>')
+            .html(RED._(options.descText))
+            .css('display', 'table-cell')
+        );
+        container.append(row);
+        await this.initTypedInput(input, options);
+    }
+
+    async generateDoubleTypedInputField(container, optionsFirst, optionsSecond) {
+
+        let inputFirst = await this.generateTypedInput(container, optionsFirst);
+
+        let row = await this.generateInputWithLabelDeprecated(optionsFirst.labelText, optionsFirst.labelIcon, inputFirst);
+        row.append($('<span/>')
+            .html(RED._(optionsFirst.descText))
+            .css('display', 'table-cell')
+        );
+
+
+        let inputSecond = await this.generateTypedInput(container, optionsSecond);
+
+        row.append(inputSecond);
+
+        container.append(row);
+        optionsFirst.displayOnlyIcon = true;
+        await this.initTypedInput(inputFirst, optionsFirst);
+        inputFirst.typedInput('width', '50px');
+
+        await this.initTypedInput(inputSecond, optionsSecond);
+
+    }
+
 
     generateTypedInputType(i18n, name, data = {}) {
         const _label = `${i18n}.options.${name}.label`;
@@ -217,34 +297,31 @@ class DeconzEditor {
         if (data.icon === null) {
             delete data.icon;
         } else if (data.icon === undefined) {
-            const _icon = `${i18n}.options.${name}.icon`;
-            const icon = RED._(_icon);
-            if (icon !== _icon) {
-                data.icon = `fa fa-${icon}`;
-            } else {
-                data.icon = 'icons/node-red-contrib-deconz/icon-color.png';
-            }
+            data.icon = this.getIcon(i18n, name);
         }
         data.value = name;
         if (label !== _label) data.label = label;
-        return data;
-    }
 
-    /* Some hack to display the icon with the label when there is no value
-    generateTypedInputTypeWithIcon(i18n, name, data = {}) {
-        data = this.generateTypedInputType(i18n, name, data);
-        data.hasValue = true;
-        data.valueLabel = function () {
-            this.oldValue = this.input.val();
-            this.input.val("");
-            this.valueLabelContainer.hide();
-            this.selectLabel.html('<i class="fa fa-arrow-right" style="min-width: 13px;margin-right: 4px;"></i>' + data.label);
-            this.selectTrigger.addClass('red-ui-typedInput-full-width');
-            this.selectLabel.show();
-        };
+        if (Array.isArray(data.subOptions)) {
+            if (!Array.isArray(data.options)) {
+                data.options = [];
+            }
+            for (const opt of data.subOptions) {
+                if (typeof opt === 'string') {
+                    data.options.push(this.generateTypedInputType(`${i18n}.options.${name}`, opt, {icon: null}));
+                } else {
+                    const _name = opt.name;
+                    delete opt.name;
+                    if (opt.icon === undefined) {
+                        opt.icon = null;
+                    }
+                    data.options.push(this.generateTypedInputType(`${i18n}.options.${name}`, _name, opt));
+                }
+
+            }
+        }
         return data;
     }
-    */
 
     async generateCheckboxField(container, options) {
 
@@ -256,7 +333,7 @@ class DeconzEditor {
             checked: options.currentValue
         });
 
-        let row = await this.generateInputWithLabel(options.labelText, options.labelIcon, input);
+        let row = await this.generateInputWithLabelDeprecated(options.labelText, options.labelIcon, input);
         row.append($('<span/>')
             .html(RED._(options.descText))
             .css('display', 'table-cell')
@@ -265,7 +342,7 @@ class DeconzEditor {
         container.append(row);
     }
 
-    async generateInputWithLabel(labelText, labelIcon, input) {
+    async generateInputWithLabel(input, options = {}) {
         let row = $('<div/>', {
             class: 'form-row',
             style: 'padding:5px;margin:0;display:table;'
@@ -276,14 +353,30 @@ class DeconzEditor {
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
             labelElement.attr('style', 'display:table-cell;');
-            if (labelIcon) labelElement.append(`<i class="fa fa-${RED._(labelIcon)}"></i>&nbsp;`);
-            labelElement.append(`<span>${RED._(labelText)}</span>`);
+            if (options.title) labelElement.attr('title', RED._(options.title));
+            if (options.icon) labelElement.append(`<i class="fa fa-${RED._(options.icon)}"></i>&nbsp;`);
+            labelElement.append(`<span>${RED._(options.label)}</span>`);
             row.append(labelElement);
         }
         input.css('display', 'table-cell');
         row.append(input);
 
         return row;
+    }
+
+    /**
+     * @deprecated
+     * @param label
+     * @param icon
+     * @param input
+     * @returns {Promise<jQuery|HTMLElement|JQuery<HTMLElement>>}
+     */
+    async generateInputWithLabelDeprecated(label, icon, input) {
+        return await this.generateInputWithLabel(input, {label, icon});
+    }
+
+    async generateHR(container, topBottom = '5px', leftRight = '50px') {
+        container.append(`<hr style="margin: ${topBottom} ${leftRight};">`);
     }
 
     //#endregion
@@ -1370,11 +1463,23 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     get elements() {
-        return {
-            typedomain: `node-input-output-rule-${this.uniqueId}-typedomain`,
-            //target: `node-input-output-rule-${this.uniqueId}-target`,
-            on: `node-input-output-rule-${this.uniqueId}-on`,
-        };
+        let keys = [
+            'typedomain',
+            'on',
+            'alert', 'effect', 'colorloopspeed',
+            'transitiontime'
+        ];
+
+        for (const lightKey of ['bri', 'sat', 'hue', 'ct', 'xy']) {
+            keys.push(lightKey);
+            keys.push(lightKey + '_direction');
+        }
+
+        let elements = {};
+        for (const key of keys) {
+            elements[key] = `node-input-output-rule-${this.uniqueId}-${key}`;
+        }
+        return elements;
     }
 
     set value(command) {
@@ -1395,22 +1500,28 @@ class DeconzCommandEditor extends DeconzListItemEditor {
      */
     get defaultCommand() {
         /**
+         * @typedef {Object} TypedInput
+         * @property {String} type - Type
+         * @property {*} value - Value
+         */
+        /**
          * @typedef {Object} LightArgs
+         * @property {String} direction - Can be keep,set,inc,dec
          * @property {String} type - Can be keep,set,inc,dec
-         * @property {Number|Array|null} value - Value
+         * @property {Number|Array|null} value - Value numeric or [0.5,0.5]
          */
         /**
          * @typedef {Object} LightCommandArgs
-         * @property {Boolean|String|null} on - Turn true = on or false = off, null = nothing, toogle = toogle
+         * @property {TypedInput} on - Turn true = on or false = off, null = nothing, toogle = toogle
          * @property {LightArgs} bri - Brightness value
          * @property {LightArgs} sat - Color saturation
          * @property {LightArgs} hue - Color hue
          * @property {LightArgs} ct - Mired color temperature
          * @property {LightArgs} xy - CIE xy color space coordinates
-         * @property {String|null} alert - Can be none/select/lselect
-         * @property {String|null} effect - Can be none/colorloop
-         * @property {Number|null} colorloopspeed - (default: 15). 1 = very fast 255 = very slow
-         * @property {Number|null} transitiontime - Transition time in 1/10 seconds between two states.
+         * @property {TypedInput} alert - Can be none/select/lselect
+         * @property {TypedInput} effect - Can be none/colorloop
+         * @property {TypedInput} colorloopspeed - (default: 15). 1 = very fast 255 = very slow
+         * @property {TypedInput} transitiontime - Transition time in 1/10 seconds between two states.
          */
         /**
          * @typedef {Object} CoverCommandArgs
@@ -1431,16 +1542,16 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             domain: 'light',
             target: 'state',
             arg: {
-                on: null,
-                bri: {type: 'keep', value: null},
-                sat: {type: 'keep', value: null},
-                hue: {type: 'keep', value: null},
-                ct: {type: 'keep', value: null},
-                xy: {type: 'keep', value: null},
-                alert: null,
-                effect: null,
-                colorloopspeed: null,
-                transitiontime: null
+                on: {type: 'keep'},
+                bri: {direction: 'set', type: 'keep'},
+                sat: {direction: 'set', type: 'keep'},
+                hue: {direction: 'set', type: 'keep'},
+                ct: {direction: 'set', type: 'keep'},
+                xy: {direction: 'set', type: 'keep'},
+                alert: {type: 'keep'},
+                effect: {type: 'keep'},
+                colorloopspeed: {type: 'keep'},
+                transitiontime: {type: 'keep'}
             }
         };
     }
@@ -1456,7 +1567,24 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         command = this.defaultCommand;
 
         await this.generateTypeDomainField(this.container, {type: command.type, value: command.domain});
+
+        // Lights
         await this.generateOnField(this.container, command.on);
+        for (const lightType of ['bri', 'sat', 'hue', 'ct', 'xy']) {
+            await this.generateLightField(this.container, lightType, command[lightType]);
+            if (lightType === 'bri') await this.generateHR(this.container);
+        }
+        await this.generateHR(this.container);
+        await this.generateAlertField(this.container, command.alert);
+        await this.generateEffectField(this.container, command.effect);
+        await this.generateColorLoopSpeedField(this.container, command.colorloopspeed);
+        await this.generateHR(this.container);
+        await this.generateTransitionTimeField(this.container, command.transitiontime);
+
+        // Windows Cover
+
+
+        // Groups
 
         await super.init();
 
@@ -1471,7 +1599,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     }
 
-    async generateTypeDomainField(container, value) {
+    async generateTypeDomainField(container, value = {}) {
         let i18n = `${NRCD}/server:editor.inputs.commands.type`;
         await this.generateTypedInputField(container, {
             id: this.elements.typedomain,
@@ -1482,66 +1610,140 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 default: 'deconz',
                 types: [
-                    {
-                        value: 'deconz',
-                        label: RED._(`${i18n}.options.deconz.label`),
-                        icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                        options: [
-                            {value: 'light', label: RED._(`${i18n}.options.deconz.options.light.label`)},
-                            {value: 'cover', label: RED._(`${i18n}.options.deconz.options.cover.label`)},
-                            {value: 'sensor', label: RED._(`${i18n}.options.deconz.options.sensor.label`)},
-                            {value: 'group', label: RED._(`${i18n}.options.deconz.options.group.label`)},
-                        ]
-                    }, {
-                        value: 'homekit',
-                        label: RED._(`${i18n}.options.homekit.label`),
-                        icon: 'icons/node-red-contrib-deconz/homekit-logo.png',
-                        hasValue: false
-                    }, {
-                        value: 'custom',
-                        label: RED._(`${i18n}.options.custom.label`),
-                        icon: 'fa fa-' + RED._(`${i18n}.options.custom.icon`),
-                        hasValue: false
-                    },/* {
-                        value: 'animation',
-                        label: RED._(`${i18n}.options.animation.label`),
-                        icon: 'fa fa-' + RED._(`${i18n}.options.animation.icon`),
-                        hasValue: false
-                    },*/ {
-                        value: 'pause',
-                        label: RED._(`${i18n}.options.pause.label`),
-                        icon: 'fa fa-' + RED._(`${i18n}.options.pause.icon`),
-                        hasValue: false
-                    }
+                    this.generateTypedInputType(i18n, 'deconz', {subOptions: ['light', 'cover', /*'sensor',*/ 'group']}),
+                    this.generateTypedInputType(i18n, 'homekit', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'custom', {hasValue: false}),
+                    //this.generateTypedInputType(i18n, 'animation', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'pause', {hasValue: false}),
                 ]
             }
         });
     }
 
 
-    async generateOnField(container, value) {
+    async generateOnField(container, value = {}) {
         let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.on`;
         await this.generateTypedInputField(container, {
             id: this.elements.on,
             labelText: `${i18n}.label`,
             labelIcon: `${i18n}.icon`,
-            smartValue: value,
+            currentType: value.type,
+            currentValue: value.value,
             typedInput: {
                 default: 'keep',
                 types: [
                     this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'set', {
-                        options: [
-                            this.generateTypedInputType(`${i18n}.options.set`, 'true', {hasValue: false, icon: null}),
-                            this.generateTypedInputType(`${i18n}.options.set`, 'false', {hasValue: false, icon: null})
-                        ]
-                    }),
+                    this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']}),
                     this.generateTypedInputType(i18n, 'toogle', {hasValue: false}),
                 ]
             }
         });
     }
 
+
+    async generateLightField(container, fieldName, value = {}) {
+        let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields`;
+        let fieldFormat = [fieldName !== 'xy' ? "num" : "json"];
+        await this.generateDoubleTypedInputField(container,
+            {
+                id: this.elements[`${fieldName}_direction`],
+                labelText: `${i18n}.${fieldName}.label`,
+                labelIcon: `${i18n}.${fieldName}.icon`,
+                addDefaultTypes: false,
+                currentType: value.direction,
+                typedInput: {
+                    default: 'set',
+                    types: [
+                        this.generateTypedInputType(`${i18n}.lightFields`, 'set', {hasValue: false}),
+                        this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}),
+                        this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}),
+                    ]
+                }
+            }, {
+                id: this.elements[fieldName],
+                currentType: value.type,
+                currentValue: [fieldName !== 'xy' ? value.value : (value.value === undefined ? '[]' : value.value)],
+                typedInput: {
+                    default: fieldFormat[0],
+                    types: fieldFormat
+                }
+            }
+        );
+    }
+
+
+    async generateAlertField(container, value = {}) {
+        let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.alert`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.alert,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            currentType: value.type,
+            currentValue: value.value,
+            typedInput: {
+                default: 'str',
+                types: [
+                    "str",
+                    this.generateTypedInputType(i18n, 'none', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'select', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'lselect', {hasValue: false}),
+                ]
+            }
+        });
+    }
+
+    async generateEffectField(container, value = {}) {
+        let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.effect`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.effect,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            currentType: value.type,
+            currentValue: value.value,
+            typedInput: {
+                default: 'str',
+                types: [
+                    "str",
+                    this.generateTypedInputType(i18n, 'none', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'colorloop', {hasValue: false})
+                ]
+            }
+        });
+    }
+
+    async generateColorLoopSpeedField(container, value = {}) {
+        let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.colorloopspeed`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.colorloopspeed,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            title: `${i18n}.title`,
+            placeholder: `${i18n}.placeholder`,
+            currentType: value.type,
+            currentValue: value.value,
+            typedInput: {
+                default: 'num',
+                types: ["num"]
+            }
+        });
+    }
+
+    async generateTransitionTimeField(container, value = {}) {
+        let i18n = `${NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.transitiontime`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.transitiontime,
+            labelText: `${i18n}.label`,
+            labelIcon: `${i18n}.icon`,
+            title: `${i18n}.title`,
+            placeholder: `${i18n}.placeholder`,
+            currentType: value.type,
+            currentValue: value.value,
+            typedInput: {
+                default: 'num',
+                types: ["num"]
+            }
+        });
+    }
 
 }
 

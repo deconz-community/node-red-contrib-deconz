@@ -133,34 +133,127 @@
           "icon": "file-code-o",
           "options": {
             "deconz": {
-              "label": "Deconz",
-              "icon": "",
+              "label": "Deconz state",
+              "icon": "deconz",
               "options": {
                 "light": {
                   "label": "Lights",
                   "fields": {
                     "on": {
-                      "label": "On",
+                      "label": "On/Off",
                       "icon": "lightbulb-o",
                       "options": {
                         "keep": {
-                          "label": "Don't change"
+                          "label": "Don't change",
+                          "icon": "deconz"
                         },
                         "set": {
                           "label": "Turn",
+                          "icon": "deconz",
                           "options": {
                             "true": {
-                              "label": "On"
+                              "label": "On",
+                              "icon": "deconz"
                             },
                             "false": {
-                              "label": "Off"
+                              "label": "Off",
+                              "icon": "deconz"
                             }
                           }
                         },
                         "toogle": {
-                          "label": "Toogle"
+                          "label": "Toogle",
+                          "icon": "deconz"
                         }
                       }
+                    },
+                    "lightFields": {
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "arrow-circle-right"
+                        },
+                        "inc": {
+                          "label": "Increment by",
+                          "icon": "arrow-circle-up"
+                        },
+                        "dec": {
+                          "label": "Decrement by",
+                          "icon": "arrow-circle-down"
+                        }
+                      }
+                    },
+                    "bri": {
+                      "label": "Brightness",
+                      "icon": "lightbulb-o"
+                    },
+                    "sat": {
+                      "label": "Color saturation",
+                      "icon": "lightbulb-o"
+                    },
+                    "hue": {
+                      "label": "Color hue",
+                      "icon": "lightbulb-o"
+                    },
+                    "ct": {
+                      "label": "Mired color temperature",
+                      "icon": "lightbulb-o"
+                    },
+                    "xy": {
+                      "label": "CIE xy color",
+                      "icon": "lightbulb-o"
+                    },
+                    "alert": {
+                      "label": "Alert",
+                      "icon": "bell-o",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "none": {
+                          "label": "None",
+                          "icon": "deconz"
+                        },
+                        "select": {
+                          "label": "Blinking a short time",
+                          "icon": "deconz"
+                        },
+                        "lselect": {
+                          "label": "Blinking a longer time",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "effect": {
+                      "label": "Effect",
+                      "icon": "star-o",
+                      "options": {
+                        "none": {
+                          "label": "None",
+                          "icon": "deconz"
+                        },
+                        "colorloop": {
+                          "label": "Color Loop",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "colorloopspeed": {
+                      "label": "Color Loop Speed",
+                      "icon": "star-o",
+                      "title": "1 = very fast 255 = very slow",
+                      "placeholder": "default: 15"
+                    },
+                    "transitiontime": {
+                      "label": "Transition",
+                      "icon": "hourglass-o",
+                      "title": "Transition time in 1/10 seconds between two states.",
+                      "placeholder": "10 = 1 second"
                     }
                   }
                 },
@@ -176,7 +269,8 @@
               }
             },
             "homekit": {
-              "label": "HomeKit"
+              "label": "HomeKit",
+              "icon": "homekit"
             },
             "custom": {
               "label": "Custom",
