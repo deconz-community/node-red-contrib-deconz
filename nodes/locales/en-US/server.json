@@ -136,6 +136,16 @@
               "label": "Deconz state",
               "icon": "deconz",
               "options": {
+                "common": {
+                  "fields": {
+                    "transitiontime": {
+                      "label": "Transition",
+                      "icon": "hourglass-o",
+                      "title": "Transition time in 1/10 seconds between two states.",
+                      "placeholder": "10 = 1 second"
+                    }
+                  }
+                },
                 "light": {
                   "label": "Lights",
                   "fields": {
@@ -248,23 +258,99 @@
                       "icon": "star-o",
                       "title": "1 = very fast 255 = very slow",
                       "placeholder": "default: 15"
-                    },
-                    "transitiontime": {
-                      "label": "Transition",
-                      "icon": "hourglass-o",
-                      "title": "Transition time in 1/10 seconds between two states.",
-                      "placeholder": "10 = 1 second"
                     }
                   }
                 },
-                "cover": {
-                  "label": "Windows Cover"
-                },
-                "sensor": {
-                  "label": "Sensors"
-                },
                 "group": {
                   "label": "Groups"
+                },
+                "cover": {
+                  "label": "Windows Cover",
+                  "fields": {
+                    "open": {
+                      "label": "Open/Close",
+                      "icon": "window-maximize",
+                      "title": "Set to true to lift the shutter to 0%, false to lift it to 100%.",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "deconz",
+                          "options": {
+                            "true": {
+                              "label": "Open"
+                            },
+                            "false": {
+                              "label": "Close"
+                            }
+                          }
+                        },
+                        "toogle": {
+                          "label": "Toogle",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "stop": {
+                      "label": "Stop/Continue",
+                      "icon": "stop",
+                      "title": "Stops the current action.",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "deconz",
+                          "options": {
+                            "true": {
+                              "label": "Stop",
+                              "icon": "deconz"
+                            },
+                            "false": {
+                              "label": "Continue",
+                              "icon": "deconz"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "lift": {
+                      "label": "Lift",
+                      "icon": "arrows-v",
+                      "title": "Supported range is 0–100 or special value \"stop\".\nlift is best understood as “percentage closed”. So for any lift value below 100%, open is true.",
+                      "options": {
+                        "stop": {
+                          "label": "Stop",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "tilt": {
+                      "label": "Tilt",
+                      "icon": "arrows-h",
+                      "title": "Sets the tilt angle of the shutter (0–100%)."
+                    }
+                  }
+                },
+                "scene": {
+                  "label": "Scenes",
+                  "fields": {
+                    "group": {
+                      "label": "Group ID",
+                      "icon": "object-group",
+                      "title": "Select the group of the scene"
+                    },
+                    "scene": {
+                      "label": "Call Scene",
+                      "icon": "picture-o",
+                      "title": "Select the scene to call"
+                    }
+                  }
                 }
               }
             },
