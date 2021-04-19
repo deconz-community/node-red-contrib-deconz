@@ -13,8 +13,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 10
-      - run: npm install
+      - run: npm install --production=false
       - run: npm test
+      - run: npm install grunt-cli --no-save
+      - run: grunt build
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
