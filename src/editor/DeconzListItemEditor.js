@@ -22,7 +22,7 @@ class DeconzListItemEditor extends DeconzEditor {
     //#endregion
 
     async init() {
-        await this.generateOutputButton(this.container);
+        await this.generateOutputButton(this.container.children().first());
         await super.init();
     }
 
