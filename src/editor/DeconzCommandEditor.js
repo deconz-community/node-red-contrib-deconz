@@ -3,6 +3,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     constructor(node, listEditor, container, options = {}) {
         options = $.extend({}, options);
         super(node, listEditor, container, options);
+        this.containers = {};
     }
 
     get elements() {
@@ -14,7 +15,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Windows Cover
             'open', 'stop', 'lift', 'tilt',
             // Scene
-            'scenecallgroup', 'scenecallscene'
+            'scenecallgroup', 'scenecallscene',
+            // Homekit, object
+            'command',
+            'payload',
+            // Pause
+            'delay'
         ];
 
         for (const lightKey of ['bri', 'sat', 'hue', 'ct', 'xy']) {
@@ -80,7 +86,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         /**
          * @typedef {Object} Command
          * @property {String} type - Can be 'deconz', 'custom', 'animation', 'pause', 'homekit'
-         * @property {String} domain - Can be 'light', 'cover', 'sensor', 'group'
+         * @property {String} domain - Can be 'light', 'cover', 'group', 'scene'
          * @property {String} target - Can be 'attribute', 'state', 'config'
          * @property {LightCommandArgs|CoverCommandArgs|Object} arg - An object of key value of settings
          */
@@ -98,7 +104,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 alert: {type: 'keep'},
                 effect: {type: 'keep'},
                 colorloopspeed: {type: 'keep'},
-                transitiontime: {type: 'keep'}
+                transitiontime: {type: 'keep'},
+                command: {type: 'str', value: 'on'},
+                payload: {type: 'msg', value: 'payload'},
+                delay: {type: 'num', value: 2000},
             }
         };
     }
@@ -112,37 +121,50 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         //TODO For debug
         command = this.defaultCommand;
-        command.domain = 'scene';
 
         await this.generateTypeDomainField(this.container, {type: command.type, value: command.domain});
 
-        /*
         // Lights
-        await this.generateLightOnField(this.container, command.arg.on);
+        this.containers.light = $('<div>').appendTo(this.container);
+        await this.generateLightOnField(this.containers.light, command.arg.on);
         for (const lightType of ['bri', 'sat', 'hue', 'ct', 'xy']) {
-            await this.generateLightColorField(this.container, lightType, command.arg[lightType]);
-            if (lightType === 'bri') await this.generateHR(this.container);
+            await this.generateLightColorField(this.containers.light, lightType, command.arg[lightType]);
+            if (lightType === 'bri') await this.generateHR(this.containers.light);
         }
-        await this.generateHR(this.container);
-        await this.generateLightAlertField(this.container, command.arg.alert);
-        await this.generateLightEffectField(this.container, command.arg.effect);
-        await this.generateLightColorLoopSpeedField(this.container, command.arg.colorloopspeed);
+        await this.generateHR(this.containers.light);
+        await this.generateLightAlertField(this.containers.light, command.arg.alert);
+        await this.generateLightEffectField(this.containers.light, command.arg.effect);
+        await this.generateLightColorLoopSpeedField(this.containers.light, command.arg.colorloopspeed);
+        await this.generateHR(this.containers.light);
+        await this.generateCommonTransitionTimeField(this.containers.light, command.arg.transitiontime);
+
 
         // Windows Cover
-        await this.generateCoverOpenField(this.container, command.arg.open);
-        await this.generateCoverStopField(this.container, command.arg.stop);
-        await this.generateCoverLiftField(this.container, command.arg.lift);
-        await this.generateCoverTiltField(this.container, command.arg.tilt);
+        this.containers.windows_cover = $('<div>').appendTo(this.container);
+        await this.generateCoverOpenField(this.containers.windows_cover, command.arg.open);
+        await this.generateCoverStopField(this.containers.windows_cover, command.arg.stop);
+        await this.generateCoverLiftField(this.containers.windows_cover, command.arg.lift);
+        await this.generateCoverTiltField(this.containers.windows_cover, command.arg.tilt);
 
-        await this.generateHR(this.container);
-        await this.generateCommonTransitionTimeField(this.container, command.arg.transitiontime);
-        */
+        // Scenes
+        this.containers.scene = $('<div>').appendTo(this.container);
+        await this.generateSceneGroupField(this.containers.scene, command.arg.group);
+        await this.generateSceneSceneField(this.containers.scene, command.arg.scene);
 
-        // Groups
-        //TODO call scene
-        await this.generateSceneGroupField(this.container, command.arg.group);
-        await this.generateSceneSceneField(this.container, command.arg.scene);
+        // Common
 
+        this.containers.command = $('<div>').appendTo(this.container);
+        await this.generateCommandField(this.containers.command, command.arg.command);
+
+        this.containers.payload = $('<div>').appendTo(this.container);
+        await this.generatePayloadField(this.containers.payload, command.arg.payload);
+
+        // Pause
+        this.containers.pause = $('<div>').appendTo(this.container);
+        await this.generatePauseDelayField(this.containers.pause, command.arg.delay);
+
+
+        await this.updateShowHide(command.type, command.domain);
 
         await super.init();
 
@@ -154,11 +176,50 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     async connect() {
         await super.connect();
+
+        this.$elements.typedomain.on('change', (event, type, value) => {
+            this.updateShowHide(type, value);
+        });
+    }
+
+    async updateShowHide(type, domain) {
+        let containers = [];
+        switch (type) {
+            case 'deconz':
+                switch (domain) {
+                    case 'light':
+                    case 'group':
+                        containers.push('light');
+                        break;
+                    case 'cover':
+                        containers.push('windows_cover');
+                        break;
+                    case 'scene':
+                        containers.push('scene');
+                        break;
+                }
+                break;
+            case 'homekit':
+                containers.push('payload');
+                break;
+            case 'custom':
+                containers.push('command');
+                containers.push('payload');
+                break;
+            case 'animation':
+                break;
+            case 'pause':
+                containers.push('pause');
+                break;
+        }
+        for (const [key, value] of Object.entries(this.containers)) {
+            value.toggle(containers.includes(key));
+        }
     }
 
     async generateTypeDomainField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type`;
-        let input = await this.generateTypedInputField(container, {
+        await this.generateTypedInputField(container, {
             id: this.elements.typedomain,
             i18n,
             value,
@@ -176,8 +237,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 ]
             }
         });
-        //TODO this may broke later -> https://github.com/node-red/node-red/issues/2942
-        //input.typedInput('disable', true);
     }
 
     //#region Light HTML Helpers
@@ -364,6 +423,60 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             i18n,
             value,
             typedInput: {types: ['num']}
+        });
+    }
+
+    //#endregion
+
+    //#region Common HTML Helpers
+    async generateCommandField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.common.fields.command`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.command,
+            i18n,
+            value,
+            typedInput: {
+                types: [
+                    'str',
+                    this.generateTypedInputType(i18n, 'object', {hasValue: false}),
+                ]
+            }
+        });
+    }
+
+    async generatePayloadField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.common.fields.payload`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.payload,
+            i18n,
+            value,
+            addDefaultTypes: false,
+            typedInput: {
+                types: [
+                    'msg', 'flow', 'global',
+                    'str', 'num', 'bool',
+                    'json', 'jsonata',
+                    'date'
+                ]
+            }
+        });
+    }
+
+    //#endregion
+
+
+    //#region Pause HTML Helpers
+    async generatePauseDelayField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.pause.fields.delay`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.delay,
+            i18n,
+            value,
+            typedInput: {
+                types: [
+                    'num',
+                ]
+            }
         });
     }
 

@@ -132,6 +132,24 @@
           "label": "Type",
           "icon": "file-code-o",
           "options": {
+            "common": {
+              "fields": {
+                "command": {
+                  "label": "Command",
+                  "icon": "tasks",
+                  "options": {
+                    "object": {
+                      "label": "Object",
+                      "icon": "object-group"
+                    }
+                  }
+                },
+                "payload": {
+                  "label": "Payload",
+                  "icon": "envelope"
+                }
+              }
+            },
             "deconz": {
               "label": "Deconz state",
               "icon": "deconz",
@@ -368,7 +386,14 @@
             },
             "pause": {
               "label": "Pause",
-              "icon": "pause"
+              "icon": "pause",
+              "fields": {
+                "delay": {
+                  "label": "Delay",
+                  "icon": "hourglass-o",
+                  "title": "Delay in ms before executing next command."
+                }
+              }
             }
           }
         }
