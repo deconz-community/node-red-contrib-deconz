@@ -370,7 +370,11 @@ class DeconzEditor {
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
             labelElement.attr('style', 'display:table-cell;');
-
+            
+            // Try to load a title from i18n.
+            if (options.title === undefined) {
+                options.title = this.getI18n(options.i18n, 'title');
+            }
             // Add Title
             if (options.title) {
                 labelElement.attr('title', this.getI18n(options.i18n, 'title'));
