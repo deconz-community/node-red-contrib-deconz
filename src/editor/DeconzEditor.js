@@ -370,7 +370,7 @@ class DeconzEditor {
             labelElement.attr('for', inputID);
             labelElement.attr('class', 'l-width');
             labelElement.attr('style', 'display:table-cell;');
-            
+
             // Try to load a title from i18n.
             if (options.title === undefined) {
                 options.title = this.getI18n(options.i18n, 'title');
@@ -409,6 +409,10 @@ class DeconzEditor {
 
     async generateHR(container, topBottom = '5px', leftRight = '50px') {
         container.append(`<hr style="margin: ${topBottom} ${leftRight};">`);
+    }
+
+    async generateSeparator(container, label) {
+        container.append(`<div class="separator">${RED._(label)}</div>`);
     }
 
     //#endregion

@@ -8,6 +8,8 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
+
+            // TODO replace this by the config migration class
             node.updateOldSettings();
 
             // Format : {'state':{__PATH__ : {"buttonevent": 1002}}}
@@ -153,9 +155,8 @@ module.exports = function (RED) {
                 let nodeState;
                 // If only one state selected
                 if (!(
-                    node.config.state.includes('0') || // O = Complete state payload
-                    node.config.state.includes('1') || // 1 = Each state payload
-                    node.config.state.includes('2') || // 2 = Each changed state payload
+                    node.config.state.includes('__complete__') || // O = Complete state payload
+                    node.config.state.includes('__each__') || // 1 = Each state payload
                     node.config.state.length > 1)
                 ) {
                     nodeState = dotProp.get(device, 'state.' + node.config.state[0]);
@@ -273,8 +274,9 @@ module.exports = function (RED) {
             };
 
             let sendToOutputs = function (type) {
+                return;
                 // Still need to check if output is On change
-                if (node.config[type].includes('0')) {
+                if (node.config[type].includes('__complete__')) {
                     // Complete payload
                     switch (node.config.output) {
                         case 'always':
@@ -293,7 +295,7 @@ module.exports = function (RED) {
                             });
                             break;
                     }
-                } else if (node.config[type].includes('1') || node.config[type].length > 0) {
+                } else if (node.config[type].includes('__each__') || node.config[type].length > 0) {
                     // Each payload or state list
 
                     // In case of name change ignore it
@@ -301,7 +303,7 @@ module.exports = function (RED) {
 
                     let states = [];
 
-                    if (node.config[type].includes('1')) {
+                    if (node.config[type].includes('__each__')) {
                         states = Object.keys(device[type])
                     } else if (node.config[type].length > 0) {
                         states = node.config[type]

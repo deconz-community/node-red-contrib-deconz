@@ -7,6 +7,7 @@ class DeconzMainEditor extends DeconzEditor {
                 device: true,
                 output_rules: false,
                 commands: false,
+                specific: false
             },
             output_rules: {
                 format: {
@@ -33,6 +34,13 @@ class DeconzMainEditor extends DeconzEditor {
         // TODO pourquoi le device dois être init avant le query ???
         if (this.options.have.device) this.subEditor.device = new DeconzDeviceEditor(this.node, this.options.device);
         if (this.options.have.query) this.subEditor.query = new DeconzQueryEditor(this.node, this.options.query);
+        if (this.options.have.specific) {
+            switch (this.node.type) {
+                case'deconz-output':
+                    this.subEditor.specific = new DeconzSpecificOutputEditor(this.node, this.options.specific);
+                    break;
+            }
+        }
         if (this.options.have.output_rules) this.subEditor.output_rules = new DeconzOutputRuleListEditor(this.node, this.options.output_rules);
         if (this.options.have.commands) this.subEditor.commands = new DeconzCommandListEditor(this.node, this.options.commands);
 

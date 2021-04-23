@@ -22,8 +22,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             'delay',
             // Common
             'transitiontime',
-            'onerrorretry',
-            'onerrorafter'
+            'retryonerror',
+            'aftererror'
         ];
 
         for (const lightKey of ['bri', 'sat', 'hue', 'ct', 'xy']) {
@@ -112,8 +112,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 payload: {type: 'msg', value: 'payload'},
                 delay: {type: 'num', value: 2000},
             },
-            onerrorretry: {type: 'num', value: 0},
-            onerrorafter: {type: 'continue'}
+            retryonerror: {type: 'num', value: 0},
+            aftererror: {type: 'continue'}
         };
     }
 
@@ -140,7 +140,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         await this.generateLightAlertField(this.containers.light, command.arg.alert);
         await this.generateLightEffectField(this.containers.light, command.arg.effect);
         await this.generateLightColorLoopSpeedField(this.containers.light, command.arg.colorloopspeed);
-        await this.generateHR(this.containers.light);
 
         // Windows Cover
         this.containers.windows_cover = $('<div>').appendTo(this.container);
@@ -168,10 +167,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         // Common
         this.containers.transition = $('<div>').appendTo(this.container);
+        await this.generateHR(this.containers.transition);
         await this.generateCommonTransitionTimeField(this.containers.transition, command.arg.transitiontime);
-        await this.generateCommonOnErrorRetryField(this.container, command.onerrorretry);
-        await this.generateCommonOnErrorAfterField(this.container, command.onerrorafter);
 
+
+        this.containers.common = $('<div>').appendTo(this.container);
+        await this.generateHR(this.containers.common);
+        await this.generateCommonOnErrorRetryField(this.containers.common, command.retryonerror);
+        await this.generateCommonOnErrorAfterField(this.containers.common, command.aftererror);
 
         await this.updateShowHide(command.type, command.domain);
 
@@ -194,7 +197,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     async updateShowHide(type, domain) {
         let containers = [];
         switch (type) {
-            case 'deconz':
+            case 'deconz_state':
                 switch (domain) {
                     case 'light':
                     case 'group':
@@ -208,18 +211,23 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                         containers.push('scene');
                         break;
                 }
+                containers.push('common');
                 break;
             case 'homekit':
                 containers.push('payload');
                 containers.push('transition');
+                containers.push('common');
                 break;
             case 'custom':
                 containers.push('command');
                 containers.push('payload');
                 containers.push('transition');
+                containers.push('common');
                 break;
+                /* Planned for 2.1
             case 'animation':
                 break;
+                 */
             case 'pause':
                 containers.push('pause');
                 break;
@@ -237,9 +245,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             value,
             addDefaultTypes: false,
             typedInput: {
-                default: 'deconz',
+                default: 'deconz_state',
                 types: [
-                    this.generateTypedInputType(i18n, 'deconz', {
+                    this.generateTypedInputType(i18n, 'deconz_state', {
                         subOptions: ['light', 'cover', 'group', 'scene']
                     }),
                     this.generateTypedInputType(i18n, 'homekit', {hasValue: false}),
@@ -253,7 +261,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Light HTML Helpers
     async generateLightOnField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.on`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.on`;
         await this.generateTypedInputField(container, {
             id: this.elements.on,
             i18n,
@@ -271,14 +279,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     async generateLightColorField(container, fieldName, value = {}) {
         //TODO revoir l'import de la valeur
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields`;
         let fieldFormat = [fieldName !== 'xy' ? "num" : "json"];
         await this.generateDoubleTypedInputField(container,
             {
                 id: this.elements[`${fieldName}_direction`],
                 i18n: `${i18n}.${fieldName}`,
                 addDefaultTypes: false,
-                currentType: value.direction,
+                value: {type: value.direction},
                 typedInput: {
                     types: [
                         this.generateTypedInputType(`${i18n}.lightFields`, 'set', {hasValue: false}),
@@ -300,7 +308,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightAlertField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.alert`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.alert`;
         await this.generateTypedInputField(container, {
             id: this.elements.alert,
             i18n,
@@ -317,7 +325,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightEffectField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.effect`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.effect`;
         await this.generateTypedInputField(container, {
             id: this.elements.effect,
             i18n,
@@ -333,7 +341,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightColorLoopSpeedField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.colorloopspeed`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.colorloopspeed`;
         await this.generateTypedInputField(container, {
             id: this.elements.colorloopspeed,
             i18n,
@@ -346,7 +354,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Cover HTML Helpers
     async generateCoverOpenField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.cover.fields.open`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.open`;
         await this.generateTypedInputField(container, {
             id: this.elements.open,
             i18n,
@@ -362,7 +370,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverStopField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.cover.fields.stop`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.stop`;
         await this.generateTypedInputField(container, {
             id: this.elements.stop,
             i18n,
@@ -377,7 +385,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverLiftField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.cover.fields.lift`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.lift`;
         await this.generateTypedInputField(container, {
             id: this.elements.lift,
             i18n,
@@ -393,7 +401,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverTiltField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.cover.fields.tilt`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.tilt`;
         await this.generateTypedInputField(container, {
             id: this.elements.tilt,
             i18n,
@@ -406,7 +414,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Scene HTML Helpers
     async generateSceneGroupField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.scene.fields.group`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene.fields.group`;
         await this.generateTypedInputField(container, {
             id: this.elements.scenecallgroup,
             i18n,
@@ -416,7 +424,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateSceneSceneField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.scene.fields.scene`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene.fields.scene`;
         await this.generateTypedInputField(container, {
             id: this.elements.scenecallscene,
             i18n,
@@ -482,7 +490,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Transition HTML Helpers
     async generateCommonTransitionTimeField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.transitiontime`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.common.fields.transitiontime`;
         await this.generateTypedInputField(container, {
             id: this.elements.transitiontime,
             i18n,
@@ -495,9 +503,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Option HTML Helpers
     async generateCommonOnErrorRetryField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.onerrorretry`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.common.fields.retryonerror`;
         await this.generateTypedInputField(container, {
-            id: this.elements.onerrorretry,
+            id: this.elements.retryonerror,
             i18n,
             value,
             typedInput: {
@@ -507,9 +515,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCommonOnErrorAfterField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.onerrorafter`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.common.fields.aftererror`;
         await this.generateTypedInputField(container, {
-            id: this.elements.onerrorafter,
+            id: this.elements.aftererror,
             i18n,
             value,
             typedInput: {

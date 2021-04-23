@@ -93,8 +93,12 @@
         </div>
         <!--#endregion -->
 
+        <!--#region --- Specific --- -->
+        <div id="specific-container"></div>
+        <!--#endregion -->
+
         <!--#region --- Section Output --- -->
-        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.outputs"></div>
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.commands"></div>
         <!-- --- Output list --- -->
         <div class="form-row node-input-output-container-row">
             <ol id="node-input-output-container"></ol>
@@ -138,7 +142,7 @@
             commands: {
                 value: [
                     {
-                        type: 'deconz',
+                        type: 'deconz_state',
                         domain: 'light',
                         target: 'state',
                         arg: {
@@ -157,6 +161,10 @@
                     //{format: 'single', type: 'config', payload: ["__complete__"], when: "always", onstart: true},
                 ],
             },
+            delay: {value: 50},
+            delay_type: {value: 'num'},
+            result: {value: 'payload'},
+            result_type: {value: 'at_end'},
             //#region All next options are for configuration migration from legacy
             command: {},
             commandType: {},
@@ -187,7 +195,7 @@
             let node = this;
 
             node.nodeEditor = new DeconzMainEditor(node, {
-                have: {commands: true}
+                have: {commands: true, specific: true}
             });
 
             node.nodeEditor.init();
