@@ -136,8 +136,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         await this.generateLightEffectField(this.containers.light, command.arg.effect);
         await this.generateLightColorLoopSpeedField(this.containers.light, command.arg.colorloopspeed);
         await this.generateHR(this.containers.light);
-        await this.generateCommonTransitionTimeField(this.containers.light, command.arg.transitiontime);
-
 
         // Windows Cover
         this.containers.windows_cover = $('<div>').appendTo(this.container);
@@ -163,6 +161,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.containers.pause = $('<div>').appendTo(this.container);
         await this.generatePauseDelayField(this.containers.pause, command.arg.delay);
 
+        this.containers.transition = $('<div>').appendTo(this.container);
+        await this.generateCommonTransitionTimeField(this.containers.transition, command.arg.transitiontime);
 
         await this.updateShowHide(command.type, command.domain);
 
@@ -190,6 +190,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     case 'light':
                     case 'group':
                         containers.push('light');
+                        containers.push('transition');
                         break;
                     case 'cover':
                         containers.push('windows_cover');
@@ -201,10 +202,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 break;
             case 'homekit':
                 containers.push('payload');
+                containers.push('transition');
                 break;
             case 'custom':
                 containers.push('command');
                 containers.push('payload');
+                containers.push('transition');
                 break;
             case 'animation':
                 break;
