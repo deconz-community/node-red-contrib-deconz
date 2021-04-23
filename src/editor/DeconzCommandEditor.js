@@ -11,7 +11,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             'typedomain',
             'on',
             'alert', 'effect', 'colorloopspeed',
-            'transitiontime',
             // Windows Cover
             'open', 'stop', 'lift', 'tilt',
             // Scene
@@ -20,7 +19,11 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             'command',
             'payload',
             // Pause
-            'delay'
+            'delay',
+            // Common
+            'transitiontime',
+            'onerrorretry',
+            'onerrorafter'
         ];
 
         for (const lightKey of ['bri', 'sat', 'hue', 'ct', 'xy']) {
@@ -85,13 +88,13 @@ class DeconzCommandEditor extends DeconzListItemEditor {
          */
         /**
          * @typedef {Object} Command
-         * @property {String} type - Can be 'deconz', 'custom', 'animation', 'pause', 'homekit'
+         * @property {String} type - Can be 'deconz_state', 'custom', 'pause', 'homekit'
          * @property {String} domain - Can be 'light', 'cover', 'group', 'scene'
          * @property {String} target - Can be 'attribute', 'state', 'config'
          * @property {LightCommandArgs|CoverCommandArgs|Object} arg - An object of key value of settings
          */
         return {
-            type: 'deconz',
+            type: 'deconz_state',
             domain: 'light',
             target: 'state',
             arg: {
@@ -108,7 +111,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 command: {type: 'str', value: 'on'},
                 payload: {type: 'msg', value: 'payload'},
                 delay: {type: 'num', value: 2000},
-            }
+            },
+            onerrorretry: {type: 'num', value: 0},
+            onerrorafter: {type: 'continue'}
         };
     }
 
@@ -149,11 +154,11 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         await this.generateSceneGroupField(this.containers.scene, command.arg.group);
         await this.generateSceneSceneField(this.containers.scene, command.arg.scene);
 
-        // Common
-
+        // Command
         this.containers.command = $('<div>').appendTo(this.container);
         await this.generateCommandField(this.containers.command, command.arg.command);
 
+        // Payload
         this.containers.payload = $('<div>').appendTo(this.container);
         await this.generatePayloadField(this.containers.payload, command.arg.payload);
 
@@ -161,8 +166,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.containers.pause = $('<div>').appendTo(this.container);
         await this.generatePauseDelayField(this.containers.pause, command.arg.delay);
 
+        // Common
         this.containers.transition = $('<div>').appendTo(this.container);
         await this.generateCommonTransitionTimeField(this.containers.transition, command.arg.transitiontime);
+        await this.generateCommonOnErrorRetryField(this.container, command.onerrorretry);
+        await this.generateCommonOnErrorAfterField(this.container, command.onerrorafter);
+
 
         await this.updateShowHide(command.type, command.domain);
 
@@ -260,7 +269,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         });
     }
 
-
     async generateLightColorField(container, fieldName, value = {}) {
         //TODO revoir l'import de la valeur
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields`;
@@ -290,7 +298,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             }
         );
     }
-
 
     async generateLightAlertField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.light.fields.alert`;
@@ -397,17 +404,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#endregion
 
-    async generateCommonTransitionTimeField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.transitiontime`;
-        await this.generateTypedInputField(container, {
-            id: this.elements.transitiontime,
-            i18n,
-            value,
-            typedInput: {types: ["num"]}
-        });
-    }
-
-
     //#region Scene HTML Helpers
     async generateSceneGroupField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.scene.fields.group`;
@@ -467,7 +463,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#endregion
 
-
     //#region Pause HTML Helpers
     async generatePauseDelayField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.pause.fields.delay`;
@@ -484,5 +479,49 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     //#endregion
+
+    //#region Transition HTML Helpers
+    async generateCommonTransitionTimeField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.transitiontime`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.transitiontime,
+            i18n,
+            value,
+            typedInput: {types: ["num"]}
+        });
+    }
+
+    //#endregion
+
+    //#region Option HTML Helpers
+    async generateCommonOnErrorRetryField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.onerrorretry`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.onerrorretry,
+            i18n,
+            value,
+            typedInput: {
+                types: ['num']
+            }
+        });
+    }
+
+    async generateCommonOnErrorAfterField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz.options.common.fields.onerrorafter`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.onerrorafter,
+            i18n,
+            value,
+            typedInput: {
+                types: [
+                    this.generateTypedInputType(i18n, 'continue', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'stop', {hasValue: false})
+                ]
+            }
+        });
+    }
+
+    //#endregion
+
 }
 
