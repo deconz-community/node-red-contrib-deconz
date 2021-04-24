@@ -274,7 +274,27 @@
                     },
                     "ct": {
                       "label": "Mired color temperature",
-                      "icon": "lightbulb-o"
+                      "icon": "lightbulb-o",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "cold": {
+                              "label": "Cold",
+                              "icon": "thermometer-empty"
+                            },
+                            "white": {
+                              "label": "White",
+                              "icon": "thermometer-half"
+                            },
+                            "warm": {
+                              "label": "Warm",
+                              "icon": "thermometer-full"
+                            }
+                          }
+                        }
+                      }
                     },
                     "xy": {
                       "label": "CIE xy color",

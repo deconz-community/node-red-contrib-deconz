@@ -96,7 +96,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
          */
         /**
          * @typedef {Object} LightCommandArgs
-         * @property {TypedInput} on - Turn true = on or false = off, null = nothing, toogle = toogle
+         * @property {TypedInput} on - Turn true = on or false = off, "" = nothing, toogle = toogle
          * @property {LightArgs} bri - Brightness value
          * @property {LightArgs} sat - Color saturation
          * @property {LightArgs} hue - Color hue
@@ -132,15 +132,15 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             target: 'state',
             arg: {
                 on: {type: 'keep'},
-                bri: {direction: 'set', type: 'keep'},
-                sat: {direction: 'set', type: 'keep'},
-                hue: {direction: 'set', type: 'keep'},
-                ct: {direction: 'set', type: 'keep'},
-                xy: {direction: 'set', type: 'keep'},
-                alert: {type: 'keep'},
-                effect: {type: 'keep'},
-                colorloopspeed: {type: 'keep'},
-                transitiontime: {type: 'keep'},
+                bri: {direction: 'set', type: 'num'},
+                sat: {direction: 'set', type: 'num'},
+                hue: {direction: 'set', type: 'num'},
+                ct: {direction: 'set', type: 'num'},
+                xy: {direction: 'set', type: 'num'},
+                alert: {type: 'str'},
+                effect: {type: 'str'},
+                colorloopspeed: {type: 'num'},
+                transitiontime: {type: 'num'},
                 command: {type: 'str', value: 'on'},
                 payload: {type: 'msg', value: 'payload'},
                 delay: {type: 'num', value: 2000},
@@ -243,6 +243,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 containers.push('common');
                 break;
             case 'homekit':
+                // TODO filter payload to have only msg, flow, global, json, jsonata
                 containers.push('payload');
                 containers.push('transition');
                 containers.push('common');
@@ -310,6 +311,11 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         //TODO revoir l'import de la valeur
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields`;
         let fieldFormat = [fieldName !== 'xy' ? "num" : "json"];
+        if (fieldName === 'ct') {
+            fieldFormat.push(this.generateTypedInputType(`${i18n}.ct`, 'deconz', {
+                subOptions: ['cold', 'white', 'warm']
+            }));
+        }
         await this.generateDoubleTypedInputField(container,
             {
                 id: this.elements[`${fieldName}_direction`],
