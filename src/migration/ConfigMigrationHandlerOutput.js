@@ -275,7 +275,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         }
                         break;
 
-                    case'colorloopspeed':
+                    case 'colorloopspeed':
                         switch (this.config.payloadType) {
                             case 'msg':
                             case 'flow':
@@ -301,9 +301,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                 break;
 
-            case
-            'homekit'
-            :
+            case 'homekit':
                 command.new.type = 'homekit';
                 switch (this.config.payloadType) {
                     case 'msg':
@@ -328,9 +326,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 }
                 break;
 
-            case
-            'str'
-            :
+            case 'str':
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {
@@ -342,9 +338,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     value: this.config.payload
                 };
                 break;
-            case
-            'msg'
-            :
+            case 'msg':
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {
@@ -356,9 +350,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     value: this.config.payload
                 };
                 break;
-            case
-            'object'
-            :
+            case 'object':
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {type: 'object'};
