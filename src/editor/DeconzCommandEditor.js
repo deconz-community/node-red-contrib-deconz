@@ -145,6 +145,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 payload: {type: 'msg', value: 'payload'},
                 delay: {type: 'num', value: 2000},
                 target: {type: 'state'},
+                group: {type: 'num'},
+                scene: {type: 'num'},
                 retryonerror: {type: 'num', value: 0},
                 aftererror: {type: 'continue'}
             }
@@ -454,7 +456,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.scenecallgroup,
             i18n,
             value,
-            typedInput: {types: ['num']}
+            typedInput: {
+                types: [
+                    'num',
+                    this.generateTypedInputType(i18n, 'from_device', {hasValue: false}),
+                ]
+            }
         });
     }
 
@@ -464,7 +471,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.scenecallscene,
             i18n,
             value,
-            typedInput: {types: ['num']}
+            typedInput: {types: ['num', 'str']}
         });
     }
 

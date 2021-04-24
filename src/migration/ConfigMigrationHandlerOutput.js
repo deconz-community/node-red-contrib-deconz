@@ -174,7 +174,44 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
 
                     case 'scene':
-                        // TODO
+                        command.new.domain = 'scene';
+
+                        // Strip 'group_' from device name
+                        let part = this.config.device.substring(6);
+                        if (part.length === 0 || isNaN(part)) {
+                            this.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
+                        } else {
+                            command.arg.group = {
+                                type: 'num',
+                                value: parseInt(part)
+                            };
+                        }
+
+                        switch (this.config.payloadType) {
+                            case 'deconz_payload':
+                            case 'str':
+                            case 'num':
+                                if (isNaN(this.config.payload)) {
+                                    this.errors.push(`Invalid scene ID '${this.config.payload}' for calling scene`);
+                                } else {
+                                    command.arg.scene = {
+                                        type: 'num',
+                                        value: parseInt(this.config.payload)
+                                    };
+                                }
+                                break;
+                            case 'msg':
+                            case 'flow':
+                            case 'global':
+                                command.arg.scene = {
+                                    type: this.config.payloadType,
+                                    value: this.config.payload
+                                };
+                                break;
+                            default:
+                                this.errors.push(`Invalid value type '${this.config.payloadType}' for calling scene`);
+                                break;
+                        }
                         break;
 
                     case 'alert':
@@ -264,7 +301,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                 break;
 
-            case 'homekit':
+            case
+            'homekit'
+            :
                 command.new.type = 'homekit';
                 switch (this.config.payloadType) {
                     case 'msg':
@@ -289,7 +328,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 }
                 break;
 
-            case 'str' :
+            case
+            'str'
+            :
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {
@@ -301,7 +342,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     value: this.config.payload
                 };
                 break;
-            case 'msg':
+            case
+            'msg'
+            :
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {
@@ -313,7 +356,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     value: this.config.payload
                 };
                 break;
-            case 'object':
+            case
+            'object'
+            :
                 command.new.type = 'custom';
                 command.new.arg.target = 'state';
                 command.new.arg.command = {type: 'object'};
