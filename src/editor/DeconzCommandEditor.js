@@ -460,6 +460,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     'num',
                     this.generateTypedInputType(i18n, 'from_device', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'deconz_group'),
                 ]
             }
         });
@@ -471,7 +472,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.scenecallscene,
             i18n,
             value,
-            typedInput: {types: ['num', 'str']}
+            typedInput: {
+                types: [
+                    'num',
+                    this.generateTypedInputType(i18n, 'deconz_scene'),
+                    'str',
+                    're'
+                ]
+            }
         });
     }
 

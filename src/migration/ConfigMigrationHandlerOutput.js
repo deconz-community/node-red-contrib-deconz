@@ -174,6 +174,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                     case 'scene':
                         command.new.domain = 'scene';
+                        //TODO change with deconz_group and deconz_scene types
 
                         // Strip 'group_' from device name
                         let part = this.config.device.substring(6);
