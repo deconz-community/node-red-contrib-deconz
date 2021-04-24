@@ -90,7 +90,7 @@ class DeconzMainEditor extends DeconzEditor {
             this.sendError(errorMsg);
         });
 
-        if (result.notNeeded) return;
+        if (!result || result.notNeeded) return;
 
         if (result.new) {
             for (const [key, value] of Object.entries(result.new)) {

@@ -19,20 +19,19 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             arg: {}
         };
 
-
         // TODO Migrate commands
         switch (this.config.commandType) {
             case 'deconz_cmd':
-                command.new.type = 'deconz_state';
-                command.new.domain = (this.config.device.substr(0, 6) === 'group_') ? 'group' : 'light';
+                command.type = 'deconz_state';
+                command.domain = (this.config.device.substr(0, 6) === 'group_') ? 'group' : 'light';
                 command.target = 'state';
                 switch (this.config.command) {
                     case 'on':
                         switch (this.config.payloadType) {
                             case 'deconz_payload':
                                 command.arg.on = {
-                                    type: 'turn',
-                                    value: (this.config.payload === '1')
+                                    type: 'set',
+                                    value: (this.config.payload === '1').toString()
                                 };
                                 break;
                             case 'msg':
@@ -363,9 +362,38 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 throw new Error('Invalid command type for migration');
         }
 
-        console.log({old: this.config});
 
-        this.result.commands = [command];
+        switch (this.config.transitionTimeType) {
+            case 'msg':
+            case 'flow':
+            case 'global':
+                command.new.arg.transition = {
+                    type: this.config.transitionTimeType,
+                    value: this.config.transitionTime
+                };
+                break;
+            case 'str':
+            case 'num':
+                command.arg.transition = {type: 'num'};
+                if (isNaN(this.config.transitionTime)) {
+                    this.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
+                } else {
+                    command.arg.transition.value = parseInt(this.config.transitionTime);
+                }
+                break;
+            default:
+                this.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
+                break;
+        }
+
+        this.result.delete.push('command');
+        this.result.delete.push('commandType');
+        this.result.delete.push('payload');
+        this.result.delete.push('payloadType');
+        this.result.delete.push('transitionTime');
+        this.result.delete.push('transitionTimeType');
+
+        this.result.new.commands = [command];
         this.config_version = 1;
     }
 
