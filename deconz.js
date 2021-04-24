@@ -1,6 +1,6 @@
 const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
-const ConfigMigration = require("./lib/config-migration");
+const ConfigMigration = require("./src/migration/ConfigMigration");
 
 module.exports = function (RED) {
 

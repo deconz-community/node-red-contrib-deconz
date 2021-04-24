@@ -1,51 +1,4 @@
-/**
- *
- */
-class ConfigMigration {
-
-    constructor(type, config) {
-        this.type = type;
-        switch (this.type) {
-            case 'deconz-input':
-                this.handler = new ConfigMigrationHandlerInput(config);
-
-        }
-    }
-
-    migrate(controller) {
-        if (!this.handler || !this.handler.migrate) {
-            return {error: 'Configuration migration handler not found.'};
-        }
-
-        if (!this.handler.isLastestVersion) {
-            this.handler.migrate(controller);
-            return this.handler.result;
-        } else {
-            return {notNeeded: true};
-        }
-    }
-}
-
-class ConfigMigrationHandler {
-    constructor(config) {
-        this.config = config;
-        this.config_version = this.config.config_version;
-        this.result = {
-            new: {},
-            delete: [],
-            errors: []
-        };
-    }
-
-    get currentVersion() {
-        return this.config_version;
-    }
-
-    get isLastestVersion() {
-        return this.currentVersion === this.lastVersion;
-    }
-
-}
+const ConfigMigrationHandler = require('./ConfigMigrationHandler');
 
 class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
     get lastVersion() {
@@ -96,4 +49,4 @@ class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
 
 }
 
-module.exports = ConfigMigration;
+module.exports = ConfigMigrationHandlerInput;
