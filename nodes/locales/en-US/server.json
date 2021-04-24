@@ -133,9 +133,32 @@
         "type": {
           "label": "Type",
           "icon": "file-code-o",
+          "add_button": {
+            "label": "Add __type__",
+            "icon": "plus",
+            "title": "Add __type__ command"
+          },
           "options": {
             "common": {
               "fields": {
+                "target": {
+                  "label": "Target",
+                  "icon": "dot-circle-o",
+                  "options": {
+                    "attribute": {
+                      "label": "Attribute",
+                      "icon": "object-group"
+                    },
+                    "state": {
+                      "label": "State",
+                      "icon": "lightbulb-o"
+                    },
+                    "config": {
+                      "label": "Config",
+                      "icon": "wrench"
+                    }
+                  }
+                },
                 "command": {
                   "label": "Command",
                   "icon": "tasks",

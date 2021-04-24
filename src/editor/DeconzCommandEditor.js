@@ -6,9 +6,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.containers = {};
     }
 
-    get elements() {
-        let keys = [
-            'typedomain',
+    get lightKeys() {
+        return ['bri', 'sat', 'hue', 'ct', 'xy'];
+    }
+
+    get argKeys() {
+        return [
             'on',
             'alert', 'effect', 'colorloopspeed',
             // Windows Cover
@@ -16,6 +19,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Scene
             'scenecallgroup', 'scenecallscene',
             // Homekit, object
+            'target',
             'command',
             'payload',
             // Pause
@@ -23,10 +27,15 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Common
             'transitiontime',
             'retryonerror',
-            'aftererror'
+            'aftererror',
         ];
+    }
 
-        for (const lightKey of ['bri', 'sat', 'hue', 'ct', 'xy']) {
+    get elements() {
+        let keys = this.argKeys;
+        keys.push('typedomain');
+        keys.push('outputButton');
+        for (const lightKey of this.lightKeys) {
             keys.push(lightKey);
             keys.push(lightKey + '_direction');
         }
@@ -43,8 +52,27 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     get value() {
-        let value = {};
+        let value = {
+            arg: {}
+        };
 
+        value.type = this.$elements.typedomain.typedInput('type');
+        value.domain = this.$elements.typedomain.typedInput('value');
+
+        for (const key of this.argKeys) {
+            value.arg[key] = {
+                type: this.$elements[key].typedInput('type'),
+                value: this.$elements[key].typedInput('value')
+            };
+        }
+
+        for (const key of this.lightKeys) {
+            value.arg[key] = {
+                direction: this.$elements[key + '_direction'].typedInput('type'),
+                type: this.$elements[key].typedInput('type'),
+                value: this.$elements[key].typedInput('value')
+            };
+        }
 
         return value;
     }
@@ -87,11 +115,16 @@ class DeconzCommandEditor extends DeconzListItemEditor {
          * @property {Number|null} tilt - 0 to 100 or null
          */
         /**
+         * @typedef {Object} CustomCommandArgs
+         * @property {String} target - Can be 'attribute', 'state', 'config'
+         * @property {TypedInput} command - Value name to set or object
+         * @property {TypedInput} payload - Value to set or array of values if command is object
+         */
+        /**
          * @typedef {Object} Command
          * @property {String} type - Can be 'deconz_state', 'custom', 'pause', 'homekit'
          * @property {String} domain - Can be 'light', 'cover', 'group', 'scene'
-         * @property {String} target - Can be 'attribute', 'state', 'config'
-         * @property {LightCommandArgs|CoverCommandArgs|Object} arg - An object of key value of settings
+         * @property {LightCommandArgs|CoverCommandArgs|CustomCommandArgs|Object} arg - An object of key value of settings
          */
         return {
             type: 'deconz_state',
@@ -111,21 +144,16 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 command: {type: 'str', value: 'on'},
                 payload: {type: 'msg', value: 'payload'},
                 delay: {type: 'num', value: 2000},
-            },
-            retryonerror: {type: 'num', value: 0},
-            aftererror: {type: 'continue'}
+                target: {type: 'state'},
+                retryonerror: {type: 'num', value: 0},
+                aftererror: {type: 'continue'}
+            }
         };
     }
 
     async init(command, index) {
         this._index = index;
-
-        if (command === undefined || command.type === undefined) {
-            command = this.defaultCommand;
-        }
-
-        //TODO For debug
-        command = this.defaultCommand;
+        command = $.extend(true, this.defaultCommand, command);
 
         await this.generateTypeDomainField(this.container, {type: command.type, value: command.domain});
 
@@ -155,6 +183,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         // Command
         this.containers.command = $('<div>').appendTo(this.container);
+        await this.generateTargetField(this.containers.command, command.arg.target);
         await this.generateCommandField(this.containers.command, command.arg.command);
 
         // Payload
@@ -173,8 +202,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         this.containers.common = $('<div>').appendTo(this.container);
         await this.generateHR(this.containers.common);
-        await this.generateCommonOnErrorRetryField(this.containers.common, command.retryonerror);
-        await this.generateCommonOnErrorAfterField(this.containers.common, command.aftererror);
+        await this.generateCommonOnErrorRetryField(this.containers.common, command.arg.retryonerror);
+        await this.generateCommonOnErrorAfterField(this.containers.common, command.arg.aftererror);
 
         await this.updateShowHide(command.type, command.domain);
 
@@ -224,10 +253,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 containers.push('transition');
                 containers.push('common');
                 break;
-                /* Planned for 2.1
-            case 'animation':
-                break;
-                 */
+            /* Planned for 2.1
+        case 'animation':
+            break;
+             */
             case 'pause':
                 containers.push('pause');
                 break;
@@ -436,6 +465,22 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     //#endregion
 
     //#region Common HTML Helpers
+    async generateTargetField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.common.fields.target`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.target,
+            i18n,
+            value,
+            typedInput: {
+                types: [
+                    this.generateTypedInputType(i18n, 'attribute', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'state', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'config', {hasValue: false})
+                ]
+            }
+        });
+    }
+
     async generateCommandField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.common.fields.command`;
         await this.generateTypedInputField(container, {
@@ -445,7 +490,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 types: [
                     'str',
-                    this.generateTypedInputType(i18n, 'object', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'object', {hasValue: false})
                 ]
             }
         });

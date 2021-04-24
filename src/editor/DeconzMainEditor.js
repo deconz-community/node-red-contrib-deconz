@@ -25,7 +25,17 @@ class DeconzMainEditor extends DeconzEditor {
                     homekit: false
                 }
             },
-            commands: {}
+            commands: {
+                type: {
+                    deconz_state: true,
+                    homekit: true,
+                    custom: true,
+                    pause: true
+                }
+            },
+            specific: {
+                output: {}
+            }
         }, options));
 
         this.subEditor = {};
@@ -37,7 +47,7 @@ class DeconzMainEditor extends DeconzEditor {
         if (this.options.have.specific) {
             switch (this.node.type) {
                 case'deconz-output':
-                    this.subEditor.specific = new DeconzSpecificOutputEditor(this.node, this.options.specific);
+                    this.subEditor.specific = new DeconzSpecificOutputEditor(this.node, this.options.specific.output);
                     break;
             }
         }
@@ -168,6 +178,13 @@ class DeconzMainEditor extends DeconzEditor {
             this.node.outputs = this.node.output_rules.length;
             this.node.output_rules = this.subEditor.output_rules.value;
         }
+        if (this.options.have.commands) {
+            this.node.commands = this.subEditor.commands.value;
+        }
+        if (this.options.have.specific) {
+            this.node.specific = this.subEditor.specific.value;
+        }
+
     }
 
 }

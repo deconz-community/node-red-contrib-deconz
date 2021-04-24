@@ -7,25 +7,28 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
     get elements() {
         return {
             container: 'specific-container',
-            delay: 'delay',
-            result: 'result'
+            delay: 'node-input-delay',
+            result: 'node-input-result'
+        };
+    }
+
+    get default() {
+        return {
+            delay: {type: 'num', value: 50},
+            result: {type: 'at_end'},
         };
     }
 
     async init() {
+        this.node.specific = $.extend(true, this.default, this.node.specific);
+        let container = this.findElement(this.elements.container);
+        await this.generateSeparator(container, `${this.NRCD}/server:editor.inputs.separator.specific`);
+        await this.generateDelayField(container, this.node.specific.delay);
+        await this.generateResultField(container, this.node.specific.result);
+
         await super.init();
 
-        await this.generateSeparator(this.$elements.container, `${this.NRCD}/server:editor.inputs.separator.specific`);
-        await this.generateDelayField(this.$elements.container, {
-            type: this.node.delay_type,
-            value: this.node.delay
-        });
-        await this.generateResultField(this.$elements.container, {
-            type: this.node.result_type,
-            value: this.node.result
-        });
     }
-
 
     async generateDelayField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.specific.output.delay`;
@@ -66,6 +69,30 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
 
          */
 
+    }
+
+    get value() {
+        console.log({
+            delay: {
+                type: this.$elements.delay.typedInput('type'),
+                value: this.$elements.delay.typedInput('value')
+            },
+            result: {
+                type: this.$elements.result.typedInput('type'),
+                value: this.$elements.result.typedInput('value')
+            }
+        });
+
+        return {
+            delay: {
+                type: this.$elements.delay.typedInput('type'),
+                value: this.$elements.delay.typedInput('value')
+            },
+            result: {
+                type: this.$elements.result.typedInput('type'),
+                value: this.$elements.result.typedInput('value')
+            }
+        };
     }
 
 }

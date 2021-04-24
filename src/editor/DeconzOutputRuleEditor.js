@@ -8,24 +8,21 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
     }
 
     get elements() {
-        return {
-            //list: 'node-input-output-container',
-            format: `node-input-output-rule-${this.uniqueId}-format`,
-            type: `node-input-output-rule-${this.uniqueId}-type`,
-            payload: `node-input-output-rule-${this.uniqueId}-payload`,
-            output: `node-input-output-rule-${this.uniqueId}-output`,
-            onstart: `node-input-output-rule-${this.uniqueId}-onstart`,
-            onerror: `node-input-output-rule-${this.uniqueId}-onerror`,
-            outputButton: `node-input-output-rule-${this.uniqueId}-output-button`
-        };
-    }
+        let keys = [
+            'format',
+            'type',
+            'payload',
+            'output',
+            'onstart',
+            'onerror',
+            'outputButton'
+        ];
 
-    set value(rule) {
-        if (rule.type) this.$elements.type.val(rule.type);
-        if (rule.payload) this.$elements.payload.multipleSelect('setSelects', rule.payload);
-        if (rule.output) this.$elements.output.val(rule.output);
-        if (rule.onstart) this.$elements.onstart.val(rule.onstart);
-        if (rule.onerror) this.$elements.onerror.val(rule.onerror);
+        let elements = {};
+        for (const key of keys) {
+            elements[key] = `node-input-output-rule-${this.uniqueId}-${key}`;
+        }
+        return elements;
     }
 
     get value() {
@@ -70,9 +67,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
     async init(rule, index) {
         this._index = index;
 
-        if (rule === undefined || rule.type === undefined) {
-            rule = this.defaultRule;
-        }
+        rule = $.extend(true, this.defaultRule, rule);
 
         await this.generatePayloadTypeField(this.container, rule.type);
         await this.generatePayloadField(this.container);

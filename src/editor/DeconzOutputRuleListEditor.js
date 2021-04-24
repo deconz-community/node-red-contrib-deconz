@@ -12,13 +12,14 @@ class DeconzOutputRuleListEditor extends DeconzListItemListEditor {
 
     get buttons() {
         let buttons = [];
+        let i18n = `${this.NRCD}/server:editor.inputs.outputs.type`;
         for (const [type, enabled] of Object.entries(this.options.type)) {
             if (enabled) {
-                let type_name = RED._(`${this.NRCD}/server:editor.inputs.outputs.type.options.${type}`);
+                let type_name = this.getI18n(`${i18n}.options.${type}`);
                 buttons.push({
-                    label: RED._(`${this.NRCD}/server:editor.inputs.outputs.type.add_button.label`, {type: type_name}),
-                    icon: "fa fa-" + RED._(`${this.NRCD}/server:editor.inputs.outputs.type.add_button.icon`),
-                    title: RED._(`${this.NRCD}/server:editor.inputs.outputs.type.add_button.title`, {type: type_name}),
+                    label: this.getI18n(`${i18n}.add_button`, 'label', {type: type_name}),
+                    icon: this.getIcon(this.getI18n(`${i18n}.add_button`, 'icon'), true),
+                    title: this.getI18n(`${i18n}.add_button`, 'title', {type: type_name}),
                     click: () => this.$elements.list.editableList('addItem', {type})
                 });
             }

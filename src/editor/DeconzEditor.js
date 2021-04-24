@@ -118,12 +118,16 @@ class DeconzEditor {
     findElements() {
         this.$elements = {};
         Object.keys(this.elements).forEach(k => {
-            let id = this.elements[k];
-            if (id.charAt(0) !== '#' && id.charAt(0) !== '.') id = '#' + id;
-            this.$elements[k] = $(id);
+            this.$elements[k] = this.findElement(this.elements[k]);
         });
     }
 
+    findElement(identifier) {
+        if (identifier.charAt(0) !== '#' && identifier.charAt(0) !== '.') {
+            identifier = '#' + identifier;
+        }
+        return $(identifier);
+    }
 
     async init() {
         this.findElements();
@@ -147,13 +151,13 @@ class DeconzEditor {
 
     //#region HTML Helpers
 
-    getIcon(icon) {
+    getIcon(icon, includeClass = false) {
         if (icon === 'deconz') {
             return 'icons/node-red-contrib-deconz/icon-color.png';
         } else if (icon === 'homekit') {
             return 'icons/node-red-contrib-deconz/homekit-logo.png';
         } else if (RED.nodes.fontAwesome.getIconList().includes(`fa-${icon}`)) {
-            return `fa-${icon}`;
+            return `${includeClass ? 'fa ' : ''}fa-${icon}`;
         } else {
             return icon;
         }
@@ -175,10 +179,10 @@ class DeconzEditor {
         imageIconElement.css("backgroundImage", "url(" + icon + ")");
     }
 
-    getI18n(prefix, suffix) {
+    getI18n(prefix, suffix, data = {}) {
         let _path = prefix;
         if (suffix) _path += `.${suffix}`;
-        const value = RED._(_path);
+        const value = RED._(_path, data);
         if (_path === value) return;
         return value;
     }
@@ -273,9 +277,10 @@ class DeconzEditor {
         input.typedInput(typedInputOptions);
 
         if (options.width !== undefined) input.typedInput('width', options.width);
-        if (options.value.type !== undefined) input.typedInput('type', options.value.type);
-        if (options.value.value !== undefined) input.typedInput('value', options.value.value);
-
+        if (options.value) {
+            if (options.value.type !== undefined) input.typedInput('type', options.value.type);
+            if (options.value.value !== undefined) input.typedInput('value', options.value.value);
+        }
     }
 
     async generateTypedInputField(container, options) {
