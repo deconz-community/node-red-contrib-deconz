@@ -39,7 +39,7 @@ const compareVersions = require('compare-versions');
  * @typedef {Object} RegexMatch
  * @property {String} type - the match type, need to be 'regex'.
  * @property {String} regex - any value accepted by RegExp constructor as first argument.
- * @property {String|undefinded} flag - any value accepted by RegExp constructor as second argument. By default 'g'
+ * @property {String|undefined} flag - any value accepted by RegExp constructor as second argument. By default 'g'
  */
 
 
