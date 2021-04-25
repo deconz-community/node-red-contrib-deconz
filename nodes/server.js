@@ -3,6 +3,45 @@ const DeconzSocket = require('../lib/deconz-socket');
 const dotProp = require('dot-prop');
 const compareVersions = require('compare-versions');
 
+/**
+ * @typedef {Object} Query
+ * @template Match
+ * @property {String|undefined} device_type - the device type, can be 'groups', 'lights', 'sensors'.
+ * @property {Number|undefined} device_id - the device id.
+ * @property {String|undefined} uniqueid - the device uniqueid.
+ */
+
+/**
+ * @typedef {Object} Match
+ * @property {String} type - the device type, need to be 'match'.
+ * @property {String|undefined} operator - the device type, can be 'AND', 'OR', 'undefined'.
+ * @property {String|Object.<String,String|Number|Boolean|Match|DateMatch|CompareMatch|RegexMatch>} match - list of key - values to check.
+ */
+
+/**
+ * @typedef {Object} DateMatch
+ * @property {String} type - the match type, need to be 'date'.
+ * @property {String} after - any value supported by Date.parse.
+ * @property {String} before - any value supported by Date.parse.
+ */
+
+/**
+ * @typedef {Object} CompareMatch
+ * @property {String} type - the match type, need to be 'compare'.
+ * @property {String} convertTo - can be 'boolean', 'number', 'bigint', 'float', 'string', 'date', 'version'.
+ * @property {Boolean|undefined} convertLeft - Convert device value. Default : true.
+ * @property {Boolean|undefined} convertRight - Convert query value. Default : true.
+ * @property {String} operator - can be '===', '!==', '==', '!=', '>', '>=', '<', '<='.
+ * @property {String|Number|Boolean} value - a value to compare to.
+ */
+
+/**
+ * @typedef {Object} RegexMatch
+ * @property {String} type - the match type, need to be 'regex'.
+ * @property {String} regex - any value accepted by RegExp constructor as first argument.
+ * @property {String|undefinded} flag - any value accepted by RegExp constructor as second argument. By default 'g'
+ */
+
 
 module.exports = function (RED) {
     class ServerNode {
@@ -263,7 +302,10 @@ module.exports = function (RED) {
                         return conditions[value] === target;
                     case "object":
                         if (Array.isArray(conditions[value])) {
-                            return conditions[value].some(target);
+                            if (typeof target === 'function')
+                                return conditions[value].some(target);
+                            else
+                                return conditions[value].includes(target);
                         } else {
                             switch (conditions[value].type) {
                                 case "compare":
