@@ -511,7 +511,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             hideOptgroupCheckboxes: true,
             selectAll: false,
             filter: true,
-            filterPlaceholder: RED._(`${this.NRCD}/server:editor.inputs.device.device.filter`),
+            filterPlaceholder: this.getI18n(i18n, 'filter_place_holder'),
             placeholder: RED._(`${this.NRCD}/server:editor.multiselect.none_selected`),
             //single: true,
             //singleRadio: true,

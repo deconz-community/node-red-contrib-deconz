@@ -425,7 +425,8 @@
                   "fields": {
                     "picker": {
                       "label": "Picker",
-                      "icon": "crosshairs"
+                      "icon": "crosshairs",
+                      "filter_place_holder" : "Filter scenes..."
                     },
                     "group": {
                       "label": "Group ID",
