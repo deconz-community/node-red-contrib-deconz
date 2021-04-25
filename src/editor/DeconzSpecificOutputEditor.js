@@ -72,17 +72,6 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
     }
 
     get value() {
-        console.log({
-            delay: {
-                type: this.$elements.delay.typedInput('type'),
-                value: this.$elements.delay.typedInput('value')
-            },
-            result: {
-                type: this.$elements.result.typedInput('type'),
-                value: this.$elements.result.typedInput('value')
-            }
-        });
-
         return {
             delay: {
                 type: this.$elements.delay.typedInput('type'),
