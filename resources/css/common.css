@@ -43,7 +43,7 @@
 }
 
 .deconz-editor .top-right-badge {
-    display: table-cell;
+    margin-left: 10px;
 }
 
 .deconz-help .separator,

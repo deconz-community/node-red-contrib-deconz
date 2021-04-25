@@ -36,6 +36,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         keys.push('typedomain');
         keys.push('outputButton');
         keys.push('scene_picker');
+        keys.push('scene_picker_refresh');
         for (const lightKey of this.lightKeys) {
             keys.push(lightKey);
             keys.push(lightKey + '_direction');
@@ -225,6 +226,43 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.$elements.typedomain.on('change', (event, type, value) => {
             this.updateShowHide(type, value);
         });
+
+
+        //this.updateSceneList();
+
+
+        const updateSceneGroupSelection = () => {
+            let value = this.$elements.scene_picker.multipleSelect('getSelects');
+            if (value.length !== 1) return;
+            this.$elements.group.off('change', updateScenePickerSelection);
+            this.$elements.scene.off('change', updateScenePickerSelection);
+            let parts = value[0].split('.');
+            this.$elements.group.typedInput('type', 'num');
+            this.$elements.group.typedInput('value', parts[0]);
+            this.$elements.scene.typedInput('type', 'num');
+            this.$elements.scene.typedInput('value', parts[1]);
+            this.$elements.group.on('change', updateScenePickerSelection);
+            this.$elements.scene.on('change', updateScenePickerSelection);
+        };
+
+        const updateScenePickerSelection = () => {
+            this.$elements.scene_picker.off('change', updateSceneGroupSelection);
+            this.$elements.scene_picker.multipleSelect('setSelects',
+                (
+                    this.$elements.group.typedInput('type') !== 'num' ||
+                    this.$elements.group.typedInput('type') !== 'num'
+                ) ?
+                    [] :
+                    [`${this.$elements.group.typedInput('value')}.${this.$elements.scene.typedInput('value')}`]
+            );
+            this.$elements.scene_picker.on('change', updateSceneGroupSelection);
+        };
+
+        this.$elements.scene_picker.on('change', updateSceneGroupSelection);
+        this.$elements.group.on('change', updateScenePickerSelection);
+        this.$elements.scene.on('change', updateScenePickerSelection);
+        this.$elements.scene_picker_refresh.on('click', () => this.updateSceneList());
+
     }
 
     async updateShowHide(type, domain) {
@@ -273,14 +311,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async updateSceneList() {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.picker`;
-        //this.$elements.scene_call
-        //this.$elements.group
-
-        let currGroup = this.$elements.group.typedInput('value');
-        let currScene = this.$elements.scene.typedInput('value');
-        let currentKey = `${currGroup}.${currScene}`;
-
         this.$elements.scene_picker.multipleSelect('disable');
         this.$elements.scene_picker.children().remove();
 
@@ -308,8 +338,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         }
 
         this.$elements.scene_picker.multipleSelect('refresh').multipleSelect('enable');
-        this.$elements.scene_picker.multipleSelect('setSelects', [currentKey]);
-
+        this.$elements.scene_picker.multipleSelect('setSelects',
+            (
+                this.$elements.group.typedInput('type') !== 'num' ||
+                this.$elements.group.typedInput('type') !== 'num'
+            ) ?
+                [] :
+                [`${this.$elements.group.typedInput('value')}.${this.$elements.scene.typedInput('value')}`]
+        );
     }
 
     //#region HTML Helpers
@@ -505,22 +541,27 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         list.multipleSelect({
             maxHeight: 300,
             dropWidth: 300,
-            width: 220,
+            width: 200,
             numberDisplayed: 1,
-            single: false,
+            single: true,
+            singleRadio: true,
             hideOptgroupCheckboxes: true,
+            showClear: true,
             selectAll: false,
             filter: true,
             filterPlaceholder: this.getI18n(i18n, 'filter_place_holder'),
             placeholder: RED._(`${this.NRCD}/server:editor.multiselect.none_selected`),
-            //single: true,
-            //singleRadio: true,
-            container: '.node-input-output-container-row',
-            onClick: (view) => {
-                if (!view.selected) return;
-                list.multipleSelect('setSelects', [view.value]);
-            },
+            container: '.node-input-output-container-row'
         });
+
+        let buttonElement = $('<a/>', {
+            id: this.elements.scene_picker_refresh,
+            class: 'red-ui-button',
+            style: 'margin-left:10px;'
+        });
+        this.createIconElement(this.getIcon('refresh'), buttonElement);
+        list.closest('.form-row').append(buttonElement);
+
     }
 
     async generateSceneGroupField(container, value = {}) {

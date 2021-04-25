@@ -227,7 +227,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         list.multipleSelect({
             maxHeight: 300,
             dropWidth: 300,
-            width: 220,
+            width: 200,
             numberDisplayed: 1,
             single: false,
             selectAll: false,

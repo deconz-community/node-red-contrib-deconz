@@ -369,7 +369,7 @@ class DeconzEditor {
     async generateInputWithLabel(input, options = {}) {
         let row = $('<div/>', {
             class: 'form-row',
-            style: 'padding:5px;margin:0;display:table;'
+            style: 'padding:5px;margin:0;display:table;min-width:420px;'
         });
         let inputID = input.attr('id');
         if (inputID) {
