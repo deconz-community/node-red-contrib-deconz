@@ -26,6 +26,20 @@ class DeconzDeviceListEditor extends DeconzEditor {
         }
     }
 
+    async getItems(options, xhrParams) {
+        xhrParams.forceRefresh = options.refresh;
+
+        let result = await $.getJSON(this.xhrURL, xhrParams).catch((t, u) => {
+            this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
+        });
+
+        if (result && result.error_message) {
+            console.warn(result.error_message);
+        }
+
+        return this.formatItemList(result.items, options.keepOnlyMatched);
+    }
+
     /**
      *
      * @param options
@@ -39,44 +53,34 @@ class DeconzDeviceListEditor extends DeconzEditor {
         /** @type {JQuery} */
         let list = this.$elements.list;
 
-        let params = this.xhrParams;
-        params.forceRefresh = options.refresh;
-
-        let result = await $.getJSON(this.xhrURL, params).catch((t, u) => {
-            this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
-        });
-
-        if (result && result.error_message) {
-            console.warn(result.error_message);
-        }
+        let devices = await this.getItems(options, this.xhrParams);
 
         // Remove all previous elements from 'select' input element
         list.children().remove();
-        if (result && result.items) {
-            let devices = this.formatItemList(result.items);
-            this.generateHtmlItemList(devices, this.$elements.list);
-        }
+        if (devices) this.generateHtmlItemList(devices, this.$elements.list);
 
         // Rebuild bootstrap multipleSelect form
         list.multipleSelect('refresh');
         // Enable item selection
-        if (result && result.items) {
+        if (devices) {
             list.multipleSelect('enable');
         }
 
     }
 
-    formatItemList(items) {
+    formatItemList(items, keepOnlyMatched = false) {
         let itemList = {};
 
         Object.values(items).forEach((item) => {
             if (this.filterItem && this.filterItem(item)) return true;
+            if (keepOnlyMatched === true && item.query_match === false) return true;
 
             let device_type = item.meta.type;
 
             if (itemList[device_type] === undefined) {
                 itemList[device_type] = [];
             }
+
 
             itemList[device_type].push(item);
         });
