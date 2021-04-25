@@ -231,8 +231,10 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             numberDisplayed: 1,
             single: false,
             selectAll: false,
-            filter: true,
             container: '.node-input-output-container-row',
+            filter: true,
+            filterPlaceholder: RED._(`${this.NRCD}/server:editor.inputs.device.device.filter`),
+            placeholder: RED._(`${this.NRCD}/server:editor.multiselect.none_selected`),
             /*
             This make sure that you can select (one or more state) or complete or each
              */

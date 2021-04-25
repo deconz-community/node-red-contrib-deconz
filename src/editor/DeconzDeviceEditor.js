@@ -34,6 +34,7 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
             single: (this.$elements.list.attr('multiple') !== "multiple"),
             filter: true,
             filterPlaceholder: RED._(`${this.NRCD}/server:editor.inputs.device.device.filter`),
+            placeholder: RED._(`${this.NRCD}/server:editor.multiselect.none_selected`),
             showClear: true
         });
 
