@@ -203,7 +203,9 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                         });
                     }
 
-                    $('<option>' + label + '</option>').attr('value', item).appendTo(groupHtml);
+                    $('<option>' + label + '</option>')
+                        .attr('value', (type === 'attribute') ? item : `${type}.${item}`)
+                        .appendTo(groupHtml);
                 }
 
                 if (!$.isEmptyObject(data.count[type])) {
