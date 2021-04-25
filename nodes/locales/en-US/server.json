@@ -420,16 +420,26 @@
                     }
                   }
                 },
-                "scene": {
-                  "label": "Scenes",
+                "scene_call": {
+                  "label": "Scenes call",
                   "fields": {
+                    "picker": {
+                      "label": "Picker",
+                      "icon": "crosshairs"
+                    },
                     "group": {
                       "label": "Group ID",
                       "icon": "object-group",
-                      "title": "Select the group of the scene"
+                      "title": "Select the group of the scene",
+                      "options": {
+                        "from_device": {
+                          "label": "From device",
+                          "icon": "search"
+                        }
+                      }
                     },
                     "scene": {
-                      "label": "Call Scene",
+                      "label": "Scene ID",
                       "icon": "picture-o",
                       "title": "Select the scene to call"
                     }

@@ -17,7 +17,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Windows Cover
             'open', 'stop', 'lift', 'tilt',
             // Scene
-            'scenecallgroup', 'scenecallscene',
+            'group', 'scene',
             // Homekit, object
             'target',
             'command',
@@ -35,6 +35,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         let keys = this.argKeys;
         keys.push('typedomain');
         keys.push('outputButton');
+        keys.push('scene_picker');
         for (const lightKey of this.lightKeys) {
             keys.push(lightKey);
             keys.push(lightKey + '_direction');
@@ -123,7 +124,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         /**
          * @typedef {Object} Command
          * @property {String} type - Can be 'deconz_state', 'custom', 'pause', 'homekit'
-         * @property {String} domain - Can be 'light', 'cover', 'group', 'scene'
+         * @property {String} domain - Can be 'light', 'cover', 'group', 'scene_call'
          * @property {LightCommandArgs|CoverCommandArgs|CustomCommandArgs|Object} arg - An object of key value of settings
          */
         return {
@@ -146,7 +147,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 delay: {type: 'num', value: 2000},
                 target: {type: 'state'},
                 group: {type: 'num'},
-                scene: {type: 'num'},
+                scene_call: {type: 'num'},
                 retryonerror: {type: 'num', value: 0},
                 aftererror: {type: 'continue'}
             }
@@ -179,9 +180,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         await this.generateCoverTiltField(this.containers.windows_cover, command.arg.tilt);
 
         // Scenes
-        this.containers.scene = $('<div>').appendTo(this.container);
-        await this.generateSceneGroupField(this.containers.scene, command.arg.group);
-        await this.generateSceneSceneField(this.containers.scene, command.arg.scene);
+        this.containers.scene_call = $('<div>').appendTo(this.container);
+        await this.generateScenePickerField(this.containers.scene_call, `${command.arg.group}.${command.arg.scene}`);
+        await this.generateSceneGroupField(this.containers.scene_call, command.arg.group);
+        await this.generateSceneSceneField(this.containers.scene_call, command.arg.scene);
 
         // Command
         this.containers.command = $('<div>').appendTo(this.container);
@@ -207,11 +209,11 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         await this.generateCommonOnErrorRetryField(this.containers.common, command.arg.retryonerror);
         await this.generateCommonOnErrorAfterField(this.containers.common, command.arg.aftererror);
 
-        await this.updateShowHide(command.type, command.domain);
-
         await super.init();
 
         await this.listEditor.mainEditor.isInitialized();
+
+        await this.updateShowHide(command.type, command.domain);
 
         await this.connect();
 
@@ -238,8 +240,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     case 'cover':
                         containers.push('windows_cover');
                         break;
-                    case 'scene':
-                        containers.push('scene');
+                    case 'scene_call':
+                        containers.push('scene_call');
+                        await this.updateSceneList();
                         break;
                 }
                 containers.push('common');
@@ -256,7 +259,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 containers.push('transition');
                 containers.push('common');
                 break;
-            /* Planned for 2.1
+            /* TODO Planned for 2.1
         case 'animation':
             break;
              */
@@ -269,6 +272,47 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         }
     }
 
+    async updateSceneList() {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.picker`;
+        //this.$elements.scene_call
+        //this.$elements.group
+
+        let currGroup = this.$elements.group.typedInput('value');
+        let currScene = this.$elements.scene.typedInput('value');
+        let currentKey = `${currGroup}.${currScene}`;
+
+        this.$elements.scene_picker.multipleSelect('disable');
+        this.$elements.scene_picker.children().remove();
+
+        let queryEditor = this.listEditor.mainEditor.subEditor.query;
+        if (queryEditor === undefined) return;
+
+        let params = queryEditor.xhrParams;
+        params.queryType = 'json';
+        params.query = JSON.stringify({match: {device_type: 'groups'}});
+        let groups = await queryEditor.getItems({refresh: true, keepOnlyMatched: true}, params);
+        for (const group of groups.LightGroup) {
+            let groupHtml = $('<optgroup/>', {
+                label: group.meta.name
+            });
+            if (group.meta.scenes && group.meta.scenes.length > 0) {
+                for (const scene of group.meta.scenes.sort((a, b) => {
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                })) {
+                    $('<option>' + scene.name + '</option>').attr('value', `${group.meta.id}.${scene.id}`).appendTo(groupHtml);
+                }
+                groupHtml.appendTo(this.$elements.scene_picker);
+            }
+        }
+
+        this.$elements.scene_picker.multipleSelect('refresh').multipleSelect('enable');
+        this.$elements.scene_picker.multipleSelect('setSelects', [currentKey]);
+
+    }
+
+    //#region HTML Helpers
     async generateTypeDomainField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type`;
         await this.generateTypedInputField(container, {
@@ -280,7 +324,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 default: 'deconz_state',
                 types: [
                     this.generateTypedInputType(i18n, 'deconz_state', {
-                        subOptions: ['light', 'cover', 'group', 'scene']
+                        subOptions: ['light', 'cover', 'group', 'scene_call']
                     }),
                     this.generateTypedInputType(i18n, 'homekit', {hasValue: false}),
                     this.generateTypedInputType(i18n, 'custom', {hasValue: false}),
@@ -450,32 +494,59 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     //#endregion
 
     //#region Scene HTML Helpers
+    async generateScenePickerField(container, value = '') {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.picker`;
+        let list = await this.generateSimpleListField(container, {
+            id: this.elements.scene_picker,
+            i18n
+        });
+
+        list.addClass('multiple-select');
+        list.multipleSelect({
+            maxHeight: 300,
+            dropWidth: 300,
+            width: 220,
+            numberDisplayed: 1,
+            single: false,
+            hideOptgroupCheckboxes: true,
+            selectAll: false,
+            filter: true,
+            filterPlaceholder: RED._(`${this.NRCD}/server:editor.inputs.device.device.filter`),
+            placeholder: RED._(`${this.NRCD}/server:editor.multiselect.none_selected`),
+            //single: true,
+            //singleRadio: true,
+            container: '.node-input-output-container-row',
+            onClick: (view) => {
+                if (!view.selected) return;
+                list.multipleSelect('setSelects', [view.value]);
+            },
+        });
+    }
+
     async generateSceneGroupField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene.fields.group`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.group`;
         await this.generateTypedInputField(container, {
-            id: this.elements.scenecallgroup,
+            id: this.elements.group,
             i18n,
             value,
             typedInput: {
                 types: [
                     'num',
-                    this.generateTypedInputType(i18n, 'from_device', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'deconz_group'),
+                    this.generateTypedInputType(i18n, 'from_device'),
                 ]
             }
         });
     }
 
     async generateSceneSceneField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene.fields.scene`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.scene`;
         await this.generateTypedInputField(container, {
-            id: this.elements.scenecallscene,
+            id: this.elements.scene,
             i18n,
             value,
             typedInput: {
                 types: [
                     'num',
-                    this.generateTypedInputType(i18n, 'deconz_scene'),
                     'str',
                     're'
                 ]
@@ -596,6 +667,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     //#endregion
-
+    //#endregion
 }
 

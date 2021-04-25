@@ -98,6 +98,9 @@ module.exports = function (RED) {
         });
     });
 
+    /**
+     * @deprecated getScenesByDevice
+     */
     RED.httpAdmin.get(NODE_PATH + 'getScenesByDevice', function (req, res) {
         let config = req.query;
         let controller = RED.nodes.getNode(config.controllerID);

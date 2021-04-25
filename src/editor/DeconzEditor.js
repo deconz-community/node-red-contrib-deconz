@@ -203,6 +203,8 @@ class DeconzEditor {
         container.append(row);
 
         if (options.currentValue !== undefined) input.val(options.currentValue);
+
+        return input;
     }
 
     async generateTypedInput(container, options) {
@@ -317,7 +319,7 @@ class DeconzEditor {
 
         // Load label from i18n
         if (data.label === undefined) {
-            data.label = this.getI18n(i18n, `options.${name}.label`) || name;
+            data.label = this.getI18n(i18n, `options.${name}.label`, {}) || name;
         }
 
         // Load icon from i18n
