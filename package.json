@@ -53,7 +53,9 @@
     "grunt-contrib-jshint": "^3.0.0",
     "grunt-contrib-uglify": "^5.0.1",
     "grunt-contrib-watch": "^1.1.0",
-    "load-grunt-tasks": "^5.1.0"
+    "load-grunt-tasks": "^5.1.0",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0"
   },
   "files": [
     "deconz.*",
@@ -62,5 +64,8 @@
     "/icons/*.png",
     "/resources/",
     "/examples/"
-  ]
+  ],
+  "scripts": {
+    "test": "mocha"
+  }
 }
