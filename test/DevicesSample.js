@@ -65,17 +65,18 @@ module.exports = {
     },
     "lights": {
         "1": {
-            "colorcapabilities": 8,
+            "colorcapabilities": 4,
             "etag": "item03",
-            "hascolor": true,
+            "hascolor": false,
             "lastannounced": "2021-04-21T21:00:24Z",
             "lastseen": "2021-04-27T16:43Z",
             "manufacturername": "Homestead",
             "modelid": "Light bulb E27 600lm",
+            "anumberinstring": "50",
             "name": "Light 1",
             "state": {
                 "alert": "none",
-                "bri": 1,
+                "bri": 50,
                 "colormode": "xy",
                 "effect": "0",
                 "hue": 0,
@@ -99,10 +100,11 @@ module.exports = {
             "lastseen": "2021-04-27T16:53Z",
             "manufacturername": "Homestead",
             "modelid": "Light bulb E27 600lm",
+            "anumberinstring": "130",
             "name": "Light 2",
             "state": {
                 "alert": "none",
-                "bri": 1,
+                "bri": 100,
                 "colormode": "xy",
                 "effect": "0",
                 "hue": 0,
@@ -126,6 +128,7 @@ module.exports = {
             "lastseen": "2021-04-27T17:03Z",
             "manufacturername": "Homestead",
             "modelid": "Light bulb E14 400lm",
+            "anumberinstring": "200",
             "name": "Light 3",
             "state": {
                 "alert": "none",
@@ -142,7 +145,7 @@ module.exports = {
                 ]
             },
             "swversion": "3.2.1",
-            "type": "Color light",
+            "type": "Color temperature light",
             "uniqueid": "22:33:44:55:66:77:88:99-01"
         }
     },

@@ -168,7 +168,7 @@ describe('Device List', function () {
 
         });
 
-        describe('Query Basic Rule', function () {
+        describe('Basic Rule', function () {
             describe('Without rule type detection', function () {
                 it('Get sensor with uniqueid and type', function () {
                     let result = deviceList.getDevicesByQuery({
@@ -220,6 +220,231 @@ describe('Device List', function () {
             });
 
         });
+
+        describe('Match Rule', function () {
+            describe('Without rule type detection', function () {
+                describe('match by value', function () {
+                    it('String', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "type": "Color light"
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04']);
+                    });
+
+                    it('Number', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "colorcapabilities": 8
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                    it('Boolean', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "hascolor": false
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03']);
+                    });
+
+                    it('Dot notation', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "state.on": true
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                });
+
+                describe('match by array', function () {
+                    it('Array String', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "modelid": ['vibration', 'on/off switch']
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item06', 'item07']);
+                    });
+
+                    it('Array with incorect types', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "hascolor": ['true', 'false']
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql([]);
+                    });
+
+                    it('Array with valid types', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "hascolor": [true, false]
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04', 'item05']);
+                    });
+
+                    it('All in one', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "hascolor": [true, false],
+                                "manufacturername": "Homestead",
+                                "state.reachable": true,
+                                "colorcapabilities": 8
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+                });
+
+
+                describe('Complex comparaison', function () {
+                    it('Convert query value', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "state.bri": {
+                                    "convertTo": "number",
+                                    "convertRight": true,
+                                    "operator": ">",
+                                    "value": "80"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                    it('Convert query value by default', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "state.bri": {
+                                    "convertTo": "number",
+                                    "operator": ">",
+                                    "value": "80"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                    it(`Don't convert query value by default with strict compare and bad type`, function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "state.bri": {
+                                    "convertTo": "number",
+                                    "convertRight": false,
+                                    "strict": true,
+                                    "operator": ">",
+                                    "value": "80"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql([]);
+                    });
+
+                    it(`Don't convert query value by default with strict compare and good type`, function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "state.bri": {
+                                    "convertTo": "number",
+                                    "convertRight": false,
+                                    "strict": true,
+                                    "operator": ">",
+                                    "value": 80
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                    it(`Don't convert query value by default without strict compare`, function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "state.bri": {
+                                    "convertTo": "number",
+                                    "convertRight": false,
+                                    "operator": ">",
+                                    "value": "80"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+
+                    it('Convert device value', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "anumberinstring": {
+                                    "convertTo": "number",
+                                    "convertLeft": true,
+                                    "convertRight": true,
+                                    "operator": "===",
+                                    "value": "130"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04']);
+                    });
+
+
+                    //TODO Find when device have array value ex devicemembership
+                });
+
+                it('match inverted by value', function () {
+                    let resultA = deviceList.getDevicesByQuery({
+                        "type": "match",
+                        "match": {
+                            "type": "Color light"
+                        }
+                    }, QueryParams);
+                    let resultB = deviceList.getDevicesByQuery({
+                        "type": "match",
+                        "inverted": true,
+                        "match": {
+                            "type": "Color light"
+                        }
+                    }, QueryParams);
+                    should(resultA).have.property('matched');
+                    should(resultA).have.property('rejected');
+                    should(resultB).have.property('matched');
+                    should(resultB).have.property('rejected');
+                    resultA.matched.should.eql(['item03', 'item04']);
+                    resultA.matched.should.eql(resultB.rejected);
+                    resultB.matched.should.eql(resultA.rejected);
+                });
+
+            });
+
+        });
+
     });
 
 });
