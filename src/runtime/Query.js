@@ -327,22 +327,28 @@ class ComparaisonComplex extends Comparaison {
             throw Error(`You ask for convertion but do not provide any conversion method.`);
         }
 
-        this.target = value.value;
+        this.target = Array.isArray(value.value) ? value.value : [value.value];
 
         if (value.convertTo) {
             let conversionMethod = this.getConvertionMethod(value.convertTo);
-            if (this.target !== undefined && value.convertRight === true) {
-                this.target = conversionMethod(this.target);
+
+            if (value.convertRight === true) {
+                this.target = this.target.map(target => target !== undefined ? conversionMethod(target) : target);
             }
+
             if (value.convertLeft === true) {
                 this.conversionMethod = conversionMethod;
             }
         }
 
+        if (value.strict === true) {
+            this.strictCompareTo = this.target.map(target => typeof target);
+            this.matchMethod = this.strictMatch;
+        } else {
+            this.matchMethod = this.notStrictMatch;
+        }
+
         this.operator = this.getOperatorMethod(value.operator);
-        this.strictCompare = value.strict === true ? typeof this.target : undefined;
-
-
     }
 
     getConvertionMethod(target) {
@@ -386,16 +392,26 @@ class ComparaisonComplex extends Comparaison {
         }
     }
 
+    strictMatch(value) {
+        return this.target.some((target, index) => {
+            if (this.strictCompareTo[index] !== undefined && this.strictCompareTo[index] !== typeof value) return false;
+            return this.operator(value, target);
+        });
+    }
+
+    notStrictMatch(value) {
+        return this.target.some((target) => {
+            return this.operator(value, target);
+        });
+    }
+
     match(device) {
         let value = dotProp.get(device, this.field);
         if (this.conversionMethod !== undefined) value = this.conversionMethod(value);
-        if (this.strictCompare !== undefined && this.strictCompare !== typeof value) return false;
-        //TODO if target is array
-        //TODO if device value is array
-        return this.operator(value, this.target);
+        return this.matchMethod(value);
     }
-}
 
+}
 
 class ComparaisonDate extends Comparaison {
 

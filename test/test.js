@@ -415,6 +415,22 @@ describe('Device List', function () {
                     });
 
 
+                    it('Convert device value in array', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "anumberinstring": {
+                                    "convertTo": "number",
+                                    "convertLeft": true,
+                                    "convertRight": true,
+                                    "operator": "===",
+                                    "value": ["130", "50"]
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04']);
+                    });
+
                     //TODO Find when device have array value ex devicemembership
                 });
 
