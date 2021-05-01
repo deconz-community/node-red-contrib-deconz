@@ -414,7 +414,6 @@ describe('Device List', function () {
                         result.matched.should.eql(['item04']);
                     });
 
-
                     it('Convert device value in array', function () {
                         let result = deviceList.getDevicesByQuery({
                             "match": {
@@ -432,6 +431,90 @@ describe('Device List', function () {
                     });
 
                     //TODO Find when device have array value ex devicemembership
+                });
+
+
+                describe('Date comparaison', function () {
+                    it('after date', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "after": "2021-04-29T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item05', 'item06', 'item07']);
+                    });
+
+                    it('after timestamp', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "after": 1619654400000 // "2021-04-29T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item05', 'item06', 'item07']);
+                    });
+
+                    it('before date', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "before": "2021-04-29T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04', 'item08']);
+                    });
+
+                    it('before timestamp', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "before": 1619654400000 // "2021-04-29T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04', 'item08']);
+                    });
+
+                    it('between date', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "after": "2021-04-28T00:00Z",
+                                    "before": "2021-04-30T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
+                    it('between timestamp', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "after": 1619568000000, // "2021-04-28T00:00Z"
+                                    "before": 1619740800000 // "2021-04-30T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05']);
+                    });
+
                 });
 
                 it('match inverted by value', function () {

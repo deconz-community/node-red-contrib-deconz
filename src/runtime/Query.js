@@ -417,12 +417,40 @@ class ComparaisonDate extends Comparaison {
 
     constructor(field, value) {
         super(field, value);
+        for (const side of ['before', 'after']) {
+            switch (typeof value[side]) {
+                case 'string':
+                    let result = Date.parse(value[side]);
+                    if (Number.isNaN(result)) {
+                        throw Error(`Invalid value provided for date comparaison, can't parse '${typeof value[side]}'`);
+                    } else {
+                        this[side] = result;
+                        this.valid = true;
+                    }
+                    break;
+                case 'number':
+                    this[side] = value[side];
+                    this.valid = true;
+                    break;
+                case 'undefined':
+                    break;
+                default:
+                    throw Error(`Invalid value type provided for date comparaison, got '${typeof value[side]}' and expect 'string' or 'number'`);
+            }
+        }
 
-        console.log({field, value});
     }
 
     match(device) {
-        return false;
+        if (this.valid !== true) return false;
+        let value = dotProp.get(device, this.field);
+        if (value === undefined) return false;
+        if (typeof value === 'string') value = Date.parse(value);
+        return !(
+            Number.isNaN(value) ||
+            this.after !== undefined && value < this.after ||
+            this.before !== undefined && value > this.before
+        );
     }
 }
 
