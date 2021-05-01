@@ -459,12 +459,14 @@ class ComparaisonRegex extends Comparaison {
 
     constructor(field, value) {
         super(field, value);
-
-        console.log({field, value});
+        if (typeof value.regex !== 'string') return;
+        this.patt = new RegExp(value.regex, value.flag);
     }
 
     match(device) {
-        return false;
+        if (this.patt === undefined) return false;
+        this.patt.lastIndex = 0;
+        return this.patt.test(dotProp.get(device, this.field));
     }
 }
 

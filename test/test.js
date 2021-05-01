@@ -317,6 +317,30 @@ describe('Device List', function () {
                         should(result).have.property('matched');
                         result.matched.should.eql(['item04', 'item05']);
                     });
+                    
+                    it('match inverted by value', function () {
+                        let resultA = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "match": {
+                                "type": "Color light"
+                            }
+                        }, QueryParams);
+                        let resultB = deviceList.getDevicesByQuery({
+                            "type": "match",
+                            "inverted": true,
+                            "match": {
+                                "type": "Color light"
+                            }
+                        }, QueryParams);
+                        should(resultA).have.property('matched');
+                        should(resultA).have.property('rejected');
+                        should(resultB).have.property('matched');
+                        should(resultB).have.property('rejected');
+                        resultA.matched.should.eql(['item03', 'item04']);
+                        resultA.matched.should.eql(resultB.rejected);
+                        resultB.matched.should.eql(resultA.rejected);
+                    });
+
                 });
 
 
@@ -433,7 +457,6 @@ describe('Device List', function () {
                     //TODO Find when device have array value ex devicemembership
                 });
 
-
                 describe('Date comparaison', function () {
                     it('after date', function () {
                         let result = deviceList.getDevicesByQuery({
@@ -515,29 +538,63 @@ describe('Device List', function () {
                         result.matched.should.eql(['item04', 'item05']);
                     });
 
+                    it('between timestamp inverted', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "inverted": true,
+                            "match": {
+                                "lastseen": {
+                                    "type": "date",
+                                    "after": 1619568000000, // "2021-04-28T00:00Z"
+                                    "before": 1619740800000 // "2021-04-30T00:00Z"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('rejected');
+                        result.rejected.should.eql(['item04', 'item05']);
+                    });
+
                 });
 
-                it('match inverted by value', function () {
-                    let resultA = deviceList.getDevicesByQuery({
-                        "type": "match",
-                        "match": {
-                            "type": "Color light"
-                        }
-                    }, QueryParams);
-                    let resultB = deviceList.getDevicesByQuery({
-                        "type": "match",
-                        "inverted": true,
-                        "match": {
-                            "type": "Color light"
-                        }
-                    }, QueryParams);
-                    should(resultA).have.property('matched');
-                    should(resultA).have.property('rejected');
-                    should(resultB).have.property('matched');
-                    should(resultB).have.property('rejected');
-                    resultA.matched.should.eql(['item03', 'item04']);
-                    resultA.matched.should.eql(resultB.rejected);
-                    resultB.matched.should.eql(resultA.rejected);
+                describe('Regex comparaison', function () {
+                    it('global match', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "modelid": {
+                                    "type": "regex",
+                                    "regex": "^(.*)bulb E27(.*)$",
+                                    "flag": "g"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04']);
+                    });
+
+                    it('contain match', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "modelid": {
+                                    "regex": "bulb E27"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03', 'item04']);
+                    });
+
+                    it('contain match inverted', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "inverted": true,
+                            "match": {
+                                "modelid": {
+                                    "regex": "bulb E27"
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('rejected');
+                        result.rejected.should.eql(['item03', 'item04']);
+                    });
+
                 });
 
             });
