@@ -247,7 +247,6 @@ class RuleMatch extends Rule {
         };
     }
 
-
     createComparaisons(comparaisons) {
         if (comparaisons === undefined) throw Error('No match data found');
         this.comparaisons = [];
@@ -310,7 +309,6 @@ class ComparaisonStrictEqual extends Comparaison {
         return dotProp.get(device, this.field) === this.target;
     }
 }
-
 
 class ComparaisonArray extends Comparaison {
     match(device) {
@@ -454,7 +452,6 @@ class ComparaisonDate extends Comparaison {
     }
 }
 
-
 class ComparaisonRegex extends Comparaison {
 
     constructor(field, value) {
@@ -469,7 +466,6 @@ class ComparaisonRegex extends Comparaison {
         return this.patt.test(dotProp.get(device, this.field));
     }
 }
-
 
 class ComparaisonVersion extends Comparaison {
 
