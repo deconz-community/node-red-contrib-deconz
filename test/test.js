@@ -317,7 +317,7 @@ describe('Device List', function () {
                         should(result).have.property('matched');
                         result.matched.should.eql(['item04', 'item05']);
                     });
-                    
+
                     it('match inverted by value', function () {
                         let resultA = deviceList.getDevicesByQuery({
                             "type": "match",
@@ -342,7 +342,6 @@ describe('Device List', function () {
                     });
 
                 });
-
 
                 describe('Complex comparaison', function () {
                     it('Convert query value', function () {
@@ -593,6 +592,23 @@ describe('Device List', function () {
                         }, QueryParams);
                         should(result).have.property('rejected');
                         result.rejected.should.eql(['item03', 'item04']);
+                    });
+
+                });
+
+                describe('Version comparaison', function () {
+                    it('after', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "swversion": {
+                                    "type": "version",
+                                    "operator": ">=",
+                                    "version": "2.0.0",
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item04', 'item05', 'item06', 'item07']);
                     });
 
                 });
