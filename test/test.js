@@ -138,9 +138,34 @@ describe('Device List', function () {
         describe('Never Rule', function () {
 
             it('Should not return any device', function () {
+                let result = deviceList.getDevicesByQuery({
+                    "match": false
+                }, QueryParams);
+                should(result).have.property('matched');
+                result.matched.should.eql([]);
+            });
+
+            it('Should not return any device', function () {
                 let result = deviceList.getDevicesByQuery({}, QueryParams);
                 should(result).have.property('matched');
                 result.matched.should.eql([]);
+            });
+
+            it('match false inverted', function () {
+                let result = deviceList.getDevicesByQuery({
+                    match: false,
+                    inverted: true
+                }, QueryParams);
+                should(result).have.property('rejected');
+                result.rejected.should.eql([]);
+            });
+
+            it('empty inverted', function () {
+                let result = deviceList.getDevicesByQuery({
+                    inverted: true
+                }, QueryParams);
+                should(result).have.property('rejected');
+                result.rejected.should.eql([]);
             });
 
         });
@@ -151,6 +176,24 @@ describe('Device List', function () {
                 should(result).have.property('rejected');
                 result.rejected.should.eql([]);
             });
+
+            it('Should return all devices', function () {
+                let result = deviceList.getDevicesByQuery({
+                    "match": true
+                }, QueryParams);
+                should(result).have.property('rejected');
+                result.rejected.should.eql([]);
+            });
+
+            it('match true inverted', function () {
+                let result = deviceList.getDevicesByQuery({
+                    match: true,
+                    inverted: true
+                }, QueryParams);
+                should(result).have.property('matched');
+                result.matched.should.eql([]);
+            });
+
         });
 
         describe('Invalid Rule', function () {
@@ -623,6 +666,61 @@ describe('Device List', function () {
                         }, QueryParams);
                         should(result).have.property('matched');
                         result.matched.should.eql(['item03']);
+                    });
+
+                });
+
+                describe('Sub queries', function () {
+                    it('1 level', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "method": "OR",
+                            "queries": [
+                                {
+                                    "match": {
+                                        "type": ["ZHASwitch", "ZHAConsumption"] // item07 and item08
+                                    }
+                                },
+                                {
+                                    "match": {
+                                        "type": "Color temperature light", // item05
+                                        "swversion": "3.2.1" // item04 and item05
+                                    }
+                                }
+                            ]
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item05', 'item07', 'item08']);
+                    });
+
+                    it('2 levels', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "method": "OR",
+                            "queries": [
+                                {
+                                    "method": "OR",
+                                    "queries": [
+                                        {
+                                            "match": {
+                                                "type": "ZHASwitch" // item07
+                                            }
+                                        },
+                                        {
+                                            "match": {
+                                                "type": "ZHAConsumption" // item08
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "match": {
+                                        "type": "Color temperature light", // item05
+                                        "swversion": "3.2.1" // item04 and item05
+                                    }
+                                }
+                            ]
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item05', 'item07', 'item08']);
                     });
 
                 });
