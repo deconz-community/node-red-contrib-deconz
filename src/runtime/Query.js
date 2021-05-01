@@ -1,4 +1,5 @@
 const dotProp = require('dot-prop');
+const compareVersion = require('compare-versions');
 
 /**
  * @typedef {Object} Query
@@ -472,12 +473,34 @@ class ComparaisonVersion extends Comparaison {
     constructor(field, value) {
         super(field, value);
 
+        this.version = compareVersion.validate(value.version) ? value.version : undefined;
+        switch (value.operator) {
+            case "===":
+            case "==":
+                this.operator = "=";
+                break;
+            case "!==":
+            case "!=":
+                this.operator = "!=";
+                break;
+            case undefined:
+                this.operator = '>=';
+                break;
+            default:
+                this.operator = value.operator;
+                break;
+        }
+
         console.log({field, value});
     }
 
     match(device) {
-        return false;
+        let value = String(dotProp.get(device, this.field));
+        if (this.version === undefined || compareVersion.validate(value) === false) return false;
+        if (this.operator === '!=') return value !== this.version;
+        return compareVersion.compare(value, this.version, this.operator);
     }
+
 }
 
 
