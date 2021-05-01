@@ -611,6 +611,20 @@ describe('Device List', function () {
                         result.matched.should.eql(['item04', 'item05', 'item06', 'item07']);
                     });
 
+                    it('before', function () {
+                        let result = deviceList.getDevicesByQuery({
+                            "match": {
+                                "swversion": {
+                                    "type": "version",
+                                    "operator": "<=",
+                                    "version": "2.0.0",
+                                }
+                            }
+                        }, QueryParams);
+                        should(result).have.property('matched');
+                        result.matched.should.eql(['item03']);
+                    });
+
                 });
 
             });
