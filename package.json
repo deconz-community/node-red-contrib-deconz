@@ -18,8 +18,8 @@
     "compare-versions": "^3.6.0",
     "dot-prop": "^6.0.1",
     "events": "latest",
+    "got": "^11.8.2",
     "multiple-select": "^1.5.2",
-    "request": "latest",
     "ws": "latest"
   },
   "description": "deCONZ connectivity nodes for node-red",
