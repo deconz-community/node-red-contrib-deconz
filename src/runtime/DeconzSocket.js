@@ -139,7 +139,7 @@ class DeconzSocket extends EventEmitter {
     }
 
     onUnexpectedResponse(req, res) {
-        if (res && res.statusCode == 401) {
+        if (res && res.statusCode === 401) {
             return this.emit('unauthorized'), req, res;
         }
 

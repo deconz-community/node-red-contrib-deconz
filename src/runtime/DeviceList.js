@@ -70,7 +70,6 @@ class DeviceList {
             extractValue: options.extractValue
         };
 
-
         let query = new Query(queryParams);
         let result = {
             matched: [],
@@ -107,6 +106,14 @@ class DeviceList {
         if (includeDeviceType) path += device.device_type + "/";
         path += "uniqueid/" + device.uniqueid;
         return path;
+    }
+
+    get count() {
+        let result = 0;
+        for (const resource of this.domains) {
+            result += Object.keys(this.devices[resource].ById).length;
+        }
+        return result;
     }
 
 }

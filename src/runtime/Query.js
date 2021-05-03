@@ -62,6 +62,7 @@ const getComparaisonConstructor = (field, value) => {
                 }
 
             }
+            break;
         default:
             throw Error("Invalid comparaison type provided. Got : " + (typeof value).toString());
     }

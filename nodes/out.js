@@ -1,5 +1,4 @@
 const DeconzHelper = require('../lib/DeconzHelper.js');
-var request = require('request');
 
 module.exports = function (RED) {
     class deConzOut {
@@ -196,6 +195,7 @@ module.exports = function (RED) {
             // node.log('Requesting url: '+url);
             // console.log(post);
 
+            /* TODO request is deprecated
             request.put({
                 url: url,
                 form: JSON.stringify(post)
@@ -236,6 +236,8 @@ module.exports = function (RED) {
                     }, 3000);
                 }
             });
+
+             */
         }
 
         formatHomeKit(message, payload) {

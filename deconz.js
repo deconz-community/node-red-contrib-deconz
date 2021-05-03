@@ -39,9 +39,14 @@ module.exports = function (RED) {
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
-            controller.getItemsList((items) => {
-                res.json({items: items || []});
-            }, query, forceRefresh);
+            (async () => {
+                if (forceRefresh) await controller.discoverDevices({forceRefresh: true});
+                try {
+                    res.json({items: controller.device_list.getDevicesByQuery(query)});
+                } catch (e) {
+                    res.json({error_message: e.toString()});
+                }
+            })();
         } else {
             return res.json({error_message: "Can't find the server node. Did you press deploy ?"});
         }
