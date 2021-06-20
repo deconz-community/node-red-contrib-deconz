@@ -35,6 +35,7 @@ class DeconzDeviceListEditor extends DeconzEditor {
 
         if (result && result.error_message) {
             console.warn(result.error_message);
+            return;
         }
 
         return this.formatItemList(result.items, options.keepOnlyMatched);
@@ -71,19 +72,19 @@ class DeconzDeviceListEditor extends DeconzEditor {
     formatItemList(items, keepOnlyMatched = false) {
         let itemList = {};
 
-        Object.values(items).forEach((item) => {
-            if (this.filterItem && this.filterItem(item)) return true;
-            if (keepOnlyMatched === true && item.query_match === false) return true;
+        let injectItems = (part, matched) => {
+            part.forEach((item) => {
+                let device_type = item.type;
+                if (itemList[device_type] === undefined) {
+                    itemList[device_type] = [];
+                }
+                item.query_match = matched;
+                itemList[device_type].push(item);
+            });
+        };
 
-            let device_type = item.meta.type;
-
-            if (itemList[device_type] === undefined) {
-                itemList[device_type] = [];
-            }
-
-
-            itemList[device_type].push(item);
-        });
+        injectItems(items.matched, true);
+        if (keepOnlyMatched === false) injectItems(items.rejected, false);
 
         return itemList;
     }
@@ -105,21 +106,20 @@ class DeconzDeviceListEditor extends DeconzEditor {
             let groupHtml = $('<optgroup/>').attr('label', group_key);
             for (/** @type {Light | Sensor | Group} */ const item of item_list.sort((a, b) => {
                 // Sort by keys
-                let x = a.device_name.toLowerCase();
-                let y = b.device_name.toLowerCase();
+                let x = a.name.toLowerCase();
+                let y = b.name.toLowerCase();
                 return x < y ? -1 : x > y ? 1 : 0;
             })) {
-                let meta = item.meta;
-                let label = meta.name;
-                if (meta.device_type === "groups") {
-                    label += ' (lights: ' + meta.lights.length;
-                    if (meta.scenes.length) {
-                        label += ", scenes: " + meta.scenes.length;
+                let label = item.name;
+                if (item.device_type === "groups") {
+                    label += ' (lights: ' + item.lights.length;
+                    if (item.scenes.length) {
+                        label += ", scenes: " + item.scenes.length;
                     }
                     label += ")";
                 }
                 let opt = $('<option>' + label + '</option>')
-                    .attr("value", item.path);
+                    .attr("value", item.device_path);
                 if (queryMode && item.query_match) {
                     opt.attr("selected", '');
                 }

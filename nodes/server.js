@@ -78,7 +78,7 @@ module.exports = function (RED) {
             }
 
             node.discoverProcessRunning = true;
-            const response = await got(node.api.main).json();
+            const response = await got(node.api.url.main()).json();
             node.device_list.parse(response);
             node.log(`discoverDevices: Updated ${node.device_list.count}`);
             node.discoverProcessRunning = false;

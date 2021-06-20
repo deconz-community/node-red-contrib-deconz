@@ -88,7 +88,7 @@ module.exports = function (RED) {
                 }
 
                 for (const deviceID of devicesIDs) {
-                    let device = controller.getDeviceByPath(deviceID);
+                    let device = controller.device_list.getDeviceByPath(deviceID);
                     if (!device) continue;
 
                     if (isAttribute) {
