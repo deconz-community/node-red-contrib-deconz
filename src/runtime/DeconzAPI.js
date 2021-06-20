@@ -16,8 +16,8 @@ class DeconzAPI {
         this.url = {
             discover: 'https://phoscon.de/discover',
             api: () => `http${this.secured ? 's' : ''}://${this.ip}:${this.port}/api`,
-            challenge: () => `${this.url.api}/challenge`, // Undocumented
-            main: () => `${this.url.api}/${this.key}`,
+            challenge: () => `${this.url.api()}/challenge`, // Undocumented
+            main: () => `${this.url.api()}/${this.key}`,
             config: {
                 main: () => `${this.url.main()}/config`,
                 whitelist: (api_key) => `${this.url.config.main()}/whitelist${api_key !== undefined ? `/${api_key}` : ''}`,
