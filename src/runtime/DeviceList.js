@@ -63,6 +63,10 @@ class DeviceList {
         return {device_path: this.getPathByDevice(device)};
     }
 
+    getAllDevices() {
+        return this.getDevicesByQuery("all");
+    }
+
     getDevicesByQuery(queryParams, options = {}) {
 
         let opt = {
