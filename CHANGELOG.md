@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] :construction:
 
+## [1.3.3] - 2021-06-20 ![Relative date](https://img.shields.io/date/1624190689?label=)
+### Fixed
+- Update multi-select to 1.15.2 for monaco-editor compatibility in node-red 2.0. #140
+
 ## [1.3.2] - 2021-03-06 ![Relative date](https://img.shields.io/date/1615059740?label=)
 ### Fixed
 - Device list was empty. #89
