@@ -52,6 +52,8 @@ class DeconzAPI {
                     main: (group_id, scene_id) => `${this.url.groups.main(group_id)}/scenes${scene_id !== undefined ? `/${scene_id}` : ''}`,
                     store: (group_id, scene_id) => `${this.url.groups.scenes.main(group_id, scene_id)}/store`,
                     recall: (group_id, scene_id) => `${this.url.groups.scenes.main(group_id, scene_id)}/recall`,
+                    recallnext: (group_id) => `${this.url.groups.scenes.main(group_id, 'next')}/recall`,
+                    recallprev: (group_id) => `${this.url.groups.scenes.main(group_id, 'prev')}/recall`,
                     light: {
                         main: (group_id, scene_id, light_id) => `${this.url.groups.scenes.main(group_id, scene_id)}/lights${light_id !== undefined ? `/${light_id}/state` : ''}`,
                         action: (group_id, scene_id, light_id) => `${this.url.groups.scenes.light.main(group_id, scene_id, light_id)}/state`
