@@ -220,9 +220,9 @@ module.exports = function (RED) {
             let node = this;
 
             //Make sure to send to something
-            sendState = sendState && node.haveConnectedOutput('state')
-            sendHomekit = sendHomekit && node.haveConnectedOutput('homekit')
-            sendConfig = sendConfig && node.haveConnectedOutput('config')
+            sendState = sendState && node.haveConnectedOutput('state');
+            sendHomekit = sendHomekit && node.haveConnectedOutput('homekit');
+            sendConfig = sendConfig && node.haveConnectedOutput('config');
 
             // If nothing to send return now
             if (sendState === false && sendHomekit === false && sendConfig === false) return;
@@ -239,11 +239,11 @@ module.exports = function (RED) {
             let changed = {};
             let domains = [];
             if (sendState && node.config.output !== 'always') {
-                domains.push('state')
+                domains.push('state');
             }
 
             if (sendConfig && node.config.config_output !== 'always') {
-                domains.push('config')
+                domains.push('config');
             }
 
             domains.forEach(function (key) {
@@ -253,7 +253,7 @@ module.exports = function (RED) {
                             if (!(key in changed)) changed[key] = [];
                             changed[key].push(state_name);
                         }
-                    })
+                    });
                 }
             });
 
