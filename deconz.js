@@ -35,20 +35,32 @@ module.exports = function (RED) {
                 );
             }
         } catch (e) {
-            return res.json({error_message: e.toString()});
+            return res.json({
+                error_message: e.message,
+                error_stack: e.stack
+            });
         }
 
         if (controller && controller.constructor.name === "ServerNode") {
             (async () => {
                 if (forceRefresh) await controller.discoverDevices({forceRefresh: true});
                 try {
-                    res.json({items: controller.device_list.getDevicesByQuery(query)});
+                    if (query === undefined) {
+                        res.json({items: controller.device_list.getAllDevices()});
+                    } else {
+                        res.json({items: controller.device_list.getDevicesByQuery(query)});
+                    }
                 } catch (e) {
-                    res.json({error_message: e.toString()});
+                    return res.json({
+                        error_message: e.message,
+                        error_stack: e.stack
+                    });
                 }
             })();
         } else {
-            return res.json({error_message: "Can't find the server node. Did you press deploy ?"});
+            return res.json({
+                error_message: "Can't find the server node. Did you press deploy ?"
+            });
         }
     });
 
