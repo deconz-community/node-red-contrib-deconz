@@ -56,6 +56,10 @@
                 value: '',
                 required: false
             },
+            config_version: {
+                value: 1,
+                required: true
+            },
             ip: {
                 value: '',
                 required: true
@@ -97,6 +101,7 @@
         oneditprepare: function () {
             var node = this;
 
+            //TODO Use configuration migration
             // Load
             if (node.credentials.secured_apikey === undefined && node.apikey !== undefined) {
                 $('#secured_apikey_warning_message_update').show();

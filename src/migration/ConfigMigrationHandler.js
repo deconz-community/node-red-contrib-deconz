@@ -5,6 +5,10 @@ class ConfigMigrationHandler {
         this.result = {
             new: {},
             delete: [],
+            controller: {
+                new: {},
+                delete: []
+            },
             errors: []
         };
     }

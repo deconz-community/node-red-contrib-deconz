@@ -4,27 +4,26 @@ const dotProp = require('dot-prop');
 const DeviceList = require('../src/runtime/DeviceList');
 const DeconzAPI = require("../src/runtime/DeconzAPI");
 const DeconzSocket = require("../src/runtime/DeconzSocket");
+const ConfigMigration = require("../src/migration/ConfigMigration");
 
 module.exports = function (RED) {
     class ServerNode {
-        constructor(n) {
-            RED.nodes.createNode(this, n);
-
+        constructor(config) {
+            RED.nodes.createNode(this, config);
             let node = this;
             node.discoverProcessRunning = false;
-            node.ready = false;
-            node.name = n.name;
 
-            //TODO use configuration migration
-            // Prior 1.2.0 the apikey was not stored in credentials
-            if (node.credentials.secured_apikey === undefined && n.apikey !== undefined) {
-                node.credentials.secured_apikey = n.apikey;
+            // Config migration
+            let configMigration = new ConfigMigration('deconz-server', config);
+            let migrationResult = configMigration.applyMigration(config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
             }
 
             node.device_list = new DeviceList();
             node.api = new DeconzAPI({
-                ip: n.ip,
-                port: n.port,
+                ip: config.ip,
+                port: config.port,
                 key: node.credentials.secured_apikey
             });
 
@@ -33,12 +32,12 @@ module.exports = function (RED) {
 
             node.setMaxListeners(255);
             node.refreshDiscoverTimer = null;
-            node.refreshDiscoverInterval = n.polling >= 3 ? n.polling * 1000 : 15000;
+            node.refreshDiscoverInterval = config.polling >= 3 ? config.polling * 1000 : 15000;
 
             node.socket = new DeconzSocket({
-                hostname: n.ip,
-                port: n.ws_port,
-                secure: n.secure || false
+                hostname: config.ip,
+                port: config.ws_port,
+                secure: config.secure || false
             });
 
             node.socket.on('close', (code, reason) => this.onSocketClose(code, reason));
