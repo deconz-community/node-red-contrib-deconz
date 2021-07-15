@@ -30,6 +30,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         value.type = this.$elements.type.val();
 
         switch (value.type) {
+            case 'attribute':
             case 'state':
             case 'config':
                 value.output = this.$elements.output.val();
@@ -171,13 +172,13 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
 
             let type_list = (type === 'attribute') ? ['attribute', 'state', 'config'] : [type];
 
-            for (const type of type_list) {
+            for (const _type of type_list) {
                 let groupHtml = $('<optgroup/>', {
-                    label: RED._(`${i18n}.group_label.${type}`)
+                    label: RED._(`${i18n}.group_label.${_type}`)
                 });
 
-                for (const item of Object.keys(data.count[type]).sort()) {
-                    let sample = data.sample[type][item];
+                for (const item of Object.keys(data.count[_type]).sort()) {
+                    let sample = data.sample[_type][item];
 
                     if (typeof sample === 'string') {
                         sample = `"${sample}"`;
@@ -188,7 +189,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                     }
 
                     let label;
-                    let count = data.count[type][item];
+                    let count = data.count[_type][item];
                     if (count === devices.length) {
                         label = RED._(`${i18n}.item_list`, {
                             name: item,
@@ -204,11 +205,11 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                     }
 
                     $('<option>' + label + '</option>')
-                        .attr('value', (type === 'attribute') ? item : `${type}.${item}`)
+                        .attr('value', (type === 'attribute' && _type !== 'attribute') ? `${_type}.${item}` : item)
                         .appendTo(groupHtml);
                 }
 
-                if (!$.isEmptyObject(data.count[type])) {
+                if (!$.isEmptyObject(data.count[_type])) {
                     groupHtml.appendTo(this.$elements.payload);
                 }
             }
