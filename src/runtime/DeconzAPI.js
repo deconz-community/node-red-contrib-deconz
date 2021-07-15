@@ -103,22 +103,6 @@ class DeconzAPI {
         };
     }
 
-    async get(path, params) {
-
-    }
-
-    async set(path, params) {
-
-    }
-
-    async delete(path, params) {
-
-    }
-
-    async new(path, params) {
-
-    }
-
 }
 
 
