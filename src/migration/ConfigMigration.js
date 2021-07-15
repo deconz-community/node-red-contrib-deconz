@@ -35,7 +35,7 @@ class ConfigMigration {
 
     applyMigration(config, controller) {
         let result = this.migrate(config);
-        if (result.notNeeded === true) return;
+        if (result.notNeeded === true) return result;
 
         // Apply new configuration
         for (const [k, v] of Object.entries(result.new)) {

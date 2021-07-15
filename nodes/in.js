@@ -1,5 +1,7 @@
 const DeconzHelper = require('../lib/DeconzHelper.js');
 const dotProp = require('dot-prop');
+const ConfigMigration = require("../src/migration/ConfigMigration");
+const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 
 module.exports = function (RED) {
     class deConzItemIn {
@@ -9,22 +11,34 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
-            // TODO replace this by the config migration class
-            node.updateOldSettings();
+            // Config migration
+            let configMigration = new ConfigMigration('deconz-input', node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
 
             // Format : {'state':{__PATH__ : {"buttonevent": 1002}}}
-            node.oldValues = {'state': {}, 'config': {} /*, 'name': false*/};
+            //node.oldValues = {'state': {}, 'config': {} /*, 'name': false*/};
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
+                if (node.config.search_type === "device") {
+                    node.config.device_list.forEach(function (item) {
+                        node.server.registerNodeByDevicePath(node.config.id, item);
+                    });
+                } else {
+                    node.server.registerNodeWithQuery(node.config.id);
+                }
 
+                // TODO handle send on start
+                /*
                 node.status({
                     fill: "blue",
                     shape: "dot",
                     text: "node-red-contrib-deconz/in:status.starting"
                 });
-
                 node.server.on('onClose', () => this.onClose());
                 node.server.on('onSocketError', () => this.onSocketError());
                 node.server.on('onSocketClose', () => this.onSocketClose());
@@ -32,13 +46,7 @@ module.exports = function (RED) {
                 node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
                 node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
 
-                if (node.config.search_type === "device") {
-                    node.config.device_list.forEach(function (item) {
-                        node.server.registerNodeByDevicePath(node.config.id, item)
-                    });
-                } else {
-                    node.server.registerNodeWithQuery(node.config.id)
-                }
+                 */
 
             } else {
                 node.status({
@@ -49,46 +57,26 @@ module.exports = function (RED) {
             }
         }
 
-        updateOldSettings() {
+
+        handleDeconzEvent(device, changed, rawEvent) {
             let node = this;
+            let msgs = new Array(this.config.output_rules.length);
+            this.config.output_rules.forEach((rule, index) => {
+                msgs.fill(undefined);
+                let formatter = new OutputMsgFormatter(rule, this.config);
 
-            // Handle old device save format
-            if (typeof (node.config.device) == 'string' && node.config.device.length) {
-                let device = node.server.getDevice(node.config.device);
-                if (device) {
-                    node.config.device_list = [node.server.getPathByDevice(device)];
-                } else {
-                    node.config.device_list = [];
+                let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent);
+                if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
+                for (let msg of msgToSend) {
+                    msg.topic = this.config.topic;
+                    msgs[index] = msg;
+                    node.send(msgs);
                 }
-            }
-
-            // Handle old state save format
-            if (!Array.isArray(node.config.state)) {
-                node.config.state = [node.config.state];
-            }
-
-            if (!Array.isArray(node.config.config)) {
-                node.config.config = node.config.config ? [node.config.config] : [];
-            }
-
-            if (node.config.output === undefined) {
-                node.config.output = "always";
-            }
-
-            if (node.config.config_output === undefined) {
-                node.config.config_output = "always";
-            }
-
-            if (node.config.homekit_output_at_startup === undefined) {
-                node.config.homekit_output_at_startup = true;
-            }
-
-            if (node.config.config_output_at_startup === undefined) {
-                node.config.config_output_at_startup = true;
-            }
-
+            });
         }
 
+
+        /*
         haveConnectedOutput(type) {
             let node = this;
             let index = {state: 0, homekit: 1, config: 2};
@@ -167,7 +155,7 @@ module.exports = function (RED) {
                     text: nodeState !== undefined ? nodeState.toString() : "node-red-contrib-deconz/server:status.connected"
                 });
             }
-        };
+        }
 
 
         sendLastState() {
@@ -631,7 +619,7 @@ module.exports = function (RED) {
 
             return devices;
         }
-
+         */
     }
 
     RED.nodes.registerType('deconz-input', deConzItemIn);

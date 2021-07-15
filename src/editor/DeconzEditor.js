@@ -87,7 +87,7 @@
 
 /**
  * @typedef {Object} Rule
- * @property {String} type - Can be 'state', 'config', 'homekit'
+ * @property {String} type - Can be 'attribute', 'state', 'config', 'homekit'
  * @property {String} format - Can be 'single', 'array', 'sum', 'average', 'min', 'max'
  * @property {String[]} [payload] - Can be '[__complete__'], ['__each__'] or any state/config value in an array.
  * @property {Boolean} onstart
