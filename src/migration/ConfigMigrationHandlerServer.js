@@ -14,8 +14,8 @@ class ConfigMigrationHandlerServer extends ConfigMigrationHandler {
     migrateFromLegacy() {
 
         // Prior 1.2.0 the apikey was not stored in credentials
-        if (this.controller.credentials.secured_apikey === undefined && config.apikey !== undefined) {
-            this.result.controller.new['credentials.secured_apikey'] = config.apikey;
+        if (this.config.apikey !== undefined) {
+            this.result.controller.new['credentials.secured_apikey'] = this.config.apikey;
             this.result.delete.push('apikey');
         }
 
