@@ -192,6 +192,12 @@ class OutputMsgFormatter {
                     // 1005            One            triple short press
                     // 1006            One            quad short press
                     // 1010            One            five+ short press
+
+                    //https://github.com/NRCHKB/node-red-contrib-homekit-bridged/blob/master/docs/HAP-Specification-Non-Commercial-Version.pdf
+                    // -pressed once (programmable switch event = 0)
+                    // -pressed twice (programmable switch event = 1)
+                    // -held down (programmable switch event = 2)
+                    //TODO replace this code that send invalid codes
                     if ([1002, 2002, 3002, 4002, 5002, 6002].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 0;
                     else if ([1004, 2004, 3004, 4004, 5004, 6004].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 1;
                     else if ([1001, 2001, 3001, 4001, 5001, 6001].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 2;
@@ -199,7 +205,7 @@ class OutputMsgFormatter {
                     else if ([1006, 2006, 3006, 4006, 5006, 6006].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 4;
                     else if ([1010, 2010, 3010, 4010, 5010, 6010].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 5;
                     if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
-                    
+
                     //index of btn
                     characteristic.ServiceLabelIndex = Math.floor(state.buttonevent / 1000);
                 }
