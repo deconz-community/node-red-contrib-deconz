@@ -154,11 +154,11 @@ module.exports = function (RED) {
         updateDevice(device_path, dataParsed) {
             let node = this;
             let device = node.device_list.getDeviceByPath(device_path);
-            let changed = {};
+            let changed = [];
 
             if (dotProp.has(dataParsed, 'name')) {
                 device.name = dotProp.get(dataParsed, 'name');
-                changed.name = true;
+                changed.push('name');
             }
 
             ['config', 'state'].forEach(function (key) {
@@ -168,8 +168,7 @@ module.exports = function (RED) {
                         let newValue = dotProp.get(dataParsed, valuePath);
                         let oldValue = dotProp.get(device, valuePath);
                         if (newValue !== oldValue) {
-                            if (!(key in changed)) changed[key] = [];
-                            changed[key].push(state_name);
+                            changed.push(`${key}.${state_name}`);
                             dotProp.set(device, valuePath, newValue);
                         }
                     });
