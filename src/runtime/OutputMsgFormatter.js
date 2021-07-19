@@ -27,23 +27,23 @@ class OutputMsgFormatter {
         switch (this.rule.format) {
             case 'single':
                 for (const device of devices) {
-
-                    // TODO move this to apply it on each payload
-                    // Check if I need to send a message with the output conditions (always, on update, ...)
-                    //if (!this.checkOutputTime(device)) continue;
-
                     if (this.rule.payload.includes('__complete__')) {
-                        resultMsgs.push(this.formatDeviceMsg(device, rawEvent, '__complete__'));
+                        if (this.checkOutputTime(device)) {
+                            resultMsgs.push(this.formatDeviceMsg(device, rawEvent, '__complete__'));
+                        }
                     } else if (this.rule.payload.includes('__each__')) {
                         for (const payloadFormat of this.getDevicePayloadList(device)) {
-                            resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                            if (this.checkOutputTime(device, payloadFormat)) {
+                                resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                            }
                         }
                     } else {
                         for (const payloadFormat of this.rule.payload) {
-                            resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                            if (this.checkOutputTime(device, payloadFormat)) {
+                                resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                            }
                         }
                     }
-
                 }
                 break;
             case 'array':
@@ -61,7 +61,6 @@ class OutputMsgFormatter {
 
 
     formatDeviceMsg(device, rawEvent, payloadFormat) {
-
         let msg = {};
         msg.topic = this.config.topic;
 
@@ -99,26 +98,28 @@ class OutputMsgFormatter {
     getDevicePayloadList(device) {
         switch (this.rule.type) {
             case 'attribute':
-                let list = Object.keys(device);
-                list.filter(e => e !== 'state' && e !== 'config');
-                list.concat(Object.keys(device.state).map(e => 'state.' + e));
-                list.concat(Object.keys(device.config).map(e => 'config.' + e));
-                break;
+                let list = Object.keys(device.data);
+                list = list.filter(e => e !== 'state' && e !== 'config');
+                list = list.concat(Object.keys(device.data.state).map(e => 'state.' + e));
+                list = list.concat(Object.keys(device.data.config).map(e => 'config.' + e));
+                return list;
             case 'state':
             case 'config':
-                return Object.keys(device[this.rule.type]);
+                return Object.keys(device.data[this.rule.type]);
         }
     }
 
-    checkOutputTime(device) {
-        //TODO this don't work
+    checkOutputTime(device, payloadFormat) {
         switch (this.rule.output) {
             case 'always':
                 return true;
             case 'onchange':
-                return device && Array.isArray(device.changed) && device.changed.length > 0;
+                return device && Array.isArray(device.changed) && (
+                    (payloadFormat === undefined && device.changed.length > 0) ||
+                    (payloadFormat !== undefined && device.changed.includes(payloadFormat))
+                );
             case 'onupdate':
-                return device && Array.isArray(device.changed) && device.changed.includes('lastupdated');
+                return device && Array.isArray(device.changed) && device.changed.includes('state.lastupdated');
         }
     }
 }
