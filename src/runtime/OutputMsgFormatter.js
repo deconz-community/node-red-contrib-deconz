@@ -79,6 +79,7 @@ class OutputMsgFormatter {
                 break;
         }
 
+        if (payloadFormat !== undefined) msg.payload_format = payloadFormat;
         if (rawEvent !== undefined) msg.payload_raw = rawEvent;
         msg.meta = device.data;
         msg.meta_changed = device.changed;
