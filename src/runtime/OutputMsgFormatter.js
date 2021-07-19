@@ -75,7 +75,7 @@ class OutputMsgFormatter {
                 msg.payload = this.formatDevicePayload(device.data.config, payloadFormat);
                 break;
             case 'homekit':
-                msg = this.formatHomeKit(device.data);
+                msg = this.formatHomeKit(device.data, device.changed, rawEvent);
                 break;
         }
 
@@ -126,7 +126,10 @@ class OutputMsgFormatter {
     }
 
 
-    formatHomeKit(device, options) {
+    formatHomeKit(device, changed, rawEvent, options) {
+        //TODO Optimise the button event detection
+        //TODO Don't send button event if last updated was not changed / rawEvent Contain buttonevent
+
         let node = this;
         let state = device.state;
         let config = device.config;
