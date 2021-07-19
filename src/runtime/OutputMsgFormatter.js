@@ -199,15 +199,9 @@ class OutputMsgFormatter {
                     else if ([1006, 2006, 3006, 4006, 5006, 6006].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 4;
                     else if ([1010, 2010, 3010, 4010, 5010, 6010].indexOf(state.buttonevent) >= 0) characteristic.ProgrammableSwitchEvent = 5;
                     if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
-
-
+                    
                     //index of btn
-                    if ([1001, 1002, 1004, 1005, 1006, 1010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 1;
-                    else if ([2001, 2002, 2004, 2005, 2006, 2010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 2;
-                    else if ([3001, 3002, 3004, 3005, 3006, 3010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 3;
-                    else if ([4001, 4002, 4004, 4005, 4006, 4010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 4;
-                    else if ([5001, 5002, 5004, 5005, 5006, 5010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 5;
-                    else if ([6001, 6002, 6004, 6005, 6006, 6010].indexOf(state.buttonevent) >= 0) characteristic.ServiceLabelIndex = 6;
+                    characteristic.ServiceLabelIndex = Math.floor(state.buttonevent / 1000);
                 }
 
                 // if (state.consumption !== null){
