@@ -139,6 +139,9 @@ class OutputMsgFormatter {
         let no_reponse = false;
         if ((state !== undefined && state.reachable === false) || (config !== undefined && config.reachable === false)) {
             no_reponse = true;
+            if (this.rule.onerror === false) {
+                return null;
+            }
         }
 
         let msg = {};
