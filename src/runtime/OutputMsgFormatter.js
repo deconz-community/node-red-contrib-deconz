@@ -30,18 +30,21 @@ class OutputMsgFormatter {
                 for (const device of devices) {
                     if (this.rule.payload.includes('__complete__')) {
                         if (this.checkOutputTime(device)) {
-                            resultMsgs.push(this.formatDeviceMsg(device, rawEvent, '__complete__'));
+                            let msg = this.formatDeviceMsg(device, rawEvent, '__complete__');
+                            if (msg !== null) resultMsgs.push(msg);
                         }
                     } else if (this.rule.payload.includes('__each__')) {
                         for (const payloadFormat of this.getDevicePayloadList(device)) {
                             if (this.checkOutputTime(device, payloadFormat)) {
-                                resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat);
+                                if (msg !== null) resultMsgs.push(msg);
                             }
                         }
                     } else {
                         for (const payloadFormat of this.rule.payload) {
                             if (this.checkOutputTime(device, payloadFormat)) {
-                                resultMsgs.push(this.formatDeviceMsg(device, rawEvent, payloadFormat));
+                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat);
+                                if (msg !== null) resultMsgs.push(msg);
                             }
                         }
                     }
@@ -76,6 +79,7 @@ class OutputMsgFormatter {
                 break;
             case 'homekit':
                 msg = this.formatHomeKit(device.data, device.changed, rawEvent);
+                if (msg === null) return null;
                 break;
         }
 
@@ -127,22 +131,13 @@ class OutputMsgFormatter {
 
 
     formatHomeKit(device, changed, rawEvent, options) {
-        //TODO Optimise the button event detection
-        //TODO Don't send button event if last updated was not changed / rawEvent Contain buttonevent
-
         let node = this;
-        let state = device.state;
-        let config = device.config;
+        let state = rawEvent.state;
+        let config = rawEvent.config;
         let deviceMeta = device;
 
         let no_reponse = false;
-        if (state !== undefined && state.reachable !== undefined && state.reachable != null && state.reachable === false) {
-            no_reponse = true;
-        }
-        if (config !== undefined && config.reachable !== undefined && config.reachable != null && config.reachable === false) {
-            no_reponse = true;
-        }
-        if (options !== undefined && "reachable" in options && !options.reachable) {
+        if ((state !== undefined && state.reachable === false) || (config !== undefined && config.reachable === false)) {
             no_reponse = true;
         }
 
@@ -280,6 +275,7 @@ class OutputMsgFormatter {
                 }
                 // }
 
+                msg.lastupdated = device.state.lastupdated;
             }
         }
 
@@ -296,7 +292,6 @@ class OutputMsgFormatter {
 
         if (Object.keys(characteristic).length === 0) return null; //empty response
 
-        msg.lastupdated = device.state.lastupdated;
         msg.payload = characteristic;
         return msg;
     }
