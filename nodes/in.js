@@ -184,18 +184,6 @@ module.exports = function (RED) {
             }
         }
 
-        sendTo(outputName, payload) {
-            let node = this;
-            switch (outputName) {
-                case 'state':
-                    return node.send([payload, undefined, undefined]);
-                case 'homekit':
-                    return node.send([undefined, payload, undefined]);
-                case 'config':
-                    return node.send([undefined, undefined, payload]);
-            }
-        }
-
         // TODO filter old button event resent, move it to lastbuttonevent / do nothing because this can be handled by setting updated
         sendState(
             device,
