@@ -13,6 +13,7 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
             node.discoverProcessRunning = false;
+            node.ready = false;
 
             // Config migration
             let configMigration = new ConfigMigration('deconz-server', node.config);
@@ -73,7 +74,7 @@ module.exports = function (RED) {
                 }
             }, opt);
 
-            if (!(options.forceRefresh) || node.discoverProcessRunning) {
+            if (options.forceRefresh === false || node.discoverProcessRunning === true) {
                 node.log('discoverDevices: Using cached devices');
                 return;
             }
@@ -83,8 +84,60 @@ module.exports = function (RED) {
             node.device_list.parse(response);
             node.log(`discoverDevices: Updated ${node.device_list.count}`);
             node.discoverProcessRunning = false;
+
+            if (options.initialDiscovery === true) {
+                //TODO add delay ?
+                node.propagateNews(node.nodesByDevicePath, {type: 'start'});
+            }
+
         }
 
+        /**
+         *
+         * @param targets List of nodes {device_path : [nodeIDs]}
+         * @param news Object what kind of news need to be sent
+         */
+        propagateNews(targets, news) {
+            let node = this;
+            node.ready = true;
+            for (const [path, nodeIDs] of Object.entries(targets)) {
+                for (const nodeID of nodeIDs) {
+                    let target = RED.nodes.getNode(nodeID);
+                    // If the target does not exist we remove it from the node list
+                    if (!target) {
+                        console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
+                        node.unregisterNodeByDevicePath(nodeID, path);
+                        return;
+                    }
+                    let device = node.device_list.getDeviceByPath(path);
+                    switch (news.type) {
+                        case 'start':
+                            switch (target.type) {
+                                case 'deconz-input':
+                                    target.handleDeconzEvent(
+                                        device,
+                                        [],
+                                        {},
+                                        {initialEvent: true}
+                                    );
+                                    break;
+                            }
+
+                            break;
+                        case 'event':
+                            //TODO Implement
+                            break;
+                        case 'error':
+                            //TODO Implement
+                            break;
+                    }
+
+                }
+
+            }
+
+
+        }
 
         registerNodeByDevicePath(nodeID, device_path) {
             let node = this;
@@ -200,12 +253,16 @@ module.exports = function (RED) {
 
             let visited = [];
 
+            // TODO migrate that to propagateNews method
             for (const path of Object.values(paths)) {
                 // Handle nodesByDevicePath
                 if (that.nodesByDevicePath[path] !== undefined && that.nodesByDevicePath[path].length > 0) {
                     for (const nodeID of that.nodesByDevicePath[path]) {
                         // Make sure we don't send event twice TODO Used ?
-                        if (visited.includes(nodeID)) continue;
+                        if (visited.includes(nodeID)) {
+                            console.warn("WTF this is used : Make sure we don't send event twice");
+                            continue;
+                        }
                         visited.push(nodeID);
 
                         let node = RED.nodes.getNode(nodeID);
@@ -229,7 +286,7 @@ module.exports = function (RED) {
                 }
 
                 /*
-                // Handle nodesWithQuery
+                // TODO Handle nodesWithQuery
                 that.nodesWithQuery.forEach(function (nodeID) {
                     let node = RED.nodes.getNode(nodeID);
                     if (!node) {
@@ -283,7 +340,9 @@ module.exports = function (RED) {
                     switch (dataParsed.e) {
                         case "added":
                         case "deleted":
-                            that.discoverDevices(undefined, true);
+                            that.discoverDevices({
+                                forceRefresh: true
+                            }).then();
                             break;
                         case "changed":
                             that.onSocketMessageChanged(dataParsed);

@@ -19,8 +19,9 @@ class OutputMsgFormatter {
      *
      * @param devices
      * @param rawEvent only for input node
+     * @param options
      */
-    getMsgs(devices, rawEvent) {
+    getMsgs(devices, rawEvent, options) {
         if (!Array.isArray(devices)) devices = [devices];
         //console.log({rule: this.rule, config: this.config, devices, rawEvent});
         let resultMsgs = [];
@@ -29,21 +30,21 @@ class OutputMsgFormatter {
             case 'single':
                 for (const device of devices) {
                     if (this.rule.payload.includes('__complete__')) {
-                        if (this.checkOutputTime(device)) {
-                            let msg = this.formatDeviceMsg(device, rawEvent, '__complete__');
+                        if (this.checkOutputTime(device, undefined, options)) {
+                            let msg = this.formatDeviceMsg(device, rawEvent, '__complete__', options);
                             if (msg !== null) resultMsgs.push(msg);
                         }
                     } else if (this.rule.payload.includes('__each__')) {
                         for (const payloadFormat of this.getDevicePayloadList(device)) {
-                            if (this.checkOutputTime(device, payloadFormat)) {
-                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat);
+                            if (this.checkOutputTime(device, payloadFormat, options)) {
+                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
                                 if (msg !== null) resultMsgs.push(msg);
                             }
                         }
                     } else {
                         for (const payloadFormat of this.rule.payload) {
-                            if (this.checkOutputTime(device, payloadFormat)) {
-                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat);
+                            if (this.checkOutputTime(device, payloadFormat, options)) {
+                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
                                 if (msg !== null) resultMsgs.push(msg);
                             }
                         }
@@ -64,21 +65,21 @@ class OutputMsgFormatter {
     }
 
 
-    formatDeviceMsg(device, rawEvent, payloadFormat) {
+    formatDeviceMsg(device, rawEvent, payloadFormat, options) {
         let msg = {};
 
         switch (this.rule.type) {
             case 'attribute':
-                msg.payload = this.formatDevicePayload(device.data, payloadFormat);
+                msg.payload = this.formatDevicePayload(device.data, payloadFormat, options);
                 break;
             case 'state':
-                msg.payload = this.formatDevicePayload(device.data.state, payloadFormat);
+                msg.payload = this.formatDevicePayload(device.data.state, payloadFormat, options);
                 break;
             case 'config':
-                msg.payload = this.formatDevicePayload(device.data.config, payloadFormat);
+                msg.payload = this.formatDevicePayload(device.data.config, payloadFormat, options);
                 break;
             case 'homekit':
-                msg = this.formatHomeKit(device.data, device.changed, rawEvent);
+                msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
                 if (msg === null) return null;
                 break;
         }
@@ -93,7 +94,7 @@ class OutputMsgFormatter {
 
     }
 
-    formatDevicePayload(device, payloadFormat) {
+    formatDevicePayload(device, payloadFormat, options) {
         if (payloadFormat === '__complete__') {
             return device;
         } else {
@@ -115,7 +116,10 @@ class OutputMsgFormatter {
         }
     }
 
-    checkOutputTime(device, payloadFormat) {
+    checkOutputTime(device, payloadFormat, options) {
+        // The On start output are priority
+        if (options.initialEvent === true) return true;
+
         switch (this.rule.output) {
             case 'always':
                 return true;
@@ -129,14 +133,14 @@ class OutputMsgFormatter {
         }
     }
 
-
     formatHomeKit(device, changed, rawEvent, options) {
         let node = this;
         let state = rawEvent.state;
         let config = rawEvent.config;
         let deviceMeta = device;
 
-        let no_reponse = false;
+        let no_reponse = options.noResponse === true;
+
         if ((state !== undefined && state.reachable === false) || (config !== undefined && config.reachable === false)) {
             no_reponse = true;
             if (this.rule.onerror === false) {

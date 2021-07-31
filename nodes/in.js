@@ -32,13 +32,23 @@ module.exports = function (RED) {
                     node.server.registerNodeWithQuery(node.config.id);
                 }
 
-                // TODO handle send on start
-                /*
                 node.status({
                     fill: "blue",
                     shape: "dot",
                     text: "node-red-contrib-deconz/in:status.starting"
                 });
+
+                node.server.on('onStart', () => {
+                    // Display usefull info
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.connected"
+                    });
+
+                    console.log('OnStart');
+                });
+                /*
                 node.server.on('onClose', () => this.onClose());
                 node.server.on('onSocketError', () => this.onSocketError());
                 node.server.on('onSocketClose', () => this.onSocketClose());
@@ -47,6 +57,7 @@ module.exports = function (RED) {
                 node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
 
                  */
+
 
             } else {
                 node.status({
@@ -58,20 +69,42 @@ module.exports = function (RED) {
         }
 
 
-        handleDeconzEvent(device, changed, rawEvent) {
+        handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
             let msgs = new Array(this.config.output_rules.length);
+            let options = Object.assign({
+                initialEvent: false,
+                noResponse: false
+            }, opt);
             this.config.output_rules.forEach((rule, index) => {
-                msgs.fill(undefined);
-                let formatter = new OutputMsgFormatter(rule, this.config);
+                // Only if it's not on start and the start msg are blocked
+                if (!(options.initialEvent === true && rule.onstart !== true)) {
+                    // Clean up old msgs
+                    msgs.fill(undefined);
 
-                let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent);
-                if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
-                for (let msg of msgToSend) {
-                    msg.topic = this.config.topic;
-                    msgs[index] = msg;
-                    node.send(msgs);
+                    // Format msgs, can get one or many msgs.
+                    let formatter = new OutputMsgFormatter(rule, this.config);
+                    let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
+
+                    // Make sure that the result is an array
+                    if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
+
+                    // Send msgs
+                    for (let msg of msgToSend) {
+                        msg.topic = this.config.topic;
+                        msgs[index] = msg;
+                        node.send(msgs);
+                    }
                 }
+
+                //TODO display msg payload if it's possible (one rule and payload a non object value
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.connected"
+                });
+
+
             });
         }
 
