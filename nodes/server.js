@@ -95,7 +95,7 @@ module.exports = function (RED) {
         /**
          *
          * @param targets List of nodes {device_path : [nodeIDs]}
-         * @param news Object what kind of news need to be sent
+         * @param news Object what kind of news need to be sent {type: 'start|event|error', eventData:{}, errorMsg: ""}
          */
         propagateNews(targets, news) {
             let node = this;
@@ -121,6 +121,8 @@ module.exports = function (RED) {
                                         {initialEvent: true}
                                     );
                                     break;
+
+                                //TODO Implement other node types
                             }
 
                             break;
