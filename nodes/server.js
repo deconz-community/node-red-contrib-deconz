@@ -43,9 +43,27 @@ module.exports = function (RED) {
                 secure: node.config.secure || false
             });
 
-            node.socket.on('close', (code, reason) => this.onSocketClose(code, reason));
+
+            node.socket.on('close', (code, reason) => {
+                // TODO This is sent on deploy too, this should not be the case. (but not every time lol)
+                if (reason) { // don't bother the user unless there's a reason
+                    node.warn(`WebSocket disconnected: ${code} - ${reason}`);
+                }
+                node.propagateNews(node.nodesByDevicePath, {
+                    type: 'error',
+                    errorCode: code,
+                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                });
+            });
+
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
-            node.socket.on('open', () => this.onSocketOpen());
+            node.socket.on('open', () => {
+                node.log(`WebSocket opened`);
+                if (node.ready) node.propagateNews(node.nodesByDevicePath, {
+                    type: 'start',
+                });
+
+            });
             node.socket.on('message', (payload) => this.onSocketMessage(payload));
             node.socket.on('error', (err) => this.onSocketError(err));
             node.socket.on('pong-timeout', () => this.onSocketPongTimeout());
@@ -95,7 +113,8 @@ module.exports = function (RED) {
         /**
          *
          * @param targets List of nodes {device_path : [nodeIDs]}
-         * @param news Object what kind of news need to be sent {type: 'start|event|error', eventData:{}, errorMsg: ""}
+         * @param news Object what kind of news need to be sent
+         *     {type: 'start|event|error', eventData:{}, errorCode: "", errorMsg: ""}
          */
         propagateNews(targets, news) {
             let node = this;
@@ -130,7 +149,22 @@ module.exports = function (RED) {
                             //TODO Implement
                             break;
                         case 'error':
-                            //TODO Implement
+                            switch (target.type) {
+                                case 'deconz-input':
+                                    target.handleDeconzEvent(
+                                        device,
+                                        [],
+                                        {},
+                                        {
+                                            errorEvent: true,
+                                            errorCode: news.errorCode || "Unknown Error",
+                                            errorMsg: news.errorMsg || "Unknown Error"
+                                        }
+                                    );
+                                    break;
+
+                                //TODO Implement other node types
+                            }
                             break;
                     }
 

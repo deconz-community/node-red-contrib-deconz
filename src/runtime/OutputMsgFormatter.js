@@ -137,7 +137,7 @@ class OutputMsgFormatter {
         let node = this;
 
         // Override rawEvent for initialEvent because in this case rawEvent is an empty object
-        if (options.initialEvent === true) {
+        if (options.initialEvent === true || options.errorEvent === true) {
             rawEvent = device;
         }
 
@@ -145,7 +145,7 @@ class OutputMsgFormatter {
         let config = rawEvent.config;
         let deviceMeta = device;
 
-        let no_reponse = options.noResponse === true;
+        let no_reponse = options.errorEvent === true;
 
         if ((state !== undefined && state.reachable === false) || (config !== undefined && config.reachable === false)) {
             no_reponse = true;
@@ -227,7 +227,9 @@ class OutputMsgFormatter {
                     if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
 
                     //index of btn
-                    characteristic.ServiceLabelIndex = Math.floor(state.buttonevent / 1000);
+                    characteristic.ServiceLabelIndex = no_reponse ?
+                        "NO_RESPONSE" :
+                        Math.floor(state.buttonevent / 1000);
                 }
 
                 // if (state.consumption !== null){

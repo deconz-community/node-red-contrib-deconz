@@ -74,7 +74,7 @@ module.exports = function (RED) {
             let msgs = new Array(this.config.output_rules.length);
             let options = Object.assign({
                 initialEvent: false,
-                noResponse: false
+                errorEvent: false
             }, opt);
             this.config.output_rules.forEach((rule, index) => {
                 // Only if it's not on start and the start msg are blocked
