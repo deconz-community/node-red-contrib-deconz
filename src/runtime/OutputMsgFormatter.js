@@ -135,6 +135,12 @@ class OutputMsgFormatter {
 
     formatHomeKit(device, changed, rawEvent, options) {
         let node = this;
+
+        // Override rawEvent for initialEvent because in this case rawEvent is an empty object
+        if (options.initialEvent === true) {
+            rawEvent = device;
+        }
+
         let state = rawEvent.state;
         let config = rawEvent.config;
         let deviceMeta = device;
