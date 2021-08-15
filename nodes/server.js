@@ -146,7 +146,32 @@ module.exports = function (RED) {
 
                             break;
                         case 'event':
-                            //TODO Implement
+                            let dataParsed = news.eventData;
+                            switch (dataParsed.t) {
+                                case "event":
+                                    switch (dataParsed.e) {
+                                        case "added":
+                                        case "deleted":
+                                            node.discoverDevices({
+                                                forceRefresh: true
+                                            }).then();
+                                            break;
+                                        case "changed":
+                                            node.onSocketMessageChanged(dataParsed);
+                                            break;
+                                        case "scene-called":
+                                            node.onSocketMessageSceneCalled(dataParsed);
+                                            break;
+                                        default:
+                                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
+                                            break;
+                                    }
+                                    break;
+                                default:
+                                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
+                                    break;
+                            }
+
                             break;
                         case 'error':
                             switch (target.type) {
@@ -361,40 +386,18 @@ module.exports = function (RED) {
 
         }
 
-
         onSocketMessageSceneCalled(dataParsed) {
             console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
             // TODO implement
         }
 
-
         onSocketMessage(dataParsed) {
-            let that = this;
-            that.emit('onSocketMessage', dataParsed); //Used by event node
-            switch (dataParsed.t) {
-                case "event":
-                    switch (dataParsed.e) {
-                        case "added":
-                        case "deleted":
-                            that.discoverDevices({
-                                forceRefresh: true
-                            }).then();
-                            break;
-                        case "changed":
-                            that.onSocketMessageChanged(dataParsed);
-                            break;
-                        case "scene-called":
-                            that.onSocketMessageSceneCalled(dataParsed);
-                            break;
-                        default:
-                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
-                            break;
-                    }
-                    break;
-                default:
-                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
-                    break;
-            }
+            let node = this;
+            node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
+            node.propagateNews(node.nodesByDevicePath, {
+                type: 'event',
+                eventData: dataParsed
+            });
         }
     }
 
