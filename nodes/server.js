@@ -5,6 +5,7 @@ const DeviceList = require('../src/runtime/DeviceList');
 const DeconzAPI = require("../src/runtime/DeconzAPI");
 const DeconzSocket = require("../src/runtime/DeconzSocket");
 const ConfigMigration = require("../src/migration/ConfigMigration");
+const Query = require('../src/runtime/Query');
 
 module.exports = function (RED) {
     class ServerNode {
@@ -43,32 +44,19 @@ module.exports = function (RED) {
                 secure: node.config.secure || false
             });
 
-
             node.socket.on('close', (code, reason) => {
                 if (reason) { // don't bother the user unless there's a reason
                     node.warn(`WebSocket disconnected: ${code} - ${reason}`);
                 }
-
-                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
-                    node.propagateNews(nodeIDs, {
-                        type: 'error',
-                        device: node.device_list.getDeviceByPath(device_path),
-                        errorCode: code,
-                        errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
-                    });
-                }
+                node.propagateErrorNews(code, reason);
             });
 
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
             node.socket.on('open', () => {
                 node.log(`WebSocket opened`);
+                // This is used only on websocket reconnect, not the initial connection.
                 if (!node.ready) return;
-                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
-                    node.propagateNews(nodeIDs, {
-                        type: 'start',
-                        device: node.device_list.getDeviceByPath(device_path)
-                    });
-                }
+                node.propagateStartNews();
             });
             node.socket.on('message', (payload) => this.onSocketMessage(payload));
             node.socket.on('error', (err) => this.onSocketError(err));
@@ -114,14 +102,73 @@ module.exports = function (RED) {
 
             if (options.initialDiscovery === true) {
                 node.ready = true;
-                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
-                    node.propagateNews(nodeIDs, {
+                node.propagateStartNews();
+            }
+        }
+
+        propagateStartNews() {
+            let node = this;
+            // Node with device selected
+            for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                node.propagateNews(nodeIDs, {
+                    type: 'start',
+                    device: node.device_list.getDeviceByPath(device_path)
+                });
+            }
+
+            // Node with quety
+            for (let nodeID of node.nodesWithQuery) {
+                let target = RED.nodes.getNode(nodeID);
+                // TODO Cache JSONata expresssions ?
+                let querySrc = RED.util.evaluateJSONataExpression(
+                    RED.util.prepareJSONataExpression(target.config.query, target),
+                    {},
+                    undefined
+                );
+                let devices = node.device_list.getDevicesByQuery(querySrc);
+                if (devices.matched.length === 0) continue;
+                for (let device of devices.matched) {
+                    node.propagateNews(nodeID, {
                         type: 'start',
-                        device: node.device_list.getDeviceByPath(device_path)
+                        device: device,
                     });
                 }
             }
+        }
+        
+        propagateErrorNews(code, reason) {
+            let node = this;
 
+            // Node with device selected
+            for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                node.propagateNews(nodeIDs, {
+                    type: 'error',
+                    device: node.device_list.getDeviceByPath(device_path),
+                    errorCode: code,
+                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                });
+            }
+
+            // Node with quety
+            for (let nodeID of node.nodesWithQuery) {
+                let target = RED.nodes.getNode(nodeID);
+                // TODO Cache JSONata expresssions ?
+                let querySrc = RED.util.evaluateJSONataExpression(
+                    RED.util.prepareJSONataExpression(target.config.query, target),
+                    {},
+                    undefined
+                );
+                let devices = node.device_list.getDevicesByQuery(querySrc);
+                if (devices.matched.length === 0) continue;
+                for (let device of devices.matched) {
+                    node.propagateNews(nodeID, {
+                        type: 'error',
+                        device: device,
+                        errorCode: code,
+                        errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                    });
+                }
+            }
         }
 
         /**
@@ -132,8 +179,10 @@ module.exports = function (RED) {
          */
         propagateNews(nodeIDs, news) {
             let node = this;
+
             // Make sure that we have node to send the message to
             if (nodeIDs === undefined || Array.isArray(nodeIDs) && nodeIDs.length === 0) return;
+            if (!Array.isArray(nodeIDs)) nodeIDs = [nodeIDs];
 
             for (const nodeID of nodeIDs) {
                 let target = RED.nodes.getNode(nodeID);
@@ -325,13 +374,39 @@ module.exports = function (RED) {
             let device = node.device_list.getDeviceByDomainID(dataParsed.r, dataParsed.id);
             let changed = node.updateDevice(device, dataParsed);
 
+            // Node with device selected
             node.propagateNews(node.nodesByDevicePath[device.device_path], {
                 type: 'event',
                 eventData: dataParsed,
                 device: device,
                 changed: changed
             });
+
+            // Node with quety
+            let matched = [];
+            for (let nodeID of node.nodesWithQuery) {
+                let target = RED.nodes.getNode(nodeID);
+                // TODO Cache JSONata expresssions ?
+                let querySrc = RED.util.evaluateJSONataExpression(
+                    RED.util.prepareJSONataExpression(target.config.query, target),
+                    {},
+                    undefined
+                );
+                let query = new Query(querySrc);
+                if (query.match(device)) {
+                    matched.push(nodeID);
+                }
+            }
+
+            if (matched.length > 0) node.propagateNews(matched, {
+                type: 'event',
+                eventData: dataParsed,
+                device: device,
+                changed: changed
+            });
+
         }
+
     }
 
     RED.nodes.registerType('deconz-server', ServerNode, {
