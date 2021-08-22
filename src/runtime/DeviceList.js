@@ -52,11 +52,27 @@ class DeviceList {
 
     }
 
+    /**
+     * Get the device from his unique ID.
+     * Warning, some devices have the same uniqueID.
+     * @param uniqueID
+     * @returns device
+     */
     getDeviceByUniqueID(uniqueID) {
         for (const domain of Object.values(this.devices)) {
             let found = domain.ByUniqueID[uniqueID];
             if (found) return found;
         }
+    }
+
+    /**
+     * Get the device from his domain and his ID.
+     * @param domain string {'groups', 'lights', 'sensors'}
+     * @param deviceID string
+     * @returns device
+     */
+    getDeviceByDomainID(domain, deviceID) {
+        return this.domains.includes(domain) ? this.devices[domain].ById[deviceID] : undefined;
     }
 
     createQuery(device) {
