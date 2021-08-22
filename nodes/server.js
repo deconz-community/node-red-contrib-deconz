@@ -45,24 +45,30 @@ module.exports = function (RED) {
 
 
             node.socket.on('close', (code, reason) => {
-                // TODO This is sent on deploy too, this should not be the case. (but not every time lol)
                 if (reason) { // don't bother the user unless there's a reason
                     node.warn(`WebSocket disconnected: ${code} - ${reason}`);
                 }
-                node.propagateNews(node.nodesByDevicePath, {
-                    type: 'error',
-                    errorCode: code,
-                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
-                });
+
+                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                    node.propagateNews(nodeIDs, {
+                        type: 'error',
+                        device: node.device_list.getDeviceByPath(device_path),
+                        errorCode: code,
+                        errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                    });
+                }
             });
 
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
             node.socket.on('open', () => {
                 node.log(`WebSocket opened`);
-                if (node.ready) node.propagateNews(node.nodesByDevicePath, {
-                    type: 'start',
-                });
-
+                if (!node.ready) return;
+                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                    node.propagateNews(nodeIDs, {
+                        type: 'start',
+                        device: node.device_list.getDeviceByPath(device_path)
+                    });
+                }
             });
             node.socket.on('message', (payload) => this.onSocketMessage(payload));
             node.socket.on('error', (err) => this.onSocketError(err));
@@ -71,6 +77,7 @@ module.exports = function (RED) {
             node.on('close', () => this.onClose());
 
             (async () => {
+                //TODO add delay ?
                 await node.discoverDevices({
                     forceRefresh: true,
                     initialDiscovery: true
@@ -104,99 +111,112 @@ module.exports = function (RED) {
             node.discoverProcessRunning = false;
 
             if (options.initialDiscovery === true) {
-                //TODO add delay ?
-                node.propagateNews(node.nodesByDevicePath, {type: 'start'});
+                node.ready = true;
+                for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                    node.propagateNews(nodeIDs, {
+                        type: 'start',
+                        device: node.device_list.getDeviceByPath(device_path)
+                    });
+                }
             }
 
         }
 
         /**
          *
-         * @param targets List of nodes {device_path : [nodeIDs]}
+         * @param nodeIDs List of nodes [nodeID1, nodeID2]
          * @param news Object what kind of news need to be sent
-         *     {type: 'start|event|error', eventData:{}, errorCode: "", errorMsg: ""}
+         *     {type: 'start|event|error', eventData:{}, errorCode: "", errorMsg: "", device: {}, changed: {}}
          */
-        propagateNews(targets, news) {
+        propagateNews(nodeIDs, news) {
             let node = this;
-            node.ready = true;
-            for (const [path, nodeIDs] of Object.entries(targets)) {
-                for (const nodeID of nodeIDs) {
-                    let target = RED.nodes.getNode(nodeID);
-                    // If the target does not exist we remove it from the node list
-                    if (!target) {
-                        console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
-                        node.unregisterNodeByDevicePath(nodeID, path);
-                        return;
-                    }
-                    let device = node.device_list.getDeviceByPath(path);
-                    switch (news.type) {
-                        case 'start':
-                            switch (target.type) {
-                                case 'deconz-input':
-                                    target.handleDeconzEvent(
-                                        device,
-                                        [],
-                                        {},
-                                        {initialEvent: true}
-                                    );
-                                    break;
+            // Make sure that we have node to send the message to
+            if (nodeIDs === undefined || Array.isArray(nodeIDs) && nodeIDs.length === 0) return;
 
-                                //TODO Implement other node types
-                            }
+            for (const nodeID of nodeIDs) {
+                let target = RED.nodes.getNode(nodeID);
+                // If the target does not exist we remove it from the node list
+                if (!target) {
+                    console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
+                    node.unregisterNodeByDevicePath(nodeID, news.device.device_path);
+                    return;
+                }
 
-                            break;
-                        case 'event':
-                            let dataParsed = news.eventData;
-                            switch (dataParsed.t) {
-                                case "event":
-                                    switch (dataParsed.e) {
-                                        case "added":
-                                        case "deleted":
-                                            node.discoverDevices({
-                                                forceRefresh: true
-                                            }).then();
-                                            break;
-                                        case "changed":
-                                            node.onSocketMessageChanged(dataParsed);
-                                            break;
-                                        case "scene-called":
-                                            node.onSocketMessageSceneCalled(dataParsed);
-                                            break;
-                                        default:
-                                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
-                                            break;
-                                    }
-                                    break;
-                                default:
-                                    console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
-                                    break;
-                            }
+                switch (news.type) {
+                    case 'start':
+                        switch (target.type) {
+                            case 'deconz-input':
+                                target.handleDeconzEvent(
+                                    news.device,
+                                    [],
+                                    {},
+                                    {initialEvent: true}
+                                );
+                                break;
 
-                            break;
-                        case 'error':
-                            switch (target.type) {
-                                case 'deconz-input':
-                                    target.handleDeconzEvent(
-                                        device,
-                                        [],
-                                        {},
-                                        {
-                                            errorEvent: true,
-                                            errorCode: news.errorCode || "Unknown Error",
-                                            errorMsg: news.errorMsg || "Unknown Error"
+                            //TODO Implement other node types (battery)
+                        }
+
+                        break;
+                    case 'event':
+                        let dataParsed = news.eventData;
+                        switch (dataParsed.t) {
+                            case "event":
+                                switch (dataParsed.e) {
+                                    case "added":
+                                    case "deleted":
+                                        node.discoverDevices({
+                                            forceRefresh: true
+                                        }).then();
+                                        break;
+                                    case "changed":
+                                        if (target.type === "deconz-input") {
+                                            target.handleDeconzEvent(
+                                                news.device,
+                                                news.changed,
+                                                dataParsed
+                                            );
+                                        } else {
+                                            console.warn("WTF this is used : We tried to send a msg to a non input node.");
+                                            continue;
                                         }
-                                    );
-                                    break;
+                                        break;
+                                    case "scene-called":
+                                        // TODO Implement This
+                                        console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
+                                        break;
+                                    default:
+                                        console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
+                                        break;
+                                }
+                                break;
+                            default:
+                                console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
+                                break;
+                        }
 
-                                //TODO Implement other node types
-                            }
-                            break;
-                    }
+                        break;
+                    case 'error':
+                        switch (target.type) {
+                            case 'deconz-input':
+                                target.handleDeconzEvent(
+                                    news.device,
+                                    [],
+                                    {},
+                                    {
+                                        errorEvent: true,
+                                        errorCode: news.errorCode || "Unknown Error",
+                                        errorMsg: news.errorMsg || "Unknown Error"
+                                    }
+                                );
+                                break;
 
+                            //TODO Implement other node types
+                        }
+                        break;
                 }
 
             }
-
 
         }
 
@@ -265,9 +285,8 @@ module.exports = function (RED) {
             that.emit('onSocketOpen');
         }
 
-        updateDevice(device_path, dataParsed) {
+        updateDevice(device, dataParsed) {
             let node = this;
-            let device = node.device_list.getDeviceByPath(device_path);
             let changed = [];
 
             if (dotProp.has(dataParsed, 'name')) {
@@ -291,101 +310,6 @@ module.exports = function (RED) {
             return changed;
         }
 
-        onSocketMessageChanged(dataParsed) {
-            let that = this;
-
-            let paths = {};
-            // Path by unique ID
-            if (dataParsed.uniqueid !== undefined) {
-                paths.uniqueid = that.device_list.getPathByDevice({
-                    device_type: dataParsed.r,
-                    uniqueid: dataParsed.uniqueid
-                });
-            }
-            // Path by device ID
-            if (dataParsed.id !== undefined) {
-                paths.device_id = that.device_list.getPathByDevice({
-                    device_type: dataParsed.r,
-                    device_id: dataParsed.id
-                });
-            }
-
-            let changed = that.updateDevice(paths.uniqueid || paths.device_id, dataParsed);
-
-            let visited = [];
-
-            // TODO migrate that to propagateNews method
-            for (const path of Object.values(paths)) {
-                // Handle nodesByDevicePath
-                if (that.nodesByDevicePath[path] !== undefined && that.nodesByDevicePath[path].length > 0) {
-                    for (const nodeID of that.nodesByDevicePath[path]) {
-                        // Make sure we don't send event twice TODO Used ?
-                        if (visited.includes(nodeID)) {
-                            console.warn("WTF this is used : Make sure we don't send event twice");
-                            continue;
-                        }
-                        visited.push(nodeID);
-
-                        let node = RED.nodes.getNode(nodeID);
-                        if (!node) {
-                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
-                            that.unregisterNodeByDevicePath(nodeID, path);
-                            return;
-                        }
-
-                        let device = that.device_list.getDeviceByPath(path);
-                        if (node.type === "deconz-input") {
-                            node.handleDeconzEvent(
-                                device,
-                                changed,
-                                dataParsed
-                            );
-                        }
-                        //TODO Battery node
-                    }
-
-                }
-
-                /*
-                // TODO Handle nodesWithQuery
-                that.nodesWithQuery.forEach(function (nodeID) {
-                    let node = RED.nodes.getNode(nodeID);
-                    if (!node) {
-                        console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesWithQuery');
-                        that.unregisterNodeWithQuery(nodeID);
-                        return;
-                    }
-                    let device = that.device_list.getDeviceByPath(path);
-                    if (node.type === "deconz-input") {
-                        try {
-                            let query = RED.util.evaluateNodeProperty(
-                                node.config.query,
-                                node.config.search_type,
-                                node,
-                                {}, undefined
-                            );
-                            if (node.server.matchQuery(query, device)) {
-                                node.sendState(
-                                    device,
-                                    dataParsed,
-                                    false,
-                                    'state' in dataParsed,
-                                    'state' in dataParsed,
-                                    'config' in dataParsed || 'name' in dataParsed
-                                );
-                            }
-                        } catch (e) {
-                            node.status({fill: "red", shape: "ring", text: "Error, cant read query"});
-                        }
-                    }
-                });
-
-                 */
-            }
-
-
-        }
-
         onSocketMessageSceneCalled(dataParsed) {
             console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
             // TODO implement
@@ -394,9 +318,16 @@ module.exports = function (RED) {
         onSocketMessage(dataParsed) {
             let node = this;
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
-            node.propagateNews(node.nodesByDevicePath, {
+
+            // TODO handle node query
+            let device = node.device_list.getDeviceByDomainID(dataParsed.r, dataParsed.id);
+            let changed = node.updateDevice(device, dataParsed);
+
+            node.propagateNews(node.nodesByDevicePath[device.device_path], {
                 type: 'event',
-                eventData: dataParsed
+                eventData: dataParsed,
+                device: device,
+                changed: changed
             });
         }
     }
