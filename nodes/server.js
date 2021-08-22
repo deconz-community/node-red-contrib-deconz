@@ -77,7 +77,9 @@ module.exports = function (RED) {
             node.on('close', () => this.onClose());
 
             (async () => {
-                //TODO add delay ?
+                //TODO make the delay configurable
+                await new Promise((resolve) => setTimeout(() => resolve(), 1500));
+
                 await node.discoverDevices({
                     forceRefresh: true,
                     initialDiscovery: true
