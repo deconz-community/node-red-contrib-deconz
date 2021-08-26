@@ -26,6 +26,17 @@ class OutputMsgFormatter {
         //console.log({rule: this.rule, config: this.config, devices, rawEvent});
         let resultMsgs = [];
 
+        // Check if the raw event contains data of the rule type
+        switch (this.rule.type) {
+            case 'state':
+            case 'config':
+                if (rawEvent[this.rule.type] === undefined) return resultMsgs;
+                break;
+            case 'homekit':
+                if (rawEvent.state === undefined) return resultMsgs;
+                break;
+        }
+
         switch (this.rule.format) {
             case 'single':
                 for (const device of devices) {
