@@ -46,14 +46,15 @@ module.exports = function (RED) {
                 await new Promise((resolve) => setTimeout(() => resolve(), 1500));
 
                 await node.discoverDevices({
-                    forceRefresh: true,
-                    initialDiscovery: true
+                    forceRefresh: true
                 });
                 this.refreshDiscoverTimer = setInterval(() => {
                     node.discoverDevices({
                         forceRefresh: true
                     });
                 }, node.refreshDiscoverInterval);
+
+                node.ready = true;
 
                 this.setupDeconzSocket(node);
 
@@ -71,15 +72,13 @@ module.exports = function (RED) {
                 if (reason) { // don't bother the user unless there's a reason
                     node.warn(`WebSocket disconnected: ${code} - ${reason}`);
                 }
-                node.propagateErrorNews(code, reason);
+                if (node.ready) node.propagateErrorNews(code, reason);
             });
-
             node.socket.on('unauthorized', () => this.onSocketUnauthorized());
             node.socket.on('open', () => {
                 node.log(`WebSocket opened`);
                 // This is used only on websocket reconnect, not the initial connection.
-                if (!node.ready) return;
-                node.propagateStartNews();
+                if (node.ready) node.propagateStartNews();
             });
             node.socket.on('message', (payload) => this.onSocketMessage(payload));
             node.socket.on('error', (err) => this.onSocketError(err));
@@ -90,7 +89,6 @@ module.exports = function (RED) {
             let node = this;
             let options = Object.assign({
                 forceRefresh: false,
-                initialDiscovery: false,
                 callback: () => {
                 }
             }, opt);
@@ -105,11 +103,6 @@ module.exports = function (RED) {
             node.device_list.parse(response);
             node.log(`discoverDevices: Updated ${node.device_list.count}`);
             node.discoverProcessRunning = false;
-
-            if (options.initialDiscovery === true) {
-                node.ready = true;
-                node.propagateStartNews();
-            }
         }
 
         propagateStartNews() {
@@ -198,6 +191,7 @@ module.exports = function (RED) {
          *     {type: 'start|event|error', eventData:{}, errorCode: "", errorMsg: "", device: {}, changed: {}}
          */
         propagateNews(nodeIDs, news) {
+            //TODO add the event type in the msg
             let node = this;
 
             // Make sure that we have node to send the message to
@@ -315,13 +309,13 @@ module.exports = function (RED) {
         }
 
         onClose() {
-            let that = this;
-            that.log('WebSocket connection closed');
-            that.emit('onClose');
-
-            clearInterval(that.refreshDiscoverTimer);
-            that.socket.close();
-            that.socket = undefined;
+            let node = this;
+            node.ready = false;
+            node.log('WebSocket connection closed');
+            node.emit('onClose');
+            clearInterval(node.refreshDiscoverTimer);
+            node.socket.close();
+            node.socket = undefined;
         }
 
         onSocketPongTimeout() {
