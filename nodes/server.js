@@ -119,6 +119,13 @@ module.exports = function (RED) {
             // Node with quety
             for (let nodeID of node.nodesWithQuery) {
                 let target = RED.nodes.getNode(nodeID);
+
+                if (!target) {
+                    console.warn('ERROR: cant get ' + nodeID + ' node for start news, removed from list NodeWithQuery');
+                    node.unregisterNodeWithQuery(nodeID);
+                    continue;
+                }
+
                 // TODO Cache JSONata expresssions ?
                 let querySrc = RED.util.evaluateJSONataExpression(
                     RED.util.prepareJSONataExpression(target.config.query, target),
@@ -152,6 +159,13 @@ module.exports = function (RED) {
             // Node with quety
             for (let nodeID of node.nodesWithQuery) {
                 let target = RED.nodes.getNode(nodeID);
+
+                if (!target) {
+                    console.warn('ERROR: cant get ' + nodeID + ' node for error news, removed from list NodeWithQuery');
+                    node.unregisterNodeWithQuery(nodeID);
+                    continue;
+                }
+
                 // TODO Cache JSONata expresssions ?
                 let querySrc = RED.util.evaluateJSONataExpression(
                     RED.util.prepareJSONataExpression(target.config.query, target),
@@ -386,6 +400,13 @@ module.exports = function (RED) {
             let matched = [];
             for (let nodeID of node.nodesWithQuery) {
                 let target = RED.nodes.getNode(nodeID);
+
+                if (!target) {
+                    console.warn('ERROR: cant get ' + nodeID + ' node for socket message news, removed from list NodeWithQuery');
+                    node.unregisterNodeWithQuery(nodeID);
+                    continue;
+                }
+
                 // TODO Cache JSONata expresssions ?
                 let querySrc = RED.util.evaluateJSONataExpression(
                     RED.util.prepareJSONataExpression(target.config.query, target),
