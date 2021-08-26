@@ -38,6 +38,29 @@ module.exports = function (RED) {
             node.refreshDiscoverTimer = null;
             node.refreshDiscoverInterval = node.config.polling >= 3 ? node.config.polling * 1000 : 15000;
 
+
+            node.on('close', () => this.onClose());
+
+            (async () => {
+                //TODO make the delay configurable
+                await new Promise((resolve) => setTimeout(() => resolve(), 1500));
+
+                await node.discoverDevices({
+                    forceRefresh: true,
+                    initialDiscovery: true
+                });
+                this.refreshDiscoverTimer = setInterval(() => {
+                    node.discoverDevices({
+                        forceRefresh: true
+                    });
+                }, node.refreshDiscoverInterval);
+
+                this.setupDeconzSocket(node);
+
+            })();
+        }
+
+        setupDeconzSocket(node) {
             node.socket = new DeconzSocket({
                 hostname: node.config.ip,
                 port: node.config.ws_port,
@@ -61,23 +84,6 @@ module.exports = function (RED) {
             node.socket.on('message', (payload) => this.onSocketMessage(payload));
             node.socket.on('error', (err) => this.onSocketError(err));
             node.socket.on('pong-timeout', () => this.onSocketPongTimeout());
-
-            node.on('close', () => this.onClose());
-
-            (async () => {
-                //TODO make the delay configurable
-                await new Promise((resolve) => setTimeout(() => resolve(), 1500));
-
-                await node.discoverDevices({
-                    forceRefresh: true,
-                    initialDiscovery: true
-                });
-                this.refreshDiscoverTimer = setInterval(() => {
-                    node.discoverDevices({
-                        forceRefresh: true
-                    });
-                }, node.refreshDiscoverInterval);
-            })();
         }
 
         async discoverDevices(opt) {
@@ -142,7 +148,7 @@ module.exports = function (RED) {
                 }
             }
         }
-        
+
         propagateErrorNews(code, reason) {
             let node = this;
 
@@ -384,8 +390,8 @@ module.exports = function (RED) {
             let node = this;
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
-            // TODO handle node query
             let device = node.device_list.getDeviceByDomainID(dataParsed.r, dataParsed.id);
+            if (device === undefined) return;
             let changed = node.updateDevice(device, dataParsed);
 
             // Node with device selected
