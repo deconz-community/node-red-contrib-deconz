@@ -30,7 +30,7 @@ class OutputMsgFormatter {
             case 'single':
                 for (const device of devices) {
                     if (this.rule.payload.includes('__complete__')) {
-                        if (this.checkOutputTime(device, undefined, options)) {
+                        if (this.checkOutputTime(device, '__complete__', options)) {
                             let msg = this.formatDeviceMsg(device, rawEvent, '__complete__', options);
                             if (msg !== null) resultMsgs.push(msg);
                         }
@@ -63,7 +63,6 @@ class OutputMsgFormatter {
         return resultMsgs;
 
     }
-
 
     formatDeviceMsg(device, rawEvent, payloadFormat, options) {
         let msg = {};
@@ -125,8 +124,8 @@ class OutputMsgFormatter {
                 return true;
             case 'onchange':
                 return device && Array.isArray(device.changed) && (
-                    (payloadFormat === undefined && device.changed.length > 0) ||
-                    (payloadFormat !== undefined && device.changed.includes(payloadFormat))
+                    (payloadFormat === '__complete__' && device.changed.length > 0) ||
+                    (payloadFormat !== '__complete__' && device.changed.includes(payloadFormat))
                 );
             case 'onupdate':
                 return device && Array.isArray(device.changed) && device.changed.includes('state.lastupdated');
