@@ -175,8 +175,9 @@ class DeconzMainEditor extends DeconzEditor {
 
     oneditsave() {
         if (this.options.have.output_rules) {
-            this.node.outputs = this.node.output_rules.length;
-            this.node.output_rules = this.subEditor.output_rules.value;
+            let newRules = this.subEditor.output_rules.value;
+            this.node.outputs = newRules.length;
+            this.node.output_rules = newRules;
         }
         if (this.options.have.commands) {
             this.node.commands = this.subEditor.commands.value;
