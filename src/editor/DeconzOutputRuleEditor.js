@@ -184,6 +184,8 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                         sample = `"${sample}"`;
                     } else if (Array.isArray(sample)) {
                         sample = `[${sample.toString()}]`;
+                    } else if (sample === null || sample === undefined) {
+                        sample = 'NULL';
                     } else {
                         sample = sample.toString();
                     }
