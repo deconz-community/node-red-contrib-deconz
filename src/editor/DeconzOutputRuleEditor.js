@@ -33,13 +33,17 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             case 'attribute':
             case 'state':
             case 'config':
-                value.output = this.$elements.output.val();
+                if (this.node.type === 'deconz-input') {
+                    value.output = this.$elements.output.val();
+                    value.onstart = this.$elements.onstart.is(":checked");
+                }
                 value.payload = this.$elements.payload.multipleSelect('getSelects');
-                value.onstart = this.$elements.onstart.is(":checked");
                 break;
             case 'homekit':
-                value.onstart = this.$elements.onstart.is(":checked");
-                value.onerror = this.$elements.onerror.is(":checked");
+                if (this.node.type === 'deconz-input') {
+                    value.onstart = this.$elements.onstart.is(":checked");
+                    value.onerror = this.$elements.onerror.is(":checked");
+                }
                 break;
         }
 
@@ -55,14 +59,19 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         //{type: 'homekit', onstart: true, onerror: true},
         //{type: 'config', payload: "__complete__", output: "always", onstart: true},
 
-        return {
+        let rule = {
             type: 'state',
             payload: ["__complete__"],
             format: 'single',
-            output: "always",
-            onstart: true,
-            onerror: true
         };
+
+        if (this.node.type === 'deconz-input') {
+            rule.output = "always";
+            rule.onstart = true;
+            rule.onerror = true;
+        }
+
+        return rule;
     }
 
     async init(rule, index) {
@@ -73,9 +82,12 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         await this.generatePayloadTypeField(this.container, rule.type);
         await this.generatePayloadField(this.container);
         await this.generatePayloadFormatField(this.container, rule.format);
-        await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
-        await this.generateOnStartField(this.container, rule.onstart !== undefined ? rule.onstart : this.defaultRule.onstart);
-        await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
+
+        if (this.node.type === 'deconz-input') {
+            await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
+            await this.generateOnStartField(this.container, rule.onstart !== undefined ? rule.onstart : this.defaultRule.onstart);
+            await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
+        }
 
         await super.init();
 
