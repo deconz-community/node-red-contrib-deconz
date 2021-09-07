@@ -49,7 +49,14 @@ module.exports = function (RED) {
                         break;
                     case 'json':
                     case 'jsonata':
-                        //TODO implement
+                        let querySrc = RED.util.evaluateJSONataExpression(
+                            RED.util.prepareJSONataExpression(node.config.query, node),
+                            message_in,
+                            undefined
+                        );
+                        for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                            devices.push({data: r});
+                        }
                         break;
                 }
 
