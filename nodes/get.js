@@ -36,8 +36,18 @@ module.exports = function (RED) {
             // Cleanup old status
             node.status({});
 
-            node.on('input', function (message_in) {
+            node.on('input', async (message_in) => {
                 clearTimeout(node.cleanTimer);
+
+                // Wait until the server is ready
+                if (node.server.ready === false) {
+                    await node.server.waitForReady();
+                    if (node.server.ready === false) {
+                        //TODO send error, the server is not ready
+                        return;
+                    }
+                }
+
                 let msgs = new Array(this.config.output_rules.length);
                 let devices = [];
 
