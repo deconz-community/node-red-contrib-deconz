@@ -83,7 +83,15 @@ class OutputMsgFormatter {
     }
 
     formatDeviceMsg(device, rawEvent, payloadFormat, options) {
-        let msg = {};
+        let msg = options.src_msg !== undefined ? Object.assign({}, options.src_msg) : {};
+
+        // Move input data of msg
+        for (let p of ['payload', 'payload_format', 'payload_raw', 'meta', 'meta_changed']) {
+            if (msg[p] !== undefined) {
+                msg[p + '_in'] = msg[p];
+                msg[p] = undefined;
+            }
+        }
 
         switch (this.rule.type) {
             case 'attribute':
