@@ -62,6 +62,18 @@ module.exports = function (RED) {
             })();
         }
 
+        async waitForReady(maxDelay = 10000) {
+            const pauseDelay = 100;
+            let pauseCount = 0;
+            while (this.ready === false) {
+                await Utils.sleep(pauseDelay);
+                pauseCount++;
+                if (pauseCount * pauseDelay >= maxDelay) {
+                    break;
+                }
+            }
+        }
+
         setupDeconzSocket(node) {
             node.socket = new DeconzSocket({
                 hostname: node.config.ip,
