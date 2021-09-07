@@ -3,6 +3,7 @@ const dotProp = require('dot-prop');
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 
+const NodeType = 'deconz-input';
 module.exports = function (RED) {
     class deConzItemIn {
         constructor(config) {
@@ -23,49 +24,49 @@ module.exports = function (RED) {
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (node.server) {
-                if (node.config.search_type === "device") {
-                    node.config.device_list.forEach(function (item) {
-                        node.server.registerNodeByDevicePath(node.config.id, item);
-                    });
-                } else {
-                    node.server.registerNodeWithQuery(node.config.id);
-                }
-
-                node.status({
-                    fill: "blue",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/in:status.starting"
-                });
-
-                node.server.on('onStart', () => {
-                    // Display usefull info
-                    node.status({
-                        fill: "green",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/server:status.connected"
-                    });
-
-                    console.log('OnStart');
-                });
-                /*
-                node.server.on('onClose', () => this.onClose());
-                node.server.on('onSocketError', () => this.onSocketError());
-                node.server.on('onSocketClose', () => this.onSocketClose());
-                node.server.on('onSocketOpen', () => this.onSocketOpen());
-                node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-                node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
-
-                 */
-
-
-            } else {
+            if (!node.server) {
                 node.status({
                     fill: "red",
                     shape: "dot",
                     text: "node-red-contrib-deconz/in:status.server_node_error"
                 });
+                return;
             }
+
+            if (node.config.search_type === "device") {
+                node.config.device_list.forEach(function (item) {
+                    node.server.registerNodeByDevicePath(node.config.id, item);
+                });
+            } else {
+                node.server.registerNodeWithQuery(node.config.id);
+            }
+
+            node.status({
+                fill: "blue",
+                shape: "dot",
+                text: "node-red-contrib-deconz/in:status.starting"
+            });
+
+            node.server.on('onStart', () => {
+                // Display usefull info
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.connected"
+                });
+
+                console.log('OnStart');
+            });
+            /*
+            node.server.on('onClose', () => this.onClose());
+            node.server.on('onSocketError', () => this.onSocketError());
+            node.server.on('onSocketClose', () => this.onSocketClose());
+            node.server.on('onSocketOpen', () => this.onSocketOpen());
+            node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
+            node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
+
+             */
+
         }
 
 
@@ -481,7 +482,7 @@ module.exports = function (RED) {
          */
     }
 
-    RED.nodes.registerType('deconz-input', deConzItemIn);
+    RED.nodes.registerType(NodeType, deConzItemIn);
 };
 
 
