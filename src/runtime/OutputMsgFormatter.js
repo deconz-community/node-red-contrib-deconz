@@ -3,7 +3,7 @@ const DeconzHelper = require("../../lib/DeconzHelper");
 
 class OutputMsgFormatter {
 
-    constructor(rule, config) {
+    constructor(rule, node_type, config) {
         this.rule = Object.assign({
             type: 'state',
             payload: ["__complete__"],
@@ -12,6 +12,7 @@ class OutputMsgFormatter {
             onstart: true,
             onerror: true
         }, rule);
+        this.node_type = node_type;
         this.config = config;
     }
 
