@@ -40,24 +40,28 @@ class OutputMsgFormatter {
             }
         }
 
+        let checkOutputMethod;
+        if (this.node_type === 'deconz-input')
+            checkOutputMethod = this.checkOutputTimeNodeInput;
+
         switch (this.rule.format) {
             case 'single':
                 for (const device of devices) {
                     if (this.rule.payload.includes('__complete__')) {
-                        if (this.checkOutputTime(device, '__complete__', options)) {
+                        if (checkOutputMethod === undefined || checkOutputMethod(device, '__complete__', options)) {
                             let msg = this.formatDeviceMsg(device, rawEvent, '__complete__', options);
                             if (msg !== null) resultMsgs.push(msg);
                         }
                     } else if (this.rule.payload.includes('__each__')) {
                         for (const payloadFormat of this.getDevicePayloadList(device)) {
-                            if (this.checkOutputTime(device, payloadFormat, options)) {
+                            if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
                                 let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
                                 if (msg !== null) resultMsgs.push(msg);
                             }
                         }
                     } else {
                         for (const payloadFormat of this.rule.payload) {
-                            if (this.checkOutputTime(device, payloadFormat, options)) {
+                            if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
                                 let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
                                 if (msg !== null) resultMsgs.push(msg);
                             }
@@ -97,7 +101,7 @@ class OutputMsgFormatter {
                 break;
         }
 
-        msg.topic = this.config.topic;
+        if (this.node_type === 'deconz-input') msg.topic = this.config.topic;
         if (payloadFormat !== undefined) msg.payload_format = payloadFormat;
         if (rawEvent !== undefined) msg.payload_raw = rawEvent;
         msg.meta = device.data;
@@ -129,7 +133,7 @@ class OutputMsgFormatter {
         }
     }
 
-    checkOutputTime(device, payloadFormat, options) {
+    checkOutputTimeNodeInput(device, payloadFormat, options) {
         // The On start output are priority
         if (options.initialEvent === true) return true;
 
