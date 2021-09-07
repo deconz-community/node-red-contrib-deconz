@@ -6,6 +6,7 @@ const DeconzAPI = require("../src/runtime/DeconzAPI");
 const DeconzSocket = require("../src/runtime/DeconzSocket");
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const Query = require('../src/runtime/Query');
+const Utils = require("../src/runtime/Utils");
 
 module.exports = function (RED) {
     class ServerNode {
@@ -43,7 +44,7 @@ module.exports = function (RED) {
 
             (async () => {
                 //TODO make the delay configurable
-                await new Promise((resolve) => setTimeout(() => resolve(), 1500));
+                await Utils.sleep(1500);
 
                 await node.discoverDevices({
                     forceRefresh: true
