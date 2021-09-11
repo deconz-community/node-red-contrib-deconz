@@ -44,32 +44,53 @@ class OutputMsgFormatter {
         if (this.node_type === 'deconz-input')
             checkOutputMethod = this.checkOutputTimeNodeInput;
 
+
+        let generateMsgPayload = (device_list) => {
+            let result = {};
+            let generateOne = (device, payloadFormat) => {
+                if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
+                    let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
+                    if (msg === null) return;
+                    if (result[payloadFormat] === undefined) result[payloadFormat] = [];
+                    result[payloadFormat].push(msg);
+                }
+            };
+
+            for (const device of device_list) {
+                if (this.rule.payload.includes('__complete__')) {
+                    generateOne(device, '__complete__');
+                } else if (this.rule.payload.includes('__each__')) {
+                    for (const payloadFormat of this.getDevicePayloadList(device)) {
+                        generateOne(device, payloadFormat);
+                    }
+                } else {
+                    for (const payloadFormat of this.rule.payload) {
+                        generateOne(device, payloadFormat);
+                    }
+                }
+            }
+
+            return result;
+        };
+
+        let src_msg;
+
         switch (this.rule.format) {
             case 'single':
-                for (const device of devices) {
-                    if (this.rule.payload.includes('__complete__')) {
-                        if (checkOutputMethod === undefined || checkOutputMethod(device, '__complete__', options)) {
-                            let msg = this.formatDeviceMsg(device, rawEvent, '__complete__', options);
-                            if (msg !== null) resultMsgs.push(msg);
-                        }
-                    } else if (this.rule.payload.includes('__each__')) {
-                        for (const payloadFormat of this.getDevicePayloadList(device)) {
-                            if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
-                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
-                                if (msg !== null) resultMsgs.push(msg);
-                            }
-                        }
-                    } else {
-                        for (const payloadFormat of this.rule.payload) {
-                            if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
-                                let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
-                                if (msg !== null) resultMsgs.push(msg);
-                            }
-                        }
-                    }
+                for (const [payloadFormat, msgs] of Object.entries(generateMsgPayload(devices))) {
+                    resultMsgs = resultMsgs.concat(msgs);
                 }
                 break;
             case 'array':
+                src_msg = options.src_msg;
+                options.src_msg = undefined;
+                for (const [payloadFormat, msgs] of Object.entries(generateMsgPayload(devices))) {
+                    let msg = this.generateNewMsg(src_msg);
+                    msg.payload_format = payloadFormat;
+                    msg.payload = msgs;
+                    resultMsgs.push(msg);
+                }
+                break;
             case 'sum':
             case 'average':
             case 'min':
