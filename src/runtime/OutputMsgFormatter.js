@@ -44,7 +44,6 @@ class OutputMsgFormatter {
         if (this.node_type === 'deconz-input')
             checkOutputMethod = this.checkOutputTimeNodeInput;
 
-
         let generateMsgPayload = (device_list) => {
             let result = {};
             let generateOne = (device, payloadFormat) => {
@@ -164,7 +163,6 @@ class OutputMsgFormatter {
         }
 
         return resultMsgs;
-
     }
 
     generateNewMsg(src_msg) {
@@ -207,7 +205,6 @@ class OutputMsgFormatter {
         if (device.changed !== undefined) msg.meta_changed = device.changed;
 
         return msg;
-
     }
 
     formatDevicePayload(device, payloadFormat, options) {
@@ -426,7 +423,6 @@ class OutputMsgFormatter {
         msg.payload = characteristic;
         return msg;
     }
-
 
 }
 
