@@ -92,11 +92,74 @@ class OutputMsgFormatter {
                     resultMsgs.push(msg);
                 }
                 break;
+            case 'average' :
             case 'sum':
-            case 'average':
-            case 'min':
-            case 'max':
-                // TODO implement
+            case 'min' :
+            case 'max' :
+                let mergeData;
+                let mergeMethod;
+                if (this.rule.format === 'average') {
+                    let payloadTotal = {};
+                    mergeData = (prefix, targetData, targetCount, currentData, mergeMethod) => {
+                        for (const [k, v] of Object.entries(currentData)) {
+                            if (k === 'device_id') continue;
+                            if (typeof v === 'number') {
+                                let count = dotProp.get(targetCount, prefix + k, 0) + 1;
+                                let total = dotProp.get(payloadTotal, prefix + k, 0) + v;
+                                dotProp.set(targetData, prefix + k, total / count);
+                                dotProp.set(targetCount, prefix + k, count);
+                                dotProp.set(payloadTotal, prefix + k, total);
+                            } else if (['state', 'config'].includes(k)) {
+                                mergeData(`${k}.`, targetData, targetCount, v, mergeMethod);
+                            }
+                        }
+                    };
+                } else {
+                    switch (this.rule.format) {
+                        case 'sum':
+                            mergeMethod = (a, b) => (a + b);
+                            break;
+                        case 'min' :
+                            mergeMethod = Math.min;
+                            break;
+                        case 'max' :
+                            mergeMethod = Math.max;
+                            break;
+                    }
+                    mergeData = (prefix, targetData, targetCount, currentData, mergeMethod) => {
+                        for (const [k, v] of Object.entries(currentData)) {
+                            if (k === 'device_id') continue;
+                            if (typeof v === 'number') {
+                                let currentValue = dotProp.get(targetData, prefix + k);
+                                let value;
+                                if (currentValue !== undefined) {
+                                    value = mergeMethod(currentValue, v);
+                                } else {
+                                    value = v;
+                                }
+                                let count = dotProp.get(targetCount, prefix + k, 0) + 1;
+                                dotProp.set(targetData, prefix + k, value);
+                                dotProp.set(targetCount, prefix + k, count);
+                            } else if (['state', 'config'].includes(k)) {
+                                mergeData(`${k}.`, targetData, targetCount, v, mergeMethod);
+                            }
+                        }
+                    };
+                }
+                src_msg = options.src_msg;
+                options.src_msg = undefined;
+                for (const [payloadFormat, msgs] of Object.entries(generateMsgPayload(devices))) {
+                    let msg = this.generateNewMsg(src_msg);
+                    msg.payload = {};
+                    msg.payload_count = {};
+                    msg.payload_format = payloadFormat;
+                    msg.meta = [];
+                    for (const data of msgs) {
+                        msg.meta.push(data.meta);
+                        mergeData('', msg.payload, msg.payload_count, data.payload, mergeMethod);
+                    }
+                    resultMsgs.push(msg);
+                }
                 break;
         }
 
