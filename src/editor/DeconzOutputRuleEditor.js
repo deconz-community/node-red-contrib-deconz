@@ -28,6 +28,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
     get value() {
         let value = {};
         value.type = this.$elements.type.val();
+        value.format = this.$elements.format.val();
 
         switch (value.type) {
             case 'attribute':
