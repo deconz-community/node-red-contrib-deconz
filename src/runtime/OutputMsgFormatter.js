@@ -88,6 +88,7 @@ class OutputMsgFormatter {
                     let msg = this.generateNewMsg(src_msg);
                     msg.payload_format = payloadFormat;
                     msg.payload = msgs;
+                    msg.payload_count = msgs.length;
                     resultMsgs.push(msg);
                 }
                 break;
