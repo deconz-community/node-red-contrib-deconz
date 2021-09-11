@@ -82,8 +82,8 @@ class OutputMsgFormatter {
 
     }
 
-    formatDeviceMsg(device, rawEvent, payloadFormat, options) {
-        let msg = options.src_msg !== undefined ? Object.assign({}, options.src_msg) : {};
+    generateNewMsg(src_msg) {
+        let msg = src_msg !== undefined ? Object.assign({}, src_msg) : {};
 
         // Move input data of msg
         for (let p of ['payload', 'payload_format', 'payload_raw', 'meta', 'meta_changed']) {
@@ -92,6 +92,12 @@ class OutputMsgFormatter {
                 msg[p] = undefined;
             }
         }
+
+        return msg;
+    }
+
+    formatDeviceMsg(device, rawEvent, payloadFormat, options) {
+        let msg = this.generateNewMsg(options.src_msg);
 
         switch (this.rule.type) {
             case 'attribute':
