@@ -15,6 +15,7 @@
     "url": "https://github.com/deconz-community/node-red-contrib-deconz/issues/"
   },
   "dependencies": {
+    "@node-red/util": "^2.0.6",
     "compare-versions": "^3.6.0",
     "dot-prop": "^6.0.1",
     "events": "latest",
