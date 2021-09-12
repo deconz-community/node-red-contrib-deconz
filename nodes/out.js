@@ -1,243 +1,85 @@
 const DeconzHelper = require('../lib/DeconzHelper.js');
+const CommandParser = require("../src/runtime/CommandParser");
+const Utils = require("../src/runtime/Utils");
+const got = require('got');
+
 
 module.exports = function (RED) {
     class deConzOut {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
-            var node = this;
+            let node = this;
             node.config = config;
 
             node.status({}); //clean
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (node.server) {
-                node.server.devices[node.id] = node.config.device; //register node in devices list
-
-            } else {
+            if (!node.server) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/out:status.server_node_error"
+                    text: "node-red-contrib-deconz/in:status.server_node_error"
                 });
+                return;
             }
 
-            node.payload = config.payload;
-            node.payloadType = config.payloadType;
-            node.command = config.command;
-            node.commandType = config.commandType;
             node.cleanTimer = null;
 
-            // if (typeof(config.device) == 'string'  && config.device.length) {
+            this.on('input', async (message_in, send, done) => {
+                let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
+                if (typeof delay !== 'number') delay = 50;
 
-
-            this.on('input', function (message) {
-                clearTimeout(node.cleanTimer);
-
-                var payload;
-                switch (node.payloadType) {
-                    case 'flow':
-                    case 'global': {
-                        RED.util.evaluateNodeProperty(node.payload, node.payloadType, this, message, function (error, result) {
-                            if (error) {
-                                node.error(error, message);
-                            } else {
-                                payload = result;
-                            }
-                        });
-                        break;
-                    }
-                    case 'date': {
-                        payload = Date.now();
-                        break;
-                    }
-                    case 'deconz_payload':
-                        payload = node.payload;
-                        break;
-
-                    case 'num': {
-                        payload = parseInt(node.config.payload);
-                        break;
-                    }
-
-                    case 'str': {
-                        payload = node.config.payload;
-                        break;
-                    }
-
-                    case 'object': {
-                        payload = node.config.payload;
-                        break;
-                    }
-
-                    case 'homekit':
-                    case 'msg':
-                    default: {
-                        payload = message[node.payload];
-                        break;
-                    }
-                }
-
-                var command;
-                switch (node.commandType) {
-                    case 'msg': {
-                        command = message[node.command];
-                        break;
-                    }
-                    case 'deconz_cmd':
-                        command = node.command;
-                        switch (command) {
-                            case 'on':
-                                payload = payload && payload !== '0';
-                                break;
-
-                            case 'toggle':
-                                command = "on";
-                                var deviceMeta = node.server.getDevice(node.config.device);
-                                if (deviceMeta !== undefined && "device_type" in deviceMeta && deviceMeta.device_type === 'groups' && deviceMeta && "state" in deviceMeta && "all_on" in deviceMeta.state) {
-                                    payload = !deviceMeta.state.all_on;
-                                } else if (deviceMeta !== undefined && deviceMeta && "state" in deviceMeta && "on" in deviceMeta.state) {
-                                    payload = !deviceMeta.state.on;
-                                } else {
-                                    payload = false;
-                                }
-                                break;
-
-                            case 'bri':
-                            case 'hue':
-                            case 'sat':
-                            case 'ct':
-                            case 'scene': // added scene, payload is the scene ID
-                            case 'colorloopspeed':
-                                // case 'transitiontime':
-                                payload = parseInt(payload);
-                                break;
-
-                            case 'json':
-                            case 'alert':
-                            case 'effect':
-                            default: {
-                                break;
-                            }
+                //clearTimeout(node.cleanTimer);
+                let devices = [];
+                switch (node.config.search_type) {
+                    case 'device':
+                        for (let path of node.config.device_list) {
+                            devices.push({data: node.server.device_list.getDeviceByPath(path)});
                         }
                         break;
-
-                    case 'homekit':
-                        payload = node.formatHomeKit(message, payload);
+                    case 'json':
+                    case 'jsonata':
+                        let querySrc = RED.util.evaluateJSONataExpression(
+                            RED.util.prepareJSONataExpression(node.config.query, node),
+                            message_in,
+                            undefined
+                        );
+                        for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                            devices.push({data: r});
+                        }
                         break;
-
-                    case 'str':
-                    default: {
-                        command = node.command;
-                        break;
-                    }
                 }
 
-                //empty payload, stop
-                if (payload === null) {
-                    return false;
+                for (let command of node.config.commands) {
+                    let cp = new CommandParser(command, message_in, node);
+                    let requests = cp.getRequests(devices);
+                    for (let request of requests) {
+
+                        try {
+                            const response = await got(
+                                node.server.api.url[request.device_type].action(request.device_id),
+                                {
+                                    method: 'PUT',
+                                    retry: 0,
+                                    body: JSON.stringify(request.params)
+                                }
+                            );
+                        } catch (error) {
+                            console.log(error.response.body);
+                            //=> 'Internal server error ...'
+                        }
+
+                        await Utils.sleep(delay); // TODO Don't wait on last element
+                    }
+
+                    await Utils.sleep(delay);
+                    //TODO add delay
                 }
 
-
-                //send data to API
-                var deviceMeta = node.server.getDevice(node.config.device);
-                if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
-                    let url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.credentials.secured_apikey;
-                    if (command == 'scene') { // make a new URL for recalling the scene
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        url += '/groups/' + groupid + '/scenes/' + payload + '/recall';
-                    } else if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        url += '/groups/' + groupid + '/action';
-                    } else {
-                        url += '/lights/' + deviceMeta.device_id + '/state';
-                    }
-                    var post = {};
-                    if (node.commandType == 'object' || node.commandType == 'homekit') {
-                        post = payload;
-                    } else if (command != 'scene') { // scene doesn't have a post payload, so keep it empty.
-                        if (command != 'on') post['on'] = true;
-                        if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                        post[command] = payload;
-                    }
-
-                    let transitionTime = parseInt(RED.util.evaluateNodeProperty(config.transitionTime, config.transitionTimeType || "num", node, message));
-                    if (config.transitionTime !== "" && transitionTime >= 0) {
-                        post['transitiontime'] = transitionTime;
-                    }
-
-                    node.postData(url, post);
-                } else {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/out:status.device_not_set"
-                    });
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-
-                }
-            });
-            // } else {
-            //     node.status({
-            //         fill: "red",
-            //         shape: "dot",
-            //         text: 'Device not set'
-            //     });
-            // }
-        }
-
-
-        postData(url, post) {
-            var node = this;
-            // node.log('Requesting url: '+url);
-            // console.log(post);
-
-            /* TODO request is deprecated
-            request.put({
-                url: url,
-                form: JSON.stringify(post)
-            }, function (error, response, body) {
-                if (error && typeof (error) === 'object') {
-                    node.warn(error);
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/out:status.connection"
-                    });
-
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-                } else if (body) {
-                    var response = JSON.parse(body)[0];
-
-                    if ('success' in response) {
-                        node.status({
-                            fill: "green",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/out:status.ok"
-                        });
-                    } else if ('error' in response) {
-                        response.error.post = post; //add post data
-                        node.warn('deconz-out ERROR: ' + response.error.description);
-                        node.warn(response.error);
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/out:status.error"
-                        });
-                    }
-
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-                }
             });
 
-             */
         }
 
         formatHomeKit(message, payload) {
