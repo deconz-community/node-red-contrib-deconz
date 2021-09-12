@@ -241,6 +241,7 @@ module.exports = function (RED) {
         }
 
         formatHomeKit(message, payload) {
+            //TODO hap is deprecated
             if (message.hap.context === undefined) {
                 return null;
             }
