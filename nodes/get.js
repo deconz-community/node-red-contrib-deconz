@@ -11,6 +11,7 @@ module.exports = function (RED) {
             let node = this;
 
             node.config = config;
+            // TODO add config migration
             node.cleanTimer = null;
 
             //get server node
