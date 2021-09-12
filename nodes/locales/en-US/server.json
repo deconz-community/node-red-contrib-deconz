@@ -234,8 +234,8 @@
                             }
                           }
                         },
-                        "toogle": {
-                          "label": "Toogle",
+                        "toggle": {
+                          "label": "Toggle",
                           "icon": "deconz"
                         }
                       }
@@ -371,8 +371,8 @@
                             }
                           }
                         },
-                        "toogle": {
-                          "label": "Toogle",
+                        "toggle": {
+                          "label": "Toggle",
                           "icon": "deconz"
                         }
                       }

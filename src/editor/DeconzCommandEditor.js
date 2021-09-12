@@ -98,7 +98,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
          */
         /**
          * @typedef {Object} LightCommandArgs
-         * @property {TypedInput} on - Turn true = on or false = off, "" = nothing, toogle = toogle
+         * @property {TypedInput} on - Turn true = on or false = off, "" = nothing, toggle = toggle
          * @property {LightArgs} bri - Brightness value
          * @property {LightArgs} sat - Color saturation
          * @property {LightArgs} hue - Color hue
@@ -111,7 +111,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
          */
         /**
          * @typedef {Object} CoverCommandArgs
-         * @property {Boolean|String} open - Turn true = open or false = closed, null = nothing, toogle = toogle
+         * @property {Boolean|String} open - Turn true = open or false = closed, null = nothing, toggle = toggle
          * @property {Boolean} stop - Stop the current action
          * @property {Number|String|null} lift - 0 to 100 or stop or null
          * @property {Number|null} tilt - 0 to 100 or null
@@ -383,7 +383,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
                     this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']}),
-                    this.generateTypedInputType(i18n, 'toogle', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'toggle', {hasValue: false}),
                 ]
             }
         });
@@ -480,7 +480,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
                     this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']}),
-                    this.generateTypedInputType(i18n, 'toogle', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'toggle', {hasValue: false}),
                 ]
             }
         });

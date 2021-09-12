@@ -80,7 +80,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                     case 'toggle':
                         command.arg.on = {
-                            type: 'toogle'
+                            type: 'toggle'
                         };
                         break;
 
