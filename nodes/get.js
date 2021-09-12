@@ -78,7 +78,9 @@ module.exports = function (RED) {
 
                     // Format msgs, can get one or many msgs.
                     let formatter = new OutputMsgFormatter(rule, NodeType, node.config);
-                    let msgToSend = formatter.getMsgs(devices, undefined, {src_msg: message_in});
+                    let msgToSend = formatter.getMsgs(devices, undefined, {
+                        src_msg: RED.util.cloneMessage(message_in)
+                    });
 
                     // Make sure that the result is an array
                     if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
