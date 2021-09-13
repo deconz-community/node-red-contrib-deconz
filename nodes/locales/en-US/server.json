@@ -257,6 +257,10 @@
                         "dec": {
                           "label": "Decrement by",
                           "icon": "arrow-circle-down"
+                        },
+                        "detect_from_value": {
+                          "label": "Detect from value",
+                          "icon": "magic"
                         }
                       }
                     },

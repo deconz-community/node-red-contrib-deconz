@@ -392,34 +392,47 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     async generateLightColorField(container, fieldName, value = {}) {
         //TODO revoir l'import de la valeur
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields`;
-        let fieldFormat = [fieldName !== 'xy' ? "num" : "json"];
-        if (fieldName === 'ct') {
-            fieldFormat.push(this.generateTypedInputType(`${i18n}.ct`, 'deconz', {
-                subOptions: ['cold', 'white', 'warm']
-            }));
+
+        let fieldFormat = ['num'];
+        let directionsFormat = [
+            this.generateTypedInputType(`${i18n}.lightFields`, 'set', {hasValue: false})
+        ];
+
+        switch (fieldName) {
+            case 'bri':
+                fieldFormat.push('str');
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', {hasValue: false}));
+                break;
+            case 'ct':
+                fieldFormat.push('str');
+                fieldFormat.push(this.generateTypedInputType(`${i18n}.ct`, 'deconz', {
+                    subOptions: ['cold', 'white', 'warm']
+                }));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', {hasValue: false}));
+                break;
+            case 'xy':
+                fieldFormat = ['json'];
+                break;
         }
+
         await this.generateDoubleTypedInputField(container,
             {
                 id: this.elements[`${fieldName}_direction`],
                 i18n: `${i18n}.${fieldName}`,
                 addDefaultTypes: false,
                 value: {type: value.direction},
-                typedInput: {
-                    types: [
-                        this.generateTypedInputType(`${i18n}.lightFields`, 'set', {hasValue: false}),
-                        this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}),
-                        this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}),
-                    ]
-                }
+                typedInput: {types: directionsFormat}
             }, {
                 id: this.elements[fieldName],
                 value: {
                     type: value.type,
                     value: [fieldName !== 'xy' ? value.value : (value.value === undefined ? '[]' : value.value)]
                 },
-                typedInput: {
-                    types: fieldFormat
-                }
+                typedInput: {types: fieldFormat}
             }
         );
     }
