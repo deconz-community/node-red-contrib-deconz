@@ -20,6 +20,7 @@ class CommandParser {
             request.device_type = device.data.device_type;
             request.device_id = device.data.device_id;
             request.params = this.result;
+            request.meta = device.data;
 
             if (request.params.on === 'toggle') {
                 switch (device.data.device_type) {
