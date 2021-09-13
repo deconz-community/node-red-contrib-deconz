@@ -182,8 +182,9 @@ class DeconzEditor {
     getI18n(prefix, suffix, data = {}) {
         let _path = prefix;
         if (suffix) _path += `.${suffix}`;
+        data.defaultValue = '__undefined__';
         const value = RED._(_path, data);
-        if (_path === value) return;
+        if (value === '__undefined__') return;
         return value;
     }
 
