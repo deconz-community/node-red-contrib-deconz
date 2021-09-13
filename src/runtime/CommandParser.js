@@ -77,11 +77,9 @@ class CommandParser {
             }
         }
 
-        // Alert
-        if (this.arg.alert.value.length > 0)
-            this.result.alert = this.getNodeProperty(this.arg.alert);
-
-
+        for (const k of ['alert', 'effect', 'colorloopspeed', 'transitiontime'])
+            if (this.arg[k].value.length > 0)
+                this.result[k] = this.getNodeProperty(this.arg[k]);
     }
 
     getRequests(devices) {
