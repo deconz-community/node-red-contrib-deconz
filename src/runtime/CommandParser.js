@@ -76,6 +76,12 @@ class CommandParser {
                     break;
             }
         }
+
+        // Alert
+        if (this.arg.alert.value.length > 0)
+            this.result.alert = this.getNodeProperty(this.arg.alert);
+
+
     }
 
     getRequests(devices) {

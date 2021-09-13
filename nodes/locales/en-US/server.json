@@ -308,21 +308,23 @@
                       "label": "Alert",
                       "icon": "bell-o",
                       "options": {
-                        "keep": {
-                          "label": "Don't change",
-                          "icon": "deconz"
-                        },
-                        "none": {
-                          "label": "None",
-                          "icon": "deconz"
-                        },
-                        "select": {
-                          "label": "Blinking a short time",
-                          "icon": "deconz"
-                        },
-                        "lselect": {
-                          "label": "Blinking a longer time",
-                          "icon": "deconz"
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "none": {
+                              "label": "None",
+                              "icon": "deconz"
+                            },
+                            "select": {
+                              "label": "Blinking a short time",
+                              "icon": "deconz"
+                            },
+                            "lselect": {
+                              "label": "Blinking a longer time",
+                              "icon": "deconz"
+                            }
+                          }
                         }
                       }
                     },
@@ -430,7 +432,7 @@
                     "picker": {
                       "label": "Picker",
                       "icon": "crosshairs",
-                      "filter_place_holder" : "Filter scenes..."
+                      "filter_place_holder": "Filter scenes..."
                     },
                     "group": {
                       "label": "Group ID",
