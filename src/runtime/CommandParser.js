@@ -33,11 +33,19 @@ class CommandParser {
                 break;
         }
 
-        for (const k of ['bri', 'sat', 'hue', 'ct']) {
+        // Colors commands
+        for (const k of ['bri', 'sat', 'hue', 'ct', 'xy']) {
             if (this.arg[k].value.length === 0) continue;
             switch (this.arg[k].direction) {
                 case 'set':
-                    this.result[k] = Number(this.getNodeProperty(this.arg[k]));
+                    if (k === 'xy') {
+                        let xy = this.getNodeProperty(this.arg.xy);
+                        if (Array.isArray(xy) && xy.length === 2) {
+                            this.result[k] = xy.map(Number);
+                        }
+                    } else {
+                        this.result[k] = Number(this.getNodeProperty(this.arg[k]));
+                    }
                     break;
                 case 'inc':
                     this.result[`${k}_inc`] = Number(this.getNodeProperty(this.arg[k]));
