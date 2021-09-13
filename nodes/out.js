@@ -63,8 +63,9 @@ module.exports = function (RED) {
                                 node.server.api.url[request.device_type].action(request.device_id),
                                 {
                                     method: 'PUT',
-                                    retry: 0,
-                                    body: JSON.stringify(request.params)
+                                    retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
+                                    json: request.params,
+                                    responseType: 'json'
                                 }
                             );
                         } catch (error) {
