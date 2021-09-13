@@ -13,30 +13,6 @@ class CommandParser {
         this.parseArgs();
     }
 
-    getRequests(devices) {
-        let requests = [];
-        for (let device of devices) {
-            let request = {};
-            request.device_type = device.data.device_type;
-            request.device_id = device.data.device_id;
-            request.params = this.result;
-            request.meta = device.data;
-
-            if (request.params.on === 'toggle') {
-                switch (device.data.device_type) {
-                    case 'lights':
-                        request.params.on = !device.data.state.on;
-                        break;
-                    case 'groups':
-                        request.params.on = !device.data.state.all_on;
-                        break;
-                }
-            }
-            requests.push(request);
-        }
-        return requests;
-    }
-
     parseArgs() {
         // On command
         switch (this.arg.on.type) {
@@ -57,7 +33,68 @@ class CommandParser {
                 break;
         }
 
+        for (const k of ['bri', 'sat', 'hue', 'ct']) {
+            if (this.arg[k].value.length === 0) continue;
+            switch (this.arg[k].direction) {
+                case 'set':
+                    this.result[k] = Number(this.getNodeProperty(this.arg[k]));
+                    break;
+                case 'inc':
+                    this.result[`${k}_inc`] = Number(this.getNodeProperty(this.arg[k]));
+                    break;
+                case 'dec':
+                    this.result[`${k}_inc`] = -Number(this.getNodeProperty(this.arg[k]));
+                    break;
+                case 'detect_from_value':
+                    let value = this.getNodeProperty(this.arg[k]);
+                    switch (typeof value) {
+                        case 'string':
+                            switch (value.substr(0, 1)) {
+                                case '+' :
+                                    this.result[`${k}_inc`] = Number(value.substr(1));
+                                    break;
+                                case '-':
+                                    this.result[`${k}_inc`] = -Number(value.substr(1));
+                                    break;
+                                default:
+                                    this.result[k] = Number(value);
+                                    break;
+                            }
+                            break;
+                        default :
+                            this.result[k] = Number(value);
+                            break;
+                    }
+                    break;
+            }
+        }
     }
+
+    getRequests(devices) {
+        let requests = [];
+        for (let device of devices) {
+            let request = {};
+            request.device_type = device.data.device_type;
+            request.device_id = device.data.device_id;
+            request.params = this.result;
+            request.meta = device.data;
+
+            if (request.params.on === 'toggle') {
+                switch (device.data.device_type) {
+                    case 'lights':
+                        request.params.on = !device.data.state.on;
+                        break;
+                    case 'groups':
+                        request.params.on = !device.data.state.all_on;
+                        break;
+                }
+            }
+            
+            requests.push(request);
+        }
+        return requests;
+    }
+
 
     getNodeProperty(property) {
         return Utils.getNodeProperty(property, this.node, this.message_in);
