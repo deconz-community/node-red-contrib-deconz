@@ -50,7 +50,7 @@ class CommandParser {
                     switch (typeof value) {
                         case 'string':
                             switch (value.substr(0, 1)) {
-                                case '+' :
+                                case '+':
                                     this.result[`${k}_inc`] = Number(value.substr(1));
                                     break;
                                 case '-':
@@ -89,7 +89,7 @@ class CommandParser {
                         break;
                 }
             }
-            
+
             requests.push(request);
         }
         return requests;
