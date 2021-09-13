@@ -332,13 +332,19 @@
                       "label": "Effect",
                       "icon": "star-o",
                       "options": {
-                        "none": {
-                          "label": "None",
-                          "icon": "deconz"
-                        },
-                        "colorloop": {
-                          "label": "Color Loop",
-                          "icon": "deconz"
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "none": {
+                              "label": "None",
+                              "icon": "deconz"
+                            },
+                            "colorloop": {
+                              "label": "Color Loop",
+                              "icon": "deconz"
+                            }
+                          }
                         }
                       }
                     },

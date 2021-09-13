@@ -463,8 +463,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 types: [
                     "str",
-                    this.generateTypedInputType(i18n, 'none', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'colorloop', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'deconz', {
+                        subOptions: ['none', 'colorloop']
+                    })
                 ]
             }
         });
