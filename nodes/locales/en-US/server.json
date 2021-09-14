@@ -491,7 +491,7 @@
           "delay": {
             "label": "Delay",
             "icon": "hourglass-o",
-            "title": "Delay between commands in ms."
+            "title": "Delay between api request in ms."
           },
           "result": {
             "label": "Result",
