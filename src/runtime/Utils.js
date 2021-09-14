@@ -6,7 +6,6 @@ class Utils {
         return new Promise((resolve) => setTimeout(() => resolve(), ms));
     }
 
-
     static cloneMessage(message_in, moveData) {
         if (moveData === undefined) moveData = [];
         if (!Array.isArray(moveData)) moveData = [moveData];
