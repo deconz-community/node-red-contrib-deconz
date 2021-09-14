@@ -60,6 +60,11 @@ module.exports = function (RED) {
                 if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
                 for (const command of node.config.commands) {
+                    if (command.type === 'pause') {
+                        await Utils.sleep(Utils.getNodeProperty(command.arg.delay, this, message_in), 2000);
+                        continue;
+                    }
+
                     try {
                         let cp = new CommandParser(command, message_in, node);
                         let requests = cp.getRequests(devices);
