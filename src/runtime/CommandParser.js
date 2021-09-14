@@ -10,10 +10,20 @@ class CommandParser {
         this.node = node;
         this.result = {};
 
-        this.parseArgs();
+        switch (this.type) {
+            case 'deconz_state':
+                this.parseDeconzStateArgs();
+                break;
+            case 'homekit':
+                this.parseHomekitArgs();
+                break;
+            case 'custom':
+                this.parseCustomArgs();
+                break;
+        }
     }
 
-    parseArgs() {
+    parseDeconzStateArgs() {
         // On command
         switch (this.arg.on.type) {
             case 'keep':
@@ -82,6 +92,35 @@ class CommandParser {
                 this.result[k] = this.getNodeProperty(this.arg[k]);
     }
 
+    parseHomekitArgs() {
+        // Based on legacy code
+        let HK = this.getNodeProperty(this.arg.payload);
+        if (HK.On !== undefined) {
+            this.result.on = HK.On;
+        } else if (HK.Brightness !== undefined) {
+            this.result.bri = Utils.convertRange(HK.Brightness, [0, 100], [0, 255]);
+            if (HK.Brightness >= 254) HK.Brightness = 255;
+            this.result.on = HK.Brightness > 0;
+        } else if (HK.Hue !== undefined) {
+            this.result.hue = Utils.convertRange(HK.Hue, [0, 360], [0, 65535]);
+            this.result.on = true;
+        } else if (HK.Saturation !== undefined) {
+            this.result.sat = Utils.convertRange(HK.Saturation, [0, 100], [0, 255]);
+            this.result.on = true;
+        } else if (HK.ColorTemperature !== undefined) {
+            this.result.ct = Utils.convertRange(HK.ColorTemperature, [140, 500], [153, 500]);
+            this.result.on = true;
+        } else if (HK.TargetPosition !== undefined) {
+            this.result.on = HK.TargetPosition > 0;
+            this.result.bri = Utils.convertRange(HK.TargetPosition, [0, 100], [0, 255]);
+        }
+        this.result.transitiontime = this.getNodeProperty(this.arg.transitiontime);
+    }
+
+    parseCustomArgs() {
+
+    }
+
     getRequests(devices) {
         let requests = [];
         for (let device of devices) {
@@ -106,7 +145,6 @@ class CommandParser {
         }
         return requests;
     }
-
 
     getNodeProperty(property) {
         return Utils.getNodeProperty(property, this.node, this.message_in);
