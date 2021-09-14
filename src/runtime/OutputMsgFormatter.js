@@ -1,5 +1,6 @@
 const dotProp = require('dot-prop');
 const DeconzHelper = require("../../lib/DeconzHelper");
+const Utils = require("./Utils");
 
 class OutputMsgFormatter {
 
@@ -166,17 +167,7 @@ class OutputMsgFormatter {
     }
 
     generateNewMsg(src_msg) {
-        let msg = src_msg !== undefined ? Object.assign({}, src_msg) : {};
-
-        // Move input data of msg
-        for (let p of ['payload', 'payload_format', 'payload_raw', 'meta', 'meta_changed']) {
-            if (msg[p] !== undefined) {
-                msg[p + '_in'] = msg[p];
-                msg[p] = undefined;
-            }
-        }
-
-        return msg;
+        return Utils.cloneMessage(src_msg, ['payload', 'payload_format', 'payload_raw', 'meta', 'meta_changed']);
     }
 
     formatDeviceMsg(device, rawEvent, payloadFormat, options) {
