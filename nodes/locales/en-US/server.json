@@ -190,7 +190,7 @@
                     "retryonerror": {
                       "label": "Retry on error",
                       "icon": "repeat",
-                      "title": "Retry on when command failed (max 5)."
+                      "title": "Retry on when command failed (max 2)."
                     },
                     "aftererror": {
                       "label": "After error",
