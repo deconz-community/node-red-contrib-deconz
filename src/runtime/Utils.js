@@ -20,8 +20,10 @@ class Utils {
         return msg;
     }
 
-    static getNodeProperty(property, node, message_in) {
-        return REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
+    static getNodeProperty(property, node, message_in, noValueTypes) {
+        return Array.isArray(noValueTypes) && noValueTypes.includes(property.type) ?
+            property.type :
+            REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
     }
 
 }
