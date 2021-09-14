@@ -1,7 +1,8 @@
 const REDUtil = require("@node-red/util/lib/util");
 
 class Utils {
-    static sleep(ms) {
+    static sleep(ms, defaultValue) {
+        if (typeof ms !== 'number') ms = defaultValue;
         return new Promise((resolve) => setTimeout(() => resolve(), ms));
     }
 
