@@ -53,31 +53,103 @@ module.exports = function (RED) {
                         break;
                 }
 
-                for (let command of node.config.commands) {
-                    let cp = new CommandParser(command, message_in, node);
-                    let requests = cp.getRequests(devices);
-                    for (let request of requests) {
+                let resultMsgs = [];
+                let errorMsgs = [];
+                let resultTimings = ['never', 'after_command', 'at_end'];
+                let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
+                if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
-                        try {
-                            const response = await got(
-                                node.server.api.url[request.device_type].action(request.device_id),
-                                {
-                                    method: 'PUT',
-                                    retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
-                                    json: request.params,
-                                    responseType: 'json'
+                for (const command of node.config.commands) {
+                    try {
+                        let cp = new CommandParser(command, message_in, node);
+                        let requests = cp.getRequests(devices);
+                        for (const request of requests) {
+                            let endpoint = node.server.api.url[request.device_type].action(request.device_id);
+
+                            try {
+                                const response = await got(
+                                    node.server.api.url.main() + endpoint,
+                                    {
+                                        method: 'PUT',
+                                        retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
+                                        json: request.params,
+                                        responseType: 'json',
+                                        timeout: 2000 // TODO make configurable ?
+                                    }
+                                );
+
+                                if (resultTiming !== 'never') {
+                                    let result = {};
+                                    let errors = [];
+                                    for (const r of response.body) {
+                                        if (r.success !== undefined)
+                                            for (const [enpointKey, value] of Object.entries(r.success))
+                                                result[enpointKey.replace(endpoint + '/', '')] = value;
+                                        if (r.error !== undefined) errors.push(r.error);
+                                    }
+
+                                    let resultMsg = {};
+                                    if (resultTiming === 'after_command') {
+                                        resultMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                        resultMsg.payload = result;
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsg.result = result;
+                                    }
+
+                                    resultMsg.request = request.params;
+                                    resultMsg.meta = request.meta;
+                                    if (errors.length > 0) {
+                                        resultMsg.errors = errors;
+                                    }
+
+                                    if (resultTiming === 'after_command') {
+                                        send(resultMsg);
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsgs.push(resultMsg);
+                                    }
                                 }
-                            );
-                        } catch (error) {
-                            console.log(error.response.body);
-                            //=> 'Internal server error ...'
-                        }
+                                await Utils.sleep(delay - response.timings.phases.total);
+                            } catch (error) {
+                                if (resultTiming !== 'never') {
+                                    let errorMsg = {};
+                                    if (resultTiming === 'after_command') {
+                                        errorMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                    }
 
-                        await Utils.sleep(delay); // TODO Don't wait on last element
+                                    errorMsg.request = request.params;
+                                    errorMsg.meta = request.meta;
+                                    errorMsg.errors = [{
+                                        type: 0,
+                                        code: error.response.statusCode,
+                                        message: error.response.statusMessage,
+                                        description: `${error.name}: ${error.message}`,
+                                        apiEndpoint: endpoint
+                                    }];
+
+                                    if (resultTiming === 'after_command') {
+                                        send(errorMsg);
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsgs.push(errorMsg);
+                                    }
+                                }
+
+                                if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
+
+                                await Utils.sleep(delay - error.timings.phases.total);
+                            }
+                        }
+                    } catch (error) {
+                        //TODO handle error
                     }
 
-                    await Utils.sleep(delay);
-                    //TODO add delay
+                }
+
+                if (resultTiming === 'at_end') {
+                    let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
+                    endMsg.payload = resultMsgs;
+                    if (errorMsgs.length > 0)
+                        endMsg.errors = errorMsgs;
+                    send(endMsg);
                 }
 
             });
