@@ -175,7 +175,7 @@ class CommandParser {
 
             // Make sure that the endpoint exist
             let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
-            if (deviceTypeEndpoint === undefined || true)
+            if (deviceTypeEndpoint === undefined)
                 throw new Error('Invalid device endpoint, got ' + device.data.device_type);
 
             // Attribute request
