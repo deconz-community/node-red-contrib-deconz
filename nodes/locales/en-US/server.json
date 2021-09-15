@@ -209,7 +209,7 @@
                     }
                   }
                 },
-                "light": {
+                "lights": {
                   "label": "Lights",
                   "fields": {
                     "on": {
@@ -356,10 +356,10 @@
                     }
                   }
                 },
-                "group": {
+                "groups": {
                   "label": "Groups"
                 },
-                "cover": {
+                "covers": {
                   "label": "Windows Cover",
                   "fields": {
                     "open": {

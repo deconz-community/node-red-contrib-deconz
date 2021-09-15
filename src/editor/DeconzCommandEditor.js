@@ -125,12 +125,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         /**
          * @typedef {Object} Command
          * @property {String} type - Can be 'deconz_state', 'custom', 'pause', 'homekit'
-         * @property {String} domain - Can be 'light', 'cover', 'group', 'scene_call'
+         * @property {String} domain - Can be 'lights', 'covers', 'groups', 'scene_call'
          * @property {LightCommandArgs|CoverCommandArgs|CustomCommandArgs|Object} arg - An object of key value of settings
          */
         return {
             type: 'deconz_state',
-            domain: 'light',
+            domain: 'lights',
             target: 'state',
             arg: {
                 on: {type: 'keep'},
@@ -270,12 +270,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         switch (type) {
             case 'deconz_state':
                 switch (domain) {
-                    case 'light':
-                    case 'group':
+                    case 'lights':
+                    case 'groups':
                         containers.push('light');
                         containers.push('transition');
                         break;
-                    case 'cover':
+                    case 'covers':
                         containers.push('windows_cover');
                         break;
                     case 'scene_call':
@@ -360,7 +360,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 default: 'deconz_state',
                 types: [
                     this.generateTypedInputType(i18n, 'deconz_state', {
-                        subOptions: ['light', 'cover', 'group', 'scene_call']
+                        subOptions: ['lights', 'covers', 'groups', 'scene_call']
                     }),
                     this.generateTypedInputType(i18n, 'homekit', {hasValue: false}),
                     this.generateTypedInputType(i18n, 'custom', {hasValue: false}),
@@ -373,7 +373,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Light HTML Helpers
     async generateLightOnField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.on`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.lights.fields.on`;
         await this.generateTypedInputField(container, {
             id: this.elements.on,
             i18n,
@@ -391,7 +391,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     async generateLightColorField(container, fieldName, value = {}) {
         //TODO revoir l'import de la valeur
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.lights.fields`;
 
         let fieldFormat = ['num'];
         let directionsFormat = [
@@ -438,7 +438,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightAlertField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.alert`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.lights.fields.alert`;
         await this.generateTypedInputField(container, {
             id: this.elements.alert,
             i18n,
@@ -455,7 +455,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightEffectField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.effect`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.lights.fields.effect`;
         await this.generateTypedInputField(container, {
             id: this.elements.effect,
             i18n,
@@ -472,7 +472,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateLightColorLoopSpeedField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.light.fields.colorloopspeed`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.lights.fields.colorloopspeed`;
         await this.generateTypedInputField(container, {
             id: this.elements.colorloopspeed,
             i18n,
@@ -485,7 +485,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
     //#region Cover HTML Helpers
     async generateCoverOpenField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.open`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.covers.fields.open`;
         await this.generateTypedInputField(container, {
             id: this.elements.open,
             i18n,
@@ -501,7 +501,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverStopField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.stop`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.covers.fields.stop`;
         await this.generateTypedInputField(container, {
             id: this.elements.stop,
             i18n,
@@ -516,7 +516,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverLiftField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.lift`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.covers.fields.lift`;
         await this.generateTypedInputField(container, {
             id: this.elements.lift,
             i18n,
@@ -532,7 +532,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     }
 
     async generateCoverTiltField(container, value = {}) {
-        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.cover.fields.tilt`;
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.covers.fields.tilt`;
         await this.generateTypedInputField(container, {
             id: this.elements.tilt,
             i18n,
