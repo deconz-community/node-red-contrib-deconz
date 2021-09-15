@@ -59,7 +59,7 @@ module.exports = function (RED) {
                 let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
                 if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
-                for (const command of node.config.commands) {
+                for (const [id, command] of node.config.commands.entries()) {
                     if (command.type === 'pause') {
                         await Utils.sleep(Utils.getNodeProperty(command.arg.delay, this, message_in), 2000);
                         continue;
@@ -67,13 +67,11 @@ module.exports = function (RED) {
 
                     try {
                         let cp = new CommandParser(command, message_in, node);
-                        let requests = cp.getRequests(devices);
+                        let requests = cp.getRequests(devices, node.server.api);
                         for (const request of requests) {
-                            let endpoint = node.server.api.url[request.device_type].action(request.device_id);
-
                             try {
                                 const response = await got(
-                                    node.server.api.url.main() + endpoint,
+                                    node.server.api.url.main() + request.endpoint,
                                     {
                                         method: 'PUT',
                                         retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
@@ -89,7 +87,7 @@ module.exports = function (RED) {
                                     for (const r of response.body) {
                                         if (r.success !== undefined)
                                             for (const [enpointKey, value] of Object.entries(r.success))
-                                                result[enpointKey.replace(endpoint + '/', '')] = value;
+                                                result[enpointKey.replace(request.endpoint + '/', '')] = value;
                                         if (r.error !== undefined) errors.push(r.error);
                                     }
 
@@ -128,7 +126,7 @@ module.exports = function (RED) {
                                         code: error.response.statusCode,
                                         message: error.response.statusMessage,
                                         description: `${error.name}: ${error.message}`,
-                                        apiEndpoint: endpoint
+                                        apiEndpoint: request.endpoint
                                     }];
 
                                     if (resultTiming === 'after_command') {
@@ -144,7 +142,7 @@ module.exports = function (RED) {
                             }
                         }
                     } catch (error) {
-                        //TODO handle error
+                        node.error(`Error while processing command #${id + 1}\n${error}`, message_in);
                     }
 
                 }
