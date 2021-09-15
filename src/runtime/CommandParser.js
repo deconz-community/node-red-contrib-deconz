@@ -4,6 +4,7 @@ class CommandParser {
 
     constructor(command, message_in, node) {
         this.type = command.type;
+        this.domain = command.domain;
         this.valid_domain = [];
         this.arg = command.arg;
         this.message_in = message_in;
@@ -15,19 +16,23 @@ class CommandParser {
 
         switch (this.type) {
             case 'deconz_state':
-                switch (command.domain) {
+                switch (this.domain) {
                     case 'lights':
                         this.valid_domain.push('lights');
+                        this.parseDeconzStateLightArgs();
                         break;
                     case 'covers':
                         this.valid_domain.push('covers');
+                        this.parseDeconzStateCoverArgs();
                         break;
                     case 'groups':
-                    case 'scene_call':
                         this.valid_domain.push('groups');
+                        this.parseDeconzStateLightArgs();
+                        break;
+                    case 'scene_call':
+                        this.parseDeconzStateSceneCallArgs();
                         break;
                 }
-                this.parseDeconzStateArgs();
                 break;
             case 'homekit':
                 this.valid_domain.push('lights');
@@ -41,7 +46,7 @@ class CommandParser {
         }
     }
 
-    parseDeconzStateArgs() {
+    parseDeconzStateLightArgs() {
         // On command
         switch (this.arg.on.type) {
             case 'keep':
@@ -110,6 +115,17 @@ class CommandParser {
                 this.result.state[k] = this.getNodeProperty(this.arg[k]);
     }
 
+    parseDeconzStateCoverArgs() {
+        // TODO implement
+    }
+
+    parseDeconzStateSceneCallArgs() {
+        this.result.scene_call = {
+            groupId: this.getNodeProperty(this.arg.group),
+            sceneId: this.getNodeProperty(this.arg.scene)
+        };
+    }
+
     parseHomekitArgs() {
         // Based on legacy code
         let HK = this.getNodeProperty(this.arg.payload);
@@ -167,60 +183,82 @@ class CommandParser {
     getRequests(node, devices) {
         let deconzApi = node.server.api;
         let requests = [];
-        for (let device of devices) {
-            // If the device type do not match the command type skip the device
-            if (!this.valid_domain.includes('any') &&
-                (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||
-                    !this.valid_domain.includes(device.data.device_type))
-            ) continue;
 
-            // Make sure that the endpoint exist
-            let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
-            if (deviceTypeEndpoint === undefined)
-                throw new Error('Invalid device endpoint, got ' + device.data.device_type);
+        if (this.type === 'deconz_state' && this.domain === 'scene_call') {
+            let request = {};
+            request.endpoint = deconzApi.url.groups.scenes.recall(
+                this.result.scene_call.groupId,
+                this.result.scene_call.sceneId
+            );
+            request.meta = node.server.device_list.getDeviceByDomainID(
+                'groups',
+                this.result.scene_call.groupId
+            );
 
-            // Attribute request
-            if (Object.keys(this.result.config).length > 0) {
-                let request = {};
-                request.endpoint = deviceTypeEndpoint.main(device.data.device_id);
-                request.meta = device.data;
-                request.params = Utils.clone(this.result);
-                delete request.params.state;
-                delete request.params.config;
-                requests.push(request);
+            if (request.meta && Array.isArray(request.meta.scenes)) {
+                request.scene_meta = request.meta.scenes.filter(
+                    scene => Number(scene.id) === this.result.scene_call.sceneId
+                ).shift();
             }
 
-            // State request
-            if (Object.keys(this.result.state).length > 0) {
-                let request = {};
-                request.endpoint = deviceTypeEndpoint.action(device.data.device_id);
-                request.meta = device.data;
-                request.params = Utils.clone(this.result.state);
+            request.params = Utils.clone(this.result);
+            requests.push(request);
+        } else {
+            for (let device of devices) {
+                // If the device type do not match the command type skip the device
+                if (!this.valid_domain.includes('any') &&
+                    (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||
+                        !this.valid_domain.includes(device.data.device_type))
+                ) continue;
 
-                if (request.params.on === 'toggle') {
-                    switch (device.data.device_type) {
-                        case 'lights':
-                            request.params.on = !device.data.state.on;
-                            break;
-                        case 'groups':
-                            delete request.params.on;
-                            request.params.toggle = true;
-                            break;
-                    }
+                // Make sure that the endpoint exist
+                let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
+                if (deviceTypeEndpoint === undefined)
+                    throw new Error('Invalid device endpoint, got ' + device.data.device_type);
+
+                // Attribute request
+                if (Object.keys(this.result.config).length > 0) {
+                    let request = {};
+                    request.endpoint = deviceTypeEndpoint.main(device.data.device_id);
+                    request.meta = device.data;
+                    request.params = Utils.clone(this.result);
+                    delete request.params.state;
+                    delete request.params.config;
+                    requests.push(request);
                 }
-                requests.push(request);
-            }
 
-            // Config request
-            if (Object.keys(this.result.config).length > 0) {
-                let request = {};
-                request.endpoint = deviceTypeEndpoint.config(device.data.device_id);
-                request.meta = device.data;
-                request.params = Utils.clone(this.result.config);
-                requests.push(request);
-            }
+                // State request
+                if (Object.keys(this.result.state).length > 0) {
+                    let request = {};
+                    request.endpoint = deviceTypeEndpoint.action(device.data.device_id);
+                    request.meta = device.data;
+                    request.params = Utils.clone(this.result.state);
 
+                    if (request.params.on === 'toggle') {
+                        switch (device.data.device_type) {
+                            case 'lights':
+                                request.params.on = !device.data.state.on;
+                                break;
+                            case 'groups':
+                                delete request.params.on;
+                                request.params.toggle = true;
+                                break;
+                        }
+                    }
+                    requests.push(request);
+                }
+
+                // Config request
+                if (Object.keys(this.result.config).length > 0) {
+                    let request = {};
+                    request.endpoint = deviceTypeEndpoint.config(device.data.device_id);
+                    request.meta = device.data;
+                    request.params = Utils.clone(this.result.config);
+                    requests.push(request);
+                }
+            }
         }
+
         return requests;
     }
 

@@ -101,9 +101,10 @@ module.exports = function (RED) {
 
                                     resultMsg.request = request.params;
                                     resultMsg.meta = request.meta;
-                                    if (errors.length > 0) {
+                                    if (request.scene_meta !== undefined)
+                                        resultMsg.scene_meta = request.scene_meta;
+                                    if (errors.length > 0)
                                         resultMsg.errors = errors;
-                                    }
 
                                     if (resultTiming === 'after_command') {
                                         send(resultMsg);
