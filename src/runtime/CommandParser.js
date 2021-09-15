@@ -146,8 +146,8 @@ class CommandParser {
         return requests;
     }
 
-    getNodeProperty(property) {
-        return Utils.getNodeProperty(property, this.node, this.message_in);
+    getNodeProperty(property, noValueTypes) {
+        return Utils.getNodeProperty(property, this.node, this.message_in, noValueTypes);
     }
 
 }
