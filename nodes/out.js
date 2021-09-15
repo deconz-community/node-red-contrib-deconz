@@ -67,7 +67,7 @@ module.exports = function (RED) {
 
                     try {
                         let cp = new CommandParser(command, message_in, node);
-                        let requests = cp.getRequests(devices, node.server.api);
+                        let requests = cp.getRequests(node, devices);
                         for (const request of requests) {
                             try {
                                 const response = await got(

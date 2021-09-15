@@ -160,11 +160,12 @@ class CommandParser {
 
     /**
      *
+     * @param node Node
      * @param devices Device[]
-     * @param deconzApi DeconzAPI
      * @returns {*[]}
      */
-    getRequests(devices, deconzApi) {
+    getRequests(node, devices) {
+        let deconzApi = node.server.api;
         let requests = [];
         for (let device of devices) {
             // If the device type do not match the command type skip the device
