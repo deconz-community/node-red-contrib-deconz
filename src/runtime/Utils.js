@@ -34,6 +34,9 @@ class Utils {
             device.type === 'Window covering device';
     }
 
+    static clone(object) {
+        return Object.assign({}, object);
+    }
 }
 
 module.exports = Utils;
