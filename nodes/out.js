@@ -142,7 +142,7 @@ module.exports = function (RED) {
                             }
                         }
                     } catch (error) {
-                        node.error(`Error while processing command #${id + 1}\n${error}`, message_in);
+                        node.error(`Error while processing command #${id + 1}, ${error}`, message_in);
                     }
 
                 }
