@@ -454,7 +454,21 @@
                     "scene": {
                       "label": "Scene ID",
                       "icon": "picture-o",
-                      "title": "Select the scene to call"
+                      "title": "Select the scene to call",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "next": {
+                              "label": "Next"
+                            },
+                            "prev": {
+                              "label": "Previous"
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }

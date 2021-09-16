@@ -600,7 +600,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     'num',
                     'str',
-                    're'
+                    this.generateTypedInputType(i18n, 'deconz', {
+                        subOptions: ['next', 'prev']
+                    })
                 ]
             }
         });
