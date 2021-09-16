@@ -321,17 +321,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         params.queryType = 'json';
         params.query = JSON.stringify({match: {device_type: 'groups'}});
         let groups = await queryEditor.getItems({refresh: true, keepOnlyMatched: true}, params);
+        if (groups.LightGroup === undefined) return;
         for (const group of groups.LightGroup) {
             let groupHtml = $('<optgroup/>', {
-                label: group.name
+                label: `${group.id} - ${group.name}`
             });
             if (group.scenes && group.scenes.length > 0) {
-                for (const scene of group.scenes.sort((a, b) => {
-                    if (a.name < b.name) return -1;
-                    if (a.name > b.name) return 1;
-                    return 0;
-                })) {
-                    $('<option>' + scene.name + '</option>').attr('value', `${group.id}.${scene.id}`).appendTo(groupHtml);
+                for (const scene of group.scenes) {
+                    $(`<option>${scene.id} - ${scene.name}</option>`).attr('value', `${group.id}.${scene.id}`).appendTo(groupHtml);
                 }
                 groupHtml.appendTo(this.$elements.scene_picker);
             }
