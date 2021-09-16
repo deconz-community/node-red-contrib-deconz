@@ -276,6 +276,11 @@ class CommandParser {
             }
         }
 
+        // Remove undefined params in requests
+        for (const request of requests)
+            for (const [k, v] of Object.entries(request.params))
+                if (v === undefined) delete request.params[k];
+
         return requests;
     }
 
