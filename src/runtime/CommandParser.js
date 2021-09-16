@@ -110,7 +110,30 @@ class CommandParser {
     }
 
     parseDeconzStateCoverArgs() {
-        // TODO implement
+        this.result.state.open = this.getNodeProperty(
+            this.arg.open,
+            [
+                'toggle'
+            ],
+            [
+                ['keep', undefined],
+                ['set.true', true],
+                ['set.false', false]
+            ]
+        );
+
+        this.result.state.stop = this.getNodeProperty(
+            this.arg.stop,
+            [],
+            [
+                ['keep', undefined],
+                ['set.true', true],
+                ['set.false', false]
+            ]
+        );
+
+        this.result.state.lift = this.getNodeProperty(this.arg.lift, ['stop']);
+        this.result.state.tilt = this.getNodeProperty(this.arg.tilt);
     }
 
     parseDeconzStateSceneCallArgs() {
