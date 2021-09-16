@@ -48,23 +48,17 @@ class CommandParser {
 
     parseDeconzStateLightArgs() {
         // On command
-        switch (this.arg.on.type) {
-            case 'keep':
-                break;
-            case 'set':
-                if (this.arg.on.value === 'true') this.result.state.on = true;
-                if (this.arg.on.value === 'false') this.result.state.on = false;
-                break;
-            case 'toggle':
-                this.result.state.on = 'toggle';
-                break;
-            case 'msg':
-            case 'flow':
-            case 'global':
-            case 'jsonata':
-                this.result.state.on = this.getNodeProperty(this.arg.on);
-                break;
-        }
+        this.result.state.on = this.getNodeProperty(
+            this.arg.on,
+            [
+                'toggle'
+            ],
+            [
+                ['keep', undefined],
+                ['set.true', true],
+                ['set.false', false]
+            ]
+        );
 
         // Colors commands
         for (const k of ['bri', 'sat', 'hue', 'ct', 'xy']) {
