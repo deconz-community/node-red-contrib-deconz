@@ -584,7 +584,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 types: [
                     'num',
-                    this.generateTypedInputType(i18n, 'from_device'),
+                    // this.generateTypedInputType(i18n, 'from_device'), //TODO add this ?
                 ]
             }
         });
