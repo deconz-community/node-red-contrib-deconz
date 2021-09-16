@@ -262,7 +262,12 @@ class CommandParser {
         return requests;
     }
 
-    getNodeProperty(property, noValueTypes) {
+    getNodeProperty(property, noValueTypes, valueMaps) {
+        if (Array.isArray(valueMaps))
+            for (const map of valueMaps)
+                if (Array.isArray(map) && map.length === 2 &&
+                    (property.type === map[0] || `${property.type}.${property.value}` === map[0])
+                ) return map[1];
         return Utils.getNodeProperty(property, this.node, this.message_in, noValueTypes);
     }
 
