@@ -81,8 +81,12 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         rule = $.extend(true, this.defaultRule, rule);
 
         await this.generatePayloadTypeField(this.container, rule.type);
-        await this.generatePayloadField(this.container);
-        await this.generatePayloadFormatField(this.container, rule.format);
+
+        if (this.node.type !== 'deconz-battery')
+            await this.generatePayloadField(this.container);
+
+        if (this.node.type === 'deconz-get')
+            await this.generatePayloadFormatField(this.container, rule.format);
 
         if (this.node.type === 'deconz-input') {
             await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
