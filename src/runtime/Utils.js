@@ -30,6 +30,7 @@ class Utils {
     }
 
     static isDeviceCover(device) {
+        if (typeof device !== 'object') return;
         return device.type === 'Window covering controller' ||
             device.type === 'Window covering device';
     }
