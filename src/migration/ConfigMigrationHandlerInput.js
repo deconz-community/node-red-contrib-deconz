@@ -29,7 +29,7 @@ class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
                 output: this.config.output !== undefined ? this.config.output : 'always',
                 onstart: this.config.outputAtStartup !== undefined ? this.config.outputAtStartup : true
             },
-            {type: 'homekit', onstart: true, onerror: true},
+            {type: 'homekit', onstart: true, onerror: true}
         ];
         this.result.delete.push('state');
         this.result.delete.push('output');
