@@ -13,7 +13,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
     migrateFromLegacy() {
         // Migrate device
-        super.migrateFromLegacy();
+        let device = super.migrateDeviceFromLegacy();
 
         let command = {
             arg: {}

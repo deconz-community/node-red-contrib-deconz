@@ -22,7 +22,7 @@ class ConfigMigrationHandler {
     }
 
 
-    migrateFromLegacy() {
+    migrateDeviceFromLegacy() {
         // Migrate device
         this.result.new.search_type = 'device';
         this.result.new.query = '{}';
@@ -36,6 +36,7 @@ class ConfigMigrationHandler {
         }
         this.result.delete.push('device');
 
+        return device;
     }
 
 }
