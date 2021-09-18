@@ -24,7 +24,7 @@ class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
                 payload: [
                     (this.config.state === undefined || this.config.state === '0') ?
                         '__complete__' :
-                        'state.' + this.config.state
+                        this.config.state
                 ],
                 output: this.config.output !== undefined ? this.config.output : 'always',
                 onstart: this.config.outputAtStartup !== undefined ? this.config.outputAtStartup : true
