@@ -84,15 +84,14 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
 
         if (['deconz-input', 'deconz-get'].includes(this.node.type))
             await this.generatePayloadField(this.container);
-
         if (this.node.type === 'deconz-get')
             await this.generatePayloadFormatField(this.container, rule.format);
-
-        if (this.node.type === 'deconz-input') {
+        if (this.node.type === 'deconz-input')
             await this.generateOutputField(this.container, rule.output !== undefined ? rule.output : this.defaultRule.output);
+        if (['deconz-input', 'deconz-battery'].includes(this.node.type))
             await this.generateOnStartField(this.container, rule.onstart !== undefined ? rule.onstart : this.defaultRule.onstart);
+        if (this.node.type === 'deconz-input')
             await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
-        }
 
         await super.init();
 
