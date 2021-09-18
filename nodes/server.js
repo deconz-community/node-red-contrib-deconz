@@ -124,6 +124,7 @@ module.exports = function (RED) {
             for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
                 node.propagateNews(nodeIDs, {
                     type: 'start',
+                    node_type: 'device_path',
                     device: node.device_list.getDeviceByPath(device_path)
                 });
             }
@@ -149,6 +150,7 @@ module.exports = function (RED) {
                 for (let device of devices.matched) {
                     node.propagateNews(nodeID, {
                         type: 'start',
+                        node_type: 'query',
                         device: device,
                     });
                 }
@@ -162,6 +164,7 @@ module.exports = function (RED) {
             for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
                 node.propagateNews(nodeIDs, {
                     type: 'error',
+                    node_type: 'device_path',
                     device: node.device_list.getDeviceByPath(device_path),
                     errorCode: code,
                     errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
@@ -189,6 +192,7 @@ module.exports = function (RED) {
                 for (let device of devices.matched) {
                     node.propagateNews(nodeID, {
                         type: 'error',
+                        node_type: 'query',
                         device: device,
                         errorCode: code,
                         errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
@@ -215,8 +219,20 @@ module.exports = function (RED) {
                 let target = RED.nodes.getNode(nodeID);
                 // If the target does not exist we remove it from the node list
                 if (!target) {
-                    console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
-                    node.unregisterNodeByDevicePath(nodeID, news.device.device_path);
+                    switch (news.node_type) {
+                        case 'device_path':
+                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
+                            node.unregisterNodeByDevicePath(nodeID, news.device.device_path);
+                            break;
+                        case 'query':
+                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesWithQuery');
+                            node.unregisterNodeWithQuery(nodeID);
+                            break;
+                        case 'event_node':
+                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesEvent');
+                            node.unregisterEventNode(nodeID);
+                            break;
+                    }
                     return;
                 }
 
@@ -404,6 +420,7 @@ module.exports = function (RED) {
             // Node with device selected
             node.propagateNews(node.nodesByDevicePath[device.device_path], {
                 type: 'event',
+                node_type: 'device_path',
                 eventData: dataParsed,
                 device: device,
                 changed: changed
@@ -434,6 +451,7 @@ module.exports = function (RED) {
 
             if (matched.length > 0) node.propagateNews(matched, {
                 type: 'event',
+                node_type: 'query',
                 eventData: dataParsed,
                 device: device,
                 changed: changed
