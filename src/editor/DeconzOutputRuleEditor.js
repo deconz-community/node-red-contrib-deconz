@@ -82,7 +82,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
 
         await this.generatePayloadTypeField(this.container, rule.type);
 
-        if (this.node.type !== 'deconz-battery')
+        if (['deconz-input', 'deconz-get'].includes(this.node.type))
             await this.generatePayloadField(this.container);
 
         if (this.node.type === 'deconz-get')
