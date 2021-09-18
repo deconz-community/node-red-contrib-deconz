@@ -3,20 +3,13 @@ module.exports = function (RED) {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
-            var node = this;
+            let node = this;
             node.config = config;
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
-                node.server.on('onClose', () => this.onClose());
-                node.server.on('onSocketError', () => this.onSocketError());
-                node.server.on('onSocketClose', () => this.onSocketClose());
-                node.server.on('onSocketOpen', () => this.onSocketOpen());
-                node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-                node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
-
-                node.sendLastState();
+                node.server.registerBatteryNode(node.id);
             } else {
                 node.status({
                     fill: "red",
@@ -24,6 +17,17 @@ module.exports = function (RED) {
                     text: "node-red-contrib-deconz/battery:status.server_node_error"
                 });
             }
+        }
+
+
+
+        handleDeconzEvent(device, changed, rawEvent, opt) {
+            let node = this;
+            node.send({
+                payload: rawEvent,
+                meta: device
+            });
+
         }
 
 
@@ -101,64 +105,6 @@ module.exports = function (RED) {
             }
         }
 
-        formatHomeKit(device) {
-            var msg = {};
-            var characteristic = {};
-
-            //battery status
-            if ("config" in device) {
-                if (device.config.battery !== undefined && device.config.battery != null) {
-                    characteristic.BatteryLevel = parseInt(device.config.battery);
-                    characteristic.StatusLowBattery = parseInt(device.config.battery) <= 15 ? 1 : 0;
-
-                    msg.payload = characteristic;
-                    // msg.topic = "battery";
-                    return msg;
-                }
-            }
-
-            return null;
-        }
-
-        onSocketPongTimeout() {
-            var node = this;
-            node.onSocketError();
-        }
-
-        onSocketError() {
-            var node = this;
-            node.status({
-                fill: "yellow",
-                shape: "dot",
-                text: "node-red-contrib-deconz/battery:status.reconnecting"
-            });
-        }
-
-        onClose() {
-            var node = this;
-            node.onSocketClose();
-        }
-
-        onSocketClose() {
-            var node = this;
-            node.status({
-                fill: "red",
-                shape: "dot",
-                text: "node-red-contrib-deconz/battery:status.disconnected"
-            });
-        }
-
-        onSocketOpen() {
-            var node = this;
-            node.sendLastState();
-        }
-
-        onNewDevice(uniqueid) {
-            var node = this;
-            if (node.config.device === uniqueid) {
-                node.sendLastState();
-            }
-        }
 
     }
 

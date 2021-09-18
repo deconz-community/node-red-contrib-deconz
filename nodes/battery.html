@@ -190,6 +190,13 @@
                 },
                 device: {
                     batteryFilter: true
+                },
+                output_rules: {
+                    type: {
+                        attribute: false,
+                        config: false,
+                        homekit: true
+                    }
                 }
             });
             node.nodeEditor.init()/*.then(value => {
