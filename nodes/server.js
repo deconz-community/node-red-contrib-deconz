@@ -33,6 +33,7 @@ module.exports = function (RED) {
 
             // Example : ["ea9cd132.08f36"]
             node.nodesWithQuery = [];
+            node.nodesEvent = [];
             node.nodesByDevicePath = {};
 
             node.setMaxListeners(255);
@@ -256,32 +257,40 @@ module.exports = function (RED) {
                         let dataParsed = news.eventData;
                         switch (dataParsed.t) {
                             case "event":
-                                switch (dataParsed.e) {
-                                    case "added":
-                                    case "deleted":
-                                        node.discoverDevices({
-                                            forceRefresh: true
-                                        }).then();
-                                        break;
-                                    case "changed":
-                                        if (target.type === "deconz-input") {
-                                            target.handleDeconzEvent(
-                                                news.device,
-                                                news.changed,
-                                                dataParsed
-                                            );
-                                        } else {
-                                            console.warn("WTF this is used : We tried to send a msg to a non input node.");
-                                            continue;
-                                        }
-                                        break;
-                                    case "scene-called":
-                                        // TODO Implement This
-                                        console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
-                                        break;
-                                    default:
-                                        console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
-                                        break;
+                                if (target.type === "deconz-event") {
+                                    target.handleDeconzEvent(
+                                        news.device,
+                                        news.changed,
+                                        dataParsed
+                                    );
+                                } else {
+                                    switch (dataParsed.e) {
+                                        case "added":
+                                        case "deleted":
+                                            node.discoverDevices({
+                                                forceRefresh: true
+                                            }).then();
+                                            break;
+                                        case "changed":
+                                            if (target.type === "deconz-input") {
+                                                target.handleDeconzEvent(
+                                                    news.device,
+                                                    news.changed,
+                                                    dataParsed
+                                                );
+                                            } else {
+                                                console.warn("WTF this is used : We tried to send a msg to a non input node.");
+                                                continue;
+                                            }
+                                            break;
+                                        case "scene-called":
+                                            // TODO Implement This
+                                            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
+                                            break;
+                                        default:
+                                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
+                                            break;
+                                    }
                                 }
                                 break;
                             default:
@@ -312,6 +321,17 @@ module.exports = function (RED) {
 
             }
 
+        }
+
+        registerEventNode(nodeID) {
+            let node = this;
+            if (!node.nodesEvent.includes(nodeID)) node.nodesEvent.push(nodeID);
+        }
+
+        unregisterEventNode(nodeID) {
+            let node = this;
+            let index = node.nodesEvent.indexOf(nodeID);
+            if (index !== -1) node.nodesEvent.splice(index, 1);
         }
 
         registerNodeByDevicePath(nodeID, device_path) {
@@ -452,6 +472,15 @@ module.exports = function (RED) {
             if (matched.length > 0) node.propagateNews(matched, {
                 type: 'event',
                 node_type: 'query',
+                eventData: dataParsed,
+                device: device,
+                changed: changed
+            });
+
+            // Event Nodes
+            node.propagateNews(node.nodesEvent, {
+                type: 'event',
+                node_type: 'event_node',
                 eventData: dataParsed,
                 device: device,
                 changed: changed
