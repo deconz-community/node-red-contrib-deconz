@@ -401,10 +401,11 @@ class OutputMsgFormatter {
         //battery status
         if (config !== undefined) {
             if (config.battery !== undefined && config.battery != null) {
-
-                if (device.type !== 'ZHASwitch') { //exclude
+                if (no_reponse) {
+                    characteristic.StatusLowBattery = "NO_RESPONSE";
+                } else {
+                    characteristic.BatteryLevel = parseInt(device.config.battery);
                     characteristic.StatusLowBattery = parseInt(device.config.battery) <= 15 ? 1 : 0;
-                    if (no_reponse) characteristic.StatusLowBattery = "NO_RESPONSE";
                 }
             }
         }
