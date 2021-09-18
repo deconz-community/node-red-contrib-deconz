@@ -1,4 +1,5 @@
 const ConfigMigrationHandler = require('./ConfigMigrationHandler');
+const Utils = require("../runtime/Utils");
 
 class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
     get lastVersion() {
@@ -23,7 +24,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         switch (this.config.commandType) {
             case 'deconz_cmd':
                 command.type = 'deconz_state';
-                command.domain = (this.config.device.substr(0, 6) === 'group_') ? 'group' : 'light';
+                if (this.config.device.substr(0, 6) === 'group_') {
+                    command.domain = 'groups';
+                } else if (Utils.isDeviceCover(device)) {
+                    command.domain = 'covers';
+                } else {
+                    command.domain = 'lights';
+                }
                 command.target = 'state';
                 switch (this.config.command) {
                     case 'on':
@@ -173,8 +180,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
 
                     case 'scene':
-                        command.new.domain = 'scene';
-                        //TODO change with deconz_group and deconz_scene types
+                        command.new.domain = 'scene_call';
 
                         // Strip 'group_' from device name
                         let part = this.config.device.substring(6);
