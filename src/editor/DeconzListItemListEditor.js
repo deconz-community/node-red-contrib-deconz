@@ -27,7 +27,7 @@ class DeconzListItemListEditor extends DeconzEditor {
             buttons: buttons,
             addItem: (row, index, item) => {
                 // Create item editor
-                let itemEditor = new itemEditorClass(this.node, this, row);
+                let itemEditor = new itemEditorClass(this.node, this, row, this.options);
                 // Store item editor reference
                 item.uniqueId = itemEditor.uniqueId;
                 this.items[item.uniqueId] = itemEditor;
