@@ -1,4 +1,3 @@
-const DeconzHelper = require('../lib/DeconzHelper.js');
 const dotProp = require('dot-prop');
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");

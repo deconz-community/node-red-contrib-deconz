@@ -1,5 +1,4 @@
 const dotProp = require('dot-prop');
-const DeconzHelper = require("../../lib/DeconzHelper");
 const Utils = require("./Utils");
 
 class OutputMsgFormatter {
