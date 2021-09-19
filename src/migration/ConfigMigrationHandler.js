@@ -1,6 +1,7 @@
 class ConfigMigrationHandler {
-    constructor(config) {
+    constructor(config, server) {
         this.config = config;
+        this.server = server;
         this.config_version = this.config.config_version;
         this.result = {
             new: {},
@@ -28,9 +29,9 @@ class ConfigMigrationHandler {
         this.result.new.query = '{}';
         this.result.new.device_list = [];
         // Todo Handle groups
-        let device = this.controller.getDevice(this.config.device);
+        let device = this.server.device_list.getDeviceByUniqueID(this.config.device);
         if (device) {
-            this.result.new.device_list.push(this.controller.getPathByDevice(device));
+            this.result.new.device_list.push(this.server.device_list.getPathByDevice(device));
         } else {
             this.result.errors.push(`Could not find the device '${this.config.device_name}' with uniqueID '${this.config.device}'.`);
         }

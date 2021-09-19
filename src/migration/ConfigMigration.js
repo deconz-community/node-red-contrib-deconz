@@ -7,41 +7,41 @@ const ConfigMigrationHandlerServer = require('./ConfigMigrationHandlerServer');
 
 class ConfigMigration {
 
-    constructor(type, config) {
+    constructor(type, config, server) {
         this.type = type;
         switch (this.type) {
             case 'deconz-input':
-                this.handler = new ConfigMigrationHandlerInput(config);
+                this.handler = new ConfigMigrationHandlerInput(config, server);
                 break;
             case 'deconz-get':
-                this.handler = new ConfigMigrationHandlerGet(config);
+                this.handler = new ConfigMigrationHandlerGet(config, server);
                 break;
             case 'deconz-output':
-                this.handler = new ConfigMigrationHandlerOutput(config);
+                this.handler = new ConfigMigrationHandlerOutput(config, server);
                 break;
             case 'deconz-battery':
-                this.handler = new ConfigMigrationHandlerBattery(config);
+                this.handler = new ConfigMigrationHandlerBattery(config, server);
                 break;
             case 'deconz-server':
-                this.handler = new ConfigMigrationHandlerServer(config);
+                this.handler = new ConfigMigrationHandlerServer(config, server);
                 break;
         }
     }
 
-    migrate(controller) {
+    migrate(config) {
         if (!this.handler || !this.handler.migrate) {
             return {error: 'Configuration migration handler not found.'};
         }
 
         if (!this.handler.isLastestVersion) {
-            this.handler.migrate(controller);
+            this.handler.migrate(config);
             return this.handler.result;
         } else {
             return {notNeeded: true};
         }
     }
 
-    applyMigration(config, controller) {
+    applyMigration(config, node) {
         let result = this.migrate(config);
         if (result.notNeeded === true) return result;
 
@@ -53,9 +53,9 @@ class ConfigMigration {
 
         // Apply new data on controller
         for (const [k, v] of Object.entries(result.controller.new)) {
-            dotProp.set(controller, k, v);
+            dotProp.set(node, k, v);
         }
-        result.controller.delete.forEach(k => dotProp.delete(controller, k));
+        result.controller.delete.forEach(k => dotProp.delete(node, k));
 
 
         return result;

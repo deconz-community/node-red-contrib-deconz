@@ -10,13 +10,6 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
-            // Config migration
-            let configMigration = new ConfigMigration(NodeType, node.config);
-            let migrationResult = configMigration.applyMigration(node.config, node);
-            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                migrationResult.errors.forEach(error => console.error(error));
-            }
-
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (!node.server) {
@@ -26,6 +19,13 @@ module.exports = function (RED) {
                     text: "node-red-contrib-deconz/battery:status.server_node_error"
                 });
                 return;
+            }
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config, node.server);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
             }
 
             if (node.config.search_type === "device") {
