@@ -62,7 +62,11 @@ class CommandParser {
 
         // Colors commands
         for (const k of ['bri', 'sat', 'hue', 'ct', 'xy']) {
-            if (this.arg[k].value.length === 0) continue;
+            if (
+                this.arg[k] === undefined ||
+                this.arg[k].value === undefined ||
+                this.arg[k].value.length === 0
+            ) continue;
             switch (this.arg[k].direction) {
                 case 'set':
                     if (k === 'xy') {
@@ -104,9 +108,11 @@ class CommandParser {
             }
         }
 
-        for (const k of ['alert', 'effect', 'colorloopspeed', 'transitiontime'])
+        for (const k of ['alert', 'effect', 'colorloopspeed', 'transitiontime']) {
+            if (this.arg[k] === undefined || this.arg[k].value === undefined) continue;
             if (this.arg[k].value.length > 0)
                 this.result.state[k] = this.getNodeProperty(this.arg[k]);
+        }
     }
 
     parseDeconzStateCoverArgs() {
@@ -285,6 +291,7 @@ class CommandParser {
     }
 
     getNodeProperty(property, noValueTypes, valueMaps) {
+        if (typeof property === 'undefined') return undefined;
         if (Array.isArray(valueMaps))
             for (const map of valueMaps)
                 if (Array.isArray(map) && map.length === 2 &&
