@@ -30,15 +30,16 @@ class ConfigMigrationHandler {
         this.result.new.device_list = [];
 
         let device;
-        if (this.config.device.substr(0, 6) === 'group_') {
-            device = this.server.device_list.getDeviceByDomainID(
-                'groups',
-                Number(this.config.device.substr(6))
-            );
-        } else {
-            device = this.server.device_list.getDeviceByUniqueID(this.config.device);
+        if (typeof this.config.device === 'string') {
+            if (this.config.device.substr(0, 6) === 'group_') {
+                device = this.server.device_list.getDeviceByDomainID(
+                    'groups',
+                    Number(this.config.device.substr(6))
+                );
+            } else {
+                device = this.server.device_list.getDeviceByUniqueID(this.config.device);
+            }
         }
-
         if (device) {
             this.result.new.device_list.push(this.server.device_list.getPathByDevice(device));
         } else {
