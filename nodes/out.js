@@ -1,9 +1,9 @@
-const DeconzHelper = require('../lib/DeconzHelper.js');
 const CommandParser = require("../src/runtime/CommandParser");
 const Utils = require("../src/runtime/Utils");
 const got = require('got');
+const ConfigMigration = require("../src/migration/ConfigMigration");
 
-
+const NodeType = 'deconz-output';
 module.exports = function (RED) {
     class deConzOut {
         constructor(config) {
@@ -11,7 +11,13 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
-            // TODO add config migration
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
 
             node.status({}); //clean
 
@@ -162,7 +168,7 @@ module.exports = function (RED) {
 
     }
 
-    RED.nodes.registerType('deconz-output', deConzOut);
+    RED.nodes.registerType(NodeType, deConzOut);
 };
 
 

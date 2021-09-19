@@ -1,4 +1,5 @@
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
+const ConfigMigration = require("../src/migration/ConfigMigration");
 
 const NodeType = 'deconz-battery';
 module.exports = function (RED) {
@@ -8,6 +9,13 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);

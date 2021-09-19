@@ -9,9 +9,15 @@ module.exports = function (RED) {
             RED.nodes.createNode(this, config);
 
             let node = this;
-
             node.config = config;
-            // TODO add config migration
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
+
             node.cleanTimer = null;
 
             //get server node

@@ -2,6 +2,7 @@ const dotProp = require('dot-prop');
 const ConfigMigrationHandlerInput = require('./ConfigMigrationHandlerInput');
 const ConfigMigrationHandlerGet = require('./ConfigMigrationHandlerGet');
 const ConfigMigrationHandlerOutput = require('./ConfigMigrationHandlerOutput');
+const ConfigMigrationHandlerBattery = require("./ConfigMigrationHandlerBattery");
 const ConfigMigrationHandlerServer = require('./ConfigMigrationHandlerServer');
 
 class ConfigMigration {
@@ -17,6 +18,9 @@ class ConfigMigration {
                 break;
             case 'deconz-output':
                 this.handler = new ConfigMigrationHandlerOutput(config);
+                break;
+            case 'deconz-battery':
+                this.handler = new ConfigMigrationHandlerBattery(config);
                 break;
             case 'deconz-server':
                 this.handler = new ConfigMigrationHandlerServer(config);

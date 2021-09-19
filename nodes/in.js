@@ -13,7 +13,7 @@ module.exports = function (RED) {
             node.config = config;
 
             // Config migration
-            let configMigration = new ConfigMigration('deconz-input', node.config);
+            let configMigration = new ConfigMigration(NodeType, node.config);
             let migrationResult = configMigration.applyMigration(node.config, node);
             if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
                 migrationResult.errors.forEach(error => console.error(error));
