@@ -159,11 +159,16 @@ module.exports = function (RED) {
 
                                 if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
 
-                                await Utils.sleep(delay - error.timings.phases.total);
+                                if (error.timings !== undefined) {
+                                    await Utils.sleep(delay - error.timings.phases.total);
+                                } else {
+                                    await Utils.sleep(delay);
+                                }
                             }
                         }
                     } catch (error) {
                         node.error(`Error while processing command #${id + 1}, ${error}`, message_in);
+                        console.warn(error);
                     }
 
                 }
