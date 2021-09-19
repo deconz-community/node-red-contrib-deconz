@@ -148,9 +148,9 @@ module.exports = function (RED) {
     RED.httpAdmin.get(NODE_PATH + 'configurationMigration', function (req, res) {
         let data = req.query;
         let config = JSON.parse(data.config);
-        let configMigration = new ConfigMigration(data.type, config);
-        let controller = RED.nodes.getNode(config.server);
-        let result = configMigration.migrate(controller);
+        let server = RED.nodes.getNode(config.server);
+        let configMigration = new ConfigMigration(data.type, config, server);
+        let result = configMigration.migrate(config);
         res.json(result);
     });
 
