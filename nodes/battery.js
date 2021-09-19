@@ -51,6 +51,7 @@ module.exports = function (RED) {
                     // Send msgs
                     for (let msg of msgToSend) {
                         msg.topic = this.config.topic;
+                        msg = Object.assign(msg, msg.payload); // For retro-compatibility
                         msgs[index] = msg;
                         node.send(msgs);
                     }
