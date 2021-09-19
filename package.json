@@ -65,7 +65,9 @@
     "/lib/",
     "/icons/*.png",
     "/resources/",
-    "/examples/"
+    "/examples/",
+    "/src/migration",
+    "/src/runtime"
   ],
   "scripts": {
     "test": "mocha"
