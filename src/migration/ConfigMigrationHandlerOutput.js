@@ -389,11 +389,12 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     command.arg.transition.value = parseInt(this.config.transitionTime);
                 }
                 break;
-            case 'undefined':
-                command.arg.transition = {type: 'num'};
-                break;
             default:
-                this.result.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
+                if (typeof this.config.transitionTimeType === 'undefined') {
+                    command.arg.transition = {type: 'num'};
+                } else {
+                    this.result.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
+                }
                 break;
         }
 
