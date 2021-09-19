@@ -54,7 +54,22 @@ class DeconzDeviceListEditor extends DeconzEditor {
         /** @type {JQuery} */
         let list = this.$elements.list;
 
-        let devices = await this.getItems(options, this.xhrParams);
+        let params = this.xhrParams;
+        if (this.options.batteryFilter === true) {
+            options.keepOnlyMatched = true;
+            params.query = JSON.stringify({
+                type: 'match',
+                match: {
+                    'config.battery': {
+                        type: 'complex',
+                        operator: "!==",
+                        value: undefined
+                    }
+                }
+            });
+        }
+
+        let devices = await this.getItems(options, params);
 
         // Remove all previous elements from 'select' input element
         list.children().remove();

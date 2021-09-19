@@ -2,8 +2,7 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
 
     constructor(node, options = {}) {
         super(node, $.extend({
-            deviceType: false,
-            batteryFilter: false,
+            batteryFilter: false
         }, options));
     }
 
@@ -40,12 +39,11 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
 
     }
 
-
     async connect() {
         await super.connect();
 
         this.$elements.refreshButton.on('click', () => {
-            this.updateList({useSelectedData: true});
+            this.updateList($.extend(this.options, {useSelectedData: true}));
             if (this.mainEditor.options.have.output_rules)
                 this.mainEditor.subEditor.output_rules.refresh();
         });
@@ -57,25 +55,6 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
         }
 
     }
-
-
-    filterItem(item) {
-        let device_type = item.meta.type;
-
-        // TODO probably removed when allow setting config of sensors
-        if (this.options.deviceType && this.options.deviceType !== device_type) {
-            return true;
-        }
-
-        // Keep only battery powered devices
-        if (this.options.batteryFilter &&
-            (!("meta" in item) || !("config" in item.meta) || !("battery" in item.meta.config))
-        ) {
-            return true;
-        }
-
-    }
-
 
     async updateList(options) {
         options = $.extend({

@@ -9,6 +9,9 @@ class DeconzMainEditor extends DeconzEditor {
                 commands: false,
                 specific: false
             },
+            device: {
+                batteryFilter: false
+            },
             output_rules: {
                 format: {
                     single: true,
