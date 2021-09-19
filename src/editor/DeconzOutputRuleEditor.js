@@ -34,17 +34,18 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             case 'attribute':
             case 'state':
             case 'config':
-                if (this.node.type === 'deconz-input') {
+                if (this.node.type === 'deconz-input')
                     value.output = this.$elements.output.val();
+                if (['deconz-input', 'deconz-battery'].includes(this.node.type))
                     value.onstart = this.$elements.onstart.is(":checked");
-                }
-                value.payload = this.$elements.payload.multipleSelect('getSelects');
+                if (this.node.type === 'deconz-input')
+                    value.payload = this.$elements.payload.multipleSelect('getSelects');
                 break;
             case 'homekit':
-                if (this.node.type === 'deconz-input') {
+                if (['deconz-input', 'deconz-battery'].includes(this.node.type))
                     value.onstart = this.$elements.onstart.is(":checked");
+                if (this.node.type === 'deconz-input')
                     value.onerror = this.$elements.onerror.is(":checked");
-                }
                 break;
         }
 
@@ -70,6 +71,10 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             rule.output = "always";
             rule.onstart = true;
             rule.onerror = true;
+        }
+
+        if (this.node.type === 'deconz-battery') {
+            rule.onstart = true;
         }
 
         return rule;

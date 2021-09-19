@@ -36,7 +36,7 @@ class OutputMsgFormatter {
                     if (rawEvent[this.rule.type] === undefined) return resultMsgs;
                     break;
                 case 'homekit':
-                    if (rawEvent.state === undefined) return resultMsgs;
+                    if (rawEvent.state === undefined && rawEvent.config === undefined) return resultMsgs;
                     break;
             }
         }
@@ -167,6 +167,7 @@ class OutputMsgFormatter {
     }
 
     generateNewMsg(src_msg) {
+        if (src_msg === undefined) return {};
         return Utils.cloneMessage(src_msg, ['payload', 'payload_format', 'payload_raw', 'meta', 'meta_changed']);
     }
 
@@ -189,7 +190,7 @@ class OutputMsgFormatter {
                 break;
         }
 
-        if (this.node_type === 'deconz-input') msg.topic = this.config.topic;
+        if (['deconz-input', 'deconz-battery'].includes(this.node_type)) msg.topic = this.config.topic;
         if (payloadFormat !== undefined) msg.payload_format = payloadFormat;
         if (rawEvent !== undefined) msg.payload_raw = rawEvent;
         msg.meta = device.data;
@@ -260,7 +261,7 @@ class OutputMsgFormatter {
 
         let msg = {};
         let characteristic = {};
-        if (state !== undefined) {
+        if (this.node_type === 'deconz-input' && state !== undefined) {
             //by types
             if ("type" in deviceMeta && (deviceMeta.type).toLowerCase() === 'window covering device') {
                 characteristic.CurrentPosition = Math.ceil(state.bri / 2.55);

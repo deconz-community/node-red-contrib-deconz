@@ -241,15 +241,14 @@ module.exports = function (RED) {
                     case 'start':
                         switch (target.type) {
                             case 'deconz-input':
+                            case 'deconz-battery':
                                 target.handleDeconzEvent(
                                     news.device,
                                     [],
-                                    {},
+                                    news.device,
                                     {initialEvent: true}
                                 );
                                 break;
-
-                            //TODO Implement other node types (battery)
                         }
 
                         break;
@@ -272,7 +271,7 @@ module.exports = function (RED) {
                                             }).then();
                                             break;
                                         case "changed":
-                                            if (target.type === "deconz-input") {
+                                            if (['deconz-input', 'deconz-battery'].includes(target.type)) {
                                                 target.handleDeconzEvent(
                                                     news.device,
                                                     news.changed,
@@ -302,6 +301,7 @@ module.exports = function (RED) {
                     case 'error':
                         switch (target.type) {
                             case 'deconz-input':
+                            case 'deconz-battery':
                                 target.handleDeconzEvent(
                                     news.device,
                                     [],
