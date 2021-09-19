@@ -38,7 +38,6 @@ module.exports = function (RED) {
                 errorEvent: false
             }, opt);
             this.config.output_rules.forEach((rule, index) => {
-                console.log('battery/handleDeconzEvent', rule);
                 // Only if it's not on start and the start msg are blocked
                 if (!(options.initialEvent === true && rule.onstart !== true)) {
                     // Clean up old msgs
@@ -46,9 +45,6 @@ module.exports = function (RED) {
                     // Format msgs, can get one or many msgs.
                     let formatter = new OutputMsgFormatter(rule, NodeType, this.config);
                     let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
-
-                    console.log("msgToSend", msgToSend);
-
                     // Make sure that the result is an array
                     if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
 
@@ -66,7 +62,6 @@ module.exports = function (RED) {
                     shape: "dot",
                     text: "node-red-contrib-deconz/server:status.connected"
                 });
-
 
             });
         }
