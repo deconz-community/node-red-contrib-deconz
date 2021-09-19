@@ -180,7 +180,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
 
                     case 'scene':
-                        command.new.domain = 'scene_call';
+                        command.domain = 'scene_call';
 
                         // Strip 'group_' from device name
                         let part = this.config.device.substring(6);
@@ -221,6 +221,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
 
                     case 'alert':
+                        command.arg.alert = {};
                         switch (this.config.payloadType) {
                             case 'deconz_payload':
                                 switch (this.config.payload) {
@@ -387,6 +388,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 } else {
                     command.arg.transition.value = parseInt(this.config.transitionTime);
                 }
+                break;
+            case 'undefined':
+                command.arg.transition = {type: 'num'};
                 break;
             default:
                 this.result.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
