@@ -9,7 +9,7 @@ module.exports = function (RED) {
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
-                node.server.registerBatteryNode(node.id);
+
             } else {
                 node.status({
                     fill: "red",
@@ -19,8 +19,6 @@ module.exports = function (RED) {
             }
         }
 
-
-
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
             node.send({
@@ -29,7 +27,6 @@ module.exports = function (RED) {
             });
 
         }
-
 
         sendState(device) {
             var node = this;
