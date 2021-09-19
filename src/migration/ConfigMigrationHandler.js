@@ -28,8 +28,17 @@ class ConfigMigrationHandler {
         this.result.new.search_type = 'device';
         this.result.new.query = '{}';
         this.result.new.device_list = [];
-        // Todo Handle groups
-        let device = this.server.device_list.getDeviceByUniqueID(this.config.device);
+
+        let device;
+        if (this.config.device.substr(0, 6) === 'group_') {
+            device = this.server.device_list.getDeviceByDomainID(
+                'groups',
+                Number(this.config.device.substr(6))
+            );
+        } else {
+            device = this.server.device_list.getDeviceByUniqueID(this.config.device);
+        }
+
         if (device) {
             this.result.new.device_list.push(this.server.device_list.getPathByDevice(device));
         } else {
