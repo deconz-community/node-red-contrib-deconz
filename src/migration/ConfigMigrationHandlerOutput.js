@@ -401,6 +401,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         this.result.delete.push('transitionTimeType');
 
         this.result.new.commands = [command];
+        this.result.new.specific = {
+            delay: 50,
+            result: 'never'
+        };
         this.config_version = 1;
     }
 
