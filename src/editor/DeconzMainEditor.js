@@ -66,7 +66,6 @@ class DeconzMainEditor extends DeconzEditor {
         };
     }
 
-
     async configurationMigration() {
         // Check if we need configuration migration
         if ((this.node.config_version || 0) >= this.node._def.defaults.config_version.value) {
@@ -174,7 +173,6 @@ class DeconzMainEditor extends DeconzEditor {
         await this.subEditor.query.display(type !== 'device');
 
     }
-
 
     oneditsave() {
         if (this.options.have.output_rules) {

@@ -57,18 +57,8 @@ module.exports = function (RED) {
 
                 console.log('OnStart');
             });
-            /*
-            node.server.on('onClose', () => this.onClose());
-            node.server.on('onSocketError', () => this.onSocketError());
-            node.server.on('onSocketClose', () => this.onSocketClose());
-            node.server.on('onSocketOpen', () => this.onSocketOpen());
-            node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-            node.server.on('onNewDevice', (resource, object_index, init) => this.onNewDevice(resource, object_index, init));
-
-             */
 
         }
-
 
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
