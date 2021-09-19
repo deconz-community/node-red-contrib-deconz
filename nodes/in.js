@@ -22,21 +22,6 @@ module.exports = function (RED) {
                 return;
             }
 
-            // Config migration
-            let configMigration = new ConfigMigration(NodeType, node.config, node.server);
-            let migrationResult = configMigration.applyMigration(node.config, node);
-            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                migrationResult.errors.forEach(error => console.error(error));
-            }
-
-            if (node.config.search_type === "device") {
-                node.config.device_list.forEach(function (item) {
-                    node.server.registerNodeByDevicePath(node.config.id, item);
-                });
-            } else {
-                node.server.registerNodeWithQuery(node.config.id);
-            }
-
             node.status({
                 fill: "blue",
                 shape: "dot",
@@ -44,6 +29,21 @@ module.exports = function (RED) {
             });
 
             node.server.on('onStart', () => {
+                // Config migration
+                let configMigration = new ConfigMigration(NodeType, node.config, node.server);
+                let migrationResult = configMigration.applyMigration(node.config, node);
+                if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                    migrationResult.errors.forEach(error => console.error(error));
+                }
+
+                if (node.config.search_type === "device") {
+                    node.config.device_list.forEach(function (item) {
+                        node.server.registerNodeByDevicePath(node.config.id, item);
+                    });
+                } else {
+                    node.server.registerNodeWithQuery(node.config.id);
+                }
+
                 // Display usefull info
                 node.status({
                     fill: "green",
@@ -51,7 +51,6 @@ module.exports = function (RED) {
                     text: "node-red-contrib-deconz/server:status.connected"
                 });
 
-                console.log('OnStart');
             });
 
         }

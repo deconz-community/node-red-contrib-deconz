@@ -24,25 +24,27 @@ module.exports = function (RED) {
                 return;
             }
 
-            // Config migration
-            let configMigration = new ConfigMigration(NodeType, node.config, node.server);
-            let migrationResult = configMigration.applyMigration(node.config, node);
-            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                migrationResult.errors.forEach(error => console.error(error));
-            }
+            node.server.on('onStart', () => {
+                // Config migration
+                let configMigration = new ConfigMigration(NodeType, node.config, node.server);
+                let migrationResult = configMigration.applyMigration(node.config, node);
+                if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                    migrationResult.errors.forEach(error => console.error(error));
+                }
 
 
-            if (node.config.search_type === 'device' && node.config.device_list.length === 0) {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/get:status.device_not_set"
-                });
-                return;
-            }
+                if (node.config.search_type === 'device' && node.config.device_list.length === 0) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/get:status.device_not_set"
+                    });
+                    return;
+                }
 
-            // Cleanup old status
-            node.status({});
+                // Cleanup old status
+                node.status({});
+            });
 
             node.on('input', async (message_in) => {
                 clearTimeout(node.cleanTimer);

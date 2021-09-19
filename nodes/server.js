@@ -57,6 +57,7 @@ module.exports = function (RED) {
                 }, node.refreshDiscoverInterval);
 
                 node.ready = true;
+                node.emit('onStart');
 
                 this.setupDeconzSocket(node);
 

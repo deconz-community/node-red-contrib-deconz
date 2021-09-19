@@ -25,12 +25,14 @@ module.exports = function (RED) {
                 return;
             }
 
-            // Config migration
-            let configMigration = new ConfigMigration(NodeType, node.config, node.server);
-            let migrationResult = configMigration.applyMigration(node.config, node);
-            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                migrationResult.errors.forEach(error => console.error(error));
-            }
+            node.server.on('onStart', () => {
+                // Config migration
+                let configMigration = new ConfigMigration(NodeType, node.config, node.server);
+                let migrationResult = configMigration.applyMigration(node.config, node);
+                if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                    migrationResult.errors.forEach(error => console.error(error));
+                }
+            });
 
             node.cleanTimer = null;
 

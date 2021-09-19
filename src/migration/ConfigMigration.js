@@ -57,7 +57,6 @@ class ConfigMigration {
         }
         result.controller.delete.forEach(k => dotProp.delete(node, k));
 
-
         return result;
     }
 }
