@@ -57,6 +57,7 @@ module.exports = function (RED) {
                         return;
                     }
                 }
+                //TODO wait for migration ?
 
                 let msgs = new Array(this.config.output_rules.length);
                 let devices = [];

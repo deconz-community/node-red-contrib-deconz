@@ -37,6 +37,16 @@ module.exports = function (RED) {
             node.cleanTimer = null;
 
             this.on('input', async (message_in, send, done) => {
+                // Wait until the server is ready
+                if (node.server.ready === false) {
+                    await node.server.waitForReady();
+                    if (node.server.ready === false) {
+                        //TODO send error, the server is not ready
+                        return;
+                    }
+                }
+                //TODO wait for migration ?
+
                 let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
                 if (typeof delay !== 'number') delay = 50;
 
