@@ -47,7 +47,7 @@ class OutputMsgFormatter {
         let generateMsgPayload = (device_list) => {
             let result = {};
             let generateOne = (device, payloadFormat) => {
-                if (checkOutputMethod === undefined || checkOutputMethod(device, payloadFormat, options)) {
+                if (checkOutputMethod === undefined || checkOutputMethod.call(this, device, payloadFormat, options)) {
                     let msg = this.formatDeviceMsg(device, rawEvent, payloadFormat, options);
                     if (msg === null) return;
                     if (result[payloadFormat] === undefined) result[payloadFormat] = [];
