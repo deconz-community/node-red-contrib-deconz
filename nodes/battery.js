@@ -1,31 +1,79 @@
+const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
+const ConfigMigration = require("../src/migration/ConfigMigration");
+
+const NodeType = 'deconz-battery';
 module.exports = function (RED) {
     class deConzItemBattery {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
-            var node = this;
+            let node = this;
             node.config = config;
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (node.server) {
-                node.server.on('onClose', () => this.onClose());
-                node.server.on('onSocketError', () => this.onSocketError());
-                node.server.on('onSocketClose', () => this.onSocketClose());
-                node.server.on('onSocketOpen', () => this.onSocketOpen());
-                node.server.on('onSocketPongTimeout', () => this.onSocketPongTimeout());
-                node.server.on('onNewDevice', (uniqueid) => this.onNewDevice(uniqueid));
-
-                node.sendLastState();
-            } else {
+            if (!node.server) {
                 node.status({
                     fill: "red",
                     shape: "dot",
                     text: "node-red-contrib-deconz/battery:status.server_node_error"
                 });
+                return;
             }
+
+            if (node.config.search_type === "device") {
+                node.config.device_list.forEach(function (item) {
+                    node.server.registerNodeByDevicePath(node.config.id, item);
+                });
+            } else {
+                node.server.registerNodeWithQuery(node.config.id);
+            }
+
         }
 
+        handleDeconzEvent(device, changed, rawEvent, opt) {
+            let node = this;
+            let msgs = new Array(this.config.output_rules.length);
+            let options = Object.assign({
+                initialEvent: false,
+                errorEvent: false
+            }, opt);
+            this.config.output_rules.forEach((rule, index) => {
+                // Only if it's not on start and the start msg are blocked
+                if (!(options.initialEvent === true && rule.onstart !== true)) {
+                    // Clean up old msgs
+                    msgs.fill(undefined);
+                    // Format msgs, can get one or many msgs.
+                    let formatter = new OutputMsgFormatter(rule, NodeType, this.config);
+                    let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
+                    // Make sure that the result is an array
+                    if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
+
+                    // Send msgs
+                    for (let msg of msgToSend) {
+                        msg.topic = this.config.topic;
+                        msg = Object.assign(msg, msg.payload); // For retro-compatibility
+                        msgs[index] = msg;
+                        node.send(msgs);
+                    }
+                }
+
+                //TODO display msg payload if it's possible (one rule and payload a non object value
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.connected"
+                });
+
+            });
+        }
 
         sendState(device) {
             var node = this;
@@ -101,68 +149,10 @@ module.exports = function (RED) {
             }
         }
 
-        formatHomeKit(device) {
-            var msg = {};
-            var characteristic = {};
-
-            //battery status
-            if ("config" in device) {
-                if (device.config['battery'] !== undefined && device.config['battery'] != null) {
-                    characteristic.BatteryLevel = parseInt(device.config['battery']);
-                    characteristic.StatusLowBattery = parseInt(device.config['battery']) <= 15 ? 1 : 0;
-
-                    msg.payload = characteristic;
-                    // msg.topic = "battery";
-                    return msg;
-                }
-            }
-
-            return null;
-        }
-
-        onSocketPongTimeout() {
-            var node = this;
-            node.onSocketError();
-        }
-
-        onSocketError() {
-            var node = this;
-            node.status({
-                fill: "yellow",
-                shape: "dot",
-                text: "node-red-contrib-deconz/battery:status.reconnecting"
-            });
-        }
-
-        onClose() {
-            var node = this;
-            node.onSocketClose();
-        }
-
-        onSocketClose() {
-            var node = this;
-            node.status({
-                fill: "red",
-                shape: "dot",
-                text: "node-red-contrib-deconz/battery:status.disconnected"
-            });
-        }
-
-        onSocketOpen() {
-            var node = this;
-            node.sendLastState();
-        }
-
-        onNewDevice(uniqueid) {
-            var node = this;
-            if (node.config.device === uniqueid) {
-                node.sendLastState();
-            }
-        }
 
     }
 
-    RED.nodes.registerType('deconz-battery', deConzItemBattery);
+    RED.nodes.registerType(NodeType, deConzItemBattery);
 };
 
 

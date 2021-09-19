@@ -1,62 +1,111 @@
 <script type="text/html" data-template-name="deconz-input">
-    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css"/>
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
+    <link rel="stylesheet" href="node-red-contrib-deconz/multiple-select/multiple-select.css" type="text/css">
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css">
+    <div class="deconz-editor">
+        <!--#region --- Main settings --- -->
+        <!-- --- Name --- -->
+        <div class="form-row">
+            <label for="node-input-name" class="l-width">
+                <i class="fa fa-tag"></i>
+                <span data-i18n="node-red:common.label.name"></span>
+            </label>
+            <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+        </div>
 
-    <div class="form-row">
-        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span
-                data-i18n="label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
-                data-i18n="label.server"></span></label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span
-                data-i18n="label.device"></span></label>
-        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
-                data-i18n="label.refresh_devices_list"></span></a>
-    </div>
-    <div class="form-row">
-        <label for="node-input-topic" class="l-width"><i class="fa fa-tasks"></i> <span
-                data-i18n="node-red:common.label.topic">Topic</span></label>
-        <input type="text" id="node-input-topic" autocomplete="off" dir="">
-    </div>
-    <div class="form-row">
-        <label for="node-input-state" class="l-width"><i class="fa fa-tag"></i> <span
-                data-i18n="label.state"></span></label>
-        <select id="node-input-state" class="s-width" data-i18n="[placeholder]multiselect.complete_payload"></select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-output" class="l-width"><i class="fa fa-sign-out"></i> <span
-                data-i18n="label.output"></span></label>
-        <select id="node-input-output" class="s-width">
-            <option value="always" data-i18n="label.always">Always</option>
-            <option value="onchange" data-i18n="label.on_state_change">On state change</option>
-            <option value="onupdate" data-i18n="label.on_update">On update</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for='node-input-outputAtStartup' class="l-width"><i class='fa fa-share-square'></i> <span
-                data-i18n="label.start_output_1"></span></label>
-        <input type="checkbox" id="node-input-outputAtStartup" checked="checked"
-               style="display: inline-block; width: auto; vertical-align: top;"> <span
-            data-i18n="label.start_output_help"></span></input>
-    </div>
-    <div class="form-row">
-        <label for='node-input-outputAtStartup2' class="l-width"><i class='fa fa-share-square'></i> <span
-                data-i18n="label.start_output_2"></span></label>
-        <span data-i18n="label.always"></span>
+        <!-- --- Topic --- -->
+        <div class="form-row">
+            <label for="node-input-topic" class="l-width">
+                <i class="fa fa-tasks"></i>
+                <span data-i18n="node-red:common.label.topic"></span>
+            </label>
+            <input type="text" id="node-input-topic" autocomplete="off">
+        </div>
+
+        <!-- --- Server --- -->
+        <div class="form-row">
+            <label for="node-input-server" class="l-width">
+                <i class="fa fa-globe"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.server.label"></span>
+            </label>
+            <input type="text" id="node-input-server">
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Section Device selection --- -->
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.device"></div>
+
+        <!-- --- Query type (Device/Json/Jsonata --- -->
+        <div class="form-row deconz-node">
+            <label for="node-input-query" class="l-width">
+                <i class="fa fa-search"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.query.label"></span>
+            </label>
+            <input type="text" id="node-input-query">
+            <input type="hidden" id="node-input-search_type">
+        </div>
+
+        <!-- --- Query result list --- -->
+        <div class="form-row deconz-query-selector">
+            <label for="node-input-query_result" class="l-width">
+                <i class="fa fa-crosshairs"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.query_result.label"></span>
+            </label>
+            <select id="node-input-query_result"
+                    class="s-width multiple-select"
+                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.multiselect.none_selected"
+                    multiple="multiple"
+            ></select>
+        </div>
+
+        <!-- --- Refresh query result Button --- -->
+        <div class="form-row deconz-query-selector">
+            <label for="force-refresh-query-result" class="l-width">
+                <i class="fa fa-refresh"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh_query.label"></span>
+            </label>
+            <a class="red-ui-button s-width" id="force-refresh-query-result">
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh_query.button_text"></span>
+            </a>
+        </div>
+
+        <!-- --- Devices list --- -->
+        <div class="form-row deconz-device-selector">
+            <label for="node-input-device_list" class="l-width">
+                <i class="fa fa-crosshairs"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.device.label"></span>
+            </label>
+            <select id="node-input-device_list"
+                    class="s-width multiple-select"
+                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.multiselect.none_selected"
+                    multiple="multiple"
+            ></select>
+        </div>
+
+        <!-- --- Refresh devices list Button --- -->
+        <div class="form-row deconz-device-selector">
+            <label for="force-refresh" class="l-width">
+                <i class="fa fa-refresh"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh.label"></span>
+            </label>
+            <a class="red-ui-button s-width" id="force-refresh">
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh.button_text"></span>
+            </a>
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Section Output --- -->
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.outputs"></div>
+        <!-- --- Output list --- -->
+        <div class="form-row node-input-output-container-row">
+            <ol id="node-input-output-container"></ol>
+        </div>
+        <!--#endregion -->
     </div>
 </script>
 
 
 <script type='text/javascript'>
+
     RED.nodes.registerType('deconz-input', {
         category: 'deCONZ',
         color: '#f7aa3f',
@@ -64,39 +113,65 @@
             name: {
                 value: ""
             },
+            topic: {
+                value: "",
+                required: false
+            },
+            config_version: {
+                value: 1,
+                required: true
+            },
             server: {
                 type: "deconz-server",
                 required: true
             },
-            device: {
-                value: null,
+            search_type: {
+                value: "device_list",
                 required: true
             },
-            device_name: {
-                value: null
-            },
-            topic: {
-                value: null,
+            device_list: {
+                value: [],
                 required: false
             },
-            state: {
+            device_name: {
                 value: ""
             },
-            output: {
-                value: "always"
+            query: {
+                value: "{}",
+                required: false
             },
-            outputAtStartup: {
-                value: true,
-                required: true,
-            }
+            outputs: {
+                value: 1
+            },
+            output_rules: {
+                value: [
+                    {format: 'single', type: 'state', payload: ["__complete__"], output: "always", onstart: true},
+                    //{format: 'single', type: 'homekit', onstart: true, onerror: true},
+                    //{format: 'single', type: 'config', payload: ["__complete__"], when: "always", onstart: true},
+                ]
+            },
+            //#region All next options are for configuration migration from legacy
+            device: {},
+            state: {},
+            output: {},
+            outputAtStartup: {}, // Yes I know it's camelcase, that scratch my brain too ;)
+            //#endregion
         },
         inputs: 0,
-        outputs: 2,
-        outputLabels: ["state", "homekit"],
+        outputs: 1,
+        outputLabels: function (index) {
+            let node = this;
+            let rule = node.output_rules[index];
+            let desc = `#${index + 1} - ${rule.type}`;
+            if (Array.isArray(rule.payload)) {
+                desc += "/" + rule.payload.join();
+            }
+            return desc;
+        },
         paletteLabel: 'in',
         icon: "deconz.png",
         label: function () {
-            var label = 'deconz-input';
+            let label = 'deconz-input';
             if (this.name) {
                 label = this.name;
             } else if (typeof (this.device_name) == 'string' && this.device_name.length) {
@@ -108,80 +183,25 @@
             return label;
         },
         oneditprepare: function () {
-            var node = this;
-            var $outputSelect = $("#node-input-output");
-
-            // Initialize bootstrap multiselect form
-            $outputSelect.multipleSelect({
-                maxHeight: 300,
-                dropWidth: 320,
-                single: !(typeof $(this).attr('multiple') !== typeof undefined && $(this).attr('multiple') !== false),
-                placeholder: "Always"
-            });
-
-
-            var updateOutput = function () {
-                var selectedState = $('#node-input-state option:selected').val();
-                var selectedDevice = $('#node-input-device option:selected').val();
-
-                if ((selectedState != 0 && selectedState != null && selectedDevice.match(/^\d/)) || (node.state != 0 && node.state != null)) {
-                    $outputSelect.closest('.form-row').show();
-                } else {
-                    $outputSelect.closest('.form-row').hide();
-                }
-
-                $outputSelect.multipleSelect('refresh');
-            }
-
-            $('#node-input-state').on("change", function () {
-                state = $('#node-input-state option:selected').val();
-                if (state) {
-                    node.state = state;
-                }
-                if (parseInt(state) === 0) {
-                    $outputSelect.val('always').multipleSelect('refresh');
-                }
-                updateOutput();
-            });
-
-            //$('#node-input-device').change(updateOutput)
-            setTimeout(function () {
-                var $deviceInput = $('#node-input-device');
-
-                deconz_getItemList(node.device, '#node-input-device', {allowEmpty: true, groups: true});
-
-                $deviceInput.on("change", function () {
-                    deconz_getItemStateList(0, '#node-input-state');
-                    device = $('#node-input-device option:selected').val();
-                    if (!device.match(/^\d/) && !device.match(/^group_/)) {
-                        node.state = 0;
+            let node = this;
+            node.nodeEditor = new DeconzMainEditor(node, {
+                have: {
+                    output_rules: true
+                },
+                output_rules: {
+                    type: {
+                        homekit: true
                     }
-                    updateOutput();
-                });
-                setTimeout(function () {
-                    deconz_getItemStateList(node.state, '#node-input-state');
-                }, 100);
-
-                if (!node.output) {
-                    $outputSelect.val('always').multipleSelect('refresh');
                 }
-
-            }, 100); //we need small timeout, too fire change event for server select
+            });
+            node.nodeEditor.init()/*.then(value => {
+                console.log("init done!");
+            })*/;
         },
         oneditsave: function () {
-            var selectedOptions = $('#node-input-device option:selected');
-            if (selectedOptions) {
-                this.device = selectedOptions.map(function () {
-                    return $(this).val();
-                });
-
-                this.device_name = deconz_filterDeviceName(selectedOptions.text());
-            } else {
-                this.device_name = this.device = null;
-            }
+            let node = this;
+            node.nodeEditor.oneditsave();
         }
     });
+
 </script>
-
-
-

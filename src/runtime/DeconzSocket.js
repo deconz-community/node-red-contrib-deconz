@@ -109,9 +109,9 @@ class DeconzSocket extends EventEmitter {
 
         if (!this.shouldClose) {
             setTimeout(() => this.connect(), this.reconnectInterval);
-        } else {
-            this.emit('close', code, reason);
         }
+
+        this.emit('close', code, reason);
     }
 
     onPing() {
@@ -139,7 +139,7 @@ class DeconzSocket extends EventEmitter {
     }
 
     onUnexpectedResponse(req, res) {
-        if (res && res.statusCode == 401) {
+        if (res && res.statusCode === 401) {
             return this.emit('unauthorized'), req, res;
         }
 

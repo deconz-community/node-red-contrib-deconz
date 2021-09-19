@@ -1,280 +1,174 @@
-const DeconzHelper = require('../lib/DeconzHelper.js');
-var request = require('request');
+const CommandParser = require("../src/runtime/CommandParser");
+const Utils = require("../src/runtime/Utils");
+const got = require('got');
+const ConfigMigration = require("../src/migration/ConfigMigration");
 
+const NodeType = 'deconz-output';
 module.exports = function (RED) {
     class deConzOut {
         constructor(config) {
             RED.nodes.createNode(this, config);
 
-            var node = this;
+            let node = this;
             node.config = config;
+
+            // Config migration
+            let configMigration = new ConfigMigration(NodeType, node.config);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(error => console.error(error));
+            }
 
             node.status({}); //clean
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
-            if (node.server) {
-                node.server.devices[node.id] = node.config.device; //register node in devices list
-
-            } else {
+            if (!node.server) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/out:status.server_node_error"
+                    text: "node-red-contrib-deconz/in:status.server_node_error"
                 });
+                return;
             }
 
-            node.payload = config.payload;
-            node.payloadType = config.payloadType;
-            node.command = config.command;
-            node.commandType = config.commandType;
             node.cleanTimer = null;
 
-            // if (typeof(config.device) == 'string'  && config.device.length) {
+            this.on('input', async (message_in, send, done) => {
+                let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
+                if (typeof delay !== 'number') delay = 50;
 
-
-            this.on('input', function (message) {
-                clearTimeout(node.cleanTimer);
-
-                var payload;
-                switch (node.payloadType) {
-                    case 'flow':
-                    case 'global': {
-                        RED.util.evaluateNodeProperty(node.payload, node.payloadType, this, message, function (error, result) {
-                            if (error) {
-                                node.error(error, message);
-                            } else {
-                                payload = result;
-                            }
-                        });
-                        break;
-                    }
-                    case 'date': {
-                        payload = Date.now();
-                        break;
-                    }
-                    case 'deconz_payload':
-                        payload = node.payload;
-                        break;
-
-                    case 'num': {
-                        payload = parseInt(node.config.payload);
-                        break;
-                    }
-
-                    case 'str': {
-                        payload = node.config.payload;
-                        break;
-                    }
-
-                    case 'object': {
-                        payload = node.config.payload;
-                        break;
-                    }
-
-                    case 'homekit':
-                    case 'msg':
-                    default: {
-                        payload = message[node.payload];
-                        break;
-                    }
-                }
-
-                var command;
-                switch (node.commandType) {
-                    case 'msg': {
-                        command = message[node.command];
-                        break;
-                    }
-                    case 'deconz_cmd':
-                        command = node.command;
-                        switch (command) {
-                            case 'on':
-                                payload = payload && payload !== '0';
-                                break;
-
-                            case 'toggle':
-                                command = "on";
-                                var deviceMeta = node.server.getDevice(node.config.device);
-                                if (deviceMeta !== undefined && "device_type" in deviceMeta && deviceMeta.device_type === 'groups' && deviceMeta && "state" in deviceMeta && "all_on" in deviceMeta.state) {
-                                    payload = !deviceMeta.state.all_on;
-                                } else if (deviceMeta !== undefined && deviceMeta && "state" in deviceMeta && "on" in deviceMeta.state) {
-                                    payload = !deviceMeta.state.on;
-                                } else {
-                                    payload = false;
-                                }
-                                break;
-
-                            case 'bri':
-                            case 'hue':
-                            case 'sat':
-                            case 'ct':
-                            case 'scene': // added scene, payload is the scene ID
-                            case 'colorloopspeed':
-                                // case 'transitiontime':
-                                payload = parseInt(payload);
-                                break;
-
-                            case 'json':
-                            case 'alert':
-                            case 'effect':
-                            default: {
-                                break;
-                            }
+                //clearTimeout(node.cleanTimer);
+                let devices = [];
+                switch (node.config.search_type) {
+                    case 'device':
+                        for (let path of node.config.device_list) {
+                            devices.push({data: node.server.device_list.getDeviceByPath(path)});
                         }
                         break;
-
-                    case 'homekit':
-                        payload = node.formatHomeKit(message, payload);
+                    case 'json':
+                    case 'jsonata':
+                        let querySrc = RED.util.evaluateJSONataExpression(
+                            RED.util.prepareJSONataExpression(node.config.query, node),
+                            message_in,
+                            undefined
+                        );
+                        for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                            devices.push({data: r});
+                        }
                         break;
-
-                    case 'str':
-                    default: {
-                        command = node.command;
-                        break;
-                    }
                 }
 
-                //empty payload, stop
-                if (payload === null) {
-                    return false;
+                let resultMsgs = [];
+                let errorMsgs = [];
+                let resultTimings = ['never', 'after_command', 'at_end'];
+                let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
+                if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
+
+                for (const [id, command] of node.config.commands.entries()) {
+                    if (command.type === 'pause') {
+                        await Utils.sleep(Utils.getNodeProperty(command.arg.delay, this, message_in), 2000);
+                        continue;
+                    }
+
+                    try {
+                        let cp = new CommandParser(command, message_in, node);
+                        let requests = cp.getRequests(node, devices);
+                        for (const request of requests) {
+                            try {
+                                const response = await got(
+                                    node.server.api.url.main() + request.endpoint,
+                                    {
+                                        method: 'PUT',
+                                        retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
+                                        json: request.params,
+                                        responseType: 'json',
+                                        timeout: 2000 // TODO make configurable ?
+                                    }
+                                );
+
+                                if (resultTiming !== 'never') {
+                                    let result = {};
+                                    let errors = [];
+                                    for (const r of response.body) {
+                                        if (r.success !== undefined)
+                                            for (const [enpointKey, value] of Object.entries(r.success))
+                                                result[enpointKey.replace(request.endpoint + '/', '')] = value;
+                                        if (r.error !== undefined) errors.push(r.error);
+                                    }
+
+                                    let resultMsg = {};
+                                    if (resultTiming === 'after_command') {
+                                        resultMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                        resultMsg.payload = result;
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsg.result = result;
+                                    }
+
+                                    resultMsg.request = request.params;
+                                    resultMsg.meta = request.meta;
+                                    if (request.scene_meta !== undefined)
+                                        resultMsg.scene_meta = request.scene_meta;
+                                    if (errors.length > 0)
+                                        resultMsg.errors = errors;
+
+                                    if (resultTiming === 'after_command') {
+                                        send(resultMsg);
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsgs.push(resultMsg);
+                                    }
+                                }
+                                await Utils.sleep(delay - response.timings.phases.total);
+                            } catch (error) {
+                                if (resultTiming !== 'never') {
+                                    let errorMsg = {};
+                                    if (resultTiming === 'after_command') {
+                                        errorMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                    }
+
+                                    errorMsg.request = request.params;
+                                    errorMsg.meta = request.meta;
+                                    errorMsg.errors = [{
+                                        type: 0,
+                                        code: error.response.statusCode,
+                                        message: error.response.statusMessage,
+                                        description: `${error.name}: ${error.message}`,
+                                        apiEndpoint: request.endpoint
+                                    }];
+
+                                    if (resultTiming === 'after_command') {
+                                        send(errorMsg);
+                                    } else if (resultTiming === 'at_end') {
+                                        resultMsgs.push(errorMsg);
+                                    }
+                                }
+
+                                if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
+
+                                await Utils.sleep(delay - error.timings.phases.total);
+                            }
+                        }
+                    } catch (error) {
+                        node.error(`Error while processing command #${id + 1}, ${error}`, message_in);
+                    }
+
                 }
 
-
-                //send data to API
-                var deviceMeta = node.server.getDevice(node.config.device);
-                if (deviceMeta !== undefined && deviceMeta && "device_id" in deviceMeta) {
-                    let url = 'http://' + node.server.ip + ':' + node.server.port + '/api/' + node.server.credentials.secured_apikey;
-                    if (command == 'scene') { // make a new URL for recalling the scene
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        url += '/groups/' + groupid + '/scenes/' + payload + '/recall';
-                    } else if ((/group_/g).test(node.config.device)) {
-                        var groupid = ((node.config.device).split('group_').join(''));
-                        url += '/groups/' + groupid + '/action';
-                    } else {
-                        url += '/lights/' + deviceMeta.device_id + '/state';
-                    }
-                    var post = {};
-                    if (node.commandType == 'object' || node.commandType == 'homekit') {
-                        post = payload;
-                    } else if (command != 'scene') { // scene doesn't have a post payload, so keep it empty.
-                        if (command != 'on') post['on'] = true;
-                        if (command == 'bri') post['on'] = payload > 0 ? true : false;
-                        post[command] = payload;
-                    }
-
-                    let transitionTime = parseInt(RED.util.evaluateNodeProperty(config.transitionTime, config.transitionTimeType || "num", node, message));
-                    if (config.transitionTime !== "" && transitionTime >= 0) {
-                        post['transitiontime'] = transitionTime;
-                    }
-
-                    node.postData(url, post);
-                } else {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/out:status.device_not_set"
-                    });
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-
+                if (resultTiming === 'at_end') {
+                    let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
+                    endMsg.payload = resultMsgs;
+                    if (errorMsgs.length > 0)
+                        endMsg.errors = errorMsgs;
+                    send(endMsg);
                 }
+
             });
-            // } else {
-            //     node.status({
-            //         fill: "red",
-            //         shape: "dot",
-            //         text: 'Device not set'
-            //     });
-            // }
+
         }
 
-
-        postData(url, post) {
-            var node = this;
-            // node.log('Requesting url: '+url);
-            // console.log(post);
-
-            request.put({
-                url: url,
-                form: JSON.stringify(post)
-            }, function (error, response, body) {
-                if (error && typeof (error) === 'object') {
-                    node.warn(error);
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/out:status.connection"
-                    });
-
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-                } else if (body) {
-                    var response = JSON.parse(body)[0];
-
-                    if ('success' in response) {
-                        node.status({
-                            fill: "green",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/out:status.ok"
-                        });
-                    } else if ('error' in response) {
-                        response.error.post = post; //add post data
-                        node.warn('deconz-out ERROR: ' + response.error.description);
-                        node.warn(response.error);
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/out:status.error"
-                        });
-                    }
-
-                    node.cleanTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-                }
-            });
-        }
-
-        formatHomeKit(message, payload) {
-            if (message.hap.context === undefined) {
-                return null;
-            }
-
-            var node = this;
-            // var deviceMeta = node.server.getDevice(node.config.device);
-
-
-            var msg = {};
-
-            if (payload.On !== undefined) {
-                msg['on'] = payload.On;
-            } else if (payload.Brightness !== undefined) {
-                msg['bri'] = DeconzHelper.convertRange(payload.Brightness, [0, 100], [0, 255]);
-                if (payload.Brightness >= 254) payload.Brightness = 255;
-                msg['on'] = payload.Brightness > 0
-            } else if (payload.Hue !== undefined) {
-                msg['hue'] = DeconzHelper.convertRange(payload.Hue, [0, 360], [0, 65535]);
-                msg['on'] = true;
-            } else if (payload.Saturation !== undefined) {
-                msg['sat'] = DeconzHelper.convertRange(payload.Saturation, [0, 100], [0, 255]);
-                msg['on'] = true;
-            } else if (payload.ColorTemperature !== undefined) {
-                msg['ct'] = DeconzHelper.convertRange(payload.ColorTemperature, [140, 500], [153, 500]);
-                msg['on'] = true;
-            } else if (payload.TargetPosition !== undefined) {
-                msg['on'] = payload.TargetPosition > 0;
-                msg['bri'] = DeconzHelper.convertRange(payload.TargetPosition, [0, 100], [0, 255]);
-            }
-
-
-            return msg;
-        }
     }
 
-    RED.nodes.registerType('deconz-output', deConzOut);
+    RED.nodes.registerType(NodeType, deConzOut);
 };
 
 

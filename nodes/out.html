@@ -1,45 +1,100 @@
 <script type="text/html" data-template-name="deconz-output">
-    <link rel="stylesheet" href="deconz/static/css/multiple-select.css" type="text/css"/>
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
+    <link rel="stylesheet" href="node-red-contrib-deconz/multiple-select/multiple-select.css" type="text/css">
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css">
+    <div class="deconz-editor">
+        <!--#region --- Main settings --- -->
+        <!-- --- Name --- -->
+        <div class="form-row">
+            <label for="node-input-name" class="l-width">
+                <i class="fa fa-tag"></i>
+                <span data-i18n="node-red:common.label.name"></span>
+            </label>
+            <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+        </div>
 
-    <div class="form-row">
-        <label for="node-input-name" class="l-width"><i class="icon-tag"></i> <span
-                data-i18n="label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]placeholder.name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-server" class="l-width"><i class="fa fa-globe"></i> <span
-                data-i18n="label.server"></span></label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-device" class="l-width"><i class="fa fa-crosshairs"></i> <span
-                data-i18n="label.device"></span></label>
-        <select id="node-input-device" class="s-width" data-i18n="[placeholder]multiselect.none_selected"></select>
-    </div>
-    <div class="form-row">
-        <label for="force-refresh" class="l-width"><i class="fa fa-refresh"></i> <span data-i18n="label.refresh"></span></label>
-        <a class="red-ui-button s-width" id="force-refresh" name="force-refresh"><span
-                data-i18n="label.refresh_devices_list"></span></a>
-    </div>
-    <div class="form-row">
-        <label for="node-input-command" class="l-width"><i class="fa fa-tasks"></i> <span
-                data-i18n="label.command"></span></label>
-        <input type="text" id="node-input-command" style="width:70%">
-        <input type="hidden" id="node-input-commandType">
-    </div>
-    <div class="form-row">
-        <label for="node-input-payload" class="l-width"><i class="fa fa-envelope"></i> <span
-                data-i18n="label.payload"></span></label>
-        <input type="text" id="node-input-payload" style="width:70%">
-        <input type="hidden" id="node-input-payloadType">
-    </div>
-    <hr>
-    <h4><span data-i18n="label.options"></span></h4>
-    <div class="form-row">
-        <label for="node-input-transitionTime" class="l-width"><span data-i18n="label.transition_time"></span></label>
-        <input type="text" id="node-input-transitionTime" data-i18n="[placeholder]placeholder.transition_time">
-        <input type="hidden" id="node-input-transitionTimeType">
+        <!-- --- Server --- -->
+        <div class="form-row">
+            <label for="node-input-server" class="l-width">
+                <i class="fa fa-globe"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.server.label"></span>
+            </label>
+            <input type="text" id="node-input-server">
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Section Device selection --- -->
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.device"></div>
+
+        <!-- --- Query type (Device/Json/Jsonata --- -->
+        <div class="form-row deconz-node">
+            <label for="node-input-query" class="l-width">
+                <i class="fa fa-search"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.query.label"></span>
+            </label>
+            <input type="text" id="node-input-query">
+            <input type="hidden" id="node-input-search_type">
+        </div>
+
+        <!-- --- Query result list --- -->
+        <div class="form-row deconz-query-selector">
+            <label for="node-input-query_result" class="l-width">
+                <i class="fa fa-crosshairs"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.query_result.label"></span>
+            </label>
+            <select id="node-input-query_result"
+                    class="s-width multiple-select"
+                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.multiselect.none_selected"
+                    multiple="multiple"
+            ></select>
+        </div>
+
+        <!-- --- Refresh query result Button --- -->
+        <div class="form-row deconz-query-selector">
+            <label for="force-refresh-query-result" class="l-width">
+                <i class="fa fa-refresh"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh_query.label"></span>
+            </label>
+            <a class="red-ui-button s-width" id="force-refresh-query-result">
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh_query.button_text"></span>
+            </a>
+        </div>
+
+        <!-- --- Devices list --- -->
+        <div class="form-row deconz-device-selector">
+            <label for="node-input-device_list" class="l-width">
+                <i class="fa fa-crosshairs"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.device.label"></span>
+            </label>
+            <select id="node-input-device_list"
+                    class="s-width multiple-select"
+                    data-i18n="[placeholder]node-red-contrib-deconz/server:editor.multiselect.none_selected"
+                    multiple="multiple"
+            ></select>
+        </div>
+
+        <!-- --- Refresh devices list Button --- -->
+        <div class="form-row deconz-device-selector">
+            <label for="force-refresh" class="l-width">
+                <i class="fa fa-refresh"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh.label"></span>
+            </label>
+            <a class="red-ui-button s-width" id="force-refresh">
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.device.refresh.button_text"></span>
+            </a>
+        </div>
+        <!--#endregion -->
+
+        <!--#region --- Specific --- -->
+        <div id="specific-container"></div>
+        <!--#endregion -->
+
+        <!--#region --- Section Output --- -->
+        <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.commands"></div>
+        <!-- --- Output list --- -->
+        <div class="form-row node-input-output-container-row">
+            <ol id="node-input-output-container"></ol>
+        </div>
+        <!--#endregion -->
     </div>
 </script>
 
@@ -52,43 +107,52 @@
             name: {
                 value: ""
             },
+            config_version: {
+                value: 1,
+                required: true
+            },
             server: {
                 type: "deconz-server",
                 required: true
             },
-            device: {
-                value: "",
+            search_type: {
+                value: "device_list",
                 required: true
             },
+            device_list: {
+                value: [],
+                required: false
+            },
             device_name: {
-                value: null
+                value: ""
             },
-            command: {
-                value: 'on',
+            query: {
+                value: "{}",
+                required: false
             },
-            commandType: {
-                value: 'deconz_cmd',
+            commands: {
+                value: [{type: 'deconz_state'}]
             },
-            payload: {
-                value: 'payload',
+            specific: {
+                value: {}
             },
-            payloadType: {
-                value: 'msg',
-            },
-            transitionTime: {
-                value: null
-            },
-            transitionTimeType: {
-                value: 'num',
-            },
+            //#region All next options are for configuration migration from legacy
+            device: {},
+            command: {},
+            commandType: {},
+            payload: {},
+            payloadType: {},
+            transitionTime: {},
+            transitionTimeType: {},
+            //#endregion
         },
         inputLabels: "event",
         paletteLabel: 'out',
         inputs: 1,
-        outputs: 0,
+        outputs: 1,
         icon: "deconz.png",
         label: function () {
-            var label = 'deconz-out';
+            let label = 'deconz-out';
             if (this.name) {
                 label = this.name;
             } else if (typeof (this.device_name) == 'string' && this.device_name.length) {
@@ -100,194 +164,15 @@
             return label;
         },
         oneditprepare: function () {
-            var node = this;
-
-            var topicTypes = {
-                value: 'deconz_cmd',
-                label: 'deCONZ',
-                icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                options: [
-                    {'value': 'on', 'label': 'Switch (true/false)'},
-                    {'value': 'toggle', 'label': 'Toggle'},
-                    {'value': 'bri', 'label': 'Brightness (0..255)'},
-                    {'value': 'hue', 'label': 'Hue (0..65535)'},
-                    {'value': 'sat', 'label': 'Saturation (0..255)'},
-                    {'value': 'ct', 'label': 'Color Temperature (153..500)'},
-                    {'value': 'scene', 'label': 'Scene'},
-                    'xy',
-                    'alert',
-                    'effect',
-                    'colorloopspeed'
-                ]
-            };
-            $('#node-input-command').typedInput({
-                types: [topicTypes, {
-                    value: 'homekit',
-                    label: 'homekit',
-                    icon: 'icons/node-red-contrib-deconz/homekit-logo.png',
-                    options: ['homekit']
-                }, 'str', 'msg', {value: 'object', label: 'object', options: ['json']}],
-                default: 'msg',
-                value: 'topic',
-                typeField: $('#node-input-commandType'),
+            let node = this;
+            node.nodeEditor = new DeconzMainEditor(node, {
+                have: {commands: true, specific: true}
             });
-
-            $("#node-input-transitionTime").typedInput({
-                type: "num",
-                types: ["num", "msg", "flow", "global"],
-                typeField: "#node-input-transitionTimeType"
-            })
-
-            $('#node-input-device').on('change', function (type, value) {
-                $('#node-input-command').trigger('change');
-            });
-
-            $('#node-input-command').on('change', function (type, value) {
-                var val = $(this).val();
-                //chane options
-                var deconzOptions = {};
-
-                if ('on' === val) {
-                    deconzOptions = [
-                        {'value': '1', 'label': 'On'},
-                        {'value': '0', 'label': 'Off'}
-                    ];
-                } else if ('ct' === val) {
-                    deconzOptions = [
-                        {'value': '153', 'label': 'Cold'},
-                        {'value': '320', 'label': 'White'},
-                        {'value': '500', 'label': 'Warm'}
-                    ];
-                } else if ('effect' === val) {
-                    deconzOptions = [
-                        {'value': 'none', 'label': 'None'},
-                        {'value': 'colorloop', 'label': 'Color Loop'}
-                    ];
-                } else if ('alert' === val) {
-                    deconzOptions = [
-                        {'value': 'none', 'label': 'None'},
-                        {'value': 'select', 'label': 'Blink short'},
-                        {'value': 'lselect', 'label': 'Blink log'}
-                    ];
-                } else if ('scene' === val) {
-                    // console.log(node);
-                    // console.log(node.device);
-                    // console.log(node.device.meta);
-                    // node.server.getDevice(node.config.device)
-
-                    $.getJSON('deconz/getScenesByDevice', {
-                        controllerID: node.server,
-                        device: $('#node-input-device').val() || node.device
-                    }).done(function (data, textStatus, jqXHR) {
-                        try {
-                            var list = [];
-                            if (data.length) {
-                                $.each(data, function (index, value) {
-                                    list.push({'value': value.id + "", 'label': value.name});
-                                });
-                            } else {
-                                list = [{'value': "0", 'label': 'No scenes avaiable'}];
-                            }
-
-                            deconzOptions = list;
-
-                            //todo: code duplication
-                            if (deconzOptions.length) {
-                                var payloadTypes = {
-                                    value: 'deconz_payload',
-                                    label: 'deCONZ',
-                                    icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                                    options: deconzOptions
-                                };
-                                $('#node-input-payloadType').val(node.payloadType);
-                                $('#node-input-payload').typedInput('types', [payloadTypes, 'msg', 'flow', 'global', 'str', 'num', 'date']);
-                                $('#node-input-payload').typedInput('type', 'deconz_payload');
-                            } else {
-                                $('#node-input-payload').typedInput('types', ['msg', 'flow', 'global', 'str', 'num', 'date']);
-                            }
-
-
-                            // console.log(node);
-                            // $('#node-input-payloadType').typedInput('value', node.payload);
-
-                        } catch (error) {
-                            console.error('Error #4534');
-                            console.log(error);
-                        }
-
-                    }).fail(function (jqXHR, textStatus, errorThrown) {
-
-                    });
-                }
-
-
-                if (deconzOptions.length) {
-                    var payloadTypes = {
-                        value: 'deconz_payload',
-                        label: 'deCONZ',
-                        icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                        options: deconzOptions
-                    };
-                    $('#node-input-payload').typedInput('types', [payloadTypes, 'msg', 'flow', 'global', 'str', 'num', 'date']);
-                } else {
-                    $('#node-input-payload').typedInput('types', ['msg', 'flow', 'global', 'str', 'num', 'date']);
-                }
-
-                //show/hide
-                if (['toggle'].indexOf(val) >= 0) {
-                    $('#node-input-payload').closest('.form-row').hide();
-                } else {
-                    $('#node-input-payload').closest('.form-row').show();
-                }
-            });
-
-
-            //init typedInput
-            var payloadTypes = {
-                value: 'deconz_payload',
-                label: 'deCONZ',
-                icon: 'icons/node-red-contrib-deconz/icon-color.png',
-                options: []
-            };
-            $('#node-input-payload').typedInput({
-                types: [payloadTypes, 'msg', 'flow', 'global', 'str', 'num'],
-                default: 'msg',
-                value: 'payload',
-                typeField: $('#node-input-payloadType'),
-            });
-            $('#node-input-commandType').val(node.commandType);
-            $('#node-input-payloadType').val(node.payloadType);
-
-
-            setTimeout(function () {
-                var $deviceInput = $('#node-input-device');
-
-                deconz_getItemList(node.device, '#node-input-device', {
-                    allowEmpty: true,
-                    deviceType: 'lights',
-                    groups: true
-                });
-
-                $deviceInput.on('change', function () {
-                    deconz_getItemStateList(0, '#node-input-state');
-                });
-                setTimeout(function () {
-                    deconz_getItemStateList(node.state, '#node-input-state');
-                }, 100);
-            }, 100); //we need small timeout, too fire change event for server select
+            node.nodeEditor.init();
         },
-
         oneditsave: function () {
-            var selectedOptions = $('#node-input-device option:selected');
-            if (selectedOptions) {
-                this.device = selectedOptions.map(function () {
-                    return $(this).val();
-                });
-
-                this.device_name = deconz_filterDeviceName(selectedOptions.text());
-            } else {
-                this.device_name = this.device = null;
-            }
+            let node = this;
+            node.nodeEditor.oneditsave();
         }
     });
 </script>

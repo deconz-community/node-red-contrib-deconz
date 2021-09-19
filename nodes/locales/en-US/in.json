@@ -4,7 +4,10 @@
     "server": "Server",
     "device": "Device",
     "state": "State",
+    "config": "Config",
     "output": "Output",
+    "state_output": "State Output",
+    "config_output": "Config Output",
     "refresh": "Refresh",
     "refresh_devices_list": "Refresh Devices List",
     "start_output_1": "Start Output #1",
@@ -12,9 +15,17 @@
     "start_output_help": "Send state on start",
     "always": "Always",
     "on_state_change": "On state change",
+    "on_config_change": "On config change",
     "on_update": "On update",
     "devices": "Devices",
-    "light_groups": "Light Groups"
+    "light_groups": "Light Groups",
+    "search_type": "Search",
+    "query": "Query",
+    "query_result": "Query result",
+    "output_device_separator": "Devices selection",
+    "output_state_separator": "Output State",
+    "output_homekit_separator": "Output Homekit",
+    "output_3_separator": "Output Config"
   },
   "placeholder": {
     "name": "Name"
@@ -25,14 +36,21 @@
     "server_node_error": "server node error",
     "not_reachable": "not reachable",
     "device_not_set": "device not set",
-    "reconnecting": "reconnecting..."
+    "reconnecting": "reconnecting...",
+    "starting": "starting..."
   },
   "multiselect": {
     "groups": "Light Groups",
     "devices": "Devices",
     "filter_devices": "Filter devices...",
     "refresh": "Refresh devices list",
+    "refresh_query": "Refresh query result",
     "none_selected": "None selected",
-    "complete_payload": "Complete state payload"
+    "complete_payload": "Complete state payload",
+    "each_state": "Each state payload",
+    "each_changed_state": "Each changed state payload",
+    "complete_config_payload": "Complete config payload",
+    "each_config": "Each config payload",
+    "each_changed_config": "Each changed config payload"
   }
 }
