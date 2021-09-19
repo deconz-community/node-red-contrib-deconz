@@ -61,7 +61,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         value: false
                                     };
                                 } else {
-                                    this.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
                                 }
                                 break;
                             case 'num':
@@ -76,11 +76,11 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         value: false
                                     };
                                 } else {
-                                    this.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
                                 }
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option Switch (true/false)`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option Switch (true/false)`);
                                 break;
                         }
                         break;
@@ -108,13 +108,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 command.arg[this.config.command].type = 'num';
                                 if (isNaN(this.config.payload)) {
-                                    this.errors.push(`Invalid value '${this.config.payload}' for option '${this.config.command}'`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option '${this.config.command}'`);
                                 } else {
                                     command.arg[this.config.command].value = parseInt(this.config.payload);
                                 }
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option '${this.config.command}'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option '${this.config.command}'`);
                                 break;
                         }
                         break;
@@ -137,7 +137,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         break;
                                     default:
                                         if (isNaN(this.config.payload)) {
-                                            this.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
+                                            this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                         } else {
                                             command.arg.ct.type = 'num';
                                             command.arg.ct.value = parseInt(this.config.payload);
@@ -155,13 +155,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 command.arg.ct.type = 'num';
                                 if (isNaN(this.config.payload)) {
-                                    this.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                 } else {
                                     command.arg.ct.value = parseInt(this.config.payload);
                                 }
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'ct'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'ct'`);
                                 break;
                         }
                         break;
@@ -174,7 +174,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 command.arg.xy.value = this.config.payload;
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'xy'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'xy'`);
                                 break;
                         }
                         break;
@@ -185,7 +185,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         // Strip 'group_' from device name
                         let part = this.config.device.substring(6);
                         if (part.length === 0 || isNaN(part)) {
-                            this.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
+                            this.result.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
                         } else {
                             command.arg.group = {
                                 type: 'num',
@@ -198,7 +198,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                             case 'num':
                                 if (isNaN(this.config.payload)) {
-                                    this.errors.push(`Invalid scene ID '${this.config.payload}' for calling scene`);
+                                    this.result.errors.push(`Invalid scene ID '${this.config.payload}' for calling scene`);
                                 } else {
                                     command.arg.scene = {
                                         type: 'num',
@@ -215,7 +215,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 };
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for calling scene`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for calling scene`);
                                 break;
                         }
                         break;
@@ -230,7 +230,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         command.arg.alert.type = this.config.payload;
                                         break;
                                     default:
-                                        this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
+                                        this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
                                         break;
                                 }
                                 break;
@@ -246,7 +246,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 command.arg.alert.value = this.config.payload.toString();
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
                                 break;
                         }
                         break;
@@ -260,7 +260,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         command.arg.effect.type = this.config.payload;
                                         break;
                                     default:
-                                        this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
+                                        this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
                                         break;
                                 }
                                 break;
@@ -276,7 +276,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 command.arg.effect.value = this.config.payload.toString();
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
                                 break;
                         }
                         break;
@@ -293,13 +293,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 command.arg.ct.type = 'num';
                                 if (isNaN(this.config.payload)) {
-                                    this.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                 } else {
                                     command.arg.ct.value = parseInt(this.config.payload);
                                 }
                                 break;
                             default:
-                                this.errors.push(`Invalid value type '${this.config.payloadType}' for option 'ct'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'ct'`);
                                 break;
                         }
                         break;
@@ -327,7 +327,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         };
                         break;
                     default:
-                        this.errors.push(`Invalid value type '${this.config.payloadType}' for option Switch (true/false)`);
+                        this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option Switch (true/false)`);
                         break;
                 }
                 break;
@@ -383,13 +383,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             case 'num':
                 command.arg.transition = {type: 'num'};
                 if (isNaN(this.config.transitionTime)) {
-                    this.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
+                    this.result.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
                 } else {
                     command.arg.transition.value = parseInt(this.config.transitionTime);
                 }
                 break;
             default:
-                this.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
+                this.result.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
                 break;
         }
 
