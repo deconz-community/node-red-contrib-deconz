@@ -11,7 +11,7 @@ class DeconzDeviceListEditor extends DeconzEditor {
     get xhrParams() {
         return {
             controllerID: this.mainEditor.serverNode.id,
-            forceRefresh: this.options.refresh,
+            forceRefresh: this.options.refresh
         };
     }
 
