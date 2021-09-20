@@ -306,6 +306,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
                 }
 
+                if (this.config.command !== 'on')
+                    command.arg.on = {type: 'set', value: 'true'};
+                if (this.config.command === 'bri' && !isNaN(this.config.payload))
+                    command.arg.on = {type: 'set', value: Number(this.config.payload) > 0 ? 'true' : 'false'};
                 break;
 
             case 'homekit':
