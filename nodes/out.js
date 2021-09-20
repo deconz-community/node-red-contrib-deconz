@@ -2,6 +2,7 @@ const CommandParser = require("../src/runtime/CommandParser");
 const Utils = require("../src/runtime/Utils");
 const got = require('got');
 const ConfigMigration = require("../src/migration/ConfigMigration");
+const dotProp = require("dot-prop");
 
 const NodeType = 'deconz-output';
 module.exports = function (RED) {
@@ -179,7 +180,7 @@ module.exports = function (RED) {
                                         resultMsgs.push(resultMsg);
                                     }
                                 }
-                                await Utils.sleep(delay - response.timings.phases.total);
+                                await Utils.sleep(delay - dotProp.get(response, 'timings.phases.total', 0));
                             } catch (error) {
                                 if (resultTiming !== 'never') {
                                     let errorMsg = {};
@@ -191,8 +192,8 @@ module.exports = function (RED) {
                                     errorMsg.meta = request.meta;
                                     errorMsg.errors = [{
                                         type: 0,
-                                        code: error.response.statusCode,
-                                        message: error.response.statusMessage,
+                                        code: dotProp.get(error, 'response.statusCode'),
+                                        message: dotProp.get(error, 'response.statusMessage'),
                                         description: `${error.name}: ${error.message}`,
                                         apiEndpoint: request.endpoint
                                     }];
@@ -207,7 +208,7 @@ module.exports = function (RED) {
                                 if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
 
                                 if (error.timings !== undefined) {
-                                    await Utils.sleep(delay - error.timings.phases.total);
+                                    await Utils.sleep(delay - dotProp.get(error, 'timings.phases.total', 0));
                                 } else {
                                     await Utils.sleep(delay);
                                 }
