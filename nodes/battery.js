@@ -56,7 +56,7 @@ module.exports = function (RED) {
                 // Make sure that all expected config are defined
                 node.config = Object.assign({}, defaultConfig, node.config);
 
-                if (node.config.search_type === "device") {
+                if (node.config.search_type === 'device') {
                     node.config.device_list.forEach(function (item) {
                         node.server.registerNodeByDevicePath(node.config.id, item);
                     });

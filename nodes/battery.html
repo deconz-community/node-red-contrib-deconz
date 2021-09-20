@@ -164,7 +164,7 @@
             let rule = node.output_rules[index];
             let desc = `#${index + 1} - ${rule.type}`;
             if (Array.isArray(rule.payload)) {
-                desc += "/" + rule.payload.join();
+                desc += '/' + rule.payload.join();
             }
             return desc;
         },
