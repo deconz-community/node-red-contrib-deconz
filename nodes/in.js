@@ -4,6 +4,28 @@ const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 
 const NodeType = 'deconz-input';
 module.exports = function (RED) {
+
+    const defaultConfig = {
+        name: "",
+        topic: "",
+        search_type: "device",
+        device_list: [],
+        device_name: "",
+        query: "",
+        outputs: 0,
+        output_rules: [],
+    };
+
+    const defaultRule = {
+        type: "state",
+        format: "single",
+        output: "always",
+        onstart: true,
+        payload: [
+            "__complete__"
+        ]
+    };
+
     class deConzItemIn {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -38,6 +60,9 @@ module.exports = function (RED) {
                     );
                 }
 
+                // Make sure that all expected config are defined
+                node.config = Object.assign({}, defaultConfig, node.config);
+
                 if (node.config.search_type === "device") {
                     node.config.device_list.forEach(function (item) {
                         node.server.registerNodeByDevicePath(node.config.id, item);
@@ -57,6 +82,7 @@ module.exports = function (RED) {
 
         }
 
+        //TODO wait for migration before sending events
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
             let msgs = new Array(this.config.output_rules.length);
@@ -64,7 +90,9 @@ module.exports = function (RED) {
                 initialEvent: false,
                 errorEvent: false
             }, opt);
-            this.config.output_rules.forEach((rule, index) => {
+            this.config.output_rules.forEach((saved_rule, index) => {
+                // Make sure that all expected config are defined
+                const rule = Object.assign({}, defaultRule, saved_rule);
                 // Only if it's not on start and the start msg are blocked
                 if (!(options.initialEvent === true && rule.onstart !== true)) {
                     // Clean up old msgs

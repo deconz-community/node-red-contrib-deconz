@@ -4,6 +4,22 @@ const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 
 const NodeType = 'deconz-get';
 module.exports = function (RED) {
+
+    const defaultConfig = {
+        name: "",
+        search_type: "device",
+        device_list: [],
+        device_name: "",
+        query: "",
+        outputs: 0,
+        output_rules: [],
+    };
+
+    const defaultRule = {
+        type: "state",
+        format: "single"
+    };
+
     class deConzItemGet {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -34,6 +50,8 @@ module.exports = function (RED) {
                     );
                 }
 
+                // Make sure that all expected config are defined
+                node.config = Object.assign({}, defaultConfig, node.config);
 
                 if (node.config.search_type === 'device' && node.config.device_list.length === 0) {
                     node.status({
@@ -83,7 +101,10 @@ module.exports = function (RED) {
                         break;
                 }
 
-                node.config.output_rules.forEach((rule, index) => {
+                node.config.output_rules.forEach((saved_rule, index) => {
+                    // Make sure that all expected config are defined
+                    const rule = Object.assign({}, defaultRule, saved_rule);
+
                     // Only if it's not on start and the start msg are blocked
 
                     // Clean up old msgs

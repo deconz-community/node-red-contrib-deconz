@@ -5,6 +5,48 @@ const ConfigMigration = require("../src/migration/ConfigMigration");
 
 const NodeType = 'deconz-output';
 module.exports = function (RED) {
+
+    const defaultConfig = {
+        search_type: 'device',
+        device_list: [],
+        device_name: '',
+        query: '',
+        commands: [],
+        specific: {
+            delay: {type: 'num', value: '50'},
+            result: {type: 'at_end', value: ''}
+        }
+    };
+
+    const defaultCommand = {
+        type: "deconz_state",
+        domain: "lights",
+        arg: {
+            on: {type: "keep", value: ""},
+            alert: {type: "str", value: ""},
+            effect: {type: "str", value: ""},
+            colorloopspeed: {type: "num", value: ""},
+            open: {type: "keep", value: ""},
+            stop: {type: "keep", value: ""},
+            lift: {type: "num", value: ""},
+            tilt: {type: "num", value: ""},
+            group: {type: "num", value: ""},
+            scene: {type: "num", value: ""},
+            target: {type: "state", value: ""},
+            command: {type: "str", value: "on"},
+            payload: {type: "msg", value: "payload"},
+            delay: {type: "num", value: "2000"},
+            transitiontime: {type: "num", value: ""},
+            retryonerror: {type: "num", value: "0"},
+            aftererror: {type: "continue", value: ""},
+            bri: {direction: "set", type: "num", value: ""},
+            sat: {direction: "set", type: "num", value: ""},
+            hue: {direction: "set", type: "num", value: ""},
+            ct: {direction: "set", type: "num", value: ""},
+            xy: {direction: "set", type: "json", value: "[]"}
+        }
+    };
+
     class deConzOut {
         constructor(config) {
             RED.nodes.createNode(this, config);
@@ -34,6 +76,9 @@ module.exports = function (RED) {
                         error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                     );
                 }
+
+                // Make sure that all expected config are defined
+                node.config = Object.assign({}, defaultConfig, node.config);
             });
 
             node.cleanTimer = null;
@@ -79,7 +124,9 @@ module.exports = function (RED) {
                 let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
                 if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
-                for (const [id, command] of node.config.commands.entries()) {
+                for (const [id, saved_command] of node.config.commands.entries()) {
+                    // Make sure that all expected config are defined
+                    const command = Object.assign({}, defaultCommand, saved_command);
                     if (command.type === 'pause') {
                         await Utils.sleep(Utils.getNodeProperty(command.arg.delay, this, message_in), 2000);
                         continue;
