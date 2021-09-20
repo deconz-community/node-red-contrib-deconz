@@ -309,7 +309,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
 
             case 'homekit':
-                command.new.type = 'homekit';
+                command.type = 'homekit';
                 switch (this.config.payloadType) {
                     case 'msg':
                         command.arg.on = {
@@ -334,34 +334,34 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
 
             case 'str':
-                command.new.type = 'custom';
-                command.new.arg.target = 'state';
-                command.new.arg.command = {
+                command.type = 'custom';
+                command.arg.target = 'state';
+                command.arg.command = {
                     type: 'str',
                     value: this.config.command
                 };
-                command.new.arg.payload = {
+                command.arg.payload = {
                     type: this.config.payloadType,
                     value: this.config.payload
                 };
                 break;
             case 'msg':
-                command.new.type = 'custom';
-                command.new.arg.target = 'state';
-                command.new.arg.command = {
+                command.type = 'custom';
+                command.arg.target = 'state';
+                command.arg.command = {
                     type: 'msg',
                     value: this.config.command
                 };
-                command.new.arg.payload = {
+                command.arg.payload = {
                     type: this.config.payloadType,
                     value: this.config.payload
                 };
                 break;
             case 'object':
-                command.new.type = 'custom';
-                command.new.arg.target = 'state';
-                command.new.arg.command = {type: 'object'};
-                command.new.arg.payload = {
+                command.type = 'custom';
+                command.arg.target = 'state';
+                command.arg.command = {type: 'object'};
+                command.arg.payload = {
                     type: this.config.payloadType,
                     value: this.config.payload
                 };
@@ -375,7 +375,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             case 'msg':
             case 'flow':
             case 'global':
-                command.new.arg.transition = {
+                command.arg.transition = {
                     type: this.config.transitionTimeType,
                     value: this.config.transitionTime
                 };
