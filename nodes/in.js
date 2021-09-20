@@ -5,25 +5,23 @@ const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 const NodeType = 'deconz-input';
 module.exports = function (RED) {
 
+    const defaultRule = {
+        type: 'state',
+        format: 'single',
+        output: 'always',
+        onstart: true,
+        payload: ['__complete__']
+    };
+
     const defaultConfig = {
         name: "",
         topic: "",
-        search_type: "device",
+        search_type: 'device',
         device_list: [],
         device_name: "",
-        query: "",
-        outputs: 0,
-        output_rules: [],
-    };
-
-    const defaultRule = {
-        type: "state",
-        format: "single",
-        output: "always",
-        onstart: true,
-        payload: [
-            "__complete__"
-        ]
+        query: "{}",
+        outputs: 1,
+        output_rules: [defaultRule]
     };
 
     class deConzItemIn {

@@ -5,19 +5,19 @@ const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 const NodeType = 'deconz-get';
 module.exports = function (RED) {
 
-    const defaultConfig = {
-        name: "",
-        search_type: "device",
-        device_list: [],
-        device_name: "",
-        query: "",
-        outputs: 0,
-        output_rules: [],
+    const defaultRule = {
+        type: 'state',
+        format: 'single'
     };
 
-    const defaultRule = {
-        type: "state",
-        format: "single"
+    const defaultConfig = {
+        name: "",
+        search_type: 'device',
+        device_list: [],
+        device_name: "",
+        query: "{}",
+        outputs: 1,
+        output_rules: [defaultRule],
     };
 
     class deConzItemGet {

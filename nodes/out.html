@@ -112,11 +112,11 @@
                 required: true
             },
             server: {
-                type: "deconz-server",
+                type: 'deconz-server',
                 required: true
             },
             search_type: {
-                value: "device_list",
+                value: 'device',
                 required: true
             },
             device_list: {
@@ -131,10 +131,40 @@
                 required: false
             },
             commands: {
-                value: [{type: 'deconz_state'}]
+                value: [{
+                    type: 'deconz_state',
+                    domain: 'lights',
+                    arg: {
+                        on: {type: 'keep', value: ""},
+                        alert: {type: 'str', value: ""},
+                        effect: {type: 'str', value: ""},
+                        colorloopspeed: {type: 'num', value: ""},
+                        open: {type: 'keep', value: ""},
+                        stop: {type: 'keep', value: ""},
+                        lift: {type: 'num', value: ""},
+                        tilt: {type: 'num', value: ""},
+                        group: {type: 'num', value: ""},
+                        scene: {type: 'num', value: ""},
+                        target: {type: 'state', value: ""},
+                        command: {type: 'str', value: "on"},
+                        payload: {type: 'msg', value: "payload"},
+                        delay: {type: 'num', value: "2000"},
+                        transitiontime: {type: 'num', value: ""},
+                        retryonerror: {type: 'num', value: "0"},
+                        aftererror: {type: 'continue', value: ""},
+                        bri: {direction: 'set', type: 'num', value: ""},
+                        sat: {direction: 'set', type: 'num', value: ""},
+                        hue: {direction: 'set', type: 'num', value: ""},
+                        ct: {direction: 'set', type: 'num', value: ""},
+                        xy: {direction: 'set', type: 'json', value: "[]"}
+                    }
+                }]
             },
             specific: {
-                value: {}
+                value: {
+                    delay: {type: 'num', value: '50'},
+                    result: {type: 'at_end', value: ''}
+                }
             },
             //#region All next options are for configuration migration from legacy
             device: {},
@@ -146,7 +176,7 @@
             transitionTimeType: {},
             //#endregion
         },
-        inputLabels: "event",
+        inputLabels: 'event',
         paletteLabel: 'out',
         inputs: 1,
         outputs: 1,

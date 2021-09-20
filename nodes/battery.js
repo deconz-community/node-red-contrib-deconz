@@ -7,17 +7,21 @@ module.exports = function (RED) {
     const defaultConfig = {
         name: "",
         topic: "",
-        search_type: "device",
+        search_type: 'device',
         device_list: [],
         device_name: "",
-        query: "",
-        outputs: 0,
-        output_rules: []
+        query: "{}",
+        outputs: 1,
+        output_rules: [{
+            type: 'config',
+            format: 'single',
+            onstart: true
+        }]
     };
 
     const defaultRule = {
-        type: "config",
-        format: "single",
+        type: 'config',
+        format: 'single',
         onstart: true
     };
 

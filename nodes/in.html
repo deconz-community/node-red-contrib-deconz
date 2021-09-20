@@ -126,7 +126,7 @@
                 required: true
             },
             search_type: {
-                value: "device_list",
+                value: "device",
                 required: true
             },
             device_list: {
@@ -144,11 +144,13 @@
                 value: 1
             },
             output_rules: {
-                value: [
-                    {format: 'single', type: 'state', payload: ["__complete__"], output: "always", onstart: true},
-                    //{format: 'single', type: 'homekit', onstart: true, onerror: true},
-                    //{format: 'single', type: 'config', payload: ["__complete__"], when: "always", onstart: true},
-                ]
+                value: [{
+                    type: 'state',
+                    format: 'single',
+                    output: 'always',
+                    onstart: true,
+                    payload: ['__complete__']
+                }]
             },
             //#region All next options are for configuration migration from legacy
             device: {},
