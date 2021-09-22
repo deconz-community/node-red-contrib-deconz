@@ -15,7 +15,7 @@ Hi it's [@Zehir](https://github.com/Zehir) here, I worked hard for months on a c
 
 This new version requires Node-Red version 2.0 or newer. (It's could work with lasted 1.X version of Node-Red).
 
-Some new features:
+Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/develop/CHANGELOG.md)):
 * Multiple device selection
 * Select device using [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries)
 * Multiple commands at once
