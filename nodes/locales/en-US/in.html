@@ -44,6 +44,14 @@
                 </ul>
             </dd>
 
+            <dt class="optional">Format <span class="property-type">string</span></dt>
+            <dd>
+                Indicate how the device data are used. Can only be Single for input node.
+                <ul>
+                    <li><code>Single</code> - Send one message per device.</li>
+                </ul>
+            </dd>
+
             <dt class="optional">Output <span class="property-type">string</span></dt>
             <dd>
                 Indicate when the payload will be sent.<br>
@@ -89,7 +97,7 @@
             </dd>
             <dt>meta<span class="property-type">object</span></dt>
             <dd>Full device or group data.</dd>
-            <dt>meta<span class="property-type">string[]</span></dt>
+            <dt>meta_changed<span class="property-type">string[]</span></dt>
             <dd>List of param path that changed since last message. Exemple : "state.lastupdated"</dd>
         </dl>
     </div>
