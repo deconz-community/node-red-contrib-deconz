@@ -1,7 +1,241 @@
 <script type="text/html" data-help-name="deconz-output">
     <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css"/>
-    <p>Send command to device or group.</p>
+    <div class="deconz-help">
+        <p>Send command to device or group. If multiple devices are selected the node will make one api call per
+            device and then process the next command. If you have a lot of lights, you should use groups.</p>
+        <h3>Configuration</h3>
+        <h4>Device selection</h4>
+        <dl class="message-properties">
+            <dt class="optional">Name <span class="property-type">string</span></dt>
+            <dd>Provide a custom name for this node.</dd>
+            <dt>Server <span class="property-type">object</span></dt>
+            <dd>Choose the deconz server instance to use.</dd>
 
-    <h3>Configuration</h3>
-    <p>Work in progress</p>
+            <div class="separator"></div>
+
+            <dt>Query <span class="property-type">string</span></dt>
+            <dd>
+                How get the devices, can be a Device list or a Query. See more about Queries on the
+                <a href="https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries">Github
+                    Wiki</a>.
+            </dd>
+            <dt class="optional">Device <span class="property-type">string[]</span></dt>
+            <dd>
+                Select devices to listen to. <br>
+                Only available if <code>Query</code> value is <strong>Device</strong>
+            </dd>
+            <dt class="optional">Query result</dt>
+            <dd>
+                Display what devices matched the <code>Query</code>.<br>
+                Only available if <code>Query</code> value is <strong>JSON</strong> or <strong>JSONata
+                expression</strong>
+            </dd>
+        </dl>
+
+        <h4>Specific options</h4>
+        <p>The settings work the same for all outputs.</p>
+        <dl class="message-properties">
+            <dt class="optional">Delay</dt>
+            <dd>Set a delay in ms between each api request.</dd>
+            <dt class="optional">Result</dt>
+            <dd>
+                Can be one of the 3 following options :
+                <ul>
+                    <li><code>never</code> The result of the api requests will not be sent to the outputs.</li>
+                    <li><code>after_command</code> The result of the api requests will be sent after each api requests.
+                    </li>
+                    <li><code>at_end</code> The result of the api requests will be sent at the end of all api requests.
+                    </li>
+                </ul>
+            </dd>
+
+        </dl>
+
+        <h4>Commands</h4>
+        <p>There is 4 types of commands, each have they own type of settings.</p>
+        <div class="separator">Common options</div>
+        <dl class="message-properties">
+            <dt class="optional">Retry on error <span class="property-type">num</span></dt>
+            <dd>
+                Set how many time the api request will be sent of there is an error (maximum 2).
+            </dd>
+            <dt class="optional">After error <span class="property-type">string</span></dt>
+            <dd>
+                Set what to do if the error persists after optional retry.
+                <ul>
+                    <li><code>continue</code> - The next command will be executed.</li>
+                    <li><code>stop</code> - All next commands will not be executed.</li>
+                </ul>
+            </dd>
+            <dt class="optional">Transition <span class="property-type">num</span></dt>
+            <dd>
+                Transition time in 1/10 seconds between two states. Note that not all states support a transition time.
+                For example, a transition time when setting <code>on</code> will be ignored as the Zigbee On and Off
+                commands do not support transition times. In general, light attributes that support a range of values
+                support transition times, while boolean values do not.
+            </dd>
+        </dl>
+        <h5>Deconz State</h5>
+        <p>A deconz state is used to set a state to a device. You need to select what type of device you want to
+            send commands. It's can be Lights, Windows Cover, Groups and Scenes call. The settings for Lights and Groups
+            are the same.</p>
+        <p>For light colors / brightness that support it you can set increment by or decrement by any values. For
+            example, increment brightness by 10 will slightly make it brighter. Detect from value accept string as
+            value, if it's start with a <code>+</code> the value will be added, if it's start with a <code>-</code> the
+            value will be subtracted otherwise the value will be set.</p>
+        <div class="separator">Lights / Groups</div>
+        <dl class="message-properties">
+            <dt class="optional">On/Off <span class="property-type">boolean/string</span></dt>
+            <dd>
+                Turn On <code>true</code>, Off <code>false</code> or Toggle <code>toggle</code> a light.
+            </dd>
+            <dt class="optional">Brightness <span class="property-type">num/string</span></dt>
+            <dd>
+                the brightness of the light. Depending on the light type 0 might not mean visible "off" but minimum
+                brightness. If the light is off and the value is greater 0 a on=true shall also be provided.
+            </dd>
+            <dt class="optional">Color saturation <span class="property-type">num</span></dt>
+            <dd>
+                Set the color saturation of the light. There 0 means no color at all and 255 is the greatest saturation
+                of the color.
+            </dd>
+            <dt class="optional">Color hue <span class="property-type">num</span></dt>
+            <dd>
+                Set the color hue of the light. The hue parameter in the HSV color model is between 0°-360° and is
+                mapped to 0-65535 to get 16-bit resolution.
+            </dd>
+            <dt class="optional">Mired color temperature <span class="property-type">num/string</span></dt>
+            <dd>
+                Set the Mired color temperature of the light.
+                Where Mired is 1000000 / color temperature (in kelvins).
+                Also support values <code>cold</code>, <code>white</code> and <code>warm</code>.
+            </dd>
+            <dt class="optional">CIE xy color <span class="property-type">json</span></dt>
+            <dd>
+                Set the CIE xy color space coordinates as array [x, y] of real values (0-1). See
+                <a href="https://en.wikipedia.org/wiki/CIE_1931_color_space">Wikipedia</a>.
+            </dd>
+            <dt class="optional">Alert <span class="property-type">string</span></dt>
+            <dd>
+                Trigger a temporary alert effect:
+                <ul>
+                    <li><code>none</code> - light is not performing an alert</li>
+                    <li><code>select</code> - light is blinking a short time</li>
+                    <li><code>lselect</code> - light is blinking a longer time</li>
+                </ul>
+            </dd>
+            <dt class="optional">Effect <span class="property-type">string</span></dt>
+            <dd>
+                Trigger an effect of the light:
+                <ul>
+                    <li><code>none</code> - no effect</li>
+                    <li><code>colorloop</code> - the light will cycle continuously through all colors with the speed
+                        specified by colorloopspeed
+                    </li>
+                </ul>
+            </dd>
+            <dt class="optional">Color Loop Speed <span class="property-type">num</span></dt>
+            <dd>
+                Specifies the speed of a colorloop (default: 15).<br>
+                1 = very fast<br>
+                255 = very slow<br>
+                This parameter only has an effect when it is called together with effect colorloop.
+            </dd>
+        </dl>
+        <div class="separator">Windows cover</div>
+        <dl class="message-properties">
+            <dt class="optional">Open/Close <span class="property-type">boolean/string</span></dt>
+            <dd>
+                Set to true to lift the shutter to 0%, false to lift it to 100%. Or Toggle to reverse the state.
+            </dd>
+            <dt class="optional">Stop/Continue <span class="property-type">string</span></dt>
+            <dd>
+                Set the value to <code>true</code> to stops the current action.
+            </dd>
+            <dt class="optional">Lift <span class="property-type">string</span></dt>
+            <dd>
+                Supported range is 0-100 or special value "stop". <br>
+                <code>lift</code> is best understood as "percentage closed".
+                So, for any lift value below 100%, open is true.
+                <ul>
+                    <li><code>0-99</code> - open is true</li>
+                    <li><code>100</code> - open is false</li>
+                    <li><code>stop</code> - Stops the lift action</li>
+                </ul>
+            </dd>
+            <dt class="optional">Tilt <span class="property-type">string</span></dt>
+            <dd>
+                Sets the tilt angle of the shutter (0-100%).
+            </dd>
+        </dl>
+        <div class="separator">Scenes call</div>
+        <p>Call a spefific scene of a light group.
+            You can use the Scene Picker to fill the options Group ID and Scene ID</p>
+        <dl class="message-properties">
+            <dt class="optional">Group ID <span class="property-type">num</span></dt>
+            <dd>
+                Set the ID of group of lights.
+            </dd>
+            <dt class="optional">Scene ID <span class="property-type">num/string</span></dt>
+            <dd>
+                Set the ID of the scene. Can also be one of the following values :
+                <ul>
+                    <li><code>next</code> - Call the next scene of the group.</li>
+                    <li><code>prev</code> - Call the previous scene of the group.</li>
+                </ul>
+            </dd>
+        </dl>
+        <h5>HomeKit</h5>
+        <p>Use if data is from homekit nodes.</p>
+        <dl class="message-properties">
+            <dt class="optional">Payload <span class="property-type">Object</span></dt>
+            <dd>
+                An object that represents homekit command.
+            </dd>
+        </dl>
+        <h5>Custom</h5>
+        <p>Set a specific value for a device.</p>
+        <dl class="message-properties">
+            <dt class="optional">Target <span class="property-type">string</span></dt>
+            <dd>
+                The domain of the value.
+                <ul>
+                    <li><code>attribute</code> - the value is an attribute.
+                        Currently the api only support <code>name</code> attribute.
+                    </li>
+                    <li><code>state</code> - the value is a state.</li>
+                    <li><code>config</code> - the value is an config.</li>
+                </ul>
+            </dd>
+            <dt class="optional">Command <span class="property-type">string</span></dt>
+            <dd>
+                The name of the value to set.
+                Can be set to <code>Object</code> (not "object") if the payload contain an object with keys and values.
+            </dd>
+            <dt class="optional">Payload <span class="property-type">mixed</span></dt>
+            <dd>
+                The value to set.
+            </dd>
+        </dl>
+        <h5>Pause</h5>
+        <p>Set a delay before executing the next command. The duration of the previews command will be subtracted.</p>
+        <dl class="message-properties">
+            <dt class="optional">Delay <span class="property-type">num</span></dt>
+            <dd>
+                The delay in ms before executing the next command.
+            </dd>
+        </dl>
+        <h3>Outputs</h3>
+        <p>The output of a command has the following attributes. You will get one message per device. If the result is
+            set to <code>at_end</code> the result of each command will be inside an array inside the payload. All input
+            values that make conflict with the output are suffixed by <code>_in</code>.</p>
+        <dl class="message-properties">
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd>A list of the new values of the changed properties.</dd>
+            <dt>request <span class="property-type">object</span></dt>
+            <dd>A list of the values sent to Deconz API.</dd>
+            <dt>meta <span class="property-type">object</span></dt>
+            <dd>The device information.</dd>
+        </dl>
+    </div>
 </script>
