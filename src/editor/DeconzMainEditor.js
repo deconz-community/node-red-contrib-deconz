@@ -161,11 +161,8 @@ class DeconzMainEditor extends DeconzEditor {
                 break;
             case 'json':
             case 'jsonata':
-                console.log("update ?");
-                if (this.subEditor.query.$elements.select.typedInput('validate')) {
-                    console.log("yes!");
+                if (this.subEditor.query.$elements.select.typedInput('validate'))
                     await this.subEditor.query.updateList(options);
-                }
                 break;
         }
 
