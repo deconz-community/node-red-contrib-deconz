@@ -2,6 +2,7 @@ let should = require("should");
 
 const DevicesSample = require('./DevicesSample');
 const DeviceList = require('../src/runtime/DeviceList');
+const ConfigMigration = require("../src/migration/ConfigMigration");
 
 const QueryParams = {
     includeNotMatched: true,
@@ -731,4 +732,105 @@ describe('Device List', function () {
 
     });
 
+    describe('Configuration Migration', function () {
+        let server;
+        beforeEach('Parse without error', function () {
+            server = {device_list: deviceList};
+        });
+
+        afterEach(function () {
+            deviceList = undefined;
+        });
+
+        describe('Input Node', function () {
+            it('Switch with buttonevent state', function () {
+                let node = {
+                    config: {
+                        type: "deconz-input",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "55:66:77:88:99:00:11:22-01-1000",
+                        device_name: "Swith 1 : ZHASwitch",
+                        topic: "",
+                        state: "buttonevent",
+                        output: "always",
+                        outputAtStartup: false,
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/55:66:77:88:99:00:11:22-01-1000']);
+                should(migrationResult.new.outputs).equal(2);
+                should(migrationResult.new.output_rules).containDeep([
+                    {
+                        format: 'single',
+                        type: 'state',
+                        payload: ['buttonevent'],
+                        output: 'always',
+                        onstart: false
+                    },
+                    {
+                        type: 'homekit',
+                        onstart: true,
+                        onerror: true
+                    }
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
+                should(migrationResult.errors).have.length(0);
+            });
+
+            it('Vibration sensor with full payload and on start', function () {
+                let node = {
+                    config: {
+                        type: "deconz-input",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "44:55:66:77:88:99:00:11-01-0101",
+                        device_name: "Vibration Sensor : ZHAVibration",
+                        topic: "",
+                        state: "0",
+                        output: "onchange",
+                        outputAtStartup: true,
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/44:55:66:77:88:99:00:11-01-0101']);
+                should(migrationResult.new.outputs).equal(2);
+                should(migrationResult.new.output_rules).containDeep([
+                    {
+                        format: 'single',
+                        type: 'state',
+                        payload: ['__complete__'],
+                        output: 'onchange',
+                        onstart: true
+                    },
+                    {
+                        type: 'homekit',
+                        onstart: true,
+                        onerror: true
+                    }
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
+                should(migrationResult.errors).have.length(0);
+            });
+        });
+
+    });
 });
