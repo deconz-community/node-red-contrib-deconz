@@ -20,6 +20,27 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             arg: {}
         };
 
+        // Change custom string command that have valid deconz_cmd
+        if (this.config.commandType === 'str' && [
+            'on',
+            'toggle',
+            'bri', 'hue', 'sat',
+            'ct', 'xy',
+            'scene', 'alert', 'effect',
+            'colorloopspeed'
+        ].includes(this.config.command)) {
+            this.config.commandType = 'deconz_cmd';
+        }
+
+        if (Utils.isDeviceCover(device) && this.config.commandType === 'str' && [
+            'open',
+            'stop',
+            'lift',
+            'tilt'
+        ].includes(this.config.command)) {
+            this.config.commandType = 'deconz_cmd';
+        }
+
         // TODO Migrate commands
         switch (this.config.commandType) {
             case 'deconz_cmd':
@@ -314,11 +335,67 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 break;
                         }
                         break;
+
+                    case 'open':
+                    case 'stop':
+                        switch (this.config.payloadType) {
+                            case 'msg':
+                            case 'flow':
+                            case 'global':
+                            case 'str':
+                                command.arg[this.config.command] = {
+                                    type: this.config.payloadType,
+                                    value: this.config.payload
+                                };
+                                break;
+                            default:
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option '${this.config.command}'`);
+                                break;
+                        }
+                        break;
+
+                    case 'lift':
+                        switch (this.config.payloadType) {
+                            case 'msg':
+                            case 'flow':
+                            case 'global':
+                            case 'str':
+                            case 'num':
+                                command.arg.lift = {
+                                    type: this.config.payloadType,
+                                    value: String(this.config.payload)
+                                };
+                                break;
+                            default:
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'lift'`);
+                                break;
+                        }
+                        break;
+
+                    case 'tilt':
+                        switch (this.config.payloadType) {
+                            case 'msg':
+                            case 'flow':
+                            case 'global':
+                            case 'num':
+                                command.arg.tilt = {
+                                    type: this.config.payloadType,
+                                    value: String(this.config.payload)
+                                };
+                                break;
+                            default:
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'tilt'`);
+                                break;
+                        }
+                        break;
                 }
 
                 if (this.config.command !== 'on' &&
                     this.config.command !== 'toggle' &&
-                    !['scene', 'alert', 'effect', 'colorloopspeed'].includes(this.config.command)
+                    ![
+                        'scene', 'alert', 'effect', 'colorloopspeed',
+                        'open', 'stop', 'lift', 'tilt'
+                    ].includes(this.config.command)
                 )
                     command.arg.on = {type: 'set', value: 'true'};
                 if (this.config.command === 'bri' && !isNaN(this.config.payload))
