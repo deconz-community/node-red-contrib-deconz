@@ -316,7 +316,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 command.type = 'homekit';
                 switch (this.config.payloadType) {
                     case 'msg':
-                        command.arg.on = {
+                        command.arg.payload = {
                             type: this.config.payloadType,
                             value: this.config.payload
                         };
@@ -326,7 +326,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     case 'str':
                     case 'num':
                         command.errors.push(`The type '${this.config.payloadType}' was not valid in legacy version, he has been converted to 'msg'.`);
-                        command.arg.on = {
+                        command.arg.payload = {
                             type: 'msg',
                             value: this.config.payload
                         };
