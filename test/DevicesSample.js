@@ -22,7 +22,7 @@ module.exports = {
             "etag": "item01",
             "id": "1",
             "lights": [],
-            "name": "Motion sensor",
+            "name": "Group 1",
             "scenes": [],
             "state": {
                 "all_on": false,
