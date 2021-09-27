@@ -73,13 +73,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                                 if (this.config.payload === 'true') {
                                     command.arg.on = {
-                                        type: 'turn',
-                                        value: true
+                                        type: 'set',
+                                        value: 'true'
                                     };
                                 } else if (this.config.payload === 'false') {
                                     command.arg.on = {
-                                        type: 'turn',
-                                        value: false
+                                        type: 'set',
+                                        value: 'false'
                                     };
                                 } else {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
@@ -88,13 +88,13 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 if (this.config.payload === '1') {
                                     command.arg.on = {
-                                        type: 'turn',
-                                        value: true
+                                        type: 'set',
+                                        value: 'true'
                                     };
                                 } else if (this.config.payload === '0') {
                                     command.arg.on = {
-                                        type: 'turn',
-                                        value: false
+                                        type: 'set',
+                                        value: 'false'
                                     };
                                 } else {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option Switch (true/false)`);
