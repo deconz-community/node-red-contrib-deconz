@@ -108,10 +108,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                             case 'num':
                                 command.arg[this.config.command].type = 'num';
-                                if (isNaN(this.config.payload)) {
+                                if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option '${this.config.command}'`);
                                 } else {
-                                    command.arg[this.config.command].value = parseInt(this.config.payload);
+                                    command.arg[this.config.command].value = String(this.config.payload);
                                 }
                                 break;
                             default:
@@ -137,11 +137,11 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                         command.arg.ct.value = 'warm';
                                         break;
                                     default:
-                                        if (isNaN(this.config.payload)) {
+                                        if (isNaN(parseInt(this.config.payload))) {
                                             this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                         } else {
                                             command.arg.ct.type = 'num';
-                                            command.arg.ct.value = parseInt(this.config.payload);
+                                            command.arg.ct.value = String(this.config.payload);
                                         }
                                         break;
                                 }
@@ -155,10 +155,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                             case 'num':
                                 command.arg.ct.type = 'num';
-                                if (isNaN(this.config.payload)) {
+                                if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                 } else {
-                                    command.arg.ct.value = parseInt(this.config.payload);
+                                    command.arg.ct.value = String(this.config.payload);
                                 }
                                 break;
                             default:
@@ -185,12 +185,12 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                         // Strip 'group_' from device name
                         let part = this.config.device.substring(6);
-                        if (part.length === 0 || isNaN(part)) {
+                        if (part.length === 0 || isNaN(parseInt(part))) {
                             this.result.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
                         } else {
                             command.arg.group = {
                                 type: 'num',
-                                value: parseInt(part)
+                                value: String(part)
                             };
                         }
 
@@ -198,12 +198,12 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'deconz_payload':
                             case 'str':
                             case 'num':
-                                if (isNaN(this.config.payload)) {
+                                if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid scene ID '${this.config.payload}' for calling scene`);
                                 } else {
                                     command.arg.scene = {
                                         type: 'num',
-                                        value: parseInt(this.config.payload)
+                                        value: String(this.config.payload)
                                     };
                                 }
                                 break;
@@ -294,10 +294,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                             case 'num':
                                 command.arg.ct.type = 'num';
-                                if (isNaN(this.config.payload)) {
+                                if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                 } else {
-                                    command.arg.ct.value = parseInt(this.config.payload);
+                                    command.arg.ct.value = String(this.config.payload);
                                 }
                                 break;
                             default:
@@ -390,10 +390,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 command.arg.transition = {type: 'num'};
                 if (this.config.transitionTime === '') {
                     command.arg.transition.value = '';
-                } else if (isNaN(this.config.transitionTime) || isNaN(parseInt(this.config.transitionTime))) {
+                } else if (isNaN(parseInt(this.config.transitionTime))) {
                     this.result.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
                 } else {
-                    command.arg.transition.value = this.config.transitionTime;
+                    command.arg.transition.value = String(this.config.transitionTime);
                 }
                 break;
             default:
