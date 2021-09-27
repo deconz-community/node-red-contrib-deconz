@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Battery node
 - Same rework as the input node.
 
+## [1.3.4] - 2021-09-28 ![Relative date](https://img.shields.io/date/1632782604?label=)
+### Changed
+- Update readme for 2.0 version.
+
 ## [1.3.3] - 2021-06-20 ![Relative date](https://img.shields.io/date/1624190689?label=)
 ### Fixed
 - Update multi-select to 1.15.2 for monaco-editor compatibility in node-red 2.0. #140
