@@ -903,5 +903,69 @@ describe('Device List', function () {
                 should(migrationResult.errors).have.length(0);
             });
         });
+
+        describe('Battery Node', function () {
+            it('Vibration sensor with on start', function () {
+                let node = {
+                    config: {
+                        type: "deconz-battery",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "44:55:66:77:88:99:00:11-01-0101",
+                        device_name: "Vibration Sensor : ZHAVibration",
+                        outputAtStartup: true,
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/44:55:66:77:88:99:00:11-01-0101']);
+                should(migrationResult.new.outputs).equal(2);
+                should(migrationResult.new.output_rules).containDeep([
+                    {type: 'config', format: 'single', onstart: true},
+                    {type: 'homekit', format: 'single', onstart: true}
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
+                should(migrationResult.errors).have.length(0);
+            });
+
+            it('Vibration sensor without on start', function () {
+                let node = {
+                    config: {
+                        type: "deconz-battery",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "44:55:66:77:88:99:00:11-01-0101",
+                        device_name: "Vibration Sensor : ZHAVibration",
+                        outputAtStartup: false,
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/44:55:66:77:88:99:00:11-01-0101']);
+                should(migrationResult.new.outputs).equal(2);
+                should(migrationResult.new.output_rules).containDeep([
+                    {type: 'config', format: 'single', onstart: false},
+                    {type: 'homekit', format: 'single', onstart: false}
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
+                should(migrationResult.errors).have.length(0);
+            });
+        });
     });
 });
