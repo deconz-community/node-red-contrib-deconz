@@ -297,7 +297,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item03']);
+                        result.matched.should.containDeep(['item03', 'item09']);
                     });
 
                     it('Dot notation', function () {
@@ -344,7 +344,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item03', 'item04', 'item05']);
+                        result.matched.should.containDeep(['item03', 'item04', 'item05', 'item09']);
                     });
 
                     it('All in one', function () {
@@ -510,7 +510,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item05', 'item06', 'item07', 'item09']);
                     });
 
                     it('after timestamp', function () {
@@ -523,7 +523,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item05', 'item06', 'item07', 'item09']);
                     });
 
                     it('before date', function () {
@@ -563,7 +563,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05', 'item09']);
                     });
 
                     it('between timestamp', function () {
@@ -577,7 +577,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05', 'item09']);
                     });
 
                     it('between timestamp inverted', function () {
@@ -592,7 +592,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('rejected');
-                        result.rejected.should.containDeep(['item04', 'item05']);
+                        result.rejected.should.containDeep(['item04', 'item05', 'item09']);
                     });
 
                 });
@@ -651,7 +651,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.containDeep(['item04', 'item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item04', 'item05', 'item06', 'item07', 'item09']);
                     });
 
                     it('before', function () {

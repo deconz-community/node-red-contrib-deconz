@@ -147,6 +147,25 @@ module.exports = {
             "swversion": "3.2.1",
             "type": "Color temperature light",
             "uniqueid": "22:33:44:55:66:77:88:99-01"
+        },
+        "4": {
+            "etag": "item09",
+            "hascolor": false,
+            "lastannounced": "2021-04-21T21:20:24Z",
+            "lastseen": "2021-04-29T17:03Z",
+            "manufacturername": "Homestead",
+            "modelid": "Windows cover",
+            "name": "Light 3",
+            "state": {
+                "bri": 0,
+                "lift": 0,
+                "on": false,
+                "open": true,
+                "reachable": true,
+            },
+            "swversion": "3.2.1",
+            "type": "Window covering controller",
+            "uniqueid": "22:88:44:11:66:22:88:99-01"
         }
     },
     "sensors": {
