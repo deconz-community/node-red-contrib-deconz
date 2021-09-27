@@ -132,7 +132,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option '${this.config.command}'`);
                                 } else {
-                                    command.arg[this.config.command].value = String(this.config.payload);
+                                    command.arg[this.config.command].value = this.config.payload;
                                 }
                                 break;
                             default:
@@ -162,7 +162,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                             this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                         } else {
                                             command.arg.ct.type = 'num';
-                                            command.arg.ct.value = String(this.config.payload);
+                                            command.arg.ct.value = this.config.payload;
                                         }
                                         break;
                                 }
@@ -179,7 +179,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
                                 } else {
-                                    command.arg.ct.value = String(this.config.payload);
+                                    command.arg.ct.value = this.config.payload;
                                 }
                                 break;
                             default:
@@ -227,7 +227,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 } else {
                                     command.arg.scene = {
                                         type: 'num',
-                                        value: String(this.config.payload)
+                                        value: this.config.payload
                                     };
                                 }
                                 break;
@@ -340,7 +340,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'colorloopspeed'`);
                                 } else {
-                                    command.arg.colorloopspeed.value = String(this.config.payload);
+                                    command.arg.colorloopspeed.value = this.config.payload;
                                 }
                                 break;
                             default:
@@ -406,7 +406,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 command.arg.tilt = {
                                     type: this.config.payloadType,
-                                    value: String(this.config.payload)
+                                    value: this.config.payload
                                 };
                                 break;
                             default:
@@ -508,7 +508,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 } else if (isNaN(parseInt(this.config.transitionTime))) {
                     this.result.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
                 } else {
-                    command.arg.transition.value = String(this.config.transitionTime);
+                    command.arg.transition.value = this.config.transitionTime;
                 }
                 break;
             default:
