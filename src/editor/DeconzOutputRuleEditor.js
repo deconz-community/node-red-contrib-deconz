@@ -38,7 +38,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                     value.output = this.$elements.output.val();
                 if (['deconz-input', 'deconz-battery'].includes(this.node.type))
                     value.onstart = this.$elements.onstart.is(":checked");
-                if (this.node.type === 'deconz-input')
+                if (['deconz-input', 'deconz-get'].includes(this.node.type))
                     value.payload = this.$elements.payload.multipleSelect('getSelects');
                 break;
             case 'homekit':
