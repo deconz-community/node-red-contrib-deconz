@@ -388,10 +388,12 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             case 'str':
             case 'num':
                 command.arg.transition = {type: 'num'};
-                if (isNaN(this.config.transitionTime)) {
+                if (this.config.transitionTime === '') {
+                    command.arg.transition.value = '';
+                } else if (isNaN(this.config.transitionTime) || isNaN(parseInt(this.config.transitionTime))) {
                     this.result.errors.push(`Invalid value '${this.config.transitionTime}' for option 'transition'`);
                 } else {
-                    command.arg.transition.value = parseInt(this.config.transitionTime);
+                    command.arg.transition.value = this.config.transitionTime;
                 }
                 break;
             default:
