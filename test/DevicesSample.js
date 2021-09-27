@@ -10,7 +10,7 @@ module.exports = {
                 "hue": 0,
                 "on": true,
                 "sat": 127,
-                "scene": null,
+                "scene": "2",
                 "xy": [
                     0,
                     0
@@ -21,9 +21,28 @@ module.exports = {
             ],
             "etag": "item01",
             "id": "1",
-            "lights": [],
+            "lights": ["1"],
             "name": "Group 1",
-            "scenes": [],
+            "scenes": [
+                {
+                    "id": "1",
+                    "lightcount": 1,
+                    "name": "Off",
+                    "transitiontime": 10
+                },
+                {
+                    "id": "2",
+                    "lightcount": 1,
+                    "name": "Blue",
+                    "transitiontime": 10
+                },
+                {
+                    "id": "3",
+                    "lightcount": 1,
+                    "name": "Red",
+                    "transitiontime": 10
+                }
+            ],
             "state": {
                 "all_on": false,
                 "any_on": false
