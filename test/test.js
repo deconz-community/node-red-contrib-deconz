@@ -832,5 +832,76 @@ describe('Device List', function () {
             });
         });
 
+        describe('Get Node', function () {
+            it('Light on state', function () {
+                let node = {
+                    config: {
+                        type: "deconz-get",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "22:33:44:55:66:77:88:99-01",
+                        device_name: "Light 3 : Color temperature light",
+                        topic: "",
+                        state: "on",
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['lights/uniqueid/22:33:44:55:66:77:88:99-01']);
+                should(migrationResult.new.outputs).equal(1);
+                should(migrationResult.new.output_rules).containDeep([
+                    {
+                        type: 'state',
+                        format: 'single',
+                        payload: ['on']
+                    }
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state']);
+                should(migrationResult.errors).have.length(0);
+            });
+
+            it('Light full state', function () {
+                let node = {
+                    config: {
+                        type: "deconz-get",
+                        name: "",
+                        server: "SERVER_ID",
+                        device: "22:33:44:55:66:77:88:99-01",
+                        device_name: "Light 3 : Color temperature light",
+                        topic: "",
+                        state: "0",
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+
+                should(migrationResult.new.search_type).equal('device');
+                should(migrationResult.new.query).equal('{}');
+                should(migrationResult.new.device_list).containDeep(['lights/uniqueid/22:33:44:55:66:77:88:99-01']);
+                should(migrationResult.new.outputs).equal(1);
+                should(migrationResult.new.output_rules).containDeep([
+                    {
+                        type: 'state',
+                        format: 'single',
+                        payload: ['__complete__']
+                    }
+                ]);
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.delete).containDeep(['device', 'state']);
+                should(migrationResult.errors).have.length(0);
+            });
+        });
     });
 });
