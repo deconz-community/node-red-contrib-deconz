@@ -339,7 +339,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
             case 'str':
                 command.type = 'custom';
-                command.arg.target = 'state';
+                command.arg.target = {type: 'state'};
                 command.arg.command = {
                     type: 'str',
                     value: this.config.command
@@ -351,7 +351,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             case 'msg':
                 command.type = 'custom';
-                command.arg.target = 'state';
+                command.arg.target = {type: 'state'};
                 command.arg.command = {
                     type: 'msg',
                     value: this.config.command
@@ -363,7 +363,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             case 'object':
                 command.type = 'custom';
-                command.arg.target = 'state';
+                command.arg.target = {type: 'state'};
                 command.arg.command = {type: 'object'};
                 command.arg.payload = {
                     type: this.config.payloadType,
@@ -409,7 +409,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         this.result.delete.push('transitionTime');
         this.result.delete.push('transitionTimeType');
 
-        command.arg.aftererror = 'continue';
+        command.arg.aftererror = {type: 'continue'};
         this.result.new.commands = [command];
         this.result.new.specific = {
             delay: 50,
