@@ -295,20 +295,22 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'msg':
                             case 'flow':
                             case 'global':
-                                command.arg.ct.type = this.config.payloadType;
-                                command.arg.ct.value = this.config.payload;
+                                command.arg.colorloopspeed = {
+                                    type: this.config.payloadType,
+                                    value: this.config.payload
+                                };
                                 break;
                             case 'str':
                             case 'num':
-                                command.arg.ct.type = 'num';
+                                command.arg.colorloopspeed = {type: 'num'};
                                 if (isNaN(parseInt(this.config.payload))) {
-                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'ct'`);
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'colorloopspeed'`);
                                 } else {
-                                    command.arg.ct.value = String(this.config.payload);
+                                    command.arg.colorloopspeed.value = String(this.config.payload);
                                 }
                                 break;
                             default:
-                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'ct'`);
+                                this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'colorloopspeed'`);
                                 break;
                         }
                         break;
