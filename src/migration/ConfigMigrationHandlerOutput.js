@@ -87,7 +87,8 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
                     case 'toggle':
                         command.arg.on = {
-                            type: 'toggle'
+                            type: 'toggle',
+                            value: ''
                         };
                         break;
 
@@ -306,7 +307,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
                 }
 
-                if (this.config.command !== 'on')
+                if (this.config.command !== 'on' && this.config.command !== 'toggle')
                     command.arg.on = {type: 'set', value: 'true'};
                 if (this.config.command === 'bri' && !isNaN(this.config.payload))
                     command.arg.on = {type: 'set', value: Number(this.config.payload) > 0 ? 'true' : 'false'};
