@@ -167,6 +167,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         }
                         break;
                     case 'xy':
+                        command.arg.xy = {
+                            direction: 'set'
+                        };
                         switch (this.config.payloadType) {
                             case 'msg':
                             case 'flow':
