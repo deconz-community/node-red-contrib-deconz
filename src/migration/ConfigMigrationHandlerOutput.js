@@ -355,11 +355,20 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'msg':
                             case 'flow':
                             case 'global':
-                            case 'str':
                                 command.arg[this.config.command] = {
                                     type: this.config.payloadType,
                                     value: this.config.payload
                                 };
+                                break;
+                            case 'str':
+                                if (['true', 'false'].includes(this.config.payload)) {
+                                    command.arg[this.config.command] = {
+                                        type: 'set',
+                                        value: this.config.payload
+                                    };
+                                } else {
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option '${this.config.command}'`);
+                                }
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option '${this.config.command}'`);
@@ -374,10 +383,14 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'global':
                             case 'str':
                             case 'num':
-                                command.arg.lift = {
-                                    type: this.config.payloadType,
-                                    value: String(this.config.payload)
-                                };
+                                if (this.config.payload === 'stop') {
+                                    command.arg.lift = {type: 'stop'};
+                                } else {
+                                    command.arg.lift = {
+                                        type: this.config.payloadType,
+                                        value: this.config.payload
+                                    };
+                                }
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'lift'`);
