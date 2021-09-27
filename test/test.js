@@ -142,13 +142,13 @@ describe('Device List', function () {
                     "match": false
                 }, QueryParams);
                 should(result).have.property('matched');
-                result.matched.should.eql([]);
+                result.matched.should.be.empty();
             });
 
             it('Should not return any device', function () {
                 let result = deviceList.getDevicesByQuery({}, QueryParams);
                 should(result).have.property('matched');
-                result.matched.should.eql([]);
+                result.matched.should.be.empty();
             });
 
             it('match false inverted', function () {
@@ -157,7 +157,7 @@ describe('Device List', function () {
                     inverted: true
                 }, QueryParams);
                 should(result).have.property('rejected');
-                result.rejected.should.eql([]);
+                result.rejected.should.be.empty();
             });
 
             it('empty inverted', function () {
@@ -165,7 +165,7 @@ describe('Device List', function () {
                     inverted: true
                 }, QueryParams);
                 should(result).have.property('rejected');
-                result.rejected.should.eql([]);
+                result.rejected.should.be.empty();
             });
 
         });
@@ -174,7 +174,7 @@ describe('Device List', function () {
             it('Should return all devices', function () {
                 let result = deviceList.getDevicesByQuery('all', QueryParams);
                 should(result).have.property('rejected');
-                result.rejected.should.eql([]);
+                result.rejected.should.be.empty();
             });
 
             it('Should return all devices', function () {
@@ -182,7 +182,7 @@ describe('Device List', function () {
                     "match": true
                 }, QueryParams);
                 should(result).have.property('rejected');
-                result.rejected.should.eql([]);
+                result.rejected.should.be.empty();
             });
 
             it('match true inverted', function () {
@@ -191,7 +191,7 @@ describe('Device List', function () {
                     inverted: true
                 }, QueryParams);
                 should(result).have.property('matched');
-                result.matched.should.eql([]);
+                result.matched.should.be.empty();
             });
 
         });
@@ -220,7 +220,7 @@ describe('Device List', function () {
                         "uniqueid": "00:11:22:33:44:55:66:77-01"
                     }, QueryParams);
                     should(result).have.property('matched');
-                    result.matched.should.eql(['item03']);
+                    result.matched.should.containDeep(['item03']);
                 });
 
                 it('Get sensor with uniqueid and type', function () {
@@ -229,7 +229,7 @@ describe('Device List', function () {
                         "uniqueid": "00:11:22:33:44:55:66:77-01"
                     }, QueryParams);
                     should(result).have.property('matched');
-                    result.matched.should.eql(['item03']);
+                    result.matched.should.containDeep(['item03']);
                 });
 
                 it('No result if only type provided', function () {
@@ -249,7 +249,7 @@ describe('Device List', function () {
                         "uniqueid": "00:11:22:33:44:55:66:77-01"
                     }, QueryParams);
                     should(result).have.property('matched');
-                    result.matched.should.eql(['item03']);
+                    result.matched.should.containDeep(['item03']);
                 });
 
                 it('Get sensor with uniqueid and type', function () {
@@ -257,7 +257,7 @@ describe('Device List', function () {
                         "uniqueid": "00:11:22:33:44:55:66:77-01"
                     }, QueryParams);
                     should(result).have.property('matched');
-                    result.matched.should.eql(['item03']);
+                    result.matched.should.containDeep(['item03']);
                 });
 
             });
@@ -275,7 +275,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04']);
+                        result.matched.should.containDeep(['item03', 'item04']);
                     });
 
                     it('Number', function () {
@@ -286,7 +286,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it('Boolean', function () {
@@ -297,7 +297,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03']);
+                        result.matched.should.containDeep(['item03']);
                     });
 
                     it('Dot notation', function () {
@@ -308,7 +308,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                 });
@@ -322,7 +322,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item06', 'item07']);
+                        result.matched.should.containDeep(['item06', 'item07']);
                     });
 
                     it('Array with incorect types', function () {
@@ -333,7 +333,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql([]);
+                        result.matched.should.be.empty();
                     });
 
                     it('Array with valid types', function () {
@@ -344,7 +344,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04', 'item05']);
+                        result.matched.should.containDeep(['item03', 'item04', 'item05']);
                     });
 
                     it('All in one', function () {
@@ -358,7 +358,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it('match inverted by value', function () {
@@ -379,9 +379,9 @@ describe('Device List', function () {
                         should(resultA).have.property('rejected');
                         should(resultB).have.property('matched');
                         should(resultB).have.property('rejected');
-                        resultA.matched.should.eql(['item03', 'item04']);
-                        resultA.matched.should.eql(resultB.rejected);
-                        resultB.matched.should.eql(resultA.rejected);
+                        resultA.matched.should.containDeep(['item03', 'item04']);
+                        resultA.matched.should.containDeep(resultB.rejected);
+                        resultB.matched.should.containDeep(resultA.rejected);
                     });
 
                 });
@@ -399,7 +399,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it('Convert query value by default', function () {
@@ -413,7 +413,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it(`Don't convert query value by default with strict compare and bad type`, function () {
@@ -429,7 +429,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql([]);
+                        result.matched.should.be.empty();
                     });
 
                     it(`Don't convert query value by default with strict compare and good type`, function () {
@@ -445,7 +445,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it(`Don't convert query value by default without strict compare`, function () {
@@ -460,7 +460,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
 
@@ -477,7 +477,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04']);
+                        result.matched.should.containDeep(['item04']);
                     });
 
                     it('Convert device value in array', function () {
@@ -493,7 +493,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04']);
+                        result.matched.should.containDeep(['item03', 'item04']);
                     });
 
                     //TODO Find when device have array value ex devicemembership
@@ -510,7 +510,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item05', 'item06', 'item07']);
                     });
 
                     it('after timestamp', function () {
@@ -523,7 +523,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item05', 'item06', 'item07']);
                     });
 
                     it('before date', function () {
@@ -536,7 +536,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04', 'item08']);
+                        result.matched.should.containDeep(['item03', 'item04', 'item08']);
                     });
 
                     it('before timestamp', function () {
@@ -549,7 +549,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04', 'item08']);
+                        result.matched.should.containDeep(['item03', 'item04', 'item08']);
                     });
 
                     it('between date', function () {
@@ -563,7 +563,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it('between timestamp', function () {
@@ -577,7 +577,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05']);
+                        result.matched.should.containDeep(['item04', 'item05']);
                     });
 
                     it('between timestamp inverted', function () {
@@ -592,7 +592,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('rejected');
-                        result.rejected.should.eql(['item04', 'item05']);
+                        result.rejected.should.containDeep(['item04', 'item05']);
                     });
 
                 });
@@ -609,7 +609,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04']);
+                        result.matched.should.containDeep(['item03', 'item04']);
                     });
 
                     it('contain match', function () {
@@ -621,7 +621,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03', 'item04']);
+                        result.matched.should.containDeep(['item03', 'item04']);
                     });
 
                     it('contain match inverted', function () {
@@ -634,7 +634,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('rejected');
-                        result.rejected.should.eql(['item03', 'item04']);
+                        result.rejected.should.containDeep(['item03', 'item04']);
                     });
 
                 });
@@ -651,7 +651,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item04', 'item05', 'item06', 'item07']);
+                        result.matched.should.containDeep(['item04', 'item05', 'item06', 'item07']);
                     });
 
                     it('before', function () {
@@ -665,7 +665,7 @@ describe('Device List', function () {
                             }
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item03']);
+                        result.matched.should.containDeep(['item03']);
                     });
 
                 });
@@ -689,7 +689,7 @@ describe('Device List', function () {
                             ]
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item05', 'item07', 'item08']);
+                        result.matched.should.containDeep(['item05', 'item07', 'item08']);
                     });
 
                     it('2 levels', function () {
@@ -720,7 +720,7 @@ describe('Device List', function () {
                             ]
                         }, QueryParams);
                         should(result).have.property('matched');
-                        result.matched.should.eql(['item05', 'item07', 'item08']);
+                        result.matched.should.containDeep(['item05', 'item07', 'item08']);
                     });
 
                 });
