@@ -246,14 +246,16 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
 
                     case 'alert':
-                        command.arg.alert = {};
                         switch (this.config.payloadType) {
                             case 'deconz_payload':
                                 switch (this.config.payload) {
                                     case 'none':
                                     case 'select':
                                     case 'lselect':
-                                        command.arg.alert.type = this.config.payload;
+                                        command.arg.alert = {
+                                            type: 'deconz',
+                                            value: this.config.payload
+                                        };
                                         break;
                                     default:
                                         this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
@@ -263,13 +265,19 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'msg':
                             case 'flow':
                             case 'global':
-                                command.arg.alert.type = this.config.payloadType;
-                                command.arg.alert.value = this.config.payload;
+                                command.arg.alert = {
+                                    type: this.config.payloadType,
+                                    value: this.config.payload
+                                };
                                 break;
                             case 'str':
                             case 'num':
-                                command.arg.alert.type = 'str';
-                                command.arg.alert.value = this.config.payload.toString();
+                                command.arg.alert = {
+                                    type: 'str',
+                                    value: this.config.payload
+                                };
+                                if (['none', 'select', 'lselect'].includes(command.arg.alert.value))
+                                    command.arg.alert.type = 'deconz';
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'alert'`);
@@ -283,7 +291,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 switch (this.config.payload) {
                                     case 'none':
                                     case 'colorloop':
-                                        command.arg.effect = {type: this.config.payload};
+                                        command.arg.effect = {
+                                            type: 'deconz',
+                                            value: this.config.payload
+                                        };
                                         break;
                                     default:
                                         this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
@@ -302,8 +313,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 command.arg.effect = {
                                     type: 'str',
-                                    value: String(this.config.payload)
+                                    value: this.config.payload
                                 };
+                                if (['none', 'colorloop'].includes(command.arg.effect.value))
+                                    command.arg.effect.type = 'deconz';
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
