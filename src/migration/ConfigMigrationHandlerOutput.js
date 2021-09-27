@@ -262,7 +262,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 switch (this.config.payload) {
                                     case 'none':
                                     case 'colorloop':
-                                        command.arg.effect.type = this.config.payload;
+                                        command.arg.effect = {type: this.config.payload};
                                         break;
                                     default:
                                         this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
@@ -272,13 +272,17 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'msg':
                             case 'flow':
                             case 'global':
-                                command.arg.effect.type = this.config.payloadType;
-                                command.arg.effect.value = this.config.payload;
+                                command.arg.effect = {
+                                    type: this.config.payloadType,
+                                    value: this.config.payload
+                                };
                                 break;
                             case 'str':
                             case 'num':
-                                command.arg.effect.type = 'str';
-                                command.arg.effect.value = this.config.payload.toString();
+                                command.arg.effect = {
+                                    type: 'str',
+                                    value: String(this.config.payload)
+                                };
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'effect'`);
