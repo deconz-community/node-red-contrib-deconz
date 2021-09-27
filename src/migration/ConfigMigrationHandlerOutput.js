@@ -310,7 +310,10 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         break;
                 }
 
-                if (this.config.command !== 'on' && this.config.command !== 'toggle')
+                if (this.config.command !== 'on' &&
+                    this.config.command !== 'toggle' &&
+                    !['scene', 'alert', 'effect', 'colorloopspeed'].includes(this.config.command)
+                )
                     command.arg.on = {type: 'set', value: 'true'};
                 if (this.config.command === 'bri' && !isNaN(this.config.payload))
                     command.arg.on = {type: 'set', value: Number(this.config.payload) > 0 ? 'true' : 'false'};
