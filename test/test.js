@@ -983,7 +983,7 @@ describe('Device List', function () {
                             payload: "1",
                             payloadType: "deconz_payload",
                             transitionTime: "",
-                            transitionTimeType: "num"
+                            transitionTimeType: undefined
                         }
                     };
                     let migrationResult;
@@ -1002,7 +1002,7 @@ describe('Device List', function () {
                         target: 'state',
                         arg: {
                             on: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: ''},
+                            transition: {type: 'num'},
                             aftererror: {type: 'continue'}
                         }
                     }]);
