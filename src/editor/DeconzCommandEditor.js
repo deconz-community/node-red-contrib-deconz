@@ -286,13 +286,21 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 containers.push('common');
                 break;
             case 'homekit':
-                // TODO filter payload to have only msg, flow, global, json, jsonata
+                this.$elements.payload.typedInput('types', [
+                    'msg', 'flow', 'global', 'json', 'jsonata'
+                ]);
                 containers.push('payload');
                 containers.push('transition');
                 containers.push('common');
                 break;
             case 'custom':
                 containers.push('command');
+                this.$elements.payload.typedInput('types', [
+                    'msg', 'flow', 'global',
+                    'str', 'num', 'bool',
+                    'json', 'jsonata',
+                    'date'
+                ]);
                 containers.push('payload');
                 containers.push('transition');
                 containers.push('common');
