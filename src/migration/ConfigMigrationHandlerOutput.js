@@ -385,6 +385,8 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'num':
                                 if (this.config.payload === 'stop') {
                                     command.arg.lift = {type: 'stop'};
+                                } else if (isNaN(parseInt(this.config.payload))) {
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'lift'`);
                                 } else {
                                     command.arg.lift = {
                                         type: this.config.payloadType,
@@ -403,11 +405,18 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'msg':
                             case 'flow':
                             case 'global':
+                            case 'str':
                             case 'num':
-                                command.arg.tilt = {
-                                    type: this.config.payloadType,
-                                    value: this.config.payload
-                                };
+                                if (isNaN(parseInt(this.config.payload))) {
+                                    this.result.errors.push(`Invalid value '${this.config.payload}' for option 'tilt'`);
+                                } else {
+                                    command.arg.tilt = {
+                                        type: this.config.payloadType,
+                                        value: this.config.payload
+                                    };
+                                    if (command.arg.tilt.type === 'str')
+                                        command.arg.tilt.type = 'num';
+                                }
                                 break;
                             default:
                                 this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option 'tilt'`);
