@@ -1278,7 +1278,7 @@ describe('Device List', function () {
                             command: "tilt",
                             commandType: "str",
                             payload: "60",
-                            payloadType: "num",
+                            payloadType: "str",
                             transitionTime: "20",
                             transitionTimeType: "num"
                         }
