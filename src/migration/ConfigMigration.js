@@ -43,7 +43,10 @@ class ConfigMigration {
 
     applyMigration(config, node) {
         let result = this.migrate(config);
-        if (result.errors !== undefined || result.notNeeded === true) return result;
+        if (
+            (Array.isArray(result.errors) && result.errors.length > 0) ||
+            result.notNeeded === true
+        ) return result;
 
         // Apply new configuration
         for (const [k, v] of Object.entries(result.new)) {
