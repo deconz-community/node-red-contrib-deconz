@@ -2412,7 +2412,92 @@ describe('Device List', function () {
                     ]);
                 });
 
-                it('invalid bri value', function () {
+                it('invalid on str value', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "on",
+                            payloadType: "str",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option Switch (true/false)"
+                    ]);
+                });
+
+                it('invalid on num value', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "on",
+                            payloadType: "num",
+                            payload: "2",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value '2' for option Switch (true/false)"
+                    ]);
+                });
+
+
+                it('invalid on value type', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "on",
+                            payloadType: "timestamp",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'timestamp' for option Switch (true/false)"
+                    ]);
+                });
+
+                it('invalid bri str value', function () {
                     let migrationResult;
                     let node = {
                         config: {
@@ -2440,8 +2525,704 @@ describe('Device List', function () {
                     ]);
                 });
 
+                it('invalid bri value type', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "bri",
+                            payloadType: "timestamp",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'timestamp' for option 'bri'"
+                    ]);
+                });
+
+                it('invalid ct deconz_payload value', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "ct",
+                            payloadType: "deconz_payload",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'ct'"
+                    ]);
+                });
+
+                it('invalid ct num value', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "ct",
+                            payloadType: "num",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'ct'"
+                    ]);
+                });
+
+                it('invalid ct value type', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "ct",
+                            payloadType: "timestamp",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'timestamp' for option 'ct'"
+                    ]);
+                });
+
+                it('invalid xy value type', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "xy",
+                            payloadType: "timestamp",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'timestamp' for option 'xy'"
+                    ]);
+                });
+
+                it('invalid value type calling scene', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "scene",
+                            payloadType: "timestamp",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'timestamp' for calling scene"
+                    ]);
+                });
+
+                it('invalid calling scene device and scene', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "group_",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "scene",
+                            payloadType: "deconz_payload",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(3);
+                    should(migrationResult.errors).deepEqual([
+                        "Could not find the device 'Light 1 : Color light' with uniqueID 'group_'.",
+                        "Invalid group ID 'group_' for calling scene",
+                        "Invalid scene ID 'invalid' for calling scene"
+                    ]);
+                });
+
+                it('invalid value alert', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "alert",
+                            payloadType: "deconz_payload",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'deconz_payload' for option 'alert'"
+                    ]);
+                });
+
+                it('invalid value type alert', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "alert",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'alert'"
+                    ]);
+                });
+
+                it('invalid value effect', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "effect",
+                            payloadType: "deconz_payload",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'deconz_payload' for option 'effect'"
+                    ]);
+                });
+
+                it('invalid value type effect', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "effect",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'effect'"
+                    ]);
+                });
+
+                it('invalid value colorloopspeed', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "colorloopspeed",
+                            payloadType: "num",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'colorloopspeed'"
+                    ]);
+                });
+
+                it('invalid value colorloopspeed', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "colorloopspeed",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'colorloopspeed'"
+                    ]);
+                });
+
+                it('invalid value open', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "open",
+                            payloadType: "str",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'open'"
+                    ]);
+                });
+
+                it('invalid value type open', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "open",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'open'"
+                    ]);
+                });
+
+                it('invalid value lift', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "lift",
+                            payloadType: "str",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'lift'"
+                    ]);
+                });
+
+                it('invalid value type lift', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "lift",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'lift'"
+                    ]);
+                });
+
+                it('invalid value tilt', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "tilt",
+                            payloadType: "str",
+                            payload: "invalid",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'tilt'"
+                    ]);
+                });
+
+                it('invalid value type tilt', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "tilt",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'tilt'"
+                    ]);
+                });
+
+                it('invalid value homekit', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "homekit",
+                            command: "",
+                            payloadType: "num",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "The type 'num' was not valid in legacy version, he has been converted to 'msg'."
+                    ]);
+                });
+
+                it('invalid value type homekit', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "homekit",
+                            command: "",
+                            payloadType: "invalid",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for homekit command"
+                    ]);
+                });
+
+                it('invalid command', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "invalid",
+                            command: "",
+                            payloadType: "",
+                            payload: "",
+                            transitionTime: "10",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid command type 'invalid' for migration"
+                    ]);
+                });
+
+                it('invalid value transition time', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "on",
+                            payloadType: "deconz_payload",
+                            payload: "on",
+                            transitionTime: "invalid",
+                            transitionTimeType: "num"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value 'invalid' for option 'transition'"
+                    ]);
+                });
+
+                it('invalid type value transition time', function () {
+                    let migrationResult;
+                    let node = {
+                        config: {
+                            type: "deconz-output",
+                            name: "",
+                            server: "SERVER_ID",
+                            device: "00:11:22:33:44:55:66:77-01",
+                            device_name: "Light 1 : Color light",
+                            commandType: "deconz_cmd",
+                            command: "on",
+                            payloadType: "deconz_payload",
+                            payload: "on",
+                            transitionTime: "",
+                            transitionTimeType: "invalid"
+                        }
+                    };
+
+                    should.doesNotThrow(() => {
+                        let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                        migrationResult = configMigration.applyMigration(node.config, node);
+                    });
+                    should(migrationResult.errors).have.length(1);
+                    should(migrationResult.errors).deepEqual([
+                        "Invalid value type 'invalid' for option 'transition'"
+                    ]);
+                });
+
             });
 
         });
+
+        describe('Server Node', function () {
+            it('Migrate from legacy', function () {
+                let node = {
+                    config: {
+                        type: "deconz-server",
+                        apikey: 'SECRET_KEY'
+                    }
+                };
+                let migrationResult;
+
+                should.doesNotThrow(() => {
+                    let configMigration = new ConfigMigration(node.config.type, node.config, server);
+                    migrationResult = configMigration.applyMigration(node.config, node);
+                });
+                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.controller.new['credentials.secured_apikey']).equal('SECRET_KEY');
+                should(migrationResult.delete).containDeep(['apikey']);
+            });
+
+        });
+
     });
 });
