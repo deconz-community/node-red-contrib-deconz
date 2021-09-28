@@ -450,14 +450,14 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                     case 'global':
                     case 'str':
                     case 'num':
-                        command.errors.push(`The type '${this.config.payloadType}' was not valid in legacy version, he has been converted to 'msg'.`);
+                        this.result.errors.push(`The type '${this.config.payloadType}' was not valid in legacy version, he has been converted to 'msg'.`);
                         command.arg.payload = {
                             type: 'msg',
                             value: this.config.payload
                         };
                         break;
                     default:
-                        this.result.errors.push(`Invalid value type '${this.config.payloadType}' for option Switch (true/false)`);
+                        this.result.errors.push(`Invalid value type '${this.config.payloadType}' for homekit command`);
                         break;
                 }
                 break;
@@ -496,7 +496,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 };
                 break;
             default:
-                throw new Error('Invalid command type for migration');
+                this.result.errors.push(`Invalid command type '${this.config.commandType}' for migration`);
         }
 
 
