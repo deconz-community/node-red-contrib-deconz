@@ -59,6 +59,10 @@ class CommandParser {
                 ['set.false', false]
             ]
         );
+        if (['on', 'true'].includes(this.result.state.on))
+            this.result.state.on = true;
+        if (['off', 'false'].includes(this.result.state.on))
+            this.result.state.on = false;
 
         // Colors commands
         for (const k of ['bri', 'sat', 'hue', 'ct', 'xy']) {
