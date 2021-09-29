@@ -411,9 +411,11 @@ class OutputMsgFormatter {
                 }
 
                 if (state.tilt !== undefined) {
-                    characteristic.CurrentHorizontalTiltAngle = Utils.convertRange(state.tilt, [0, 100], [-90, 90]);
-                    if (no_reponse) characteristic.CurrentHorizontalTiltAngle = "NO_RESPONSE";
-                    characteristic.TargetHorizontalTiltAngle = characteristic.CurrentHorizontalTiltAngle;
+                    for (const side of ['Horizontal', 'Vertical']) {
+                        characteristic[`Current${side}TiltAngle`] = Utils.convertRange(state.tilt, [0, 100], [-90, 90]);
+                        if (no_reponse) characteristic[`Current${side}TiltAngle`] = "NO_RESPONSE";
+                        characteristic[`Target${side}TiltAngle`] = characteristic[`Current${side}TiltAngle`];
+                    }
                 }
 
                 msg.lastupdated = device.state.lastupdated;
