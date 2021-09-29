@@ -87,7 +87,7 @@
             "state": "State",
             "config": "Config",
             "homekit": "Homekit",
-            "scenecall": "Scene Call"
+            "scene_call": "Scene Call"
           },
           "add_button": {
             "label": "Add __type__",

@@ -175,8 +175,8 @@ class OutputMsgFormatter {
 
         // Filter scene call events
         if (typeof rawEvent === 'object' && (
-            (rawEvent.e === 'scene-called' && this.rule.type !== 'scenecall') ||
-            (rawEvent.e !== 'scene-called' && this.rule.type === 'scenecall')
+            (rawEvent.e === 'scene-called' && this.rule.type !== 'scene_call') ||
+            (rawEvent.e !== 'scene-called' && this.rule.type === 'scene_call')
         )) return null;
 
         switch (this.rule.type) {
@@ -193,7 +193,7 @@ class OutputMsgFormatter {
                 msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
                 if (msg === null) return null;
                 break;
-            case 'scenecall':
+            case 'scene_call':
                 msg.payload = device.data.scenes.filter((v) => v.id === rawEvent.scid).shift();
                 break;
         }

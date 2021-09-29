@@ -47,7 +47,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 if (this.node.type === 'deconz-input')
                     value.onerror = this.$elements.onerror.is(":checked");
                 break;
-            case 'scenecall':
+            case 'scene_call':
                 break;
         }
 
@@ -164,7 +164,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').show();
                 break;
-            case 'scenecall':
+            case 'scene_call':
                 this.$elements.payload.closest('.form-row').hide();
                 this.$elements.output.closest('.form-row').hide();
                 this.$elements.onstart.closest('.form-row').hide();

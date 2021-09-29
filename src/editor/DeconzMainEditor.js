@@ -26,7 +26,7 @@ class DeconzMainEditor extends DeconzEditor {
                     state: true,
                     config: true,
                     homekit: false,
-                    scenecall: false,
+                    scene_call: false,
                 }
             },
             commands: {
