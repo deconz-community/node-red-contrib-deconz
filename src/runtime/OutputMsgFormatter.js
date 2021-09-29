@@ -192,6 +192,7 @@ class OutputMsgFormatter {
         if (['deconz-input', 'deconz-battery'].includes(this.node_type)) msg.topic = this.config.topic;
         if (payloadFormat !== undefined) msg.payload_format = payloadFormat;
         if (rawEvent !== undefined) msg.payload_raw = rawEvent;
+        msg.payload_type = this.rule.type;
         msg.meta = device.data;
         if (device.changed !== undefined) msg.meta_changed = device.changed;
 
