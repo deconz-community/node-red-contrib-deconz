@@ -193,6 +193,9 @@ class OutputMsgFormatter {
                 msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
                 if (msg === null) return null;
                 break;
+            case 'scenecall':
+                msg.payload = device.data.scenes.filter((v) => v.id === rawEvent.scid).shift();
+                break;
         }
 
         if (['deconz-input', 'deconz-battery'].includes(this.node_type)) msg.topic = this.config.topic;
