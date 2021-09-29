@@ -173,6 +173,12 @@ class OutputMsgFormatter {
     formatDeviceMsg(device, rawEvent, payloadFormat, options) {
         let msg = this.generateNewMsg(options.src_msg);
 
+        // Filter scene call events
+        if (typeof rawEvent === 'object' && (
+            (rawEvent.e === 'scene-called' && this.rule.type !== 'scenecall') ||
+            (rawEvent.e !== 'scene-called' && this.rule.type === 'scenecall')
+        )) return null;
+
         switch (this.rule.type) {
             case 'attribute':
                 msg.payload = this.formatDevicePayload(device.data, payloadFormat, options);
