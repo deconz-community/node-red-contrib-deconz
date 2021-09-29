@@ -286,8 +286,13 @@ module.exports = function (RED) {
                                             }
                                             break;
                                         case "scene-called":
-                                            // TODO Implement This
-                                            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
+                                            if (target.type === 'deconz-input') {
+                                                target.handleDeconzEvent(
+                                                    news.device,
+                                                    news.changed,
+                                                    dataParsed
+                                                );
+                                            }
                                             break;
                                         default:
                                             console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
@@ -427,16 +432,18 @@ module.exports = function (RED) {
             return changed;
         }
 
-        onSocketMessageSceneCalled(dataParsed) {
-            console.warn("Need to implement onSocketMessageSceneCalled for " + JSON.stringify(dataParsed));
-            // TODO implement
-        }
-
         onSocketMessage(dataParsed) {
             let node = this;
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
-            let device = node.device_list.getDeviceByDomainID(dataParsed.r, dataParsed.id);
+            let device;
+            if (dataParsed.e === 'scene-called') {
+                device = node.device_list.getDeviceByDomainID('groups', dataParsed.gid);
+            } else {
+                device = node.device_list.getDeviceByDomainID(dataParsed.r, dataParsed.id);
+            }
+
+            // TODO handle case if device is not found
             if (device === undefined) return;
             let changed = node.updateDevice(device, dataParsed);
 

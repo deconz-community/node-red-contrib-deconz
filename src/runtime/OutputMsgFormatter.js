@@ -173,6 +173,12 @@ class OutputMsgFormatter {
     formatDeviceMsg(device, rawEvent, payloadFormat, options) {
         let msg = this.generateNewMsg(options.src_msg);
 
+        // Filter scene call events
+        if (typeof rawEvent === 'object' && (
+            (rawEvent.e === 'scene-called' && this.rule.type !== 'scene_call') ||
+            (rawEvent.e !== 'scene-called' && this.rule.type === 'scene_call')
+        )) return null;
+
         switch (this.rule.type) {
             case 'attribute':
                 msg.payload = this.formatDevicePayload(device.data, payloadFormat, options);
@@ -186,6 +192,9 @@ class OutputMsgFormatter {
             case 'homekit':
                 msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
                 if (msg === null) return null;
+                break;
+            case 'scene_call':
+                msg.payload = device.data.scenes.filter((v) => v.id === rawEvent.scid).shift();
                 break;
         }
 
