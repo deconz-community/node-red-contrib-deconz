@@ -86,7 +86,8 @@
             "attribute": "Attribute",
             "state": "State",
             "config": "Config",
-            "homekit": "Homekit"
+            "homekit": "Homekit",
+            "scenecall": "Scene Call"
           },
           "add_button": {
             "label": "Add __type__",

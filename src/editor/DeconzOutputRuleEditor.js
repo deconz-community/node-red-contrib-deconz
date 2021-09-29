@@ -47,6 +47,8 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 if (this.node.type === 'deconz-input')
                     value.onerror = this.$elements.onerror.is(":checked");
                 break;
+            case 'scenecall':
+                break;
         }
 
         return value;
@@ -153,14 +155,20 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             case 'config':
                 this.$elements.payload.closest('.form-row').show();
                 this.$elements.output.closest('.form-row').show();
-                //this.$elements.onstart.closest('.form-row').show(); // Always displayed
+                this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').hide();
                 break;
             case 'homekit':
                 this.$elements.payload.closest('.form-row').hide();
                 this.$elements.output.closest('.form-row').hide();
-                //this.$elements.onstart.closest('.form-row').show(); // Always displayed
+                this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').show();
+                break;
+            case 'scenecall':
+                this.$elements.payload.closest('.form-row').hide();
+                this.$elements.output.closest('.form-row').hide();
+                this.$elements.onstart.closest('.form-row').hide();
+                this.$elements.onerror.closest('.form-row').hide();
                 break;
         }
     }
@@ -173,7 +181,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         let devices = this.listEditor.mainEditor.subEditor.device.value;
         let type = this.$elements.type.val();
 
-        if (type === 'homekit') return;
+        if (!['attribute', 'state', 'config'].includes(type)) return;
 
         let i18n = `${this.NRCD}/server:editor.inputs.outputs.payload`;
 
