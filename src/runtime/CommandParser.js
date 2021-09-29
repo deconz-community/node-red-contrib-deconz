@@ -167,9 +167,12 @@ class CommandParser {
         } else if (HK.ColorTemperature !== undefined) {
             this.result.state.ct = Utils.convertRange(HK.ColorTemperature, [140, 500], [153, 500]);
             this.result.state.on = true;
-        } else if (HK.TargetPosition !== undefined) {
-            this.result.state.on = HK.TargetPosition > 0;
-            this.result.state.bri = Utils.convertRange(HK.TargetPosition, [0, 100], [0, 255]);
+        }
+        if (HK.TargetPosition !== undefined) {
+            this.result.state.lift = Utils.convertRange(HK.TargetPosition, [100, 0], [0, 100]);
+        }
+        if (HK.TargetHorizontalTiltAngle !== undefined) {
+            this.result.state.tilt = Utils.convertRange(HK.TargetHorizontalTiltAngle, [-90, 90], [0, 100]);
         }
         this.result.state.transitiontime = this.getNodeProperty(this.arg.transitiontime);
     }

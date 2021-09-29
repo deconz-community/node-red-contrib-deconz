@@ -394,6 +394,18 @@ class OutputMsgFormatter {
                 }
                 // }
 
+                if (state.lift !== undefined) {
+                    characteristic.CurrentPosition = Utils.convertRange(state.lift, [0, 100], [100, 0]);
+                    if (no_reponse) characteristic.CurrentPosition = "NO_RESPONSE";
+                    characteristic.TargetPosition = characteristic.CurrentPosition;
+                }
+
+                if (state.tilt !== undefined) {
+                    characteristic.CurrentHorizontalTiltAngle = Utils.convertRange(state.tilt, [0, 100], [-90, 90]);
+                    if (no_reponse) characteristic.CurrentHorizontalTiltAngle = "NO_RESPONSE";
+                    characteristic.TargetHorizontalTiltAngle = characteristic.CurrentHorizontalTiltAngle;
+                }
+
                 msg.lastupdated = device.state.lastupdated;
             }
         }
