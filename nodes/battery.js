@@ -43,6 +43,12 @@ module.exports = function (RED) {
                 return;
             }
 
+            node.status({
+                fill: "blue",
+                shape: "dot",
+                text: "node-red-contrib-deconz/server:status.starting"
+            });
+
             node.server.on('onStart', () => {
                 // Config migration
                 let configMigration = new ConfigMigration(NodeType, node.config, node.server);
@@ -51,6 +57,17 @@ module.exports = function (RED) {
                     migrationResult.errors.forEach(
                         error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                     );
+                    node.error(
+                        `Error with migration of node ${node.type} with id ${node.id}\n` +
+                        error.join('\n') +
+                        '\nPlease open the node settings and update the configuration'
+                    );
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.migration_error"
+                    });
+                    return;
                 }
 
                 // Make sure that all expected config are defined
@@ -63,6 +80,8 @@ module.exports = function (RED) {
                 } else {
                     node.server.registerNodeWithQuery(node.config.id);
                 }
+
+                node.server.updateNodeStatus(node, null);
             });
         }
 
@@ -93,14 +112,11 @@ module.exports = function (RED) {
                         msgs[index] = msg;
                         node.send(msgs);
                     }
-                }
 
-                //TODO display msg payload if it's possible (one rule and payload a non object value
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/server:status.connected"
-                });
+                    // Update node status
+                    if (index === 0)
+                        node.server.updateNodeStatus(node, msgToSend);
+                }
 
             });
         }

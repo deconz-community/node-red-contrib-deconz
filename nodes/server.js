@@ -16,6 +16,7 @@ module.exports = function (RED) {
             node.config = config;
             node.discoverProcessRunning = false;
             node.ready = false;
+            node.event_count = 0;
 
             // Config migration
             let configMigration = new ConfigMigration('deconz-server', node.config, this);
@@ -265,6 +266,12 @@ module.exports = function (RED) {
                                         news.changed,
                                         dataParsed
                                     );
+                                    target.status({
+                                        fill: "green",
+                                        shape: "dot",
+                                        text: RED._('node-red-contrib-deconz/server:status.event_count')
+                                            .replace('{{event_count}}', node.event_count)
+                                    });
                                 } else {
                                     switch (dataParsed.e) {
                                         case "added":
@@ -434,6 +441,7 @@ module.exports = function (RED) {
 
         onSocketMessage(dataParsed) {
             let node = this;
+            node.event_count++;
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
             let device;
@@ -498,6 +506,88 @@ module.exports = function (RED) {
 
         }
 
+        updateNodeStatus(node, msgToSend) {
+            if (node.config.search_type === "device" && node.config.device_list.length === 0) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/in:status.device_not_set"
+                });
+                return;
+            }
+
+            if (msgToSend === null) {
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.connected"
+                });
+                return;
+            }
+
+            let firstmsg = msgToSend[0];
+            if (firstmsg === undefined) return;
+
+            if (dotProp.get(firstmsg, 'meta.state.reachable') === false ||
+                dotProp.get(firstmsg, 'meta.config.reachable') === false
+            ) {
+                node.status({
+                    fill: "red",
+                    shape: "ring",
+                    text: "node-red-contrib-deconz/server:status.not_reachable"
+                });
+                return;
+            }
+
+            switch (node.config.statustext_type) {
+                case 'msg':
+                case 'jsonata':
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: Utils.getNodeProperty({
+                            type: node.config.statustext_type,
+                            value: node.config.statustext
+                        }, node, firstmsg)
+                    });
+                    break;
+                case 'auto':
+                    switch (node.type) {
+                        case 'deconz-input':
+                        case 'deconz-get':
+                            let firstOutputRule = node.config.output_rules[0];
+                            if (firstOutputRule === undefined) return;
+                            if (firstOutputRule.payload.length === 1 &&
+                                !['__complete__', '__each__'].includes(firstOutputRule.payload[0])
+                            ) {
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: firstmsg.payload
+                                });
+                            } else {
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: node.type === 'deconz-get' ?
+                                        'node-red-contrib-deconz/server:status.received' :
+                                        'node-red-contrib-deconz/server:status.connected'
+                                });
+                            }
+                            break;
+                        case'deconz-battery':
+                            let battery = dotProp.get(firstmsg, 'meta.config.battery');
+                            if (battery === undefined) return;
+                            node.status({
+                                fill: (battery >= 20) ? ((battery >= 50) ? "green" : "yellow") : "red",
+                                shape: "dot",
+                                text: battery + '%'
+                            });
+                            break;
+                    }
+                    break;
+            }
+        }
     }
 
     RED.nodes.registerType('deconz-server', ServerNode, {

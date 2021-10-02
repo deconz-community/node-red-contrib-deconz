@@ -27,8 +27,6 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
-            node.cleanTimer = null;
-
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (!node.server) {
@@ -48,33 +46,43 @@ module.exports = function (RED) {
                     migrationResult.errors.forEach(
                         error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                     );
+                    node.error(
+                        `Error with migration of node ${node.type} with id ${node.id}\n` +
+                        error.join('\n') +
+                        '\nPlease open the node settings and update the configuration'
+                    );
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.migration_error"
+                    });
                 }
 
                 // Make sure that all expected config are defined
                 node.config = Object.assign({}, defaultConfig, node.config);
 
-                if (node.config.search_type === 'device' && node.config.device_list.length === 0) {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/get:status.device_not_set"
-                    });
-                    return;
-                }
-
-                // Cleanup old status
-                node.status({});
+                node.server.updateNodeStatus(node, null);
             });
 
             node.on('input', async (message_in) => {
-                clearTimeout(node.cleanTimer);
-
                 // Wait until the server is ready
                 if (node.server.ready === false) {
+                    node.status({
+                        fill: "yellow",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.wait_for_server_start"
+                    });
                     await node.server.waitForReady();
                     if (node.server.ready === false) {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: "node-red-contrib-deconz/server:status.server_node_error"
+                        });
                         //TODO send error, the server is not ready
                         return;
+                    } else {
+                        node.status({});
                     }
                 }
                 //TODO wait for migration ?
@@ -124,18 +132,11 @@ module.exports = function (RED) {
                         msgs[index] = msg;
                         node.send(msgs);
                     }
-                });
 
-                // TODO Display something usefull ?
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/get:status.received",
+                    // Update node status
+                    if (index === 0)
+                        node.server.updateNodeStatus(node, msgToSend);
                 });
-
-                node.cleanTimer = setTimeout(function () {
-                    node.status({}); //clean
-                }, 3000);
 
             });
         }

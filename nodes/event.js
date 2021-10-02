@@ -5,8 +5,6 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
-            //node.cleanTimer = null;
-            //node.status({}); //clean
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -22,17 +20,6 @@ module.exports = function (RED) {
                 payload: rawEvent,
                 meta: device
             });
-            /*
-            clearTimeout(node.cleanTimer);
-            node.status({
-                fill: "green",
-                shape: "dot",
-                text: "node-red-contrib-deconz/event:status.event"
-            });
-            node.cleanTimer = setTimeout(function () {
-                node.status({}); //clean
-            }, 3000);
-             */
         }
 
     }

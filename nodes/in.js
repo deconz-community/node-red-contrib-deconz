@@ -1,6 +1,7 @@
 const dotProp = require('dot-prop');
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
+const Utils = require("../src/runtime/Utils");
 
 const NodeType = 'deconz-input';
 module.exports = function (RED) {
@@ -37,7 +38,7 @@ module.exports = function (RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/in:status.server_node_error"
+                    text: "node-red-contrib-deconz/server:status.server_node_error"
                 });
                 return;
             }
@@ -45,7 +46,7 @@ module.exports = function (RED) {
             node.status({
                 fill: "blue",
                 shape: "dot",
-                text: "node-red-contrib-deconz/in:status.starting"
+                text: "node-red-contrib-deconz/server:status.starting"
             });
 
             node.server.on('onStart', () => {
@@ -56,6 +57,17 @@ module.exports = function (RED) {
                     migrationResult.errors.forEach(
                         error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                     );
+                    node.error(
+                        `Error with migration of node ${node.type} with id ${node.id}\n` +
+                        error.join('\n') +
+                        '\nPlease open the node settings and update the configuration'
+                    );
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.migration_error"
+                    });
+                    return;
                 }
 
                 // Make sure that all expected config are defined
@@ -69,13 +81,7 @@ module.exports = function (RED) {
                     node.server.registerNodeWithQuery(node.config.id);
                 }
 
-                // Display usefull info
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/server:status.connected"
-                });
-
+                node.server.updateNodeStatus(node, null);
             });
 
         }
@@ -109,15 +115,11 @@ module.exports = function (RED) {
                         msgs[index] = msg;
                         node.send(msgs);
                     }
+
+                    // Update node status
+                    if (index === 0)
+                        node.server.updateNodeStatus(node, msgToSend);
                 }
-
-                //TODO display msg payload if it's possible (one rule and payload a non object value
-                node.status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "node-red-contrib-deconz/server:status.connected"
-                });
-
 
             });
         }

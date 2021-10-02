@@ -21,13 +21,20 @@
   "status": {
     "disconnected": "disconnected",
     "connected": "connected",
+    "wait_for_server_start": "waiting for server",
     "server_node_error": "server node error",
     "not_reachable": "not reachable",
     "device_not_set": "device not set",
     "reconnecting": "reconnecting...",
     "starting": "starting...",
     "query_error": "can't read device query",
-    "only_always": "Complete payload only accept Always as output setting"
+    "only_always": "Complete payload only accept Always as output setting",
+    "migration_error": "migration error",
+    "event_count": "{{event_count}} events",
+    "out_commands": {
+      "main": "{{index}}/{{count}} - {{status}}",
+      "pause": "Pause for {{delay}}ms"
+    }
   },
   "editor": {
     "multiselect": {
