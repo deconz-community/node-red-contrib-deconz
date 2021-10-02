@@ -31,6 +31,17 @@
         </div>
         <!--#endregion -->
 
+        <!-- --- Status text --- -->
+        <div class="form-row deconz-node">
+            <label for="node-input-statustext" class="l-width">
+                <i class="fa fa-search"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.statustext.label"></span>
+            </label>
+            <input type="text" id="node-input-statustext">
+            <input type="hidden" id="node-input-statustext_type">
+        </div>
+        <!--#endregion -->
+
         <!--#region --- Section Device selection --- -->
         <div class="separator" data-i18n="node-red-contrib-deconz/server:editor.inputs.separator.device"></div>
 
@@ -123,6 +134,14 @@
             },
             server: {
                 type: "deconz-server",
+                required: true
+            },
+            statustext: {
+                value: "",
+                required: false
+            },
+            statustext_type: {
+                value: "default",
                 required: true
             },
             search_type: {

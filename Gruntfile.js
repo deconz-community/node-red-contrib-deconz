@@ -23,6 +23,7 @@ module.exports = grunt => {
                         'src/editor/DeconzEditor.js',
                         'src/editor/DeconzMainEditor.js',
 
+                        'src/editor/DeconzStatusTextEditor.js',
                         'src/editor/DeconzDeviceListEditor.js',
                         'src/editor/DeconzQueryEditor.js',
                         'src/editor/DeconzDeviceEditor.js',

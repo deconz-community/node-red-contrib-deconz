@@ -40,6 +40,12 @@
         "outputs": "Outputs",
         "commands": "Commands"
       },
+      "statustext": {
+        "label": "Node status",
+        "options": {
+          "auto": "Auto"
+        }
+      },
       "server": {
         "label": "Server"
       },

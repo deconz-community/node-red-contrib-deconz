@@ -3,6 +3,7 @@ class DeconzMainEditor extends DeconzEditor {
     constructor(node, options = {}) {
         super(node, $.extend(true, {
             have: {
+                statustext: true,
                 query: true,
                 device: true,
                 output_rules: false,
@@ -45,6 +46,7 @@ class DeconzMainEditor extends DeconzEditor {
         this.subEditor = {};
         this.initDone = false;
 
+        if (this.options.have.statustext) this.subEditor.statustext = new DeconzStatusTextEditor(this.node, this.options.statustext);
         // TODO pourquoi le device dois être init avant le query ???
         if (this.options.have.device) this.subEditor.device = new DeconzDeviceEditor(this.node, this.options.device);
         if (this.options.have.query) this.subEditor.query = new DeconzQueryEditor(this.node, this.options.query);
