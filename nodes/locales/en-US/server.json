@@ -33,7 +33,9 @@
     "event_count": "{{event_count}} events",
     "out_commands": {
       "main": "{{index}}/{{count}} - {{status}}",
-      "pause": "Pause for {{delay}}ms"
+      "pause": "Pause for {{delay}}ms",
+      "delay": "Wait for {{delay}}ms",
+      "request": "Request {{index}}/{{count}}"
     }
   },
   "editor": {

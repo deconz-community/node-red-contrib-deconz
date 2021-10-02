@@ -87,10 +87,22 @@ module.exports = function (RED) {
             this.on('input', async (message_in, send, done) => {
                 // Wait until the server is ready
                 if (node.server.ready === false) {
+                    node.status({
+                        fill: "yellow",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.wait_for_server_start"
+                    });
                     await node.server.waitForReady();
                     if (node.server.ready === false) {
+                        node.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: "node-red-contrib-deconz/server:status.server_node_error"
+                        });
                         //TODO send error, the server is not ready
                         return;
+                    } else {
+                        node.status({});
                     }
                 }
                 //TODO wait for migration ?
@@ -98,7 +110,6 @@ module.exports = function (RED) {
                 let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
                 if (typeof delay !== 'number') delay = 50;
 
-                //clearTimeout(node.cleanTimer);
                 let devices = [];
                 switch (node.config.search_type) {
                     case 'device':
@@ -125,19 +136,46 @@ module.exports = function (RED) {
                 let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
                 if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
-                for (const [id, saved_command] of node.config.commands.entries()) {
+                let command_count = node.config.commands.length;
+                for (const [command_id, saved_command] of node.config.commands.entries()) {
                     // Make sure that all expected config are defined
                     const command = Object.assign({}, defaultCommand, saved_command);
                     if (command.type === 'pause') {
-                        await Utils.sleep(Utils.getNodeProperty(command.arg.delay, this, message_in), 2000);
+                        let sleep_delay = Utils.getNodeProperty(command.arg.delay, this, message_in);
+                        node.status({
+                            fill: "blue",
+                            shape: "dot",
+                            text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                .replace('{{index}}', (command_id + 1).toString())
+                                .replace('{{count}}', command_count)
+                                .replace('{{status}}',
+                                    RED._("node-red-contrib-deconz/server:status.out_commands.pause")
+                                        .replace('{{delay}}', sleep_delay)
+                                )
+                        });
+                        await Utils.sleep(sleep_delay, 2000);
                         continue;
                     }
 
                     try {
                         let cp = new CommandParser(command, message_in, node);
                         let requests = cp.getRequests(node, devices);
-                        for (const request of requests) {
+                        let request_count = requests.length;
+                        for (const [request_id, request] of requests.entries()) {
                             try {
+                                if (requests.length > 1)
+                                    node.status({
+                                        fill: "blue",
+                                        shape: "dot",
+                                        text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                            .replace('{{index}}', (command_id + 1).toString())
+                                            .replace('{{count}}', command_count)
+                                            .replace('{{status}}',
+                                                RED._("node-red-contrib-deconz/server:status.out_commands.request")
+                                                    .replace('{{index}}', (request_id + 1).toString())
+                                                    .replace('{{count}}', request_count)
+                                            )
+                                    });
                                 const response = await got(
                                     node.server.api.url.main() + request.endpoint,
                                     {
@@ -180,7 +218,22 @@ module.exports = function (RED) {
                                         resultMsgs.push(resultMsg);
                                     }
                                 }
-                                await Utils.sleep(delay - dotProp.get(response, 'timings.phases.total', 0));
+
+                                let sleep_delay = delay - dotProp.get(response, 'timings.phases.total', 0);
+                                if (sleep_delay >= 200)
+                                    node.status({
+                                        fill: "blue",
+                                        shape: "dot",
+                                        text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                            .replace('{{index}}', (command_id + 1).toString())
+                                            .replace('{{count}}', command_count)
+                                            .replace('{{status}}',
+                                                RED._("node-red-contrib-deconz/server:status.out_commands.delay")
+                                                    .replace('{{delay}}', sleep_delay)
+                                            )
+                                    });
+                                await Utils.sleep(sleep_delay);
+
                             } catch (error) {
                                 if (resultTiming !== 'never') {
                                     let errorMsg = {};
@@ -215,11 +268,12 @@ module.exports = function (RED) {
                             }
                         }
                     } catch (error) {
-                        node.error(`Error while processing command #${id + 1}, ${error}`, message_in);
+                        node.error(`Error while processing command #${command_id + 1}, ${error}`, message_in);
                         console.warn(error);
                     }
 
                 }
+                node.status({});
 
                 if (resultTiming === 'at_end') {
                     let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
