@@ -6,6 +6,8 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
+            node.status({});
+
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
             if (node.server) {
