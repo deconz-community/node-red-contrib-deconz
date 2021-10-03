@@ -1,6 +1,7 @@
 const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
 const ConfigMigration = require("./src/migration/ConfigMigration");
+const DeconzAPI = require("./src/runtime/DeconzAPI");
 
 module.exports = function (RED) {
 
@@ -154,4 +155,15 @@ module.exports = function (RED) {
         res.json(result);
     });
 
+    RED.httpAdmin.get(NODE_PATH + 'serverAutoconfig', async function (req, res) {
+        let data = req.query;
+        let config = JSON.parse(data.config);
+        let api = new DeconzAPI({
+            ip: config.ip,
+            port: config.port,
+            key: config.apikey
+        });
+        let result = await api.discoverSettings(config.discoverParam || {});
+        res.json(result);
+    });
 };

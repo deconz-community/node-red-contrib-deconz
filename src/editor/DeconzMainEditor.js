@@ -55,6 +55,9 @@ class DeconzMainEditor extends DeconzEditor {
                 case'deconz-output':
                     this.subEditor.specific = new DeconzSpecificOutputEditor(this.node, this.options.specific.output);
                     break;
+                case 'deconz-server':
+                    this.subEditor.specific = new DeconzSpecificServerEditor(this.node, this.options.specific.server);
+                    break;
             }
         }
         if (this.options.have.output_rules) this.subEditor.output_rules = new DeconzOutputRuleListEditor(this.node, this.options.output_rules);
