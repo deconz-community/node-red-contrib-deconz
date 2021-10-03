@@ -174,6 +174,9 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
     }
 
     async updatePayloadList() {
+        // Don't update list if server is not set.
+        if (!this.listEditor.mainEditor.serverNode) return;
+
         this.$elements.payload.multipleSelect('disable');
         this.$elements.payload.children().remove();
 

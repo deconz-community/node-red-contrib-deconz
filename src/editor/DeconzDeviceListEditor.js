@@ -51,6 +51,9 @@ class DeconzDeviceListEditor extends DeconzEditor {
             refresh: true
         }, options);
 
+        // Don't update list if server is not set.
+        if (!this.mainEditor.serverNode) return;
+
         /** @type {JQuery} */
         let list = this.$elements.list;
 
