@@ -132,19 +132,6 @@ module.exports = function (RED) {
             res.status(404).end();
         }
     });
-    // RED.httpAdmin.get(NODE_PATH + 'gwscanner', function (req, res) {
-    //     // let ip = require("ip");
-    //     // console.log ( ip.address() );
-    //
-    //     let portscanner = require('portscanner');
-    //
-    //     // 127.0.0.1 is the default hostname; not required to provide
-    //     portscanner.findAPortNotInUse([80], '127.0.0.1').then(port => {
-    //         console.log(`Port ${port} is available!`);
-    //
-    //         // Now start your service on this port...
-    //     });
-    // });
 
     RED.httpAdmin.get(NODE_PATH + 'configurationMigration', function (req, res) {
         let data = req.query;
