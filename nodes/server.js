@@ -43,27 +43,30 @@ module.exports = function (RED) {
             node.refreshDiscoverTimer = null;
             node.refreshDiscoverInterval = node.config.polling >= 3 ? node.config.polling * 1000 : 15000;
 
-
             node.on('close', () => this.onClose());
 
             (async () => {
-                //TODO make the delay configurable
-                await Utils.sleep(1500);
+                try {
+                    //TODO make the delay configurable
+                    await Utils.sleep(1500);
 
-                await node.discoverDevices({
-                    forceRefresh: true
-                });
-                this.refreshDiscoverTimer = setInterval(() => {
-                    node.discoverDevices({
+                    await node.discoverDevices({
                         forceRefresh: true
                     });
-                }, node.refreshDiscoverInterval);
+                    this.refreshDiscoverTimer = setInterval(() => {
+                        node.discoverDevices({
+                            forceRefresh: true
+                        });
+                    }, node.refreshDiscoverInterval);
 
-                node.ready = true;
+                    node.ready = true;
+
+                    this.setupDeconzSocket(node);
+                } catch (e) {
+                    node.ready = false;
+                    node.error("Deconz Server node error " + e.toString());
+                }
                 node.emit('onStart');
-
-                this.setupDeconzSocket(node);
-
             })();
         }
 
