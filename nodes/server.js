@@ -568,7 +568,7 @@ module.exports = function (RED) {
                         case 'deconz-get':
                             let firstOutputRule = node.config.output_rules[0];
                             if (firstOutputRule === undefined) return;
-                            if (firstOutputRule.payload.length === 1 &&
+                            if (Array.isArray(firstOutputRule.payload) && firstOutputRule.payload.length === 1 &&
                                 !['__complete__', '__each__'].includes(firstOutputRule.payload[0])
                             ) {
                                 node.status({
