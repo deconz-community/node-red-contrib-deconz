@@ -12,6 +12,8 @@ module.exports = function (RED) {
 
     const defaultConfig = {
         name: "",
+        statustext: "",
+        statustext_type: 'auto',
         search_type: 'device',
         device_list: [],
         device_name: "",
