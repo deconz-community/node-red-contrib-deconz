@@ -55,7 +55,8 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
-            node.status({}); //clean
+            node.cleanStatusTimer = null;
+            node.status({});
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -82,9 +83,9 @@ module.exports = function (RED) {
                 node.config = Object.assign({}, defaultConfig, node.config);
             });
 
-            node.cleanTimer = null;
-
             this.on('input', async (message_in, send, done) => {
+                clearTimeout(node.cleanStatusTimer);
+
                 // Wait until the server is ready
                 if (node.server.ready === false) {
                     node.status({
@@ -163,19 +164,19 @@ module.exports = function (RED) {
                         let request_count = requests.length;
                         for (const [request_id, request] of requests.entries()) {
                             try {
-                                if (requests.length > 1)
-                                    node.status({
-                                        fill: "blue",
-                                        shape: "dot",
-                                        text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
-                                            .replace('{{index}}', (command_id + 1).toString())
-                                            .replace('{{count}}', command_count)
-                                            .replace('{{status}}',
-                                                RED._("node-red-contrib-deconz/server:status.out_commands.request")
-                                                    .replace('{{index}}', (request_id + 1).toString())
-                                                    .replace('{{count}}', request_count)
-                                            )
-                                    });
+                                node.status({
+                                    fill: "blue",
+                                    shape: "dot",
+                                    text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                        .replace('{{index}}', (command_id + 1).toString())
+                                        .replace('{{count}}', command_count)
+                                        .replace('{{status}}',
+                                            RED._("node-red-contrib-deconz/server:status.out_commands.request")
+                                                .replace('{{index}}', (request_id + 1).toString())
+                                                .replace('{{count}}', request_count)
+                                        )
+                                });
+
                                 const response = await got(
                                     node.server.api.url.main() + request.endpoint,
                                     {
@@ -273,7 +274,6 @@ module.exports = function (RED) {
                     }
 
                 }
-                node.status({});
 
                 if (resultTiming === 'at_end') {
                     let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
@@ -283,6 +283,10 @@ module.exports = function (RED) {
                     send(endMsg);
                 }
 
+                node.server.updateNodeStatus(node, null);
+                node.cleanStatusTimer = setTimeout(function () {
+                    node.status({}); //clean
+                }, 3000);
             });
 
         }

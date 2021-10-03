@@ -506,6 +506,17 @@ module.exports = function (RED) {
 
         }
 
+        getDefaultMsg(nodeType) {
+            switch (nodeType) {
+                case 'deconz-input':
+                    return 'node-red-contrib-deconz/server:status.connected';
+                case 'deconz-get':
+                    return 'node-red-contrib-deconz/server:status.received';
+                case 'deconz-output':
+                    return 'node-red-contrib-deconz/server:status.done';
+            }
+        }
+
         updateNodeStatus(node, msgToSend) {
             if (node.config.search_type === "device" && node.config.device_list.length === 0) {
                 node.status({
@@ -520,7 +531,7 @@ module.exports = function (RED) {
                 node.status({
                     fill: "green",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/server:status.connected"
+                    text: this.getDefaultMsg(node.type)
                 });
                 return;
             }
@@ -569,13 +580,11 @@ module.exports = function (RED) {
                                 node.status({
                                     fill: "green",
                                     shape: "dot",
-                                    text: node.type === 'deconz-get' ?
-                                        'node-red-contrib-deconz/server:status.received' :
-                                        'node-red-contrib-deconz/server:status.connected'
+                                    text: this.getDefaultMsg(node.type)
                                 });
                             }
                             break;
-                        case'deconz-battery':
+                        case 'deconz-battery':
                             let battery = dotProp.get(firstmsg, 'meta.config.battery');
                             if (battery === undefined) return;
                             node.status({

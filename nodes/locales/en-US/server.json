@@ -21,6 +21,8 @@
   "status": {
     "disconnected": "disconnected",
     "connected": "connected",
+    "received": "received",
+    "done": "done",
     "wait_for_server_start": "waiting for server",
     "server_node_error": "server node error",
     "not_reachable": "not reachable",

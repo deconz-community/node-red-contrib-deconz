@@ -68,6 +68,7 @@ module.exports = function (RED) {
             });
 
             node.on('input', async (message_in) => {
+                clearTimeout(node.cleanStatusTimer);
                 // Wait until the server is ready
                 if (node.server.ready === false) {
                     node.status({
@@ -140,7 +141,9 @@ module.exports = function (RED) {
                     if (index === 0)
                         node.server.updateNodeStatus(node, msgToSend);
                 });
-
+                node.cleanStatusTimer = setTimeout(function () {
+                    node.status({}); //clean
+                }, 3000);
             });
         }
     }
