@@ -87,7 +87,8 @@ module.exports = function (RED) {
             });
 
             this.on('input', async (message_in, send, done) => {
-                clearTimeout(node.cleanStatusTimer);
+                if (node.config.statustext_type === 'auto')
+                    clearTimeout(node.cleanStatusTimer);
 
                 // Wait until the server is ready
                 if (node.server.ready === false) {
@@ -287,9 +288,10 @@ module.exports = function (RED) {
                 }
 
                 node.server.updateNodeStatus(node, null);
-                node.cleanStatusTimer = setTimeout(function () {
-                    node.status({}); //clean
-                }, 3000);
+                if (node.config.statustext_type === 'auto')
+                    node.cleanStatusTimer = setTimeout(function () {
+                        node.status({}); //clean
+                    }, 3000);
             });
 
         }
