@@ -521,6 +521,15 @@ module.exports = function (RED) {
         }
 
         updateNodeStatus(node, msgToSend) {
+            if (node.server.ready === false) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.server_node_error"
+                });
+                return;
+            }
+
             if (node.config.search_type === "device" && node.config.device_list.length === 0) {
                 node.status({
                     fill: "red",
