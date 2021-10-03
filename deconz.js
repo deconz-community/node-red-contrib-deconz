@@ -158,11 +158,7 @@ module.exports = function (RED) {
     RED.httpAdmin.get(NODE_PATH + 'serverAutoconfig', async function (req, res) {
         let data = req.query;
         let config = JSON.parse(data.config);
-        let api = new DeconzAPI({
-            ip: config.ip,
-            port: config.port,
-            key: config.apikey
-        });
+        let api = new DeconzAPI(config);
         let result = await api.discoverSettings(config.discoverParam || {});
         res.json(result);
     });

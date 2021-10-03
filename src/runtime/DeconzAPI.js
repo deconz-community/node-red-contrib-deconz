@@ -1,9 +1,12 @@
 const got = require('got');
+const dns = require('dns');
+const dnsPromises = dns.promises;
+
 
 class DeconzAPI {
 
     constructor(options) {
-        Object.assign({}, this.defaultOptions, options);
+        options = Object.assign({}, this.defaultOptions, options);
         this.name = options.name;
         this.ip = options.ip;
         this.port = options.port;
@@ -144,31 +147,52 @@ class DeconzAPI {
 
         if (discoverData) {
             if (this.name === undefined || String(this.name).length === 0) this.name = discoverData.name;
-            if (this.ip === undefined || String(this.ip).length === 0) this.ip = discoverData.internalipaddress;
+            if (this.ip === undefined || String(this.ip).length === 0) {
+                this.ip = discoverData.internalipaddress;
+                try {
+                    response.log.push(`Trying to get a dns name for fetched IP "${this.ip}".`);
+                    let dnsNames = await dnsPromises.reverse(this.ip);
+                    if (dnsNames.length === 0) {
+                        response.log.push("No domain name found.");
+                    } else if (dnsNames.length === 1) {
+                        this.ip = dnsNames[0];
+                        response.log.push(`Found domain name "${this.ip}".`);
+                    } else {
+                        this.ip = dnsNames[0];
+                        response.log.push(`Found multiple domain name "${dnsNames.toString()}".`);
+                        response.log.push(`Using domain name "${this.ip}".`);
+                    }
+                } catch (e) {
+                    response.log.push("No domain name found.");
+                }
+            }
             if (this.port === undefined || String(this.port).length === 0) this.port = discoverData.internalport;
         }
 
-        if ((this.key === undefined || String(this.key).length === 0)) {
-            response.log.push("No API key provided, trying acquiring one.");
+        if ((this.key === undefined || String(this.key).length === 0) || this.key === '<nouser>') {
+            response.log.push("No valid API key provided, trying acquiring one.");
+            this.key = '<nouser>';
             let apiQuery;
-
-            // First try to get an api key
-            response.log.push(`Requesting api key at ${this.url.main()}`);
-            apiQuery = await this.getAPIKey(options.devicetype);
-
             let guesses = [
+                {secured: this.secured, ip: this.ip},
                 {secured: false, ip: 'core-deconz.local.hass.io'},
-                {secured: true, ip: 'core-deconz.local.hass.io'},
                 {secured: false, ip: 'homeassistant.local'},
-                {secured: true, ip: 'homeassistant.local'},
-                {secured: this.secured, ip: this.ip}
             ];
 
             if (apiQuery === undefined) {
                 for (const guess of guesses) {
                     this.secured = guess.secured;
                     this.ip = guess.ip;
-                    response.log.push(`Requesting api key at ${this.url.main()}.`);
+                    let bridgeID = await this.getConfig('bridgeid');
+                    if (bridgeID === undefined) {
+                        response.log.push(`Requesting api key at ${this.url.main()}... Failed.`);
+                        continue;
+                    }
+                    response.log.push(`Found gateway ID "${bridgeID}" at "${this.url.main()}".`);
+                    if (discoverData && discoverData.id !== bridgeID) {
+                        response.log.push(`Bridge id mismatch, got "${bridgeID}" and expect "${discoverData.id}". Skipped.`);
+                        continue;
+                    }
                     apiQuery = await this.getAPIKey(options.devicetype);
                     if (apiQuery !== undefined) break;
                 }
@@ -204,7 +228,7 @@ class DeconzAPI {
         }
 
         if ((this.ws_port === undefined || String(this.ws_port).length === 0)) {
-            this.ws_port = await this.getWebSocketPort();
+            this.ws_port = await this.getConfig('websocketport');
         }
 
         response.success = true;
@@ -258,7 +282,7 @@ class DeconzAPI {
         }
     }
 
-    async getWebSocketPort() {
+    async getConfig(keyName) {
         try {
             const discover = await got(
                 this.url.main() + this.url.config.main(),
@@ -269,13 +293,22 @@ class DeconzAPI {
                     timeout: 2000
                 }
             );
-            return discover.body.websocketport;
+            return keyName === undefined ? discover.body : discover.body[keyName];
         } catch (e) {
             console.warn(e.toString());
         }
     }
 
     get settings() {
+        console.log({
+            name: this.name,
+            ip: this.ip,
+            port: this.port,
+            apikey: this.key,
+            ws_port: this.ws_port,
+            secure: this.secured,
+            polling: this.polling
+        });
         return {
             name: this.name,
             ip: this.ip,

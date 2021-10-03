@@ -140,7 +140,8 @@ class DeconzSpecificServerEditor extends DeconzEditor {
 
                 html += `<p>Logs:</p><pre>${request.log.join('\n')}</pre>`;
 
-                myNotification.update(html, {
+                closeNotification();
+                myNotification = RED.notify(html, {
                     modal: true,
                     fixed: true,
                     type: 'error',
@@ -148,15 +149,15 @@ class DeconzSpecificServerEditor extends DeconzEditor {
                 });
             } else if (request.success) {
                 closeNotification();
-                RED.notify(`<p>Settings fetched successfully !</p>`, {
+                myNotification = RED.notify(`<p>Settings fetched successfully !</p>`, {
                     modal: false,
                     fixed: false,
-                    type: 'compact'
+                    type: 'success'
                 });
                 this.value = request.currentSettings;
-                //TODO update values
             } else {
-                myNotification.update(`<p>Unknown error : ${JSON.stringify(request)}</p>`, {
+                closeNotification();
+                myNotification = RED.notify(`<p>Unknown error : ${JSON.stringify(request)}</p>`, {
                     modal: true,
                     fixed: true,
                     type: 'error',
@@ -171,7 +172,7 @@ class DeconzSpecificServerEditor extends DeconzEditor {
             }
         } catch (error) {
             closeNotification();
-            RED.notify(`<p>Error while processing request: ${error.toString()}</p>`, {
+            myNotification = RED.notify(`<p>Error while processing request: ${error.toString()}</p>`, {
                 type: 'error',
             });
         }
@@ -197,7 +198,7 @@ class DeconzSpecificServerEditor extends DeconzEditor {
         this.$elements.apikey.val(newValues.apikey);
         this.$elements.ws_port.val(newValues.ws_port);
         this.$elements.secure.prop('checked', newValues.secure);
-        this.$elements.polling.val(newValues.polling); //TODO why this value is deleted
+        this.$elements.polling.val(newValues.polling);
         for (const element of Object.values(this.$elements)) {
             element.change();
         }
