@@ -120,9 +120,13 @@ module.exports = function (RED) {
             }
 
             node.discoverProcessRunning = true;
-            const response = await got(node.api.url.main()).json();
-            node.device_list.parse(response);
-            node.log(`discoverDevices: Updated ${node.device_list.count}`);
+            try {
+                const response = await got(node.api.url.main()).json();
+                node.device_list.parse(response);
+                node.log(`discoverDevices: Updated ${node.device_list.count}`);
+            } catch (e) {
+                node.error(`discoverDevices: Can't connect to deconz API.`);
+            }
             node.discoverProcessRunning = false;
         }
 
