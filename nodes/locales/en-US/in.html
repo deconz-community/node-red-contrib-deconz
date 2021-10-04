@@ -15,7 +15,7 @@
 
             <dt>Query <span class="property-type">string</span></dt>
             <dd>
-                How get the devices, can be a Device list or a Query. See more about Queries on the
+                How to get the devices, can be a Device list or a Query. See more about Queries on the
                 <a href="https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries">Github
                     Wiki</a>.
             </dd>
@@ -61,15 +61,15 @@
                     <li>On change: Will be sent if the value changed.</li>
                     <li>
                         On update: Will be sent if
-                        the state <strong>lastupdated</strong> changed
-                        or one of the config values changed.
+                        the state <strong>lastupdated</strong> is changed
+                        or one of the config values is changed.
                     </li>
                 </ul>
             </dd>
 
             <dt class="optional">Start output <span class="property-type">boolean</span></dt>
             <dd>
-                Indicate if the payload will be sent when Node-Red start
+                Indicate if the payload will be sent when Node-Red starts
                 or after the reconnection between Node-Red and Deconz REST API.
             </dd>
 
@@ -86,7 +86,7 @@
             <dt>topic <span class="property-type">string</span></dt>
             <dd>The topic from the node settings.</dd>
             <dt>payload <span class="property-type">string or object</span></dt>
-            <dd>Complete data of chosen type parameter.</dd>
+            <dd>Complete data of chosen parameter type.</dd>
             <dt>payload_format <span class="property-type">string</span></dt>
             <dd>The name of the value or <code>__complete__</code> if the selected payload is "Complete payload.</dd>
             <dt>payload_raw<span class="property-type">object</span></dt>
