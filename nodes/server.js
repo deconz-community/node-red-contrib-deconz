@@ -164,6 +164,11 @@ module.exports = function (RED) {
                         });
                     }
                 } catch (e) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.query_error"
+                    });
                     node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }
@@ -212,6 +217,11 @@ module.exports = function (RED) {
                         });
                     }
                 } catch (e) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.query_error"
+                    });
                     node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }
@@ -498,6 +508,11 @@ module.exports = function (RED) {
                         matched.push(nodeID);
                     }
                 } catch (e) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.query_error"
+                    });
                     node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }

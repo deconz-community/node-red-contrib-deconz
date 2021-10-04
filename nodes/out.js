@@ -142,6 +142,11 @@ module.exports = function (RED) {
                                 devices.push({data: r});
                             }
                         } catch (e) {
+                            node.status({
+                                fill: "red",
+                                shape: "dot",
+                                text: "node-red-contrib-deconz/server:status.query_error"
+                            });
                             done(e.toString());
                             return;
                         }
