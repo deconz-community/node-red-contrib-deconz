@@ -141,7 +141,7 @@ class DeconzEditor {
             timeout: timeout,
             type: 'error',
             buttons: [{
-                'text': 'okay',
+                'text': 'Ok',
                 'class': 'primary',
                 'click': () => myNotification.close()
             }]

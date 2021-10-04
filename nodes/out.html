@@ -215,7 +215,13 @@
         oneditprepare: function () {
             let node = this;
             node.nodeEditor = new DeconzMainEditor(node, {
-                have: {commands: true, specific: true}
+                have: {
+                    commands: true,
+                    specific: true
+                },
+                commands: {
+                    button_title: 'node-red-contrib-deconz/server:editor.inputs.commands.rule_button.desc',
+                }
             });
             node.nodeEditor.init();
         },

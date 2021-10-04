@@ -227,9 +227,64 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             this.updateShowHide(type, value);
         });
 
+        this.$elements.outputButton.on('click', async () => {
+            try {
+                let queryMode = this.listEditor.mainEditor.subEditor.query.type;
+                if (queryMode !== 'device') {
+                    this.sendError("Error : The run command can only work with device list.", 5000);
+                    return;
+                }
+                let devices = this.listEditor.mainEditor.subEditor.device.value;
+                if (devices.length === 0) {
+                    this.sendError("Error : No device selected.", 5000);
+                    return;
+                }
 
-        //this.updateSceneList();
+                let command = this.value;
+                if (command.type === 'pause') {
+                    this.sendError("Error : Can't test pause command.", 5000);
+                    return;
+                }
 
+                for (const [name, value] of Object.entries(command.arg)) {
+                    if (['msg', 'flow', 'global', 'jsonata'].includes(value.type)) {
+                        this.sendError(`Error : Cant run this command because the value "${name}" is type "${value.type}".`, 5000);
+                        return;
+                    }
+                }
+
+                let myNotification = RED.notify("Sending request...", {
+                    type: 'info'
+                });
+
+                let result = await $.post(
+                    `${this.NRCD}/testCommand`,
+                    {
+                        controllerID: this.listEditor.mainEditor.serverNode.id,
+                        device_list: devices,
+                        command,
+                        delay: this.listEditor.mainEditor.subEditor.specific.value.delay
+                    }).catch((t, u) => {
+                    this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
+                });
+
+                myNotification.close();
+
+                myNotification = RED.notify("Ok", {
+                    timeout: 1000,
+                    type: 'success'
+                });
+
+            } catch (e) {
+                let myNotification = RED.notify(e.toString(), {
+                    type: 'error',
+                    buttons: [{
+                        'class': 'error',
+                        'click': () => myNotification.close()
+                    }]
+                });
+            }
+        });
 
         const updateSceneGroupSelection = () => {
             let value = this.$elements.scene_picker.multipleSelect('getSelects');

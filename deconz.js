@@ -2,6 +2,9 @@ const NODE_PATH = '/node-red-contrib-deconz/';
 const path = require('path');
 const ConfigMigration = require("./src/migration/ConfigMigration");
 const DeconzAPI = require("./src/runtime/DeconzAPI");
+const CommandParser = require("./src/runtime/CommandParser");
+const got = require("got");
+const Utils = require("./src/runtime/Utils");
 
 module.exports = function (RED) {
 
@@ -176,6 +179,41 @@ module.exports = function (RED) {
             res.json(result);
         } catch (e) {
             console.warn(e.toString());
+            res.status(500).end();
+        }
+    });
+
+    RED.httpAdmin.post(NODE_PATH + 'testCommand', async function (req, res) {
+        try {
+            let config = req.body;
+            let controller = RED.nodes.getNode(config.controllerID);
+            if (controller && controller.constructor.name === "ServerNode") {
+                let fakeNode = {server: controller};
+                let cp = new CommandParser(config.command, {}, fakeNode);
+                let devices = [];
+                for (let path of config.device_list) {
+                    devices.push({data: controller.device_list.getDeviceByPath(path)});
+                }
+                let requests = cp.getRequests(fakeNode, devices);
+                for (const [request_id, request] of requests.entries()) {
+                    const response = await got(
+                        controller.api.url.main() + request.endpoint,
+                        {
+                            method: 'PUT',
+                            retry: Utils.getNodeProperty(config.command.arg.retryonerror, this, {}) || 0,
+                            json: request.params,
+                            responseType: 'json',
+                            timeout: 2000 // TODO make configurable ?
+                        }
+                    );
+                    await Utils.sleep(Utils.getNodeProperty(config.delay, this, {}) || 50);
+                }
+                res.status(200).end();
+            } else {
+                res.status(404).end();
+            }
+        } catch (e) {
+            console.warn("Error when running command : " + e.toString());
             res.status(500).end();
         }
     });

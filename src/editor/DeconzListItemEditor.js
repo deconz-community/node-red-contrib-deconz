@@ -29,10 +29,12 @@ class DeconzListItemEditor extends DeconzEditor {
     async generateOutputButton(container) {
         $('<a/>', {
             id: this.elements.outputButton,
-            class: 'red-ui-button top-right-badge'
-        }).append(
-            `&nbsp;&#8594;&nbsp;<span class="node-input-rule-index">${this.index + 1}</span>&nbsp;`
-        ).appendTo(container);
+            class: 'red-ui-button top-right-badge',
+            title: RED._(this.options.button_title)
+        })
+            .append(
+                `&nbsp;&#8594;&nbsp;<span class="node-input-rule-index">${this.index + 1}</span>&nbsp;`
+            ).appendTo(container);
 
     }
 

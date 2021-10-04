@@ -145,6 +145,9 @@
           "label": "Error output",
           "icon": "external-link-square",
           "desc": "Send NO_RESPONSE on socket error."
+        },
+        "rule_button": {
+          "desc": "Show list of nodes connected to this output."
         }
       },
       "commands": {
@@ -516,6 +519,9 @@
               }
             }
           }
+        },
+        "rule_button": {
+          "desc": "Run this command now."
         }
       },
       "specific": {
