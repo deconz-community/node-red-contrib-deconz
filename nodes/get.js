@@ -121,8 +121,13 @@ module.exports = function (RED) {
                             message_in,
                             undefined
                         );
-                        for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
-                            devices.push({data: r});
+                        try {
+                            for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                                devices.push({data: r});
+                            }
+                        } catch (e) {
+                            done(e.toString());
+                            return;
                         }
                         break;
                 }
