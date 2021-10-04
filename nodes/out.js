@@ -87,6 +87,14 @@ module.exports = function (RED) {
             });
 
             this.on('input', async (message_in, send, done) => {
+                // For maximum backwards compatibility, check that send and done exists.
+                send = send || function () {
+                    node.send.apply(node, arguments);
+                };
+                done = done || function (err) {
+                    if (err) node.error(err, message_in);
+                };
+
                 if (node.config.statustext_type === 'auto')
                     clearTimeout(node.cleanStatusTimer);
 
@@ -104,7 +112,7 @@ module.exports = function (RED) {
                             shape: "dot",
                             text: "node-red-contrib-deconz/server:status.server_node_error"
                         });
-                        //TODO send error, the server is not ready
+                        done(RED._("node-red-contrib-deconz/server:status.server_node_error"));
                         return;
                     } else {
                         node.status({});
@@ -292,6 +300,8 @@ module.exports = function (RED) {
                     node.cleanStatusTimer = setTimeout(function () {
                         node.status({}); //clean
                     }, 3000);
+
+                done();
             });
 
         }

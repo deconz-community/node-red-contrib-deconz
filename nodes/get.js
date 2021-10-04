@@ -1,5 +1,7 @@
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
+const dotProp = require("dot-prop");
+const Utils = require("../src/runtime/Utils");
 
 
 const NodeType = 'deconz-get';
@@ -69,7 +71,16 @@ module.exports = function (RED) {
                 node.server.updateNodeStatus(node, null);
             });
 
-            node.on('input', async (message_in) => {
+            node.on('input', async (message_in, send, done) => {
+                // For maximum backwards compatibility, check that send and done exists.
+                send = send || function () {
+                    node.send.apply(node, arguments);
+                };
+                done = done || function (err) {
+                    if (err) node.error(err, message_in);
+                };
+                let unreachableDevices = [];
+
                 if (node.config.statustext_type === 'auto')
                     clearTimeout(node.cleanStatusTimer);
                 // Wait until the server is ready
@@ -86,7 +97,7 @@ module.exports = function (RED) {
                             shape: "dot",
                             text: "node-red-contrib-deconz/server:status.server_node_error"
                         });
-                        //TODO send error, the server is not ready
+                        done(RED._("node-red-contrib-deconz/server:status.server_node_error"));
                         return;
                     } else {
                         node.status({});
@@ -137,7 +148,16 @@ module.exports = function (RED) {
                     // Send msgs
                     for (let msg of msgToSend) {
                         msgs[index] = msg;
-                        node.send(msgs);
+                        send(msgs);
+                        if (dotProp.get(msg, 'meta.state.reachable') === false ||
+                            dotProp.get(msg, 'meta.config.reachable') === false
+                        ) {
+                            let device_path = dotProp.get(msg, 'meta.device_path');
+                            if (device_path && !unreachableDevices.includes(device_path)) {
+                                done(`Device "${dotProp.get(msg, 'meta.name')}" is not reachable.`);
+                                unreachableDevices.push(device_path);
+                            }
+                        }
                     }
 
                     // Update node status
@@ -148,6 +168,8 @@ module.exports = function (RED) {
                     node.cleanStatusTimer = setTimeout(function () {
                         node.status({}); //clean
                     }, 3000);
+
+                if (unreachableDevices.length === 0) done();
             });
         }
     }
