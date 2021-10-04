@@ -96,11 +96,13 @@ class DeconzQueryEditor extends DeconzDeviceListEditor {
             this.mainEditor.updateQueryDeviceDisplay({
                 useSavedData: true
             });
-            this.mainEditor.subEditor.output_rules.refresh();
+            if (this.mainEditor.options.have.output_rules)
+                this.mainEditor.subEditor.output_rules.refresh();
         });
         this.$elements.refreshButton.on('click', () => {
             this.updateList();
-            this.mainEditor.subEditor.output_rules.refresh();
+            if (this.mainEditor.options.have.output_rules)
+                this.mainEditor.subEditor.output_rules.refresh();
         });
     }
 
