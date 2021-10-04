@@ -462,6 +462,7 @@ module.exports = function (RED) {
 
         onSocketMessage(dataParsed) {
             let node = this;
+            if (node.event_count >= Number.MAX_SAFE_INTEGER) node.event_count = 0;
             node.event_count++;
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
