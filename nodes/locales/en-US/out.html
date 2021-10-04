@@ -15,7 +15,7 @@
 
             <dt>Query <span class="property-type">string</span></dt>
             <dd>
-                How get the devices, can be a Device list or a Query. See more about Queries on the
+                How to get the devices, can be a Device list or a Query. See more about Queries on the
                 <a href="https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries">Github
                     Wiki</a>.
             </dd>
@@ -52,19 +52,19 @@
         </dl>
 
         <h4>Commands</h4>
-        <p>There is 4 types of commands, each have they own type of settings.</p>
+        <p>There are 4 types of commands, each has it's own type of settings.</p>
         <div class="separator">Common options</div>
         <dl class="message-properties">
             <dt class="optional">Retry on error <span class="property-type">num</span></dt>
             <dd>
-                Set how many time the api request will be sent of there is an error (maximum 2).
+                Set how many times the api request will be sent if there is an error (maximum 2).
             </dd>
             <dt class="optional">After error <span class="property-type">string</span></dt>
             <dd>
                 Set what to do if the error persists after optional retry.
                 <ul>
                     <li><code>continue</code> - The next command will be executed.</li>
-                    <li><code>stop</code> - All next commands will not be executed.</li>
+                    <li><code>stop</code> - All next commands won't be executed.</li>
                 </ul>
             </dd>
             <dt class="optional">Transition <span class="property-type">num</span></dt>
@@ -76,12 +76,12 @@
             </dd>
         </dl>
         <h5>Deconz State</h5>
-        <p>A deconz state is used to set a state to a device. You need to select what type of device you want to
-            send commands. It's can be Lights, Windows Cover, Groups and Scenes call. The settings for Lights and Groups
+        <p>A deconz state is used to set a state of a device. You need to select what type of device you want to
+            send commands. It can be Lights, Windows Cover, Groups and Scenes call. The settings for Lights and Groups
             are the same.</p>
-        <p>For light colors / brightness that support it you can set increment by or decrement by any values. For
+        <p>For light colors / brightness that supports it you can set increment by or decrement by any values. For
             example, increment brightness by 10 will slightly make it brighter. Detect from value accept string as
-            value, if it's start with a <code>+</code> the value will be added, if it's start with a <code>-</code> the
+            value, if it starts with a <code>+</code> the value will be added, if it starts with a <code>-</code> the
             value will be subtracted otherwise the value will be set.</p>
         <div class="separator">Lights / Groups</div>
         <dl class="message-properties">
@@ -96,7 +96,7 @@
             </dd>
             <dt class="optional">Color saturation <span class="property-type">num</span></dt>
             <dd>
-                Set the color saturation of the light. There 0 means no color at all and 255 is the greatest saturation
+                Set the color saturation of the light. The 0 means no color at all and 255 is the greatest saturation
                 of the color.
             </dd>
             <dt class="optional">Color hue <span class="property-type">num</span></dt>
@@ -139,7 +139,7 @@
                 Specifies the speed of a colorloop (default: 15).<br>
                 1 = very fast<br>
                 255 = very slow<br>
-                This parameter only has an effect when it is called together with effect colorloop.
+                This parameter has an effect only, when it is called together with the colorloop effect.
             </dd>
         </dl>
         <div class="separator">Windows cover</div>
@@ -150,7 +150,7 @@
             </dd>
             <dt class="optional">Stop/Continue <span class="property-type">string</span></dt>
             <dd>
-                Set the value to <code>true</code> to stops the current action.
+                Set the value to <code>true</code> to stop the current action.
             </dd>
             <dt class="optional">Lift <span class="property-type">string</span></dt>
             <dd>
@@ -174,7 +174,7 @@
         <dl class="message-properties">
             <dt class="optional">Group ID <span class="property-type">num</span></dt>
             <dd>
-                Set the ID of group of lights.
+                Set the ID of the group of lights.
             </dd>
             <dt class="optional">Scene ID <span class="property-type">num/string</span></dt>
             <dd>
@@ -186,11 +186,11 @@
             </dd>
         </dl>
         <h5>HomeKit</h5>
-        <p>Use if data is from homekit nodes.</p>
+        <p>Use if data is from HomeKit nodes.</p>
         <dl class="message-properties">
             <dt class="optional">Payload <span class="property-type">Object</span></dt>
             <dd>
-                An object that represents homekit command.
+                An object that represents HomeKit command.
             </dd>
         </dl>
         <h5>Custom</h5>
@@ -204,13 +204,13 @@
                         Currently the api only support <code>name</code> attribute.
                     </li>
                     <li><code>state</code> - the value is a state.</li>
-                    <li><code>config</code> - the value is an config.</li>
+                    <li><code>config</code> - the value is a config.</li>
                 </ul>
             </dd>
             <dt class="optional">Command <span class="property-type">string</span></dt>
             <dd>
                 The name of the value to set.
-                Can be set to <code>Object</code> (not "object") if the payload contain an object with keys and values.
+                Can be set to <code>Object</code> (not "object") if the payload contains an object with keys and values.
             </dd>
             <dt class="optional">Payload <span class="property-type">mixed</span></dt>
             <dd>
@@ -218,7 +218,7 @@
             </dd>
         </dl>
         <h5>Pause</h5>
-        <p>Set a delay before executing the next command. The duration of the previews command will be subtracted.</p>
+        <p>Set a delay before executing the next command. The duration of the previous command will be subtracted.</p>
         <dl class="message-properties">
             <dt class="optional">Delay <span class="property-type">num</span></dt>
             <dd>
