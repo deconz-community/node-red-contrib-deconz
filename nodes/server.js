@@ -153,14 +153,18 @@ module.exports = function (RED) {
                     {},
                     undefined
                 );
-                let devices = node.device_list.getDevicesByQuery(querySrc);
-                if (devices.matched.length === 0) continue;
-                for (let device of devices.matched) {
-                    node.propagateNews(nodeID, {
-                        type: 'start',
-                        node_type: 'query',
-                        device: device,
-                    });
+                try {
+                    let devices = node.device_list.getDevicesByQuery(querySrc);
+                    if (devices.matched.length === 0) continue;
+                    for (let device of devices.matched) {
+                        node.propagateNews(nodeID, {
+                            type: 'start',
+                            node_type: 'query',
+                            device: device,
+                        });
+                    }
+                } catch (e) {
+                    node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }
         }
@@ -195,16 +199,20 @@ module.exports = function (RED) {
                     {},
                     undefined
                 );
-                let devices = node.device_list.getDevicesByQuery(querySrc);
-                if (devices.matched.length === 0) continue;
-                for (let device of devices.matched) {
-                    node.propagateNews(nodeID, {
-                        type: 'error',
-                        node_type: 'query',
-                        device: device,
-                        errorCode: code,
-                        errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
-                    });
+                try {
+                    let devices = node.device_list.getDevicesByQuery(querySrc);
+                    if (devices.matched.length === 0) continue;
+                    for (let device of devices.matched) {
+                        node.propagateNews(nodeID, {
+                            type: 'error',
+                            node_type: 'query',
+                            device: device,
+                            errorCode: code,
+                            errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                        });
+                    }
+                } catch (e) {
+                    node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }
         }
@@ -484,9 +492,13 @@ module.exports = function (RED) {
                     {},
                     undefined
                 );
-                let query = new Query(querySrc);
-                if (query.match(device)) {
-                    matched.push(nodeID);
+                try {
+                    let query = new Query(querySrc);
+                    if (query.match(device)) {
+                        matched.push(nodeID);
+                    }
+                } catch (e) {
+                    node.error(e.toString() + '\nNode ID : ' + nodeID + '\nQuery: ' + JSON.stringify(querySrc));
                 }
             }
 

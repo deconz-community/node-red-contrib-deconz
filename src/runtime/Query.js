@@ -69,8 +69,11 @@ const getComparaisonConstructor = (field, value) => {
 };
 
 class Query {
-
-    constructor(query) {
+    constructor(query, depth) {
+        this.depth = depth + 1 || 0;
+        if (this.depth > 10) {
+            throw Error("Query depth limit reached.");
+        }
         // Make sure that the query is an array
         if (Array.isArray(query)) this.query = query;
         else this.query = [query];
@@ -85,15 +88,10 @@ class Query {
 
     createRules(rules) {
         this.rules = [];
-        try {
-            for (const rule of rules) {
-                let constructor = getRuleConstructor(rule);
-                this.rules.push(new constructor(rule));
-            }
-        } catch (e) {
-            throw Error(e.toString() + '\nQuery: ' + JSON.stringify(this.query));
+        for (const rule of rules) {
+            let constructor = getRuleConstructor(rule);
+            this.rules.push(new constructor(rule, this.depth));
         }
-
     }
 
 }
@@ -101,8 +99,9 @@ class Query {
 
 class Rule {
 
-    constructor(options) {
+    constructor(options, depth) {
         this.options = Object.assign({}, this.defaultOptions, options);
+        this.depth = depth;
         this.comparaisons = [];
 
         if (this.options.method) {
@@ -174,8 +173,8 @@ class RuleAlways extends Rule {
 
 class RuleBasic extends Rule {
 
-    constructor(options) {
-        super(options);
+    constructor(options, depth) {
+        super(options, depth);
         let acceptedKeys = [
             'device_type',
             'device_id',
@@ -202,8 +201,8 @@ class RuleBasic extends Rule {
 
 class RuleMatch extends Rule {
 
-    constructor(options) {
-        super(options);
+    constructor(options, depth) {
+        super(options, depth);
 
 
         this.createComparaisons(options.match);
@@ -218,13 +217,9 @@ class RuleMatch extends Rule {
 
     createComparaisons(comparaisons) {
         if (comparaisons === undefined) throw Error('No match data found');
-        try {
-            for (const [field, value] of Object.entries(comparaisons)) {
-                let constructor = getComparaisonConstructor(field, value);
-                this.comparaisons.push(new constructor(field, value));
-            }
-        } catch (e) {
-            throw Error(e.toString() + '\nQuery: ' + JSON.stringify(this.query));
+        for (const [field, value] of Object.entries(comparaisons)) {
+            let constructor = getComparaisonConstructor(field, value);
+            this.comparaisons.push(new constructor(field, value));
         }
     }
 
@@ -232,8 +227,8 @@ class RuleMatch extends Rule {
 
 class RuleQueries extends Rule {
 
-    constructor(options) {
-        super(options);
+    constructor(options, depth) {
+        super(options, depth);
         this.createComparaisons(options.queries);
     }
 
@@ -247,12 +242,8 @@ class RuleQueries extends Rule {
     createComparaisons(queries) {
         if (queries === undefined) throw Error('No match data found');
         if (!Array.isArray(queries)) queries = [queries];
-        try {
-            for (const query of queries) {
-                this.comparaisons.push(new Query(query));
-            }
-        } catch (e) {
-            throw Error(e.toString() + '\nQuery: ' + JSON.stringify(this.query));
+        for (const query of queries) {
+            this.comparaisons.push(new Query(query, this.depth));
         }
     }
 

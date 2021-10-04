@@ -724,6 +724,21 @@ describe('Device List', function () {
                         result.matched.should.containDeep(['item05', 'item07', 'item08']);
                     });
 
+                    it('too many levels', function () {
+                        try {
+                            let query = {"match": {"type": "ZHASwitch"}};
+                            for (let i = 0; i < 20; i++) {
+                                query = {
+                                    "method": "AND",
+                                    "queries": [query]
+                                };
+                            }
+                            deviceList.getDevicesByQuery(query, QueryParams);
+                        } catch (e) {
+                            should(e).have.property('message', "Query depth limit reached.");
+                        }
+                    });
+
                 });
 
             });
