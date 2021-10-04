@@ -67,7 +67,7 @@ module.exports = function (RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/in:status.server_node_error"
+                    text: "node-red-contrib-deconz/server:status.server_node_error"
                 });
                 return;
             }

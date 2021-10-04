@@ -546,7 +546,7 @@ module.exports = function (RED) {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: "node-red-contrib-deconz/in:status.device_not_set"
+                    text: "node-red-contrib-deconz/server:status.device_not_set"
                 });
                 return;
             }
