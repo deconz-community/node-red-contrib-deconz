@@ -62,18 +62,20 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         value.domain = this.$elements.typedomain.typedInput('value');
 
         for (const key of this.argKeys) {
-            value.arg[key] = {
-                type: this.$elements[key].typedInput('type'),
-                value: this.$elements[key].typedInput('value')
-            };
+            if (this.$elements[key].parent('.form-row').is(':visible'))
+                value.arg[key] = {
+                    type: this.$elements[key].typedInput('type'),
+                    value: this.$elements[key].typedInput('value')
+                };
         }
 
         for (const key of this.lightKeys) {
-            value.arg[key] = {
-                direction: this.$elements[key + '_direction'].typedInput('type'),
-                type: this.$elements[key].typedInput('type'),
-                value: this.$elements[key].typedInput('value')
-            };
+            if (this.$elements[key].parent('.form-row').is(':visible'))
+                value.arg[key] = {
+                    direction: this.$elements[key + '_direction'].typedInput('type'),
+                    type: this.$elements[key].typedInput('type'),
+                    value: this.$elements[key].typedInput('value')
+                };
         }
 
         return value;
