@@ -299,6 +299,11 @@ class DeconzAPI {
         }
     }
 
+    async getApiKeyMeta() {
+        let whitelist = await this.getConfig('whitelist');
+        return (whitelist === undefined) ? undefined : whitelist[this.apikey];
+    }
+
     get settings() {
         console.log({
             name: this.name,
