@@ -50,18 +50,20 @@ module.exports = function (RED) {
                     //TODO make the delay configurable
                     await Utils.sleep(1500);
 
-                    await node.discoverDevices({
-                        forceRefresh: true
-                    });
-                    this.refreshDiscoverTimer = setInterval(() => {
-                        node.discoverDevices({
+                    let pooling = async () => {
+                        let result = await node.discoverDevices({
                             forceRefresh: true
                         });
-                    }, node.refreshDiscoverInterval);
+                        // Wait for a valid device discovery before connecting to the websocket
+                        if (result === true) {
+                            if (node.socket === undefined) this.setupDeconzSocket(node);
+                            node.ready = true;
+                        }
+                    };
 
-                    node.ready = true;
+                    await pooling();
+                    this.refreshDiscoverTimer = setInterval(pooling, node.refreshDiscoverInterval);
 
-                    this.setupDeconzSocket(node);
                 } catch (e) {
                     node.ready = false;
                     node.error("Deconz Server node error " + e.toString());
@@ -114,7 +116,7 @@ module.exports = function (RED) {
                 }
             }, opt);
 
-            if (options.forceRefresh === false || node.discoverProcessRunning === true) {
+            if (node.ready && (options.forceRefresh === false || node.discoverProcessRunning === true)) {
                 node.log('discoverDevices: Using cached devices');
                 return;
             }
@@ -124,10 +126,13 @@ module.exports = function (RED) {
                 const response = await got(node.api.url.main()).json();
                 node.device_list.parse(response);
                 node.log(`discoverDevices: Updated ${node.device_list.count}`);
+                node.discoverProcessRunning = false;
+                return true;
             } catch (e) {
                 node.error(`discoverDevices: Can't connect to deconz API.`);
+                node.discoverProcessRunning = false;
+                return false;
             }
-            node.discoverProcessRunning = false;
         }
 
         propagateStartNews() {
@@ -399,44 +404,30 @@ module.exports = function (RED) {
 
         onClose() {
             let node = this;
+            clearInterval(node.refreshDiscoverTimer);
             node.ready = false;
             node.log('WebSocket connection closed');
             node.emit('onClose');
-            clearInterval(node.refreshDiscoverTimer);
             node.socket.close();
             node.socket = undefined;
         }
 
         onSocketPongTimeout() {
-            let that = this;
-            that.warn('WebSocket connection timeout, reconnecting');
-            that.emit('onSocketPongTimeout');
+            let node = this;
+            node.warn('WebSocket connection timeout, reconnecting');
+            node.emit('onSocketPongTimeout');
         }
 
         onSocketUnauthorized() {
-            let that = this;
-            that.warn('WebSocket authentication failed');
-            that.emit('onSocketUnauthorized');
+            let node = this;
+            node.warn('WebSocket authentication failed');
+            node.emit('onSocketUnauthorized');
         }
 
         onSocketError(err) {
-            let that = this;
-            that.warn(`WebSocket error: ${err}`);
-            that.emit('onSocketError');
-        }
-
-        onSocketClose(code, reason) {
-            let that = this;
-            if (reason) { // don't bother the user unless there's a reason
-                that.warn(`WebSocket disconnected: ${code} - ${reason}`);
-            }
-            that.emit('onSocketClose');
-        }
-
-        onSocketOpen(err) {
-            let that = this;
-            that.log(`WebSocket opened`);
-            that.emit('onSocketOpen');
+            let node = this;
+            node.error(`WebSocket error: ${err}`);
+            node.emit('onSocketError');
         }
 
         updateDevice(device, dataParsed) {
