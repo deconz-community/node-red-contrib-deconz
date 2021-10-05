@@ -181,22 +181,29 @@ class OutputMsgFormatter {
 
         switch (this.rule.type) {
             case 'attribute':
-                msg.payload = this.formatDevicePayload(device.data, payloadFormat, options);
+                if (dotProp.has(device, 'data'))
+                    msg.payload = this.formatDevicePayload(device.data, payloadFormat, options);
                 break;
             case 'state':
-                msg.payload = this.formatDevicePayload(device.data.state, payloadFormat, options);
+                if (dotProp.has(device, 'data.state'))
+                    msg.payload = this.formatDevicePayload(device.data.state, payloadFormat, options);
                 break;
             case 'config':
-                msg.payload = this.formatDevicePayload(device.data.config, payloadFormat, options);
+                if (dotProp.has(device, 'data.config'))
+                    msg.payload = this.formatDevicePayload(device.data.config, payloadFormat, options);
                 break;
             case 'homekit':
-                msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
-                if (msg === null) return null;
+                if (dotProp.has(device, 'data'))
+                    msg = this.formatHomeKit(device.data, device.changed, rawEvent, options);
                 break;
             case 'scene_call':
-                msg.payload = device.data.scenes.filter((v) => v.id === rawEvent.scid).shift();
+                if (dotProp.has(device, 'data.scenes'))
+                    msg.payload = device.data.scenes.filter((v) => v.id === rawEvent.scid).shift();
                 break;
         }
+
+        // If we don't have payload drop the msg
+        if (msg === null || msg.payload === undefined) return null;
 
         if (['deconz-input', 'deconz-battery'].includes(this.node_type)) msg.topic = this.config.topic;
         if (payloadFormat !== undefined) msg.payload_format = payloadFormat;
