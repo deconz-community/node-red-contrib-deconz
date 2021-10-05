@@ -11,7 +11,7 @@ class DeconzAPI {
         this.ip = options.ip;
         this.port = options.port;
         this.ws_port = options.ws_port;
-        this.key = options.key !== undefined ? options.key : '<nouser>';
+        this.apikey = options.apikey !== undefined ? options.apikey : '<nouser>';
         this.secured = options.secured;
         this.version = options.version;
         this.polling = options.polling;
@@ -23,7 +23,7 @@ class DeconzAPI {
             discover: () => 'https://phoscon.de/discover',
             api: () => `http${this.secured ? 's' : ''}://${this.ip}:${this.port}/api`,
             challenge: () => `${this.url.api()}/challenge`, // Undocumented
-            main: () => `${this.url.api()}/${this.key}`,
+            main: () => `${this.url.api()}/${this.apikey}`,
             config: {
                 main: () => `/config`,
                 whitelist: (api_key) => `${this.url.config.main()}/whitelist${api_key !== undefined ? `/${api_key}` : ''}`,
@@ -169,9 +169,9 @@ class DeconzAPI {
             if (this.port === undefined || String(this.port).length === 0) this.port = discoverData.internalport;
         }
 
-        if ((this.key === undefined || String(this.key).length === 0) || this.key === '<nouser>') {
+        if ((this.apikey === undefined || String(this.apikey).length === 0) || this.apikey === '<nouser>') {
             response.log.push("No valid API key provided, trying acquiring one.");
-            this.key = '<nouser>';
+            this.apikey = '<nouser>';
             let apiQuery;
             let guesses = [
                 {secured: this.secured, ip: this.ip},
@@ -222,7 +222,7 @@ class DeconzAPI {
 
             if (apiQuery.success) {
                 response.log.push("Successfully got a key.");
-                this.key = apiQuery.success.username;
+                this.apikey = apiQuery.success.username;
             }
 
         }
@@ -304,7 +304,7 @@ class DeconzAPI {
             name: this.name,
             ip: this.ip,
             port: this.port,
-            apikey: this.key,
+            apikey: this.apikey,
             ws_port: this.ws_port,
             secure: this.secured,
             polling: this.polling
@@ -313,7 +313,7 @@ class DeconzAPI {
             name: this.name,
             ip: this.ip,
             port: this.port,
-            apikey: this.key,
+            apikey: this.apikey,
             ws_port: this.ws_port,
             secure: this.secured,
             polling: this.polling
