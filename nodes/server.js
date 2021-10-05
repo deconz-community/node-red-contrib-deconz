@@ -185,6 +185,7 @@ module.exports = function (RED) {
 
         propagateErrorNews(code, reason) {
             let node = this;
+            if (!reason) return;
 
             // Node with device selected
             for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
