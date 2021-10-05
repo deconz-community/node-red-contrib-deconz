@@ -5,7 +5,7 @@
     "port": "Port",
     "api_key": "API Key",
     "websocket_port": "WebSocket Port",
-    "get_settings": "Get Settings",
+    "get_settings": "Auto fetch all settings",
     "use_secured_ssl": "Use secured SSL connection",
     "magick": "Magick",
     "polling": "Polling, sec"
