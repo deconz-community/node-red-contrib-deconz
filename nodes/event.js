@@ -18,6 +18,17 @@ module.exports = function (RED) {
 
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
+            let options = Object.assign({
+                initialEvent: false,
+                errorEvent: false
+            }, opt);
+
+            if (options.errorEvent === true) {
+                node.status(options.errorCode || "Unknown Error");
+                node.error(options.errorMsg || "Unknown Error");
+                return;
+            }
+
             node.send({
                 payload: rawEvent,
                 meta: device

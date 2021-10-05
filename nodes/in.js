@@ -98,6 +98,13 @@ module.exports = function (RED) {
                 initialEvent: false,
                 errorEvent: false
             }, opt);
+
+            if (options.errorEvent === true) {
+                node.status(options.errorCode || "Unknown Error");
+                node.error(options.errorMsg || "Unknown Error");
+                return;
+            }
+
             this.config.output_rules.forEach((saved_rule, index) => {
                 // Make sure that all expected config are defined
                 const rule = Object.assign({}, defaultRule, saved_rule);
