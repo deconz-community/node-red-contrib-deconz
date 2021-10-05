@@ -2,3 +2,4 @@ node_modules/
 package-lock.json
 /resources/dist/
 /.nyc_output/
+/node-red-contrib-deconz-*.tgz
