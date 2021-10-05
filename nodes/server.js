@@ -31,7 +31,7 @@ module.exports = function (RED) {
             node.api = new DeconzAPI({
                 ip: node.config.ip,
                 port: node.config.port,
-                key: node.credentials.secured_apikey
+                apikey: node.credentials.secured_apikey
             });
 
             // Example : ["ea9cd132.08f36"]
