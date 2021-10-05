@@ -253,6 +253,22 @@ module.exports = function (RED) {
 
             for (const nodeID of nodeIDs) {
                 let target = RED.nodes.getNode(nodeID);
+
+                // Check if device exist
+                if (news.device === undefined) {
+                    target.handleDeconzEvent(
+                        news.device,
+                        [],
+                        {},
+                        {
+                            errorEvent: true,
+                            errorCode: "DEVICE_NOT_FOUND",
+                            errorMsg: "Device not found, please check server configuration"
+                        }
+                    );
+                    continue;
+                }
+
                 // If the target does not exist we remove it from the node list
                 if (!target) {
                     switch (news.node_type) {
