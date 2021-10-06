@@ -42,6 +42,7 @@ class DeviceList {
         let parts = path.split("/");
         let resourceName = parts.shift();
         let domain = parts.shift();
+        if (resourceName === 'uniqueid') return this.getDeviceByUniqueID(domain);
         let sub_path = parts.join("/");
         switch (domain) {
             case 'device_id':
