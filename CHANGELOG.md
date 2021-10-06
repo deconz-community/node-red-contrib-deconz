@@ -67,7 +67,7 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
         - Payload - Set the value.
     - Pause - Add delay between 2 commands.
 - Added output to see the result of the api request.
-- All options can be set in one command. You can now set brightness and color in one step.
+- All options can be set in one command. You can now set brightness and color in a single step.
 - Multiple commands can be added and executed one by one.
 - Command preview, you can press the top right button of each command to run it instantly.
 
