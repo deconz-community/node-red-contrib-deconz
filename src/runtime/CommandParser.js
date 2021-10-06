@@ -175,8 +175,9 @@ class CommandParser {
         if (HK.TargetPosition !== undefined) {
             this.result.state.lift = Utils.convertRange(HK.TargetPosition, [100, 0], [0, 100]);
         }
-        if (HK.TargetHorizontalTiltAngle !== undefined) {
-            this.result.state.tilt = Utils.convertRange(HK.TargetHorizontalTiltAngle, [-90, 90], [0, 100]);
+        for (const side of ['Horizontal', 'Vertical']) {
+            if (HK[`Target${side}TiltAngle`] !== undefined)
+                this.result.state.tilt = Utils.convertRange(HK[`Target${side}TiltAngle`], [-90, 90], [0, 100]);
         }
         this.result.state.transitiontime = this.getNodeProperty(this.arg.transitiontime);
     }
