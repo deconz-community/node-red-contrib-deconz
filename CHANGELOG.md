@@ -13,10 +13,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Make sure you backup your flow before updating, you will not be able to downgrade if the configuration is migrated.
 
-Everything should be seamless, all your configuration will be migrated with the new save format. It's will save the
-updated configuration only when you open the node configuration and click Deploy. If you don't do it the node will
-migrate the configuration on each start of Node-Red. Check the Node-Red log if you have any errors that showes up. If
-you have any issues you can come on the [Deconz-Community Discord](https://discord.gg/3XGEYY9) server or open
+Everything should be seamless, all your configurations will be migrated to the new save format. It will save the
+updated configuration only when you open the node configuration and click Deploy. If you are not performing it, the node will
+migrate the configuration on each start of Node-Red. Check the Node-Red log if you have any errors that shows up. If
+you have any issues you may visit the [Deconz-Community Discord](https://discord.gg/3XGEYY9) server or open
 an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz/issues).
 
 ### Added
@@ -24,20 +24,20 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 - The nodes now allow multiple device selection.
 - The nodes accept [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries) instead of
   a device list.
-- Each outputs of nodes is now customizable. If you don't need the homekit output just remove it !
-- Rework the Auto configuration of server. It's now look for Home-Assistant installations too.
+- Each outputs of the nodes are now customizable. If you don't need the HomeKit output, just remove it.
+- Reworked the Auto configuration of server. It looks for Home-Assistant installations as well.
 
 #### Input and Battey nodes
 
 - New output types
-    - Attribute - Contain all information about device, include State and Config.
-    - Config - Contain configuration data.
+    - Attribute - Contains all information about the device, include State and Config.
+    - Config - Contains configuration data.
     - Scene Call - Called when a scene is called.
 - New properties on messages
     - payload_format - The name of the value or __complete__ if the selected payload is "Complete payload".
     - payload_type - The option selected in the output type.
     - meta_changed - List of param path that changed since last message. Exemple : "state.lastupdated".
-- Connexion preview, you can press the top right button of each output rule to see what nodes are connected.
+- Connection preview, you can press the top right button of each output rule to see what nodes are connected.
 - Start output is now configurable for each type. To avoid fake button events you should disable it for switch devices.
 
 #### Get node
@@ -46,16 +46,16 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
     - Attribute
     - Config
 - New output formats
-    - Single - The node will send a message per device that send data.
+    - Single - The node will send a message per device that sends data.
     - Array - The node will send a message with all payload inside an array. The message will contain a payload that is
-      an array of single message. Ex msg.payload[0].payload is the payload of the first device. Each element will
+      an array of single message. E.g. msg.payload[0].payload is the payload of the first device. Each element will
       contain only the properties payload, meta, meta_changed. The properties topic, payload_format, payload_raw will be
       on the msg directly.
     - Sum - All properties of the devices will be added individually.
-    - Average - All properties of the devices will be added recursively and then divided by the amount of device that
+    - Average - All properties of the devices will be added recursively and then divided by the number of devices that
       have that property.
-    - Min - The result will be a set of minimal value of each property.
-    - Max - The result will be a set of maximal value of each property.
+    - Min - The result will be a set with the minimal value of each property.
+    - Max - The result will be a set with the maximal value of each property.
 
 #### Output node
 
@@ -67,14 +67,14 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
         - Payload - Set the value.
     - Pause - Add delay between 2 commands.
 - Added output to see the result of the api request.
-- All options can be set in one command. You can now set brightness and color in one command.
+- All options can be set in one command. You can now set brightness and color in one step.
 - Multiple commands can be added and executed one by one.
 - Command preview, you can press the top right button of each command to run it instantly.
 
 #### Event node
 
-- New message property meta associated to the event with the device configuration.
-- Now display the event count since last deploy.
+- New message property meta is associated to the event with the device configuration.
+- Now displays the event count since the last deploy.
 
 ## [1.3.4] - 2021-09-28 ![Relative date](https://img.shields.io/date/1632782604?label=)
 
