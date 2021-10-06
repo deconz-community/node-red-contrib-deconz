@@ -16,6 +16,7 @@ module.exports = function (RED) {
             node.config = config;
             node.state = {
                 ready: false,
+                startFailed: false,
                 pooling: {
                     isValid: false,
                     reachable: false,
@@ -83,6 +84,7 @@ module.exports = function (RED) {
                             }
                             node.state.pooling.errorTriggered = false;
                         } else if (node.state.pooling.isValid === false) {
+                            if (node.state.startFailed) return;
                             node.state.pooling.failCount++;
                             let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
                             let reason = "discoverDevices: Can't connect to deconz API since starting. " +
@@ -91,7 +93,7 @@ module.exports = function (RED) {
                                 node.state.pooling.errorTriggered = true;
                                 node.propagateErrorNews(code, reason, true);
                             }
-                            if (node.state.pooling.failCount % 4 === 1) {
+                            if (node.state.pooling.failCount % 4 === 2) {
                                 node.error(reason);
                             }
                         } else {
@@ -103,14 +105,15 @@ module.exports = function (RED) {
                                 node.state.pooling.errorTriggered = true;
                                 node.propagateErrorNews(code, reason, true);
                             }
-                            if (node.state.pooling.failCount % 4 === 1) {
+                            if (node.state.pooling.failCount % 4 === 2) {
                                 node.error(reason);
                             }
                         }
                     };
 
                     await pooling();
-                    this.refreshDiscoverTimer = setInterval(pooling, node.refreshDiscoverInterval);
+                    if (node.state.startFailed !== true)
+                        this.refreshDiscoverTimer = setInterval(pooling, node.refreshDiscoverInterval);
 
                 } catch (e) {
                     node.state.ready = false;
@@ -195,6 +198,16 @@ module.exports = function (RED) {
                 node.state.pooling.discoverProcessRunning = false;
                 return true;
             } catch (e) {
+                if (e.response !== undefined && e.response.statusCode === 403) {
+                    node.state.startFailed = true;
+                    console.log("invalid_api_key");
+                    let code = RED._('node-red-contrib-deconz/server:status.invalid_api_key');
+                    let reason = "discoverDevices: Can't use to deconz API, invalid api key. " +
+                        "Please check server configuration.";
+                    node.error(reason);
+                    node.propagateErrorNews(code, reason, true);
+                    node.onClose();
+                }
                 //node.error(`discoverDevices: Can't connect to deconz API.`);
                 node.state.pooling.discoverProcessRunning = false;
                 return false;
@@ -253,6 +266,20 @@ module.exports = function (RED) {
             let node = this;
             if (!reason) return;
 
+            if (node.state.ready === false) {
+                RED.nodes.eachNode((target) => {
+                    if (['deconz-input', 'deconz-battery', 'deconz-get', 'deconz-out', 'deconz-event'].includes(target.type)) {
+                        let targetNode = RED.nodes.getNode(target.id);
+                        if (targetNode) targetNode.status({
+                            fill: "red",
+                            shape: "dot",
+                            text: code
+                        });
+                    }
+                });
+                return;
+            }
+
             // Node with device selected
             for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
                 node.propagateNews(nodeIDs, {
@@ -260,7 +287,7 @@ module.exports = function (RED) {
                     node_type: 'device_path',
                     device: node.device_list.getDeviceByPath(device_path),
                     errorCode: code,
-                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`,
+                    errorMsg: reason || "Unknown error",
                     isGlobalError
                 });
             }
@@ -290,7 +317,7 @@ module.exports = function (RED) {
                             node_type: 'query',
                             device: device,
                             errorCode: code,
-                            errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`,
+                            errorMsg: reason || "Unknown error",
                             isGlobalError
                         });
                     }
@@ -489,12 +516,14 @@ module.exports = function (RED) {
 
         onClose() {
             let node = this;
+            node.log('Shutting down deconz server node.');
             clearInterval(node.refreshDiscoverTimer);
             node.state.ready = false;
-            node.log('WebSocket connection closed');
+            if (node.socket !== undefined) {
+                node.socket.close();
+                node.socket = undefined;
+            }
             node.emit('onClose');
-            node.socket.close();
-            node.socket = undefined;
         }
 
         updateDevice(device, dataParsed) {

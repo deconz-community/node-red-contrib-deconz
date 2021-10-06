@@ -27,6 +27,7 @@
     "server_node_error": "server node error",
     "deconz_not_reachable": "deconz not reachable",
     "device_not_reachable": "device not reachable",
+    "invalid_api_key": "invalid api key",
     "device_not_set": "device not set",
     "reconnecting": "reconnecting...",
     "starting": "starting...",
