@@ -164,6 +164,7 @@
         outputs: 1,
         outputLabels: function (index) {
             let node = this;
+            if (node.output_rules === undefined) return 'Please migrate node';
             let rule = node.output_rules[index];
             let desc = `#${index + 1} - ${rule.type}`;
             if (Array.isArray(rule.payload)) {
