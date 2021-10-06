@@ -245,9 +245,12 @@ class OutputMsgFormatter {
             case 'always':
                 return true;
             case 'onchange':
+                let payloadPath = payloadFormat;
+                if (this.rule.type === 'state' || this.rule.type === 'config')
+                    payloadPath = `${this.rule.type}.${payloadPath}`;
                 return device && Array.isArray(device.changed) && (
                     (payloadFormat === '__complete__' && device.changed.length > 0) ||
-                    (payloadFormat !== '__complete__' && device.changed.includes(payloadFormat))
+                    (payloadFormat !== '__complete__' && device.changed.includes(payloadPath))
                 );
             case 'onupdate':
                 return device && Array.isArray(device.changed) && device.changed.includes('state.lastupdated');
