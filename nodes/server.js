@@ -14,16 +14,32 @@ module.exports = function (RED) {
             RED.nodes.createNode(this, config);
             let node = this;
             node.config = config;
-            node.discoverProcessRunning = false;
-            node.ready = false;
-            node.event_count = 0;
+            node.state = {
+                ready: false,
+                pooling: {
+                    isValid: false,
+                    reachable: false,
+                    discoverProcessRunning: false,
+                    lastPooling: undefined,
+                    failCount: 0,
+                    errorTriggered: false
+                },
+                websocket: {
+                    isValid: false,
+                    reachable: false,
+                    lastConnected: undefined,
+                    lastEvent: undefined,
+                    lastDisconnected: undefined,
+                    eventCount: 0
+                }
+            };
 
             // Config migration
             let configMigration = new ConfigMigration('deconz-server', node.config, this);
             let migrationResult = configMigration.applyMigration(node.config, node);
             if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
                 migrationResult.errors.forEach(
-                    error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
+                    error => node.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                 );
             }
 
@@ -51,13 +67,45 @@ module.exports = function (RED) {
                     await Utils.sleep(1500);
 
                     let pooling = async () => {
-                        let result = await node.discoverDevices({
-                            forceRefresh: true
-                        });
-                        // Wait for a valid device discovery before connecting to the websocket
+                        let result = await node.discoverDevices({forceRefresh: true});
                         if (result === true) {
-                            if (node.socket === undefined) this.setupDeconzSocket(node);
-                            node.ready = true;
+                            if (node.state.pooling.isValid === false) {
+                                node.state.pooling.isValid = true;
+                                node.state.ready = true;
+                                this.setupDeconzSocket(node);
+                                node.emit('onStart');
+                            }
+                            node.state.pooling.reachable = true;
+                            node.state.pooling.lastPooling = Date.now();
+                            node.state.pooling.failCount = 0;
+                            if (node.state.pooling.errorTriggered === true) {
+                                node.log(`discoverDevices: Connected to deconz API.`);
+                            }
+                            node.state.pooling.errorTriggered = false;
+                        } else if (node.state.pooling.isValid === false) {
+                            node.state.pooling.failCount++;
+                            let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
+                            let reason = "discoverDevices: Can't connect to deconz API since starting. " +
+                                "Please check server configuration.";
+                            if (node.state.pooling.errorTriggered === false) {
+                                node.state.pooling.errorTriggered = true;
+                                node.propagateErrorNews(code, reason, true);
+                            }
+                            if (node.state.pooling.failCount % 4 === 1) {
+                                node.error(reason);
+                            }
+                        } else {
+                            node.state.pooling.failCount++;
+                            let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
+                            let reason = "discoverDevices: Can't connect to deconz API.";
+
+                            if (node.state.pooling.errorTriggered === false) {
+                                node.state.pooling.errorTriggered = true;
+                                node.propagateErrorNews(code, reason, true);
+                            }
+                            if (node.state.pooling.failCount % 4 === 1) {
+                                node.error(reason);
+                            }
                         }
                     };
 
@@ -65,10 +113,9 @@ module.exports = function (RED) {
                     this.refreshDiscoverTimer = setInterval(pooling, node.refreshDiscoverInterval);
 
                 } catch (e) {
-                    node.ready = false;
+                    node.state.ready = false;
                     node.error("Deconz Server node error " + e.toString());
                 }
-                node.emit('onStart');
             })();
         }
 
@@ -90,22 +137,41 @@ module.exports = function (RED) {
                 port: node.config.ws_port,
                 secure: node.config.secure || false
             });
-
+            node.socket.on('open', () => {
+                node.log(`WebSocket opened`);
+                node.state.websocket.isValid = true;
+                node.state.websocket.reachable = true;
+                node.state.websocket.lastConnected = Date.now();
+                // This is used only on websocket reconnect, not the initial connection.
+                if (node.state.ready) node.propagateStartNews();
+            });
+            node.socket.on('message', (payload) => this.onSocketMessage(payload));
+            node.socket.on('error', (err) => {
+                let node = this;
+                node.state.websocket.reachable = false;
+                node.state.websocket.lastDisconnected = Date.now();
+                node.error(`WebSocket error: ${err}`);
+            });
             node.socket.on('close', (code, reason) => {
+                node.state.websocket.reachable = false;
+                node.state.websocket.lastDisconnected = Date.now();
                 if (reason) { // don't bother the user unless there's a reason
                     node.warn(`WebSocket disconnected: ${code} - ${reason}`);
                 }
-                if (node.ready) node.propagateErrorNews(code, reason);
+                if (node.state.ready) node.propagateErrorNews(code, reason);
             });
-            node.socket.on('unauthorized', () => this.onSocketUnauthorized());
-            node.socket.on('open', () => {
-                node.log(`WebSocket opened`);
-                // This is used only on websocket reconnect, not the initial connection.
-                if (node.ready) node.propagateStartNews();
+            node.socket.on('pong-timeout', () => {
+                let node = this;
+                node.state.websocket.reachable = false;
+                node.state.websocket.lastDisconnected = Date.now();
+                node.warn('WebSocket connection timeout, reconnecting');
             });
-            node.socket.on('message', (payload) => this.onSocketMessage(payload));
-            node.socket.on('error', (err) => this.onSocketError(err));
-            node.socket.on('pong-timeout', () => this.onSocketPongTimeout());
+            node.socket.on('unauthorized', () => () => {
+                let node = this;
+                node.state.websocket.isValid = false;
+                node.state.websocket.lastDisconnected = Date.now();
+                node.warn('WebSocket authentication failed');
+            });
         }
 
         async discoverDevices(opt) {
@@ -116,21 +182,21 @@ module.exports = function (RED) {
                 }
             }, opt);
 
-            if (node.ready && (options.forceRefresh === false || node.discoverProcessRunning === true)) {
-                node.log('discoverDevices: Using cached devices');
+            if (options.forceRefresh === false || node.state.pooling.discoverProcessRunning === true) {
+                //node.log('discoverDevices: Using cached devices');
                 return;
             }
 
-            node.discoverProcessRunning = true;
+            node.state.pooling.discoverProcessRunning = true;
             try {
-                const response = await got(node.api.url.main()).json();
+                const response = await got(node.api.url.main(), {retry: 1, timeout: 2000}).json();
                 node.device_list.parse(response);
-                node.log(`discoverDevices: Updated ${node.device_list.count}`);
-                node.discoverProcessRunning = false;
+                //node.log(`discoverDevices: Updated ${node.device_list.count}`);
+                node.state.pooling.discoverProcessRunning = false;
                 return true;
             } catch (e) {
-                node.error(`discoverDevices: Can't connect to deconz API.`);
-                node.discoverProcessRunning = false;
+                //node.error(`discoverDevices: Can't connect to deconz API.`);
+                node.state.pooling.discoverProcessRunning = false;
                 return false;
             }
         }
@@ -183,7 +249,7 @@ module.exports = function (RED) {
             }
         }
 
-        propagateErrorNews(code, reason) {
+        propagateErrorNews(code, reason, isGlobalError = false) {
             let node = this;
             if (!reason) return;
 
@@ -194,7 +260,8 @@ module.exports = function (RED) {
                     node_type: 'device_path',
                     device: node.device_list.getDeviceByPath(device_path),
                     errorCode: code,
-                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                    errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`,
+                    isGlobalError
                 });
             }
 
@@ -223,7 +290,8 @@ module.exports = function (RED) {
                             node_type: 'query',
                             device: device,
                             errorCode: code,
-                            errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`
+                            errorMsg: `WebSocket disconnected: ${reason || 'no reason provided'}`,
+                            isGlobalError
                         });
                     }
                 } catch (e) {
@@ -317,7 +385,7 @@ module.exports = function (RED) {
                                         fill: "green",
                                         shape: "dot",
                                         text: RED._('node-red-contrib-deconz/server:status.event_count')
-                                            .replace('{{event_count}}', node.event_count)
+                                            .replace('{{event_count}}', node.state.websocket.eventCount)
                                     });
                                 } else {
                                     switch (dataParsed.e) {
@@ -422,29 +490,11 @@ module.exports = function (RED) {
         onClose() {
             let node = this;
             clearInterval(node.refreshDiscoverTimer);
-            node.ready = false;
+            node.state.ready = false;
             node.log('WebSocket connection closed');
             node.emit('onClose');
             node.socket.close();
             node.socket = undefined;
-        }
-
-        onSocketPongTimeout() {
-            let node = this;
-            node.warn('WebSocket connection timeout, reconnecting');
-            node.emit('onSocketPongTimeout');
-        }
-
-        onSocketUnauthorized() {
-            let node = this;
-            node.warn('WebSocket authentication failed');
-            node.emit('onSocketUnauthorized');
-        }
-
-        onSocketError(err) {
-            let node = this;
-            node.error(`WebSocket error: ${err}`);
-            node.emit('onSocketError');
         }
 
         updateDevice(device, dataParsed) {
@@ -474,8 +524,15 @@ module.exports = function (RED) {
 
         onSocketMessage(dataParsed) {
             let node = this;
-            if (node.event_count >= Number.MAX_SAFE_INTEGER) node.event_count = 0;
-            node.event_count++;
+            node.state.websocket.lastEvent = Date.now();
+            node.state.websocket.isValid = true;
+            node.state.websocket.reachable = true;
+            if (node.state.websocket.eventCount >= Number.MAX_SAFE_INTEGER) node.state.websocket.eventCount = 0;
+            node.state.websocket.eventCount++;
+
+            // Drop websocket msgs if the pooling don't work
+            if (node.state.pooling.isValid === false) return console.error('Got websocket msg but the pooling is invalid. This should not happen.');
+
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
             let device;
@@ -486,7 +543,7 @@ module.exports = function (RED) {
             }
 
             // TODO handle case if device is not found
-            if (device === undefined) return;
+            if (device === undefined) return console.error('Got websocket msg but the device does not exist. ' + JSON.stringify(dataParsed));
             let changed = node.updateDevice(device, dataParsed);
 
             // Node with device selected
@@ -597,7 +654,7 @@ module.exports = function (RED) {
                 node.status({
                     fill: "red",
                     shape: "ring",
-                    text: "node-red-contrib-deconz/server:status.not_reachable"
+                    text: "node-red-contrib-deconz/server:status.device_not_reachable"
                 });
                 return;
             }

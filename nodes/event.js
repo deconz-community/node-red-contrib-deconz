@@ -6,7 +6,11 @@ module.exports = function (RED) {
             let node = this;
             node.config = config;
 
-            node.status({});
+            node.status({
+                fill: "blue",
+                shape: "dot",
+                text: "node-red-contrib-deconz/server:status.starting"
+            });
 
             //get server node
             node.server = RED.nodes.getNode(node.config.server);
@@ -24,8 +28,13 @@ module.exports = function (RED) {
             }, opt);
 
             if (options.errorEvent === true) {
-                node.status(options.errorCode || "Unknown Error");
-                node.error(options.errorMsg || "Unknown Error");
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: options.errorCode || "Unknown Error"
+                });
+                if (options.isGlobalError === false)
+                    node.error(options.errorMsg || "Unknown Error");
                 return;
             }
 

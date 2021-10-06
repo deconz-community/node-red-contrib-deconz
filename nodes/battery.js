@@ -98,8 +98,13 @@ module.exports = function (RED) {
             }, opt);
 
             if (options.errorEvent === true) {
-                node.status(options.errorCode || "Unknown Error");
-                node.error(options.errorMsg || "Unknown Error");
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: options.errorCode || "Unknown Error"
+                });
+                if (options.isGlobalError === false)
+                    node.error(options.errorMsg || "Unknown Error");
                 return;
             }
 
@@ -152,13 +157,13 @@ module.exports = function (RED) {
                         node.status({
                             fill: "red",
                             shape: "ring",
-                            text: "node-red-contrib-deconz/battery:status.not_reachable"
+                            text: "node-red-contrib-deconz/battery:status.device_not_reachable"
                         });
                     } else if ("config" in device && "reachable" in device.config && device.config.reachable === false) {
                         node.status({
                             fill: "red",
                             shape: "ring",
-                            text: "node-red-contrib-deconz/battery:status.not_reachable"
+                            text: "node-red-contrib-deconz/battery:status.device_not_reachable"
                         });
                     } else {
                         node.status({

@@ -100,8 +100,13 @@ module.exports = function (RED) {
             }, opt);
 
             if (options.errorEvent === true) {
-                node.status(options.errorCode || "Unknown Error");
-                node.error(options.errorMsg || "Unknown Error");
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: options.errorCode || "Unknown Error"
+                });
+                if (options.isGlobalError === false)
+                    node.error(options.errorMsg || "Unknown Error");
                 return;
             }
 
