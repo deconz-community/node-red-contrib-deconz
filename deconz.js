@@ -161,9 +161,13 @@ module.exports = function (RED) {
             let data = req.query;
             let config = JSON.parse(data.config);
             let server = RED.nodes.getNode(config.server);
-            let configMigration = new ConfigMigration(data.type, config, server);
-            let result = configMigration.migrate(config);
-            res.json(result);
+            if (server.state.ready === true) {
+                let configMigration = new ConfigMigration(data.type, config, server);
+                let result = configMigration.migrate(config);
+                res.json(result);
+            } else {
+                res.json({errors: [`The server node is not ready. Please check the server configuration.`]});
+            }
         } catch (e) {
             console.warn(e.toString());
             res.status(500).end();
