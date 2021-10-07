@@ -53,8 +53,8 @@ module.exports = function (RED) {
 
             if (controller && controller.constructor.name === "ServerNode") {
                 (async () => {
-                    if (forceRefresh) await controller.discoverDevices({forceRefresh: true});
                     try {
+                        if (forceRefresh) await controller.discoverDevices({forceRefresh: true});
                         if (query === undefined) {
                             res.json({items: controller.device_list.getAllDevices()});
                         } else {
