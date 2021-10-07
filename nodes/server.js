@@ -201,7 +201,6 @@ module.exports = function (RED) {
             } catch (e) {
                 if (e.response !== undefined && e.response.statusCode === 403) {
                     node.state.startFailed = true;
-                    console.log("invalid_api_key");
                     let code = RED._('node-red-contrib-deconz/server:status.invalid_api_key');
                     let reason = "discoverDevices: Can't use to deconz API, invalid api key. " +
                         "Please check server configuration.";
@@ -231,7 +230,7 @@ module.exports = function (RED) {
                 let target = RED.nodes.getNode(nodeID);
 
                 if (!target) {
-                    console.warn('ERROR: cant get ' + nodeID + ' node for start news, removed from list NodeWithQuery');
+                    node.warn('ERROR: cant get ' + nodeID + ' node for start news, removed from list NodeWithQuery');
                     node.unregisterNodeWithQuery(nodeID);
                     continue;
                 }
@@ -298,7 +297,7 @@ module.exports = function (RED) {
                 let target = RED.nodes.getNode(nodeID);
 
                 if (!target) {
-                    console.warn('ERROR: cant get ' + nodeID + ' node for error news, removed from list NodeWithQuery');
+                    node.warn('ERROR: cant get ' + nodeID + ' node for error news, removed from list NodeWithQuery');
                     node.unregisterNodeWithQuery(nodeID);
                     continue;
                 }
@@ -369,15 +368,15 @@ module.exports = function (RED) {
                 if (!target) {
                     switch (news.node_type) {
                         case 'device_path':
-                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
+                            node.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesByDevicePath');
                             node.unregisterNodeByDevicePath(nodeID, news.device.device_path);
                             break;
                         case 'query':
-                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesWithQuery');
+                            node.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesWithQuery');
                             node.unregisterNodeWithQuery(nodeID);
                             break;
                         case 'event_node':
-                            console.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesEvent');
+                            node.warn('ERROR: cant get ' + nodeID + ' node, removed from list nodesEvent');
                             node.unregisterEventNode(nodeID);
                             break;
                     }
@@ -431,7 +430,7 @@ module.exports = function (RED) {
                                                     dataParsed
                                                 );
                                             } else {
-                                                console.warn("WTF this is used : We tried to send a msg to a non input node.");
+                                                node.warn("WTF this is used : We tried to send a msg to a non input node.");
                                                 continue;
                                             }
                                             break;
@@ -445,13 +444,13 @@ module.exports = function (RED) {
                                             }
                                             break;
                                         default:
-                                            console.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
+                                            node.warn("Unknown event of type '" + dataParsed.e + "'. " + JSON.stringify(dataParsed));
                                             break;
                                     }
                                 }
                                 break;
                             default:
-                                console.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
+                                node.warn("Unknown message of type '" + dataParsed.t + "'. " + JSON.stringify(dataParsed));
                                 break;
                         }
 
@@ -526,7 +525,7 @@ module.exports = function (RED) {
                     node.socket.close();
                     node.socket = undefined;
                 }
-                console.log('Deconz server stopped!');
+                node.log('Deconz server stopped!');
                 node.emit('onClose');
             });
         }
@@ -565,7 +564,7 @@ module.exports = function (RED) {
             node.state.websocket.eventCount++;
 
             // Drop websocket msgs if the pooling don't work
-            if (node.state.pooling.isValid === false) return console.error('Got websocket msg but the pooling is invalid. This should not happen.');
+            if (node.state.pooling.isValid === false) return node.error('Got websocket msg but the pooling is invalid. This should not happen.');
 
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 
@@ -577,7 +576,7 @@ module.exports = function (RED) {
             }
 
             // TODO handle case if device is not found
-            if (device === undefined) return console.error('Got websocket msg but the device does not exist. ' + JSON.stringify(dataParsed));
+            if (device === undefined) return node.error('Got websocket msg but the device does not exist. ' + JSON.stringify(dataParsed));
             let changed = node.updateDevice(device, dataParsed);
 
             // Node with device selected
@@ -595,7 +594,7 @@ module.exports = function (RED) {
                 let target = RED.nodes.getNode(nodeID);
 
                 if (!target) {
-                    console.warn('ERROR: cant get ' + nodeID + ' node for socket message news, removed from list NodeWithQuery');
+                    node.warn('ERROR: cant get ' + nodeID + ' node for socket message news, removed from list NodeWithQuery');
                     node.unregisterNodeWithQuery(nodeID);
                     continue;
                 }
