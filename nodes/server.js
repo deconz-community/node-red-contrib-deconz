@@ -7,6 +7,7 @@ const DeconzSocket = require("../src/runtime/DeconzSocket");
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const Query = require('../src/runtime/Query');
 const Utils = require("../src/runtime/Utils");
+const {setIntervalAsync, clearIntervalAsync} = require('set-interval-async/fixed');
 
 module.exports = function (RED) {
     class ServerNode {
@@ -63,63 +64,63 @@ module.exports = function (RED) {
             node.on('close', () => this.onClose());
 
             (async () => {
-                try {
-                    //TODO make the delay configurable
-                    await Utils.sleep(1500);
+                //TODO make the delay configurable
+                await Utils.sleep(1500);
 
-                    let pooling = async () => {
-                        let result = await node.discoverDevices({forceRefresh: true});
-                        if (result === true) {
-                            if (node.state.pooling.isValid === false) {
-                                node.state.pooling.isValid = true;
-                                node.state.ready = true;
-                                this.setupDeconzSocket(node);
-                                node.emit('onStart');
-                            }
-                            node.state.pooling.reachable = true;
-                            node.state.pooling.lastPooling = Date.now();
-                            node.state.pooling.failCount = 0;
-                            if (node.state.pooling.errorTriggered === true) {
-                                node.log(`discoverDevices: Connected to deconz API.`);
-                            }
-                            node.state.pooling.errorTriggered = false;
-                        } else if (node.state.pooling.isValid === false) {
-                            if (node.state.startFailed) return;
-                            node.state.pooling.failCount++;
-                            let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
-                            let reason = "discoverDevices: Can't connect to deconz API since starting. " +
-                                "Please check server configuration.";
-                            if (node.state.pooling.errorTriggered === false) {
-                                node.state.pooling.errorTriggered = true;
-                                node.propagateErrorNews(code, reason, true);
-                            }
-                            if (node.state.pooling.failCount % 4 === 2) {
-                                node.error(reason);
-                            }
-                        } else {
-                            node.state.pooling.failCount++;
-                            let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
-                            let reason = "discoverDevices: Can't connect to deconz API.";
-
-                            if (node.state.pooling.errorTriggered === false) {
-                                node.state.pooling.errorTriggered = true;
-                                node.propagateErrorNews(code, reason, true);
-                            }
-                            if (node.state.pooling.failCount % 4 === 2) {
-                                node.error(reason);
-                            }
+                let pooling = async () => {
+                    let result = await node.discoverDevices({forceRefresh: true});
+                    if (result === true) {
+                        if (node.state.pooling.isValid === false) {
+                            node.state.pooling.isValid = true;
+                            node.state.ready = true;
+                            this.setupDeconzSocket(node);
+                            node.emit('onStart');
                         }
-                    };
+                        node.state.pooling.reachable = true;
+                        node.state.pooling.lastPooling = Date.now();
+                        node.state.pooling.failCount = 0;
+                        if (node.state.pooling.errorTriggered === true) {
+                            node.log(`discoverDevices: Connected to deconz API.`);
+                        }
+                        node.state.pooling.errorTriggered = false;
+                    } else if (node.state.pooling.isValid === false) {
+                        if (node.state.startFailed) return;
+                        node.state.pooling.failCount++;
+                        let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
+                        let reason = "discoverDevices: Can't connect to deconz API since starting. " +
+                            "Please check server configuration.";
+                        if (node.state.pooling.errorTriggered === false) {
+                            node.state.pooling.errorTriggered = true;
+                            node.propagateErrorNews(code, reason, true);
+                        }
+                        if (node.state.pooling.failCount % 4 === 2) {
+                            node.error(reason);
+                        }
+                    } else {
+                        node.state.pooling.failCount++;
+                        let code = RED._('node-red-contrib-deconz/server:status.deconz_not_reachable');
+                        let reason = "discoverDevices: Can't connect to deconz API.";
 
-                    await pooling();
-                    if (node.state.startFailed !== true)
-                        this.refreshDiscoverTimer = setInterval(pooling, node.refreshDiscoverInterval);
+                        if (node.state.pooling.errorTriggered === false) {
+                            node.state.pooling.errorTriggered = true;
+                            node.propagateErrorNews(code, reason, true);
+                        }
+                        if (node.state.pooling.failCount % 4 === 2) {
+                            node.error(reason);
+                        }
+                    }
+                };
 
-                } catch (e) {
-                    node.state.ready = false;
-                    node.error("Deconz Server node error " + e.toString());
+                await pooling();
+                if (node.state.startFailed !== true) {
+                    this.refreshDiscoverTimer = setIntervalAsync(pooling, node.refreshDiscoverInterval);
                 }
-            })();
+
+            })().catch((error) => {
+                node.state.ready = false;
+                node.error("Deconz Server node error " + error.toString());
+                console.log("Error from server node #1", error);
+            });
         }
 
         async waitForReady(maxDelay = 10000) {
@@ -517,13 +518,17 @@ module.exports = function (RED) {
         onClose() {
             let node = this;
             node.log('Shutting down deconz server node.');
-            clearInterval(node.refreshDiscoverTimer);
-            node.state.ready = false;
-            if (node.socket !== undefined) {
-                node.socket.close();
-                node.socket = undefined;
-            }
-            node.emit('onClose');
+            (async () => {
+                await clearIntervalAsync(node.refreshDiscoverTimer);
+            })().then(() => {
+                node.state.ready = false;
+                if (node.socket !== undefined) {
+                    node.socket.close();
+                    node.socket = undefined;
+                }
+                console.log('Deconz server stopped!');
+                node.emit('onClose');
+            });
         }
 
         updateDevice(device, dataParsed) {

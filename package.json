@@ -21,6 +21,7 @@
     "events": "latest",
     "got": "^11.8.2",
     "multiple-select": "^1.5.2",
+    "set-interval-async": "^2.0.3",
     "ws": "latest"
   },
   "description": "deCONZ connectivity nodes for node-red",
