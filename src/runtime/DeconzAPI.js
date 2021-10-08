@@ -174,22 +174,26 @@ class DeconzAPI {
             this.apikey = '<nouser>';
             let apiQuery;
             let guesses = [
-                {secured: this.secured, ip: this.ip},
-                {secured: false, ip: 'core-deconz.local.hass.io'},
-                {secured: false, ip: 'homeassistant.local'},
+                {secured: this.secured, ip: this.ip, port: this.port, skipIdCheck: true},
+                {secured: this.secured, ip: this.ip, port: 80},
+                {secured: this.secured, ip: this.ip, port: 443},
+                {secured: this.secured, ip: this.ip, port: 8080},
+                {secured: false, ip: 'core-deconz.local.hass.io', port: this.port || 40850},
+                {secured: false, ip: 'homeassistant.local', port: this.port || 40850}
             ];
 
             if (apiQuery === undefined) {
                 for (const guess of guesses) {
                     this.secured = guess.secured;
                     this.ip = guess.ip;
+                    this.port = guess.port;
                     let bridgeID = await this.getConfig('bridgeid');
                     if (bridgeID === undefined) {
                         response.log.push(`Requesting api key at ${this.url.main()}... Failed.`);
                         continue;
                     }
                     response.log.push(`Found gateway ID "${bridgeID}" at "${this.url.main()}".`);
-                    if (discoverData && discoverData.id !== bridgeID) {
+                    if (guess.skipIdCheck !== true && discoverData && discoverData.id !== bridgeID) {
                         response.log.push(`Bridge id mismatch, got "${bridgeID}" and expect "${discoverData.id}". Skipped.`);
                         continue;
                     }
@@ -305,15 +309,6 @@ class DeconzAPI {
     }
 
     get settings() {
-        console.log({
-            name: this.name,
-            ip: this.ip,
-            port: this.port,
-            apikey: this.apikey,
-            ws_port: this.ws_port,
-            secure: this.secured,
-            polling: this.polling
-        });
         return {
             name: this.name,
             ip: this.ip,
