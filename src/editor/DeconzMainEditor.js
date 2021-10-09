@@ -84,6 +84,7 @@ class DeconzMainEditor extends DeconzEditor {
         }
 
         let data = {
+            id: this.node.id,
             type: this.node.type,
             config: JSON.stringify(config)
         };

@@ -160,8 +160,12 @@ module.exports = function (RED) {
         try {
             let data = req.query;
             let config = JSON.parse(data.config);
-            let server = RED.nodes.getNode(config.server);
-            if (server.state.ready === true) {
+            let server = RED.nodes.getNode(data.type === 'deconz-server' ? data.id : config.server);
+            if (server === undefined) {
+                res.json({errors: [`Could not find the server node.`]});
+                return;
+            }
+            if (server.state.ready === true || (data.type === 'deconz-server')) {
                 let configMigration = new ConfigMigration(data.type, config, server);
                 let result = configMigration.migrate(config);
                 res.json(result);
