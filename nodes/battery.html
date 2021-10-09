@@ -222,8 +222,7 @@
                     }
                 });
                 await node.nodeEditor.init();
-            })().then((result) => {
-            }).catch((error) => {
+            })().then().catch((error) => {
                 console.error(error);
             });
         },
