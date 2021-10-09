@@ -18,6 +18,15 @@ module.exports = function (RED) {
                 node.server.registerEventNode(node.id);
             }
 
+            node.server.on('onStart', () => {
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: RED._('node-red-contrib-deconz/server:status.event_count')
+                        .replace('{{event_count}}', 0)
+                });
+            });
+
         }
 
         handleDeconzEvent(device, changed, rawEvent, opt) {
