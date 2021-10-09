@@ -83,7 +83,7 @@ module.exports = function (RED) {
                     );
                     node.error(
                         `Error with migration of node ${node.type} with id ${node.id}\n` +
-                        error.join('\n') +
+                        migrationResult.errors.join('\n') +
                         '\nPlease open the node settings and update the configuration'
                     );
                     node.status({
