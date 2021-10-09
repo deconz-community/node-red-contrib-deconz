@@ -203,26 +203,29 @@
             return label;
         },
         oneditprepare: function () {
-            let node = this;
-            node.nodeEditor = new DeconzMainEditor(node, {
-                have: {
-                    output_rules: true
-                },
-                device: {
-                    batteryFilter: true
-                },
-                output_rules: {
-                    type: {
-                        attribute: false,
-                        state: false,
-                        config: true,
-                        homekit: true
+            (async () => {
+                let node = this;
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        output_rules: true
+                    },
+                    device: {
+                        batteryFilter: true
+                    },
+                    output_rules: {
+                        type: {
+                            attribute: false,
+                            state: false,
+                            config: true,
+                            homekit: true
+                        }
                     }
-                }
+                });
+                await node.nodeEditor.init();
+            })().then((result) => {
+            }).catch((error) => {
+                console.error(error);
             });
-            node.nodeEditor.init()/*.then(value => {
-                console.log("init done!");
-            })*/;
         },
         oneditsave: function () {
             let node = this;

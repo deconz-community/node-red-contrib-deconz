@@ -187,25 +187,28 @@
             return label;
         },
         oneditprepare: function () {
-            let node = this;
-            node.nodeEditor = new DeconzMainEditor(node, {
-                have: {
-                    output_rules: true
-                },
-                output_rules: {
-                    format: {
-                        single: true,
-                        array: true,
-                        sum: true,
-                        average: true,
-                        min: true,
-                        max: true
+            (async () => {
+                let node = this;
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        output_rules: true
+                    },
+                    output_rules: {
+                        format: {
+                            single: true,
+                            array: true,
+                            sum: true,
+                            average: true,
+                            min: true,
+                            max: true
+                        }
                     }
-                }
+                });
+                await node.nodeEditor.init();
+            })().then((result) => {
+            }).catch((error) => {
+                console.error(error);
             });
-            node.nodeEditor.init()/*.then(value => {
-                console.log("init done!");
-            })*/;
         },
         oneditsave: function () {
             let node = this;

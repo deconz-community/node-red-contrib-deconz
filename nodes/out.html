@@ -213,17 +213,22 @@
             return label;
         },
         oneditprepare: function () {
-            let node = this;
-            node.nodeEditor = new DeconzMainEditor(node, {
-                have: {
-                    commands: true,
-                    specific: true
-                },
-                commands: {
-                    button_title: 'node-red-contrib-deconz/server:editor.inputs.commands.rule_button.desc',
-                }
+            (async () => {
+                let node = this;
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        commands: true,
+                        specific: true
+                    },
+                    commands: {
+                        button_title: 'node-red-contrib-deconz/server:editor.inputs.commands.rule_button.desc',
+                    }
+                });
+                await node.nodeEditor.init();
+            })().then((result) => {
+            }).catch((error) => {
+                console.error(error);
             });
-            node.nodeEditor.init();
         },
         oneditsave: function () {
             let node = this;

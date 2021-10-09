@@ -102,19 +102,24 @@
         },
 
         oneditprepare: function () {
-            let node = this;
+            (async () => {
+                let node = this;
 
-            node.nodeEditor = new DeconzMainEditor(node, {
-                have: {
-                    statustext: false,
-                    query: false,
-                    device: false,
-                    output_rules: false,
-                    commands: false,
-                    specific: true
-                }
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        statustext: false,
+                        query: false,
+                        device: false,
+                        output_rules: false,
+                        commands: false,
+                        specific: true
+                    }
+                });
+                await node.nodeEditor.init();
+            })().then((result) => {
+            }).catch((error) => {
+                console.error(error);
             });
-            node.nodeEditor.init();
         },
         oneditsave: function () {
             let node = this;
