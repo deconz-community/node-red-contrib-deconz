@@ -19,7 +19,7 @@ module.exports = function (RED) {
             };
             res.sendFile(req.params[0], options);
         } catch (e) {
-            console.warn(e.toString());
+            console.error(e);
             res.status(500).end();
         }
     });
@@ -73,7 +73,7 @@ module.exports = function (RED) {
                 });
             }
         } catch (e) {
-            console.warn(e.toString());
+            console.error(e);
             res.status(500).end();
         }
     });
@@ -128,7 +128,7 @@ module.exports = function (RED) {
                     res.status(404).end();
                 }
             } catch (e) {
-                console.warn(e.toString());
+                console.error(e);
                 res.status(500).end();
             }
         });
@@ -151,7 +151,7 @@ module.exports = function (RED) {
                 res.status(404).end();
             }
         } catch (e) {
-            console.warn(e.toString());
+            console.error(e);
             res.status(500).end();
         }
     });
@@ -169,7 +169,7 @@ module.exports = function (RED) {
                 res.json({errors: [`The server node is not ready. Please check the server configuration.`]});
             }
         } catch (e) {
-            console.warn(e.toString());
+            console.error(e);
             res.status(500).end();
         }
     });
@@ -182,7 +182,7 @@ module.exports = function (RED) {
             let result = await api.discoverSettings(config.discoverParam || {});
             res.json(result);
         } catch (e) {
-            console.warn(e.toString());
+            console.error(e);
             res.status(500).end();
         }
     });

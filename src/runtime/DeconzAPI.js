@@ -15,6 +15,7 @@ class DeconzAPI {
         this.secured = options.secured;
         this.version = options.version;
         this.polling = options.polling;
+        this.enableLogs = options.enableLogs === undefined ? true : options.enableLogs;
         this.versions = [
             '1', '1.1', '2'
         ];
@@ -255,7 +256,7 @@ class DeconzAPI {
             if (resultID !== undefined) return [discover.body[resultID]];
             return discover.body;
         } catch (e) {
-            console.warn(e.toString());
+            if (this.enableLogs) console.warn(e);
         }
     }
 
@@ -281,7 +282,7 @@ class DeconzAPI {
                     return e.response.body[0];
                 }
             } else {
-                console.warn(e.toString());
+                if (this.enableLogs) console.warn(e);
             }
         }
     }
@@ -299,7 +300,7 @@ class DeconzAPI {
             );
             return keyName === undefined ? discover.body : discover.body[keyName];
         } catch (e) {
-            console.warn(e.toString());
+            if (this.enableLogs) console.warn(e);
         }
     }
 
