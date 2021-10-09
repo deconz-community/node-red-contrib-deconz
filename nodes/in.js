@@ -33,6 +33,7 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
+            node.ready = false;
 
             node.status({});
 
@@ -86,6 +87,7 @@ module.exports = function (RED) {
                 }
 
                 node.server.updateNodeStatus(node, null);
+                node.ready = true;
             });
 
         }
@@ -93,51 +95,60 @@ module.exports = function (RED) {
         //TODO wait for migration before sending events
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
-            let msgs = new Array(this.config.output_rules.length);
-            let options = Object.assign({
-                initialEvent: false,
-                errorEvent: false
-            }, opt);
 
-            if (options.errorEvent === true) {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: options.errorCode || "Unknown Error"
-                });
-                if (options.isGlobalError === false)
-                    node.error(options.errorMsg || "Unknown Error");
-                return;
-            }
+            (async () => {
+                let waitResult = await Utils.waitForEverythingReady(node);
+                if (waitResult) return;
 
-            this.config.output_rules.forEach((saved_rule, index) => {
-                // Make sure that all expected config are defined
-                const rule = Object.assign({}, defaultRule, saved_rule);
-                // Only if it's not on start and the start msg are blocked
-                if (!(options.initialEvent === true && rule.onstart !== true)) {
-                    // Clean up old msgs
-                    msgs.fill(undefined);
+                let msgs = new Array(this.config.output_rules.length);
+                let options = Object.assign({
+                    initialEvent: false,
+                    errorEvent: false
+                }, opt);
 
-                    // Format msgs, can get one or many msgs.
-                    let formatter = new OutputMsgFormatter(rule, NodeType, this.config);
-                    let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
-
-                    // Make sure that the result is an array
-                    if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
-
-                    // Send msgs
-                    for (let msg of msgToSend) {
-                        msg.topic = this.config.topic;
-                        msgs[index] = msg;
-                        node.send(msgs);
-                    }
-
-                    // Update node status
-                    if (index === 0)
-                        node.server.updateNodeStatus(node, msgToSend);
+                if (options.errorEvent === true) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: options.errorCode || "Unknown Error"
+                    });
+                    if (options.isGlobalError === false)
+                        node.error(options.errorMsg || "Unknown Error");
+                    return;
                 }
 
+                this.config.output_rules.forEach((saved_rule, index) => {
+                    // Make sure that all expected config are defined
+                    const rule = Object.assign({}, defaultRule, saved_rule);
+                    // Only if it's not on start and the start msg are blocked
+                    if (!(options.initialEvent === true && rule.onstart !== true)) {
+                        // Clean up old msgs
+                        msgs.fill(undefined);
+
+                        // Format msgs, can get one or many msgs.
+                        let formatter = new OutputMsgFormatter(rule, NodeType, this.config);
+                        let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
+
+                        // Make sure that the result is an array
+                        if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
+
+                        // Send msgs
+                        for (let msg of msgToSend) {
+                            msg.topic = this.config.topic;
+                            msgs[index] = msg;
+                            node.send(msgs);
+                        }
+
+                        // Update node status
+                        if (index === 0)
+                            node.server.updateNodeStatus(node, msgToSend);
+                    }
+
+                });
+            })().then().catch((error) => {
+                console.error(error);
             });
+
         }
 
     }

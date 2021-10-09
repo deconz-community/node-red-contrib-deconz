@@ -57,6 +57,7 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
+            node.ready = false;
 
             node.cleanStatusTimer = null;
             node.status({});
@@ -80,13 +81,25 @@ module.exports = function (RED) {
                     migrationResult.errors.forEach(
                         error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
                     );
+                    node.error(
+                        `Error with migration of node ${node.type} with id ${node.id}\n` +
+                        error.join('\n') +
+                        '\nPlease open the node settings and update the configuration'
+                    );
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: "node-red-contrib-deconz/server:status.migration_error"
+                    });
+                    return;
                 }
 
                 // Make sure that all expected config are defined
                 node.config = Object.assign({}, defaultConfig, node.config);
+                node.ready = true;
             });
 
-            this.on('input', async (message_in, send, done) => {
+            node.on('input', (message_in, send, done) => {
                 // For maximum backwards compatibility, check that send and done exists.
                 send = send || function () {
                     node.send.apply(node, arguments);
@@ -95,155 +108,82 @@ module.exports = function (RED) {
                     if (err) node.error(err, message_in);
                 };
 
-                if (node.config.statustext_type === 'auto')
-                    clearTimeout(node.cleanStatusTimer);
+                (async () => {
+                    if (node.config.statustext_type === 'auto')
+                        clearTimeout(node.cleanStatusTimer);
 
-                // Wait until the server is ready
-                if (node.server.ready === false) {
-                    node.status({
-                        fill: "yellow",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/server:status.wait_for_server_start"
-                    });
-                    await node.server.waitForReady();
-                    if (node.server.ready === false) {
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/server:status.server_node_error"
-                        });
-                        done(RED._("node-red-contrib-deconz/server:status.server_node_error"));
+                    let waitResult = await Utils.waitForEverythingReady(node);
+                    if (waitResult) {
+                        done(RED._(waitResult));
                         return;
-                    } else {
-                        node.status({});
                     }
-                }
-                //TODO wait for migration ?
 
-                let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
-                if (typeof delay !== 'number') delay = 50;
+                    let delay = Utils.getNodeProperty(node.config.specific.delay, this, message_in);
+                    if (typeof delay !== 'number') delay = 50;
 
-                let devices = [];
-                switch (node.config.search_type) {
-                    case 'device':
-                        for (let path of node.config.device_list) {
-                            devices.push({data: node.server.device_list.getDeviceByPath(path)});
-                        }
-                        break;
-                    case 'json':
-                    case 'jsonata':
-                        let querySrc = RED.util.evaluateJSONataExpression(
-                            RED.util.prepareJSONataExpression(node.config.query, node),
-                            message_in,
-                            undefined
-                        );
-                        try {
-                            for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
-                                devices.push({data: r});
+                    let devices = [];
+                    switch (node.config.search_type) {
+                        case 'device':
+                            for (let path of node.config.device_list) {
+                                devices.push({data: node.server.device_list.getDeviceByPath(path)});
                             }
-                        } catch (e) {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: "node-red-contrib-deconz/server:status.query_error"
-                            });
-                            done(e.toString());
-                            return;
-                        }
-                        break;
-                }
-
-                let resultMsgs = [];
-                let errorMsgs = [];
-                let resultTimings = ['never', 'after_command', 'at_end'];
-                let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
-                if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
-
-                let command_count = node.config.commands.length;
-                for (const [command_id, saved_command] of node.config.commands.entries()) {
-                    // Make sure that all expected config are defined
-                    const command = Object.assign({}, defaultCommand, saved_command);
-                    if (command.type === 'pause') {
-                        let sleep_delay = Utils.getNodeProperty(command.arg.delay, this, message_in);
-                        node.status({
-                            fill: "blue",
-                            shape: "dot",
-                            text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
-                                .replace('{{index}}', (command_id + 1).toString())
-                                .replace('{{count}}', command_count)
-                                .replace('{{status}}',
-                                    RED._("node-red-contrib-deconz/server:status.out_commands.pause")
-                                        .replace('{{delay}}', sleep_delay)
-                                )
-                        });
-                        await Utils.sleep(sleep_delay, 2000);
-                        continue;
+                            break;
+                        case 'json':
+                        case 'jsonata':
+                            let querySrc = RED.util.evaluateJSONataExpression(
+                                RED.util.prepareJSONataExpression(node.config.query, node),
+                                message_in,
+                                undefined
+                            );
+                            try {
+                                for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                                    devices.push({data: r});
+                                }
+                            } catch (e) {
+                                node.status({
+                                    fill: "red",
+                                    shape: "dot",
+                                    text: "node-red-contrib-deconz/server:status.query_error"
+                                });
+                                done(e.toString());
+                                return;
+                            }
+                            break;
                     }
 
-                    try {
-                        let cp = new CommandParser(command, message_in, node);
-                        let requests = cp.getRequests(node, devices);
-                        let request_count = requests.length;
-                        for (const [request_id, request] of requests.entries()) {
-                            try {
-                                node.status({
-                                    fill: "blue",
-                                    shape: "dot",
-                                    text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
-                                        .replace('{{index}}', (command_id + 1).toString())
-                                        .replace('{{count}}', command_count)
-                                        .replace('{{status}}',
-                                            RED._("node-red-contrib-deconz/server:status.out_commands.request")
-                                                .replace('{{index}}', (request_id + 1).toString())
-                                                .replace('{{count}}', request_count)
-                                        )
-                                });
+                    let resultMsgs = [];
+                    let errorMsgs = [];
+                    let resultTimings = ['never', 'after_command', 'at_end'];
+                    let resultTiming = Utils.getNodeProperty(node.config.specific.result, this, message_in, resultTimings);
+                    if (!resultTimings.includes(resultTiming)) resultTiming = 'never';
 
-                                const response = await got(
-                                    node.server.api.url.main() + request.endpoint,
-                                    {
-                                        method: 'PUT',
-                                        retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
-                                        json: request.params,
-                                        responseType: 'json',
-                                        timeout: 2000 // TODO make configurable ?
-                                    }
-                                );
+                    let command_count = node.config.commands.length;
+                    for (const [command_id, saved_command] of node.config.commands.entries()) {
+                        // Make sure that all expected config are defined
+                        const command = Object.assign({}, defaultCommand, saved_command);
+                        if (command.type === 'pause') {
+                            let sleep_delay = Utils.getNodeProperty(command.arg.delay, this, message_in);
+                            node.status({
+                                fill: "blue",
+                                shape: "dot",
+                                text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                    .replace('{{index}}', (command_id + 1).toString())
+                                    .replace('{{count}}', command_count)
+                                    .replace('{{status}}',
+                                        RED._("node-red-contrib-deconz/server:status.out_commands.pause")
+                                            .replace('{{delay}}', sleep_delay)
+                                    )
+                            });
+                            await Utils.sleep(sleep_delay, 2000);
+                            continue;
+                        }
 
-                                if (resultTiming !== 'never') {
-                                    let result = {};
-                                    let errors = [];
-                                    for (const r of response.body) {
-                                        if (r.success !== undefined)
-                                            for (const [enpointKey, value] of Object.entries(r.success))
-                                                result[enpointKey.replace(request.endpoint + '/', '')] = value;
-                                        if (r.error !== undefined) errors.push(r.error);
-                                    }
-
-                                    let resultMsg = {};
-                                    if (resultTiming === 'after_command') {
-                                        resultMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
-                                        resultMsg.payload = result;
-                                    } else if (resultTiming === 'at_end') {
-                                        resultMsg.result = result;
-                                    }
-
-                                    resultMsg.request = request.params;
-                                    resultMsg.meta = request.meta;
-                                    if (request.scene_meta !== undefined)
-                                        resultMsg.scene_meta = request.scene_meta;
-                                    if (errors.length > 0)
-                                        resultMsg.errors = errors;
-
-                                    if (resultTiming === 'after_command') {
-                                        send(resultMsg);
-                                    } else if (resultTiming === 'at_end') {
-                                        resultMsgs.push(resultMsg);
-                                    }
-                                }
-
-                                let sleep_delay = delay - dotProp.get(response, 'timings.phases.total', 0);
-                                if (sleep_delay >= 200)
+                        try {
+                            let cp = new CommandParser(command, message_in, node);
+                            let requests = cp.getRequests(node, devices);
+                            let request_count = requests.length;
+                            for (const [request_id, request] of requests.entries()) {
+                                try {
                                     node.status({
                                         fill: "blue",
                                         shape: "dot",
@@ -251,67 +191,130 @@ module.exports = function (RED) {
                                             .replace('{{index}}', (command_id + 1).toString())
                                             .replace('{{count}}', command_count)
                                             .replace('{{status}}',
-                                                RED._("node-red-contrib-deconz/server:status.out_commands.delay")
-                                                    .replace('{{delay}}', sleep_delay)
+                                                RED._("node-red-contrib-deconz/server:status.out_commands.request")
+                                                    .replace('{{index}}', (request_id + 1).toString())
+                                                    .replace('{{count}}', request_count)
                                             )
                                     });
-                                await Utils.sleep(sleep_delay);
 
-                            } catch (error) {
-                                if (resultTiming !== 'never') {
-                                    let errorMsg = {};
-                                    if (resultTiming === 'after_command') {
-                                        errorMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                    const response = await got(
+                                        node.server.api.url.main() + request.endpoint,
+                                        {
+                                            method: 'PUT',
+                                            retry: Utils.getNodeProperty(command.arg.retryonerror, this, message_in) || 0,
+                                            json: request.params,
+                                            responseType: 'json',
+                                            timeout: 2000 // TODO make configurable ?
+                                        }
+                                    );
+
+                                    if (resultTiming !== 'never') {
+                                        let result = {};
+                                        let errors = [];
+                                        for (const r of response.body) {
+                                            if (r.success !== undefined)
+                                                for (const [enpointKey, value] of Object.entries(r.success))
+                                                    result[enpointKey.replace(request.endpoint + '/', '')] = value;
+                                            if (r.error !== undefined) errors.push(r.error);
+                                        }
+
+                                        let resultMsg = {};
+                                        if (resultTiming === 'after_command') {
+                                            resultMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                            resultMsg.payload = result;
+                                        } else if (resultTiming === 'at_end') {
+                                            resultMsg.result = result;
+                                        }
+
+                                        resultMsg.request = request.params;
+                                        resultMsg.meta = request.meta;
+                                        if (request.scene_meta !== undefined)
+                                            resultMsg.scene_meta = request.scene_meta;
+                                        if (errors.length > 0)
+                                            resultMsg.errors = errors;
+
+                                        if (resultTiming === 'after_command') {
+                                            send(resultMsg);
+                                        } else if (resultTiming === 'at_end') {
+                                            resultMsgs.push(resultMsg);
+                                        }
                                     }
 
-                                    errorMsg.request = request.params;
-                                    errorMsg.meta = request.meta;
-                                    errorMsg.errors = [{
-                                        type: 0,
-                                        code: dotProp.get(error, 'response.statusCode'),
-                                        message: dotProp.get(error, 'response.statusMessage'),
-                                        description: `${error.name}: ${error.message}`,
-                                        apiEndpoint: request.endpoint
-                                    }];
+                                    let sleep_delay = delay - dotProp.get(response, 'timings.phases.total', 0);
+                                    if (sleep_delay >= 200)
+                                        node.status({
+                                            fill: "blue",
+                                            shape: "dot",
+                                            text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
+                                                .replace('{{index}}', (command_id + 1).toString())
+                                                .replace('{{count}}', command_count)
+                                                .replace('{{status}}',
+                                                    RED._("node-red-contrib-deconz/server:status.out_commands.delay")
+                                                        .replace('{{delay}}', sleep_delay)
+                                                )
+                                        });
+                                    await Utils.sleep(sleep_delay);
 
-                                    if (resultTiming === 'after_command') {
-                                        send(errorMsg);
-                                    } else if (resultTiming === 'at_end') {
-                                        resultMsgs.push(errorMsg);
+                                } catch (error) {
+                                    if (resultTiming !== 'never') {
+                                        let errorMsg = {};
+                                        if (resultTiming === 'after_command') {
+                                            errorMsg = Utils.cloneMessage(message_in, ['request', 'meta', 'payload', 'errors']);
+                                        }
+
+                                        errorMsg.request = request.params;
+                                        errorMsg.meta = request.meta;
+                                        errorMsg.errors = [{
+                                            type: 0,
+                                            code: dotProp.get(error, 'response.statusCode'),
+                                            message: dotProp.get(error, 'response.statusMessage'),
+                                            description: `${error.name}: ${error.message}`,
+                                            apiEndpoint: request.endpoint
+                                        }];
+
+                                        if (resultTiming === 'after_command') {
+                                            send(errorMsg);
+                                        } else if (resultTiming === 'at_end') {
+                                            resultMsgs.push(errorMsg);
+                                        }
                                     }
-                                }
 
-                                if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
+                                    if (Utils.getNodeProperty(command.arg.aftererror, this, message_in, ['continue', 'stop']) === 'stop') return;
 
-                                if (error.timings !== undefined) {
-                                    await Utils.sleep(delay - dotProp.get(error, 'timings.phases.total', 0));
-                                } else {
-                                    await Utils.sleep(delay);
+                                    if (error.timings !== undefined) {
+                                        await Utils.sleep(delay - dotProp.get(error, 'timings.phases.total', 0));
+                                    } else {
+                                        await Utils.sleep(delay);
+                                    }
                                 }
                             }
+                        } catch (error) {
+                            node.error(`Error while processing command #${command_id + 1}, ${error}`, message_in);
+                            console.warn(error);
                         }
-                    } catch (error) {
-                        node.error(`Error while processing command #${command_id + 1}, ${error}`, message_in);
-                        console.warn(error);
+
                     }
 
-                }
+                    if (resultTiming === 'at_end') {
+                        let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
+                        endMsg.payload = resultMsgs;
+                        if (errorMsgs.length > 0)
+                            endMsg.errors = errorMsgs;
+                        send(endMsg);
+                    }
 
-                if (resultTiming === 'at_end') {
-                    let endMsg = Utils.cloneMessage(message_in, ['payload', 'errors']);
-                    endMsg.payload = resultMsgs;
-                    if (errorMsgs.length > 0)
-                        endMsg.errors = errorMsgs;
-                    send(endMsg);
-                }
+                    node.server.updateNodeStatus(node, null);
+                    if (node.config.statustext_type === 'auto')
+                        node.cleanStatusTimer = setTimeout(function () {
+                            node.status({}); //clean
+                        }, 3000);
 
-                node.server.updateNodeStatus(node, null);
-                if (node.config.statustext_type === 'auto')
-                    node.cleanStatusTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
+                    done();
 
-                done();
+                })().then().catch((error) => {
+                    console.error(error);
+                });
+
             });
 
         }

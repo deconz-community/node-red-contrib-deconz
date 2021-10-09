@@ -116,23 +116,11 @@ module.exports = function (RED) {
                     this.refreshDiscoverTimer = setIntervalAsync(pooling, node.refreshDiscoverInterval);
                 }
 
-            })().catch((error) => {
+            })().then().catch((error) => {
                 node.state.ready = false;
                 node.error("Deconz Server node error " + error.toString());
                 console.log("Error from server node #1", error);
             });
-        }
-
-        async waitForReady(maxDelay = 10000) {
-            const pauseDelay = 100;
-            let pauseCount = 0;
-            while (this.ready === false) {
-                await Utils.sleep(pauseDelay);
-                pauseCount++;
-                if (pauseCount * pauseDelay >= maxDelay) {
-                    break;
-                }
-            }
         }
 
         setupDeconzSocket(node) {
@@ -518,7 +506,8 @@ module.exports = function (RED) {
             let node = this;
             node.log('Shutting down deconz server node.');
             (async () => {
-                await clearIntervalAsync(node.refreshDiscoverTimer);
+                if (node.refreshDiscoverTimer)
+                    await clearIntervalAsync(node.refreshDiscoverTimer);
             })().then(() => {
                 node.state.ready = false;
                 if (node.socket !== undefined) {
@@ -527,6 +516,8 @@ module.exports = function (RED) {
                 }
                 node.log('Deconz server stopped!');
                 node.emit('onClose');
+            }).catch((error) => {
+                console.error("Error on Close", error);
             });
         }
 

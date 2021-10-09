@@ -30,6 +30,7 @@ module.exports = function (RED) {
 
             let node = this;
             node.config = config;
+            node.ready = false;
 
             node.cleanStatusTimer = null;
             node.status({});
@@ -63,15 +64,16 @@ module.exports = function (RED) {
                         shape: "dot",
                         text: "node-red-contrib-deconz/server:status.migration_error"
                     });
+                    return;
                 }
 
                 // Make sure that all expected config are defined
                 node.config = Object.assign({}, defaultConfig, node.config);
-
                 node.server.updateNodeStatus(node, null);
+                node.ready = true;
             });
 
-            node.on('input', async (message_in, send, done) => {
+            node.on('input', (message_in, send, done) => {
                 // For maximum backwards compatibility, check that send and done exists.
                 send = send || function () {
                     node.send.apply(node, arguments);
@@ -79,107 +81,92 @@ module.exports = function (RED) {
                 done = done || function (err) {
                     if (err) node.error(err, message_in);
                 };
-                let unreachableDevices = [];
-
-                if (node.config.statustext_type === 'auto')
-                    clearTimeout(node.cleanStatusTimer);
-                // Wait until the server is ready
-                if (node.server.ready === false) {
-                    node.status({
-                        fill: "yellow",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/server:status.wait_for_server_start"
-                    });
-                    await node.server.waitForReady();
-                    if (node.server.ready === false) {
-                        node.status({
-                            fill: "red",
-                            shape: "dot",
-                            text: "node-red-contrib-deconz/server:status.server_node_error"
-                        });
-                        done(RED._("node-red-contrib-deconz/server:status.server_node_error"));
+                (async () => {
+                    let waitResult = await Utils.waitForEverythingReady(node);
+                    if (waitResult) {
+                        done(RED._(waitResult));
                         return;
-                    } else {
-                        node.status({});
                     }
-                }
-                //TODO wait for migration ?
 
-                let msgs = new Array(this.config.output_rules.length);
-                let devices = [];
+                    let unreachableDevices = [];
+                    let msgs = new Array(this.config.output_rules.length);
+                    let devices = [];
 
-                switch (node.config.search_type) {
-                    case 'device':
-                        for (let path of node.config.device_list) {
-                            devices.push({data: node.server.device_list.getDeviceByPath(path)});
-                        }
-                        break;
-                    case 'json':
-                    case 'jsonata':
-                        let querySrc = RED.util.evaluateJSONataExpression(
-                            RED.util.prepareJSONataExpression(node.config.query, node),
-                            message_in,
-                            undefined
-                        );
-                        try {
-                            for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
-                                devices.push({data: r});
+                    switch (node.config.search_type) {
+                        case 'device':
+                            for (let path of node.config.device_list) {
+                                devices.push({data: node.server.device_list.getDeviceByPath(path)});
                             }
-                        } catch (e) {
-                            node.status({
-                                fill: "red",
-                                shape: "dot",
-                                text: "node-red-contrib-deconz/server:status.query_error"
-                            });
-                            done(e.toString());
-                            return;
+                            break;
+                        case 'json':
+                        case 'jsonata':
+                            let querySrc = RED.util.evaluateJSONataExpression(
+                                RED.util.prepareJSONataExpression(node.config.query, node),
+                                message_in,
+                                undefined
+                            );
+                            try {
+                                for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
+                                    devices.push({data: r});
+                                }
+                            } catch (e) {
+                                node.status({
+                                    fill: "red",
+                                    shape: "dot",
+                                    text: "node-red-contrib-deconz/server:status.query_error"
+                                });
+                                done(e.toString());
+                                return;
+                            }
+                            break;
+                    }
+
+                    node.config.output_rules.forEach((saved_rule, index) => {
+                        // Make sure that all expected config are defined
+                        const rule = Object.assign({}, defaultRule, saved_rule);
+
+                        // Only if it's not on start and the start msg are blocked
+
+                        // Clean up old msgs
+                        msgs.fill(undefined);
+
+                        // Format msgs, can get one or many msgs.
+                        let formatter = new OutputMsgFormatter(rule, NodeType, node.config);
+                        let msgToSend = formatter.getMsgs(devices, undefined, {
+                            src_msg: RED.util.cloneMessage(message_in)
+                        });
+
+                        // Make sure that the result is an array
+                        if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
+
+                        // Send msgs
+                        for (let msg of msgToSend) {
+                            msgs[index] = msg;
+                            send(msgs);
+                            if (dotProp.get(msg, 'meta.state.reachable') === false ||
+                                dotProp.get(msg, 'meta.config.reachable') === false
+                            ) {
+                                let device_path = dotProp.get(msg, 'meta.device_path');
+                                if (device_path && !unreachableDevices.includes(device_path)) {
+                                    done(`Device "${dotProp.get(msg, 'meta.name')}" is not reachable.`);
+                                    unreachableDevices.push(device_path);
+                                }
+                            }
                         }
-                        break;
-                }
 
-                node.config.output_rules.forEach((saved_rule, index) => {
-                    // Make sure that all expected config are defined
-                    const rule = Object.assign({}, defaultRule, saved_rule);
-
-                    // Only if it's not on start and the start msg are blocked
-
-                    // Clean up old msgs
-                    msgs.fill(undefined);
-
-                    // Format msgs, can get one or many msgs.
-                    let formatter = new OutputMsgFormatter(rule, NodeType, node.config);
-                    let msgToSend = formatter.getMsgs(devices, undefined, {
-                        src_msg: RED.util.cloneMessage(message_in)
+                        // Update node status
+                        if (index === 0)
+                            node.server.updateNodeStatus(node, msgToSend);
                     });
+                    if (node.config.statustext_type === 'auto')
+                        node.cleanStatusTimer = setTimeout(function () {
+                            node.status({}); //clean
+                        }, 3000);
 
-                    // Make sure that the result is an array
-                    if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];
-
-                    // Send msgs
-                    for (let msg of msgToSend) {
-                        msgs[index] = msg;
-                        send(msgs);
-                        if (dotProp.get(msg, 'meta.state.reachable') === false ||
-                            dotProp.get(msg, 'meta.config.reachable') === false
-                        ) {
-                            let device_path = dotProp.get(msg, 'meta.device_path');
-                            if (device_path && !unreachableDevices.includes(device_path)) {
-                                done(`Device "${dotProp.get(msg, 'meta.name')}" is not reachable.`);
-                                unreachableDevices.push(device_path);
-                            }
-                        }
-                    }
-
-                    // Update node status
-                    if (index === 0)
-                        node.server.updateNodeStatus(node, msgToSend);
+                    if (unreachableDevices.length === 0) done();
+                })().then().catch((error) => {
+                    console.error(error);
                 });
-                if (node.config.statustext_type === 'auto')
-                    node.cleanStatusTimer = setTimeout(function () {
-                        node.status({}); //clean
-                    }, 3000);
-
-                if (unreachableDevices.length === 0) done();
             });
         }
     }

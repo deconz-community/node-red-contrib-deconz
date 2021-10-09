@@ -25,6 +25,7 @@
     "done": "done",
     "wait_for_server_start": "waiting for server",
     "server_node_error": "server node error",
+    "node_error": "node error",
     "deconz_not_reachable": "deconz not reachable",
     "device_not_reachable": "device not reachable",
     "invalid_api_key": "invalid api key",
