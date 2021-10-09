@@ -36,6 +36,11 @@ class DeconzSpecificServerEditor extends DeconzEditor {
     async init() {
         this.node.specific = $.extend(true, this.default, this.node.specific);
         await super.init();
+        // API Key migration
+        if (this.node.migration_secured_apikey) {
+            this.$elements.apikey.val(this.node.migration_secured_apikey);
+            this.$elements.apikey.change();
+        }
     }
 
     async connect() {
