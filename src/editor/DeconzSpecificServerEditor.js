@@ -53,7 +53,8 @@ class DeconzSpecificServerEditor extends DeconzEditor {
                 myNotification.close();
             stop = true;
         };
-        myNotification = RED.notify("<p>Trying to find the server settings, please wait...<br>This can take up to 15 seconds.</p>", {
+        myNotification = RED.notify("<p>Trying to find the server settings, please wait...<br>" +
+            "This can take up to 15 seconds.</p>", {
             modal: true,
             fixed: true,
             type: 'info',
