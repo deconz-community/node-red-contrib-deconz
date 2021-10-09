@@ -130,7 +130,7 @@ class DeconzMainEditor extends DeconzEditor {
 
         // Init Editor
         await super.init();
-        this.serverNode = RED.nodes.node(this.$elements.server.val());
+        this.serverNode = this.node.type === 'deconz-server' ? this.node : RED.nodes.node(this.$elements.server.val());
 
         // We save the init promise in the instance to pause the output rule before connecting
         this.initPromises = [];
