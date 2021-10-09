@@ -1,5 +1,6 @@
 const got = require('got');
 const dns = require('dns');
+const Utils = require("./Utils");
 const dnsPromises = dns.promises;
 
 
@@ -8,9 +9,10 @@ class DeconzAPI {
     constructor(options) {
         options = Object.assign({}, this.defaultOptions, options);
         this.name = options.name;
+        this.bridge_id = options.bridge_id;
         this.ip = options.ip;
-        this.port = options.port;
-        this.ws_port = options.ws_port;
+        this.port = isNaN(options.port) ? undefined : Number(options.port);
+        this.ws_port = isNaN(options.ws_port) ? undefined : Number(options.ws_port);
         this.apikey = options.apikey !== undefined ? options.apikey : '<nouser>';
         this.secured = options.secured;
         this.version = options.version;
@@ -112,106 +114,144 @@ class DeconzAPI {
 
     async discoverSettings(opt) {
         let options = Object.assign({}, {
-            discoverResultID: undefined,
+            targetGatewayID: undefined,
             devicetype: 'Unknown'
         }, opt);
 
+        //TODO check if the current values are valid.
+
         let response = {log: []};
+        let gateways = [];
 
         response.log.push(`Fetching data from '${this.url.discover()}'.`);
-        let discoverResult = await this.getDiscoveryData(options.discoverResultID);
-
-        if (Array.isArray(discoverResult) && discoverResult.length === 1) options.discoverResultID = 0;
+        let discoverResult = await this.getDiscoveryData();
         let discoverData;
         if (discoverResult === undefined) {
             response.log.push(`No data fetched from '${this.url.discover()}'.`);
         } else {
-            if (Array.isArray(discoverResult) &&
-                discoverResult.length > 1 &&
-                discoverResult[options.discoverResultID] === undefined
-            ) {
-                response.log.push("Got mutiple result and no choice has already been made.");
-                response.log.push(JSON.stringify(discoverResult));
-                response.error = {
-                    code: 'GATEWAY_CHOICE',
-                    description: 'Multiple gateways founds.',
-                    gateway_list: discoverResult
-                };
-                response.currentSettings = this.settings;
-                response.currentSettings.discoverParam = options;
-                return response;
-            } else {
-                discoverData = discoverResult[options.discoverResultID];
-                response.log.push(`Using result #${options.discoverResultID + 1}: ` + JSON.stringify(discoverData));
+            response.log.push(`Found ${discoverResult.length} gateways from '${this.url.discover()}'.`);
+        }
+
+        let guesses = [];
+        if (typeof this.ip === 'string' && this.ip.length > 0 && this.port !== undefined) {
+            let ports = [80, 443, 8080];
+            if (!ports.includes(this.port)) ports.unshift(this.port);
+            guesses.push({
+                secured: this.secured || false,
+                ip: this.ip,
+                ports,
+                skipIdCheck: true,
+                logError: true
+            });
+        }
+        if (Array.isArray(discoverResult) && discoverResult.length > 0) {
+            for (const result of discoverResult) {
+                guesses.push({secured: false, ip: result.internalipaddress, ports: [result.internalport]});
+            }
+        }
+        if (this.ip !== 'localhost') {
+            guesses.push({secured: false, ip: 'localhost', ports: [80, 443, 8080]});
+            guesses.push({secured: true, ip: 'localhost', ports: [80, 443, 8080]});
+        }
+        for (const ip of ['core-deconz.local.hass.io', 'homeassistant.local']) {
+            if (this.ip !== ip) {
+                let ports = [40850];
+                if (!ports.includes(this.port)) ports.unshift(this.port);
+                guesses.push({secured: false, ip, ports});
             }
         }
 
-        if (discoverData) {
-            if (this.name === undefined || String(this.name).length === 0) this.name = discoverData.name;
-            if (this.ip === undefined || String(this.ip).length === 0) {
-                this.ip = discoverData.internalipaddress;
-                try {
-                    response.log.push(`Trying to get a dns name for fetched IP "${this.ip}".`);
-                    let dnsNames = await dnsPromises.reverse(this.ip);
-                    if (dnsNames.length === 0) {
-                        response.log.push("No domain name found.");
-                    } else if (dnsNames.length === 1) {
-                        this.ip = dnsNames[0];
-                        response.log.push(`Found domain name "${this.ip}".`);
-                    } else {
-                        this.ip = dnsNames[0];
-                        response.log.push(`Found multiple domain name "${dnsNames.toString()}".`);
-                        response.log.push(`Using domain name "${this.ip}".`);
-                    }
-                } catch (e) {
-                    response.log.push("No domain name found.");
-                }
+        let tryGuess = async (secured, ip, port, logError) => {
+            const invalid = [undefined, '', 0];
+            if (invalid.includes(ip) || invalid.includes(port)) return;
+            let api = new DeconzAPI({
+                secured: secured || false,
+                ip: ip,
+                port: port,
+                apikey: '<nouser>',
+                enableLogs: false
+            });
+            let config = await api.getConfig(undefined, 1000);
+            if (config === undefined) {
+                if (logError === true) response.log.push(`Requesting api key at ${api.url.main()}... Failed.`);
+                return;
             }
-            if (this.port === undefined || String(this.port).length === 0) this.port = discoverData.internalport;
+            response.log.push(`Found gateway ID "${config.bridgeid}" at "${api.url.main()}".`);
+            return {
+                bridge_id: config.bridgeid,
+                name: config.name,
+                secured: secured,
+                ip: ip,
+                port: port
+            };
+        };
+
+        let requests = [];
+        response.log.push(`Looking for gateways at ${guesses.length} locations.`);
+        for (const guess of guesses) {
+            for (const port of guess.ports) {
+                requests.push(tryGuess(guess.secured, guess.ip, port, guess.logError));
+            }
         }
 
-        if ((this.apikey === undefined || String(this.apikey).length === 0) || this.apikey === '<nouser>') {
+        let results = await Promise.all(requests);
+        // Clean up results
+        results = results.filter((r) => r !== undefined);
+        response.log.push(`Found ${results.length} gateways.`);
+
+        // If no gateway found, send error
+        if (results.length === 0) {
+            response.error = {
+                code: 'NO_GATEWAY_FOUND',
+                description: 'No gateway found, please try to set an IP-Address.'
+            };
+            return response;
+        }
+
+        // If multiple gateway found, let the user select.
+        if (results.length > 1 && options.targetGatewayID === undefined) {
+            response.log.push("Got mutiple result and no choice has already been made.");
+            response.log.push(JSON.stringify(results));
+            response.error = {
+                code: 'GATEWAY_CHOICE',
+                description: 'Multiple gateways founds.',
+                gateway_list: results
+            };
+            response.currentSettings = this.settings;
+            response.currentSettings.discoverParam = options;
+            return response;
+        }
+
+        // If there is only one result use it.
+        if (options.targetGatewayID === undefined && results.length === 1)
+            options.targetGatewayID = results[0].bridge_id;
+
+        response.log.push(`Trying to configure gateway "${options.targetGatewayID}"`);
+
+        let gatewaySettings = results.filter((r) => r.bridge_id === options.targetGatewayID).shift();
+        if (gatewaySettings === undefined) {
+            response.log.push("Gateway settings not found.");
+            response.error = {
+                code: 'GATEWAY_NO_DATA',
+                description: "Can't fetch gateway settings."
+            };
+            return response;
+        }
+
+        for (const [k, v] of Object.entries(gatewaySettings)) {
+            this[k] = v;
+        }
+
+        response.log.push(`Checking api key ${this.apikey}`);
+        if (
+            (this.apikey === undefined || String(this.apikey).length === 0) ||
+            this.apikey === '<nouser>' ||
+            await this.getApiKeyMeta() === undefined
+        ) {
             response.log.push("No valid API key provided, trying acquiring one.");
             this.apikey = '<nouser>';
             let apiQuery;
-            let guesses = [
-                {secured: this.secured, ip: this.ip, port: this.port, skipIdCheck: true},
-                {secured: this.secured, ip: this.ip, port: 80},
-                {secured: this.secured, ip: this.ip, port: 443},
-                {secured: this.secured, ip: this.ip, port: 8080},
-                {secured: false, ip: 'core-deconz.local.hass.io', port: this.port || 40850},
-                {secured: false, ip: 'homeassistant.local', port: this.port || 40850}
-            ];
-
-            if (apiQuery === undefined) {
-                for (const guess of guesses) {
-                    this.secured = guess.secured;
-                    this.ip = guess.ip;
-                    this.port = guess.port;
-                    let bridgeID = await this.getConfig('bridgeid');
-                    if (bridgeID === undefined) {
-                        response.log.push(`Requesting api key at ${this.url.main()}... Failed.`);
-                        continue;
-                    }
-                    response.log.push(`Found gateway ID "${bridgeID}" at "${this.url.main()}".`);
-                    if (guess.skipIdCheck !== true && discoverData && discoverData.id !== bridgeID) {
-                        response.log.push(`Bridge id mismatch, got "${bridgeID}" and expect "${discoverData.id}". Skipped.`);
-                        continue;
-                    }
-                    apiQuery = await this.getAPIKey(options.devicetype);
-                    if (apiQuery !== undefined) break;
-                }
-            }
-
-            if (apiQuery === undefined) {
-                response.log.push("No response from the server.");
-                response.error = {
-                    code: 'SERVER_TIMEOUT',
-                    description: 'No response from the server, please try to set an IP-Address.'
-                };
-                return response;
-            }
-
+            apiQuery = await this.getAPIKey(options.devicetype);
             if (apiQuery.error) {
                 response.log.push("Error while requesting api key.");
                 response.log.push(apiQuery.error.description);
@@ -232,7 +272,41 @@ class DeconzAPI {
 
         }
 
-        if ((this.ws_port === undefined || String(this.ws_port).length === 0)) {
+        if (Utils.isIPAddress(this.ip)) {
+            let oldIP = this.ip;
+            try {
+                response.log.push(`Trying to get a dns name for fetched IP "${this.ip}".`);
+                let dnsNames = await dnsPromises.reverse(this.ip);
+                if (dnsNames.length === 0) {
+                    response.log.push("No domain name found.");
+                } else if (dnsNames.length === 1) {
+                    this.ip = dnsNames[0];
+                    response.log.push(`Found domain name "${this.ip}".`);
+                } else {
+                    this.ip = dnsNames[0];
+                    response.log.push(`Found multiple domain name "${dnsNames.toString()}".`);
+                    response.log.push(`Using domain name "${this.ip}".`);
+                }
+            } catch (e) {
+                response.log.push("No domain name found.");
+            }
+
+            if (oldIP !== this.ip) {
+                let oldEnableLogs = this.enableLogs;
+                this.enableLogs = false;
+                let newBridgeId = await this.getConfig('bridgeid', 1000);
+                this.enableLogs = oldEnableLogs;
+                if (newBridgeId === this.bridge_id) {
+                    response.log.push(`The domain name seems to be valid. Using the domain name.`);
+                } else {
+                    response.log.push(`The domain name seems to be invalid. Using the IP address.`);
+                    this.ip = oldIP;
+                }
+            }
+        }
+
+        // TODO check if the websocket port is valid
+        if ((this.ws_port === undefined || this.ws_port === 0)) {
             this.ws_port = await this.getConfig('websocketport');
         }
 
@@ -242,7 +316,7 @@ class DeconzAPI {
 
     }
 
-    async getDiscoveryData(resultID) {
+    async getDiscoveryData() {
         try {
             const discover = await got(
                 this.url.discover(),
@@ -253,7 +327,6 @@ class DeconzAPI {
                     timeout: 2000
                 }
             );
-            if (resultID !== undefined) return [discover.body[resultID]];
             return discover.body;
         } catch (e) {
             if (this.enableLogs) console.warn(e);
@@ -287,7 +360,7 @@ class DeconzAPI {
         }
     }
 
-    async getConfig(keyName) {
+    async getConfig(keyName, timeout) {
         try {
             const discover = await got(
                 this.url.main() + this.url.config.main(),
@@ -295,7 +368,7 @@ class DeconzAPI {
                     method: 'GET',
                     retry: 1,
                     responseType: 'json',
-                    timeout: 2000
+                    timeout: timeout || 2000
                 }
             );
             return keyName === undefined ? discover.body : discover.body[keyName];

@@ -93,11 +93,11 @@ class DeconzSpecificServerEditor extends DeconzEditor {
                             "please select the one you want to configure.</p>";
                         let idPrefix = 'node-red-contrib-deconz-gateway-id-';
                         let node = this;
-                        let clickMethod = function (e) {
+                        let clickMethod = function (gateway_id) {
                             closeNotification();
-                            let id = Number(e.target.id.substr(idPrefix.length));
-                            if (isNaN(id)) id = undefined;
-                            request.currentSettings.discoverParam.discoverResultID = id;
+                            if (gateway_id) {
+                                request.currentSettings.discoverParam.targetGatewayID = gateway_id;
+                            }
                             node.discoverParams(request.currentSettings);
                         };
 
@@ -106,7 +106,8 @@ class DeconzSpecificServerEditor extends DeconzEditor {
                                 text: `#${index + 1}: ${gateway.name}`,
                                 id: idPrefix + index,
                                 class: "primary",
-                                click: clickMethod
+                                /*jshint loopfunc: true */
+                                click: () => clickMethod(gateway.bridge_id)
                             });
                         }
 
