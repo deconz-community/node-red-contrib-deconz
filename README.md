@@ -4,7 +4,6 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/deconz-community/node-red-contrib-deconz/NPM%20Publish)](https://github.com/deconz-community/node-red-contrib-deconz/actions)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/deconz-community/node-red-contrib-deconz?include_prereleases&label=github&sort=semver)](https://github.com/deconz-community/node-red-contrib-deconz/releases)
 [![npm](https://img.shields.io/npm/v/node-red-contrib-deconz)](https://www.npmjs.com/package/node-red-contrib-deconz)
-[![dependencies](https://status.david-dm.org/gh/deconz-community/node-red-contrib-deconz.svg)](https://david-dm.org/deconz-community/node-red-contrib-deconz)
 [![GitHub issues](https://img.shields.io/github/issues/deconz-community/node-red-contrib-deconz)](https://github.com/deconz-community/node-red-contrib-deconz/issues)
 [![Discord](https://img.shields.io/badge/discord-online-success)](https://discord.gg/3XGEYY9)
 
@@ -43,13 +42,15 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 * deconz-battery: get battery status of device
 * deconz-event: get all deconz events
 
-<img src="https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/1.png?raw=true">
-<img src="https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/2.png?raw=true">
-<img src="https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/3.png?raw=true">
+![Flow sample](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/flow_sample.png?raw=true)
+![Server setup](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/server_setup.png?raw=true)
+![Get node](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/get_node.png?raw=true)
+![Out node](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/out_node.png?raw=true)
 
-<h3>Home Assistant</h3>
-Do not forget to open ports:
-<img src="https://github.com/andreypopov/node-red-contrib-deconz/blob/master/readme/ha.png?raw=true">
+## Home Assistant
+
+Do not forget to open ports if you are using Node-Red from outside Home Assistant containers :
+![HA setup](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/ha_setup.png?raw=true)
 
 ## Legacy version
 
