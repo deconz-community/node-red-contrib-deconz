@@ -42,15 +42,15 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 * deconz-battery: get battery status of device
 * deconz-event: get all deconz events
 
-![Flow sample](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/flow_sample.png?raw=true)
-![Server setup](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/server_setup.png?raw=true)
-![Get node](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/get_node.png?raw=true)
-![Out node](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/out_node.png?raw=true)
+[![Flow sample](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/flow_sample.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/flow_sample.png)
+[![Server setup](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/server_setup.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/server_setup.png)
+[![Get node](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/get_node.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/get_node.png)
+[![Out node](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/out_node.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/out_node.png)
 
 ## Home Assistant
 
 Do not forget to open ports if you are using Node-Red from outside Home Assistant containers :
-![HA setup](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/readme/ha_setup.png?raw=true)
+[![HA setup](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/ha_setup.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/ha_setup.png)
 
 ## Legacy version
 

@@ -7,11 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.2] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633881662?label=)
+
+### Fixed
+
+- Update read me image url.
+
 ## [2.0.1] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633879095?label=)
 
 ### Fixed
 
-- Update npm deployment workflow
+- Update npm deployment workflow.
 
 ## [2.0.0] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633877978?label=)
 
