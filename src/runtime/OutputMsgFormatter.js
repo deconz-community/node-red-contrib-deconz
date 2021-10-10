@@ -153,9 +153,19 @@ class OutputMsgFormatter {
                     msg.payload_count = {};
                     msg.payload_format = payloadFormat;
                     msg.meta = [];
+                    let isSingleValue = false;
                     for (const data of msgs) {
                         msg.meta.push(data.meta);
-                        mergeData('', msg.payload, msg.payload_count, data.payload, mergeMethod);
+                        if (typeof data.payload === 'object' && !Array.isArray(data.payload)) {
+                            mergeData('', msg.payload, msg.payload_count, data.payload, mergeMethod);
+                        } else {
+                            isSingleValue = true;
+                            mergeData('', msg.payload, msg.payload_count, {value: data.payload}, mergeMethod);
+                        }
+                    }
+                    if (isSingleValue === true) {
+                        msg.payload = msg.payload.value;
+                        msg.payload_count = msg.payload_count.value;
                     }
                     resultMsgs.push(msg);
                 }
