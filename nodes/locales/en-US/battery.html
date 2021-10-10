@@ -1,26 +1,105 @@
 <script type="text/html" data-help-name="deconz-battery">
-    <p>This node listens for battery messages sent from your deconz.</p>
-    <h3>Configuration</h3>
-    <dl class="message-properties">
-        <dt class="optional">Name <span class="property-type">string</span></dt>
-        <dd>Provide a custom name for this node.</dd>
-        <dt>Server <span class="property-type">object</span></dt>
-        <dd>Choose the deconz server instance to use.</dd>
-        <dt>Device <span class="property-type">string</span></dt>
-        <dd>Select device to listen to.</dd>
-        <dt class="optional">Start output <span class="property-type">boolean</span></dt>
-        <dd>Output state at startup.</dd>
-    </dl>
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css"/>
+    <div class="deconz-help">
+        <p>This node listens for messages sent from your deconz. You will get one message per device</p>
+        <h3>Configuration</h3>
+        <dl class="message-properties">
+            <dt class="optional">Name <span class="property-type">string</span></dt>
+            <dd>Provide a custom name for this node.</dd>
+            <dt class="optional">Topic <span class="property-type">string</span></dt>
+            <dd>An optional property that can be configured in the node.</dd>
+            <dt>Server <span class="property-type">object</span></dt>
+            <dd>Choose the deconz server instance to use.</dd>
 
-    <h3>Outputs</h3>
-    <h5>Raw output</h5>
-    <dl class="message-properties">
-        <dt>payload <span class="property-type">object</span></dt>
-        <dd>Complete data.</dd>
-    </dl>
-    <h5>Homekit output</h5>
-    <dl class="message-properties">
-        <dt>payload <span class="property-type">object</span></dt>
-        <dd>Object formatted for homekit node</dd>
-    </dl>
+            <div class="separator"></div>
+
+            <dt>Query <span class="property-type">string</span></dt>
+            <dd>
+                How get the devices, can be a Device list or a Query. See more about Queries on the
+                <a href="https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries">Github
+                    Wiki</a>.
+            </dd>
+            <dt class="optional">Device <span class="property-type">string[]</span></dt>
+            <dd>
+                Select devices to listen to. Only batteries powered devices are displayed.<br>
+                Only available if <code>Query</code> value is <strong>Device</strong>
+            </dd>
+            <dt class="optional">Query result</dt>
+            <dd>
+                Display what devices matched the <code>Query</code>.<br>
+                Only available if <code>Query</code> value is <strong>JSON</strong> or <strong>JSONata
+                expression</strong>
+            </dd>
+
+            <div class="separator">Outputs</div>
+            <p>The settings work the same for all outputs.</p>
+
+            <dt class="optional">Payload <span class="property-type">string[]</span></dt>
+            <dd>
+                Indicate what the payload will contain.
+                <ul>
+                    <li>Complete state payload: The payload contains all the data in an object.</li>
+                    <li>Each state payload: A message will be sent per values contained in the device data.</li>
+                    <li>Selected items: A message will be sent per selected values contained in the device data.</li>
+                </ul>
+            </dd>
+
+            <dt class="optional">Format <span class="property-type">string</span></dt>
+            <dd>
+                Indicate how the device data are used. Can only be Single for input node.
+                <ul>
+                    <li><code>Single</code> - Send one message per device.</li>
+                </ul>
+            </dd>
+
+            <dt class="optional">Output <span class="property-type">string</span></dt>
+            <dd>
+                Indicate when the payload will be sent.<br>
+                Only available if <code>Payload</code> is not <strong>Complete payload</strong>
+                <ul>
+                    <li>Always: Will always be sent.</li>
+                    <li>On change: Will be sent if the value changed.</li>
+                    <li>
+                        On update: Will be sent if
+                        the state <strong>lastupdated</strong> changed
+                        or one of the config values changed.
+                    </li>
+                </ul>
+            </dd>
+
+            <dt class="optional">Start output <span class="property-type">boolean</span></dt>
+            <dd>
+                Indicate if the payload will be sent when Node-Red start
+                or after the reconnection between Node-Red and Deconz REST API.
+            </dd>
+
+            <dt class="optional">Error output <span class="property-type">boolean</span></dt>
+            <dd>
+                Send <strong>NO_RESPONSE</strong> info to homekit when
+                the connection between Node-Red and Deconz REST API is lost
+                or when the device is not reachable.
+            </dd>
+        </dl>
+
+        <h3>Outputs</h3>
+        <p>For backward compatibility reason the values of the payload are copied on the message root.</p>
+        <dl class="message-properties">
+            <dt>topic <span class="property-type">string</span></dt>
+            <dd>The topic from the node settings.</dd>
+            <dt>payload <span class="property-type">string or object</span></dt>
+            <dd>Complete data of chosen type parameter.</dd>
+            <dt>payload_format <span class="property-type">string</span></dt>
+            <dd>The name of the value or <code>__complete__</code> if the selected payload is "Complete payload.</dd>
+            <dt>payload_raw<span class="property-type">object</span></dt>
+            <dd>
+                Full event data. See
+                <a href="https://dresden-elektronik.github.io/deconz-rest-doc/endpoints/websocket/#message-fields">here</a>
+                for data format. You will get only events with state data.
+            </dd>
+            <dt>meta<span class="property-type">object</span></dt>
+            <dd>Full device or group data.</dd>
+            <dt>meta_changed<span class="property-type">string[]</span></dt>
+            <dd>List of param path that changed since last message. Exemple : "state.lastupdated"</dd>
+        </dl>
+    </div>
 </script>

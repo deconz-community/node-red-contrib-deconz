@@ -1,0 +1,102 @@
+
+.form-row label.l-width {
+    width: 25%;
+    min-width: 120px;
+}
+
+.s-width {
+    width: 70% !important;
+}
+
+.ms-choice {
+    height: 34px;
+    border: 1px solid rgb(204, 204, 204);
+    line-height: 34px !important;
+}
+
+.ms-choice span {
+    padding-right: 24px !important;
+}
+
+.ms-choice .icon-close {
+    font-size: 30px !important;
+    margin-right: 8px !important;
+    margin-top: -2px !important;
+}
+
+.ms-search input {
+    width: 100% !important;
+}
+
+.ms-drop li label input {
+    width: 20px !important;
+    height: 16px !important;
+    margin-top: 3px !important;
+}
+
+.ms-drop li label span {
+    padding-left: 20px !important;
+}
+
+.deconz-node .red-ui-typedInput-container {
+    width: 70% !important;
+}
+
+.deconz-editor .top-right-badge {
+    margin-left: 10px;
+}
+
+.deconz-help .separator,
+.deconz-editor .separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.deconz-editor .separator {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.deconz-editor .separator::before,
+.deconz-editor .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 3px solid #2D3239;
+}
+
+.deconz-editor .separator:not(:empty)::before {
+    margin-right: 20px;
+}
+
+.deconz-editor .separator:not(:empty)::after {
+    margin-left: 20px;
+}
+
+.deconz-help .separator {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+
+.deconz-help .separator::before,
+.deconz-help .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #2D3239;
+}
+
+.deconz-help .separator:not(:empty)::before {
+    margin-right: 5px;
+}
+
+.deconz-help .separator:not(:empty)::after {
+    margin-left: 5px;
+}
+
+
+.deconz-editor .form-row label i.fa {
+    width: 15px;
+    text-align: center;
+}

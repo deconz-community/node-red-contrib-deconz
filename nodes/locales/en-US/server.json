@@ -5,7 +5,7 @@
     "port": "Port",
     "api_key": "API Key",
     "websocket_port": "WebSocket Port",
-    "get_settings": "Get Settings",
+    "get_settings": "Auto fetch all settings",
     "use_secured_ssl": "Use secured SSL connection",
     "magick": "Magick",
     "polling": "Polling, sec"
@@ -14,7 +14,549 @@
     "name": "Name"
   },
   "tip": {
-    "deploy": "<b>Important:</b> deploy server node to get devices list",
-    "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault"
+    "deploy": "<b>Important:</b> Deploy server node to get devices list.",
+    "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault.",
+    "input_device_warning_message_update": "<b>Important:</b> The device save format changed. Please click on Done to save with the new format.",
+    "update_2_0_0_or_later": "You just upgraded the Deconz Plugin to version 2.0.0 or later. Please make sure that all your nodes are working fine.",
+    "help_discord_github": "If you have any issues you can get help from <a href=\"https://discord.gg/3XGEYY9\">Deconz-Community Discord server</a>. Or you can open an issue on <a href=\"https://github.com/deconz-community/node-red-contrib-deconz/issues\">GitHub</a>."
+  },
+  "status": {
+    "disconnected": "disconnected",
+    "connected": "connected",
+    "received": "received",
+    "done": "done",
+    "wait_for_server_start": "waiting for server",
+    "server_node_error": "server node error",
+    "node_error": "node error",
+    "deconz_not_reachable": "deconz not reachable",
+    "device_not_reachable": "device not reachable",
+    "invalid_api_key": "invalid api key",
+    "device_not_set": "device not set",
+    "reconnecting": "reconnecting...",
+    "starting": "starting...",
+    "query_error": "can't read device query",
+    "only_always": "Complete payload only accept Always as output setting",
+    "migration_error": "migration error",
+    "event_count": "{{event_count}} events",
+    "out_commands": {
+      "main": "{{index}}/{{count}} - {{status}}",
+      "pause": "Pause for {{delay}}ms",
+      "delay": "Wait for {{delay}}ms",
+      "request": "Request {{index}}/{{count}}"
+    }
+  },
+  "editor": {
+    "multiselect": {
+      "none_selected": "None selected"
+    },
+    "inputs": {
+      "separator": {
+        "device": "Devices selection",
+        "specific": "Specific options",
+        "outputs": "Outputs",
+        "commands": "Commands"
+      },
+      "statustext": {
+        "label": "Node status",
+        "options": {
+          "auto": "Auto"
+        }
+      },
+      "server": {
+        "label": "Server"
+      },
+      "device": {
+        "query": {
+          "label": "Query",
+          "options": {
+            "device": "Device"
+          }
+        },
+        "device": {
+          "label": "Device",
+          "filter": "Filter devices..."
+        },
+        "query_result": {
+          "label": "Query result"
+        },
+        "refresh": {
+          "label": "Refresh",
+          "button_text": "Refresh devices List"
+        },
+        "refresh_query": {
+          "label": "Refresh",
+          "button_text": "Refresh query result"
+        }
+      },
+      "outputs": {
+        "format": {
+          "label": "Format",
+          "icon": "file-code-o",
+          "options": {
+            "single": "Single x ... y ... z",
+            "array": "Array [x,y,z]",
+            "sum": "Sum x+y+z",
+            "average": "Average x+y+z/3",
+            "min": "Min X+y+Z = y",
+            "max": "Max X+y+z = X"
+          }
+        },
+        "type": {
+          "label": "Type",
+          "icon": "file-text",
+          "options": {
+            "attribute": "Attribute",
+            "state": "State",
+            "config": "Config",
+            "homekit": "Homekit",
+            "scene_call": "Scene Call"
+          },
+          "add_button": {
+            "label": "Add __type__",
+            "icon": "plus",
+            "title": "Add __type__ output"
+          }
+        },
+        "payload": {
+          "label": "Payload",
+          "icon": "ellipsis-h",
+          "group_label": {
+            "attribute": "Attribute",
+            "state": "State",
+            "config": "Config"
+          },
+          "item_list": "__name__ (__sample__)",
+          "item_list_mix": "__name__ [__item_count__/__device_count__] (__sample__)",
+          "options": {
+            "complete": "Complete payload",
+            "each": "Each payload"
+          }
+        },
+        "output": {
+          "label": "Output",
+          "icon": "sign-out",
+          "options": {
+            "always": "Always",
+            "onchange": "On change",
+            "onupdate": "On update"
+          }
+        },
+        "on_start": {
+          "label": "Start output",
+          "icon": "share-square",
+          "desc": "Send msg on start or socket reconnect."
+        },
+        "on_error": {
+          "label": "Error output",
+          "icon": "external-link-square",
+          "desc": "Send NO_RESPONSE on socket error."
+        },
+        "rule_button": {
+          "desc": "Show list of nodes connected to this output."
+        }
+      },
+      "commands": {
+        "type": {
+          "label": "Type",
+          "icon": "file-code-o",
+          "add_button": {
+            "label": "Add __type__",
+            "icon": "plus",
+            "title": "Add __type__ command"
+          },
+          "options": {
+            "common": {
+              "fields": {
+                "target": {
+                  "label": "Target",
+                  "icon": "dot-circle-o",
+                  "options": {
+                    "attribute": {
+                      "label": "Attribute",
+                      "icon": "object-group"
+                    },
+                    "state": {
+                      "label": "State",
+                      "icon": "lightbulb-o"
+                    },
+                    "config": {
+                      "label": "Config",
+                      "icon": "wrench"
+                    }
+                  }
+                },
+                "command": {
+                  "label": "Command",
+                  "icon": "tasks",
+                  "options": {
+                    "object": {
+                      "label": "Object",
+                      "icon": "object-group"
+                    }
+                  }
+                },
+                "payload": {
+                  "label": "Payload",
+                  "icon": "envelope"
+                }
+              }
+            },
+            "deconz_state": {
+              "label": "Deconz state",
+              "icon": "deconz",
+              "options": {
+                "common": {
+                  "fields": {
+                    "transitiontime": {
+                      "label": "Transition",
+                      "icon": "hourglass-o",
+                      "title": "Transition time in 1/10 seconds between two states.",
+                      "placeholder": "10 = 1 second"
+                    },
+                    "retryonerror": {
+                      "label": "Retry on error",
+                      "icon": "repeat",
+                      "title": "Retry on when command failed (max 2)."
+                    },
+                    "aftererror": {
+                      "label": "After error",
+                      "icon": "exclamation",
+                      "title": "Action to do when a command failed after retry.",
+                      "options": {
+                        "continue": {
+                          "label": "Continue",
+                          "icon": "play"
+                        },
+                        "stop": {
+                          "label": "Stop",
+                          "icon": "stop"
+                        }
+                      }
+                    }
+                  }
+                },
+                "lights": {
+                  "label": "Lights",
+                  "fields": {
+                    "on": {
+                      "label": "On/Off",
+                      "icon": "lightbulb-o",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Turn",
+                          "icon": "deconz",
+                          "options": {
+                            "true": {
+                              "label": "On",
+                              "icon": "deconz"
+                            },
+                            "false": {
+                              "label": "Off",
+                              "icon": "deconz"
+                            }
+                          }
+                        },
+                        "toggle": {
+                          "label": "Toggle",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "lightFields": {
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "arrow-circle-right"
+                        },
+                        "inc": {
+                          "label": "Increment by",
+                          "icon": "arrow-circle-up"
+                        },
+                        "dec": {
+                          "label": "Decrement by",
+                          "icon": "arrow-circle-down"
+                        },
+                        "detect_from_value": {
+                          "label": "Detect from value",
+                          "icon": "magic"
+                        }
+                      }
+                    },
+                    "bri": {
+                      "label": "Brightness",
+                      "icon": "lightbulb-o"
+                    },
+                    "sat": {
+                      "label": "Color saturation",
+                      "icon": "lightbulb-o"
+                    },
+                    "hue": {
+                      "label": "Color hue",
+                      "icon": "lightbulb-o"
+                    },
+                    "ct": {
+                      "label": "Mired color temperature",
+                      "icon": "lightbulb-o",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "cold": {
+                              "label": "Cold",
+                              "icon": "thermometer-empty"
+                            },
+                            "white": {
+                              "label": "White",
+                              "icon": "thermometer-half"
+                            },
+                            "warm": {
+                              "label": "Warm",
+                              "icon": "thermometer-full"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "xy": {
+                      "label": "CIE xy color",
+                      "icon": "lightbulb-o"
+                    },
+                    "alert": {
+                      "label": "Alert",
+                      "icon": "bell-o",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "none": {
+                              "label": "None",
+                              "icon": "deconz"
+                            },
+                            "select": {
+                              "label": "Blinking a short time",
+                              "icon": "deconz"
+                            },
+                            "lselect": {
+                              "label": "Blinking a longer time",
+                              "icon": "deconz"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "effect": {
+                      "label": "Effect",
+                      "icon": "star-o",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "none": {
+                              "label": "None",
+                              "icon": "deconz"
+                            },
+                            "colorloop": {
+                              "label": "Color Loop",
+                              "icon": "deconz"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "colorloopspeed": {
+                      "label": "Color Loop Speed",
+                      "icon": "star-o",
+                      "title": "1 = very fast 255 = very slow",
+                      "placeholder": "default: 15"
+                    }
+                  }
+                },
+                "groups": {
+                  "label": "Groups"
+                },
+                "covers": {
+                  "label": "Windows Cover",
+                  "fields": {
+                    "open": {
+                      "label": "Open/Close",
+                      "icon": "window-maximize",
+                      "title": "Set to true to lift the shutter to 0%, false to lift it to 100%.",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "deconz",
+                          "options": {
+                            "true": {
+                              "label": "Open"
+                            },
+                            "false": {
+                              "label": "Close"
+                            }
+                          }
+                        },
+                        "toggle": {
+                          "label": "Toggle",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "stop": {
+                      "label": "Stop/Continue",
+                      "icon": "stop",
+                      "title": "Stops the current action.",
+                      "options": {
+                        "keep": {
+                          "label": "Don't change",
+                          "icon": "deconz"
+                        },
+                        "set": {
+                          "label": "Set",
+                          "icon": "deconz",
+                          "options": {
+                            "true": {
+                              "label": "Stop",
+                              "icon": "deconz"
+                            },
+                            "false": {
+                              "label": "Continue",
+                              "icon": "deconz"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "lift": {
+                      "label": "Lift",
+                      "icon": "arrows-v",
+                      "title": "Supported range is 0–100 or special value \"stop\".\nlift is best understood as “percentage closed”. So for any lift value below 100%, open is true.",
+                      "options": {
+                        "stop": {
+                          "label": "Stop",
+                          "icon": "deconz"
+                        }
+                      }
+                    },
+                    "tilt": {
+                      "label": "Tilt",
+                      "icon": "arrows-h",
+                      "title": "Sets the tilt angle of the shutter (0–100%)."
+                    }
+                  }
+                },
+                "scene_call": {
+                  "label": "Scenes call",
+                  "fields": {
+                    "picker": {
+                      "label": "Picker",
+                      "icon": "crosshairs",
+                      "filter_place_holder": "Filter scenes..."
+                    },
+                    "group": {
+                      "label": "Group ID",
+                      "icon": "object-group",
+                      "title": "Select the group of the scene",
+                      "options": {
+                        "from_device": {
+                          "label": "From device",
+                          "icon": "search"
+                        }
+                      }
+                    },
+                    "scene": {
+                      "label": "Scene ID",
+                      "icon": "picture-o",
+                      "title": "Select the scene to call",
+                      "options": {
+                        "deconz": {
+                          "label": "Deconz",
+                          "icon": "deconz",
+                          "options": {
+                            "next": {
+                              "label": "Next"
+                            },
+                            "prev": {
+                              "label": "Previous"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "homekit": {
+              "label": "HomeKit",
+              "icon": "homekit"
+            },
+            "custom": {
+              "label": "Custom",
+              "icon": "cogs"
+            },
+            "animation": {
+              "label": "Animation",
+              "icon": "spinner"
+            },
+            "pause": {
+              "label": "Pause",
+              "icon": "pause",
+              "fields": {
+                "delay": {
+                  "label": "Delay",
+                  "icon": "hourglass-o",
+                  "title": "Delay in ms before executing next command."
+                }
+              }
+            }
+          }
+        },
+        "rule_button": {
+          "desc": "Run this command now."
+        }
+      },
+      "specific": {
+        "output": {
+          "delay": {
+            "label": "Delay",
+            "icon": "hourglass-o",
+            "title": "Delay between api request in ms."
+          },
+          "result": {
+            "label": "Result",
+            "icon": "table",
+            "title": "Return the result of the api call.",
+            "options": {
+              "never": {
+                "label": "Never",
+                "icon": "hourglass-start"
+              },
+              "after_command": {
+                "label": "After each command",
+                "icon": "hourglass-half"
+              },
+              "at_end": {
+                "label": "At the end",
+                "icon": "hourglass-end"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

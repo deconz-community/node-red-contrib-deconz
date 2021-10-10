@@ -1,27 +1,79 @@
 <script type="text/html" data-help-name="deconz-get">
-    <link rel="stylesheet" href="deconz/static/css/common.css" type="text/css"/>
-    <p>Get current state of device or group.</p>
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css"/>
+    <div class="deconz-help">
+        <p>Query data from deconz.</p>
+        <h3>Configuration</h3>
+        <dl class="message-properties">
+            <dt class="optional">Name <span class="property-type">string</span></dt>
+            <dd>Provide a custom name for this node.</dd>
+            <dt>Server <span class="property-type">object</span></dt>
+            <dd>Choose the deconz server instance to use.</dd>
 
-    <h3>Configuration</h3>
-    <dl class="message-properties">
-        <dt class="optional">Name <span class="property-type">string</span></dt>
-        <dd>Provide a custom name for this node.</dd>
-        <dt>Server <span class="property-type">object</span></dt>
-        <dd>Choose the deconz server instance to use.</dd>
-        <dt>Device <span class="property-type">string</span></dt>
-        <dd>Select device to listen to.</dd>
-        <dt class="optional">State <span class="property-type">string</span></dt>
-        <dd>The node indicates the connection status to deconz via a status indicator and affects payload.</dd>
-    </dl>
+            <div class="separator"></div>
 
-    <h3>Outputs</h3>
-    <h5>Raw output</h5>
-    <dl class="message-properties">
-        <dt>payload <span class="property-type">string or object</span></dt>
-        <dd>Complete data or chosen state parameter.</dd>
-        <dt>payload_in <span class="property-type">string or object</span></dt>
-        <dd>Input payload.</dd>
-        <dt>meta<span class="property-type">object</span></dt>
-        <dd>Full device or group data.</dd>
-    </dl>
+            <dt>Query <span class="property-type">string</span></dt>
+            <dd>
+                How get the devices, can be a Device list or a Query. See more about Queries on the
+                <a href="https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries">Github
+                    Wiki</a>.
+            </dd>
+            <dt class="optional">Device <span class="property-type">string[]</span></dt>
+            <dd>
+                Select devices to listen to. <br>
+                Only available if <code>Query</code> value is <strong>Device</strong>
+            </dd>
+            <dt class="optional">Query result</dt>
+            <dd>
+                Display what devices matched the <code>Query</code>.<br>
+                Only available if <code>Query</code> value is <strong>JSON</strong> or <strong>JSONata
+                expression</strong>
+            </dd>
+
+            <div class="separator">Outputs</div>
+            <p>The settings work the same for all outputs.</p>
+
+            <dt class="optional">Payload <span class="property-type">string[]</span></dt>
+            <dd>
+                Indicate what the payload will contain.
+                <ul>
+                    <li>Complete state payload: The payload contains all the data in an object.</li>
+                    <li>Each state payload: A message will be sent per values contained in the device data.</li>
+                    <li>Selected items: A message will be sent per selected values contained in the device data.</li>
+                </ul>
+            </dd>
+
+            <dt class="optional">Format <span class="property-type">string</span></dt>
+            <dd>
+                Indicate how the device data are used.
+                <ul>
+                    <li><code>Single</code> - The node will send a message per device that send data.</li>
+                    <li><code>Array</code> - The node will send a message with all payload inside an array. The message
+                        will contain a payload that is an array of single message. Ex msg.payload[0].payload is the
+                        payload of the first device. Each element will contain only the properties payload, meta,
+                        meta_changed. The properties topic, payload_format, payload_raw will be on the msg directly.
+                    </li>
+                    <li><code>Sum</code> - All properties of the devices will be added individually.</li>
+                    <li><code>Average</code> - All properties of the devices will be added recursively and then divided
+                        by the amount of device that have that property.
+                    </li>
+                    <li><code>Min</code> - The result will be a set of minimal value of each property.</li>
+                    <li><code>Max</code> - The result will be a set of maximal value of each property.</li>
+                </ul>
+            </dd>
+        </dl>
+
+        <h3>Outputs</h3>
+        <dl class="message-properties">
+            <dt>topic <span class="property-type">string</span></dt>
+            <dd>The topic from the node settings.</dd>
+            <dt>payload <span class="property-type">string or object</span></dt>
+            <dd>Complete data of chosen type parameter.</dd>
+            <dt>payload_count <span class="property-type">string or object</span></dt>
+            <dd>The count of each individual values for math methods.</dd>
+            <dt>payload_format <span class="property-type">string</span></dt>
+            <dd>The name of the value or <code>__complete__</code> if the selected payload is "Complete payload.</dd>
+            <dt>meta<span class="property-type">object[]</span></dt>
+            <dd>Full devices data.</dd>
+        </dl>
+    </div>
 </script>
