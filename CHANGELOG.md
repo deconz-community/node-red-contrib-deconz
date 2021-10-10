@@ -13,10 +13,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Make sure you backup your flow before updating, you will not be able to downgrade if the configuration is migrated.
 
-Everything should be seamless, all your configurations will be migrated to the new save format. It will save the
-updated configuration only when you open the node configuration and click Deploy. If you are not performing it, the node will
-migrate the configuration on each start of Node-Red. Check the Node-Red log if you have any errors that shows up. If
-you have any issues you may visit the [Deconz-Community Discord](https://discord.gg/3XGEYY9) server or open
+Everything should be seamless, all your configurations will be migrated to the new save format. It will save the updated
+configuration only when you open the node configuration and click Deploy. If you are not performing it, the node will
+migrate the configuration on each start of Node-Red. Check the Node-Red log if you have any errors that shows up. If you
+have any issues you may visit the [Deconz-Community Discord](https://discord.gg/3XGEYY9) server or open
 an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz/issues).
 
 ### Added
