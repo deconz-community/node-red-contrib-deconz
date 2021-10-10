@@ -1021,7 +1021,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
 
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1072,7 +1075,10 @@ describe('Device List', function () {
                         }
                     }
                     ]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1121,7 +1127,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1170,7 +1179,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1219,7 +1231,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1268,7 +1283,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1317,7 +1335,10 @@ describe('Device List', function () {
                             aftererror: {type: 'continue'}
                         }
                     }]);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
                         'device',
@@ -1360,7 +1381,10 @@ describe('Device List', function () {
                     should(migrationResult.new.search_type).equal('device');
                     should(migrationResult.new.query).equal('{}');
                     should(migrationResult.new.device_list).containDeep(['lights/uniqueid/00:11:22:33:44:55:66:77-01']);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
 
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -2215,7 +2239,10 @@ describe('Device List', function () {
                     should(migrationResult.new.search_type).equal('device');
                     should(migrationResult.new.query).equal('{}');
                     should(migrationResult.new.device_list).containDeep(['groups/uniqueid/33:44:55:66:77:88:99:00']);
-                    should(migrationResult.new.specific).deepEqual({delay: 50, result: 'never'});
+                    should(migrationResult.new.specific).deepEqual({
+                        delay: {type: 'num', value: 50},
+                        result: {type: 'at_end'}
+                    });
 
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
