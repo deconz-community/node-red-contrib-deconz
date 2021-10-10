@@ -17,7 +17,7 @@ free to open issues on [GitHub](https://github.com/deconz-community/node-red-con
 
 This new version requires Node-Red version 2.0 or newer.
 
-Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/develop/CHANGELOG.md)):
+Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/CHANGELOG.md)):
 
 * Multiple device selection.
 * Select device using [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries).
