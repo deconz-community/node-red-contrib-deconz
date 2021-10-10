@@ -30,7 +30,7 @@ class ConfigMigrationHandler {
         this.result.new.device_list = [];
 
         let device;
-        if (typeof this.config.device === 'string') {
+        if (typeof this.config.device === 'string' && this.config.device !== 'undefined' && this.config.device.length > 0) {
             if (this.config.device.substr(0, 6) === 'group_') {
                 device = this.server.device_list.getDeviceByDomainID(
                     'groups',
