@@ -68,6 +68,7 @@ class DeconzMainEditor extends DeconzEditor {
 
     get elements() {
         return {
+            tipBox: 'node-input-tip-box',
             server: 'node-input-server',
         };
     }
@@ -127,10 +128,11 @@ class DeconzMainEditor extends DeconzEditor {
          */
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        await this.configurationMigration();
-
         // Init Editor
         await super.init();
+
+        await this.configurationMigration();
+
         this.serverNode = this.node.type === 'deconz-server' ? this.node : RED.nodes.node(this.$elements.server.val());
 
         // We save the init promise in the instance to pause the output rule before connecting
