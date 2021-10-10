@@ -540,8 +540,8 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         command.arg.aftererror = {type: 'continue'};
         this.result.new.commands = [command];
         this.result.new.specific = {
-            delay: 50,
-            result: 'never'
+            delay: {type: 'num', value: 50},
+            result: {type: 'at_end'},
         };
         this.config_version = 1;
     }
