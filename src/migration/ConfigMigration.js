@@ -35,6 +35,16 @@ class ConfigMigration {
 
         if (!this.handler.isLastestVersion) {
             this.handler.migrate(config);
+
+            if (Array.isArray(this.handler.result.errors) && this.handler.result.errors.length === 0) {
+                this.handler.result.info.push(
+                    'Configuration migration OK.'
+                );
+            }
+
+            this.handler.result.info.push(
+                'Update the node configuration to hide this message.'
+            );
             return this.handler.result;
         } else {
             return {notNeeded: true};

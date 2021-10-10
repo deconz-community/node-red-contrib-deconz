@@ -97,7 +97,9 @@ class DeconzMainEditor extends DeconzEditor {
             '.';
 
         let result = await $.getJSON(`${this.NRCD}/configurationMigration`, data).catch((t, u) => {
-            this.sendError(errorMsg);
+            this.$elements.tipBox.append(
+                `<div class="form-tips form-warning"><p>Migration errors:</p><p>${errorMsg}</p></div>`
+            );
         });
 
         if (!result || result.notNeeded) return;
@@ -114,8 +116,28 @@ class DeconzMainEditor extends DeconzEditor {
             }
         }
 
+        let mapI18N = (msg) => msg.substr(0, 23) === 'node-red-contrib-deconz' ? RED._(msg) : msg;
+
         if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
-            this.sendError(errorMsg + '<br><li>' + result.errors.join('</li><li>') + '</li>');
+            this.$elements.tipBox.append(
+                '<div class="form-tips form-warning">' +
+                '<p>Migration errors:</p>' +
+                '<ul>' +
+                `<li>${result.errors.map(mapI18N).join('</li><li>')}</li>` +
+                '</ul>' +
+                '</div>'
+            );
+        }
+
+        if (result.info && Array.isArray(result.info) && result.info.length > 0) {
+            this.$elements.tipBox.append(
+                '<div class="form-tips">' +
+                '<p>Migration info:</p>' +
+                '<ul>' +
+                `<li>${result.info.map(mapI18N).join('</li><li>')}</li>` +
+                '</ul>' +
+                '</div>'
+            );
         }
     }
 

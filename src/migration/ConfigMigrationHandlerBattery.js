@@ -12,6 +12,7 @@ class ConfigMigrationHandlerBattery extends ConfigMigrationHandler {
     }
 
     migrateFromLegacy() {
+        super.migrateFromLegacy();
         // Migrate device
         let device = super.migrateDeviceFromLegacy();
 

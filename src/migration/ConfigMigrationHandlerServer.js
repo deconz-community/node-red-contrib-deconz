@@ -12,12 +12,14 @@ class ConfigMigrationHandlerServer extends ConfigMigrationHandler {
     }
 
     migrateFromLegacy() {
+        super.migrateFromLegacy();
 
         // Prior 1.2.0 the apikey was not stored in credentials
         if (this.config.apikey !== undefined) {
             this.result.controller.new['credentials.secured_apikey'] = this.config.apikey; // For backend migration
             this.result.new.migration_secured_apikey = this.config.apikey; // For frontend migration
             this.result.delete.push('apikey');
+            this.result.info.push('node-red-contrib-deconz/server:tip.secured_apikey_warning_message_update');
         }
 
         this.config_version = 1;

@@ -10,7 +10,8 @@ class ConfigMigrationHandler {
                 new: {},
                 delete: []
             },
-            errors: []
+            errors: [],
+            info: []
         };
     }
 
@@ -22,6 +23,10 @@ class ConfigMigrationHandler {
         return this.currentVersion === this.lastVersion;
     }
 
+    migrateFromLegacy() {
+        this.result.info.push('node-red-contrib-deconz/server:tip.update_2_0_0_or_later');
+        this.result.info.push('node-red-contrib-deconz/server:tip.help_discord_github');
+    }
 
     migrateDeviceFromLegacy() {
         // Migrate device
