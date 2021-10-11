@@ -35,6 +35,12 @@ class CommandParser {
                 }
                 break;
             case 'homekit':
+                if (this.message_in.hap !== undefined && this.message_in.hap.session !== undefined) {
+                    this.node.error("Deconz outptut node received a message that was not initiated by a HomeKit node. " +
+                        "Make sure you disable the 'Allow Message Passthrough' in homekit-bridge node or ensure " +
+                        "appropriate filtering of the messages.");
+                    return null;
+                }
                 this.valid_domain.push('lights');
                 this.valid_domain.push('group');
                 this.parseHomekitArgs();
