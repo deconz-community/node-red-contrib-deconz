@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.4] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633986241?label=)
+
+### Changed
+
+- Cleanup old files.
+
 ## [2.0.3] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633985783?label=)
 
 ### Added
