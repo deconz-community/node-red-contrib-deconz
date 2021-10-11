@@ -241,6 +241,7 @@ class CommandParser {
             request.params = Utils.clone(this.result);
             requests.push(request);
         } else {
+            if (this.valid_domain.length === 0) return requests;
             for (let device of devices) {
                 // If the device type do not match the command type skip the device
                 if (!this.valid_domain.includes('any') &&
