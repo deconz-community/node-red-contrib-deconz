@@ -181,8 +181,14 @@ module.exports = function (RED) {
 
             node.state.pooling.discoverProcessRunning = true;
             try {
-                const response = await got(node.api.url.main(), {retry: 1, timeout: 2000}).json();
-                node.device_list.parse(response);
+                let responses = await Promise.all([
+                    got(node.api.url.main(), {retry: 1, timeout: 2000}).json(),
+                    got(node.api.url.main() + node.api.url.groups.main(0), {retry: 1, timeout: 2000}).json()
+                ]);
+                node.device_list.all_group_real_id = responses[1].id;
+                responses[1].id = '0';
+                responses[0].groups['0'] = responses[1];
+                node.device_list.parse(responses[0]);
                 //node.log(`discoverDevices: Updated ${node.device_list.count}`);
                 node.state.pooling.discoverProcessRunning = false;
                 return true;
@@ -556,6 +562,9 @@ module.exports = function (RED) {
 
             // Drop websocket msgs if the pooling don't work
             if (node.state.pooling.isValid === false) return node.error('Got websocket msg but the pooling is invalid. This should not happen.');
+
+            // There is an issue with the id of all lights magic group. The valid ID is 0.
+            if (dataParsed.r === 'groups' && dataParsed.id === node.device_list.all_group_real_id) dataParsed.id = '0';
 
             node.emit('onSocketMessage', dataParsed); //Used by event node, TODO Really used ?
 

@@ -35,6 +35,12 @@ class CommandParser {
                 }
                 break;
             case 'homekit':
+                if (this.message_in.hap !== undefined && this.message_in.hap.session !== undefined) {
+                    this.node.error("Deconz outptut node received a message that was not initiated by a HomeKit node. " +
+                        "Make sure you disable the 'Allow Message Passthrough' in homekit-bridge node or ensure " +
+                        "appropriate filtering of the messages.");
+                    return null;
+                }
                 this.valid_domain.push('lights');
                 this.valid_domain.push('group');
                 this.parseHomekitArgs();
@@ -235,7 +241,11 @@ class CommandParser {
             request.params = Utils.clone(this.result);
             requests.push(request);
         } else {
+            if (this.valid_domain.length === 0) return requests;
             for (let device of devices) {
+                // Skip if device is invalid, should never happen.
+                if (device === undefined || device.data === undefined) continue;
+
                 // If the device type do not match the command type skip the device
                 if (!this.valid_domain.includes('any') &&
                     (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||
@@ -248,7 +258,7 @@ class CommandParser {
                     throw new Error('Invalid device endpoint, got ' + device.data.device_type);
 
                 // Attribute request
-                if (Object.keys(this.result.config).length > 0) {
+                if (Object.keys(this.result).length > 0) {
                     let request = {};
                     request.endpoint = deviceTypeEndpoint.main(device.data.device_id);
                     request.meta = device.data;
@@ -291,9 +301,12 @@ class CommandParser {
         }
 
         // Remove undefined params in requests
-        for (const request of requests)
-            for (const [k, v] of Object.entries(request.params))
+        requests = requests.map((request) => {
+            for (const [k, v] of Object.entries(request.params)) {
                 if (v === undefined) delete request.params[k];
+            }
+            return request;
+        }).filter((request) => Object.keys(request.params).length > 0);
 
         return requests;
     }

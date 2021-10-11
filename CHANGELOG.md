@@ -7,6 +7,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.3] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633985783?label=)
+
+### Added
+
+- Magic 'All' group is not displayed in the groups list with the id 0.
+- Display an error message if a device is not found on output nodes and continue processing.
+
+### Fixed
+
+- The msg that go through HomeKit and back to an output node are now discarded with a warning message.
+- Attribute requests was not updating if there was no config.
+
 ## [2.0.2] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633881662?label=)
 
 ### Fixed
