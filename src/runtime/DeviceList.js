@@ -6,6 +6,7 @@ class DeviceList {
     constructor() {
         this.domains = ['groups', 'lights', 'sensors'];
         this.devices = {};
+        this.all_group_real_id = undefined;
         for (const resource of this.domains) this.devices[resource] = {
             ById: {},
             ByUniqueID: {}
