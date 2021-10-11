@@ -254,7 +254,7 @@ class CommandParser {
                     throw new Error('Invalid device endpoint, got ' + device.data.device_type);
 
                 // Attribute request
-                if (Object.keys(this.result.config).length > 0) {
+                if (Object.keys(this.result).length > 0) {
                     let request = {};
                     request.endpoint = deviceTypeEndpoint.main(device.data.device_id);
                     request.meta = device.data;
