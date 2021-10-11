@@ -200,7 +200,12 @@ module.exports = function (RED) {
                 let cp = new CommandParser(config.command, {}, fakeNode);
                 let devices = [];
                 for (let path of config.device_list) {
-                    devices.push({data: controller.device_list.getDeviceByPath(path)});
+                    let device = controller.device_list.getDeviceByPath(path);
+                    if (device) {
+                        devices.push({data: device});
+                    } else {
+                        console.warn(`Error : Device not found : '${path}'`);
+                    }
                 }
                 let requests = cp.getRequests(fakeNode, devices);
                 for (const [request_id, request] of requests.entries()) {

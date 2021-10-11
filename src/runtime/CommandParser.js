@@ -243,6 +243,9 @@ class CommandParser {
         } else {
             if (this.valid_domain.length === 0) return requests;
             for (let device of devices) {
+                // Skip if device is invalid, should never happen.
+                if (device === undefined || device.data === undefined) continue;
+
                 // If the device type do not match the command type skip the device
                 if (!this.valid_domain.includes('any') &&
                     (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||

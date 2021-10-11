@@ -125,7 +125,12 @@ module.exports = function (RED) {
                     switch (node.config.search_type) {
                         case 'device':
                             for (let path of node.config.device_list) {
-                                devices.push({data: node.server.device_list.getDeviceByPath(path)});
+                                let device = node.server.device_list.getDeviceByPath(path);
+                                if (device) {
+                                    devices.push({data: device});
+                                } else {
+                                    done(`Error : Device not found : '${path}'`);
+                                }
                             }
                             break;
                         case 'json':
