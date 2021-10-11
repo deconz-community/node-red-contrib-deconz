@@ -303,7 +303,7 @@ class CommandParser {
                 if (v === undefined) delete request.params[k];
             }
             return request;
-        }).filter((request) => Object.keys(request.params) > 0);
+        }).filter((request) => Object.keys(request.params).length > 0);
 
         return requests;
     }
