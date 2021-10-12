@@ -1,5 +1,3 @@
-const dotProp = require('dot-prop');
-const ConfigMigration = require("../src/migration/ConfigMigration");
 const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
 const Utils = require("../src/runtime/Utils");
 
@@ -54,45 +52,58 @@ module.exports = function (RED) {
                 text: "node-red-contrib-deconz/server:status.starting"
             });
 
-            node.server.on('onStart', () => {
-                // Config migration
-                let configMigration = new ConfigMigration(NodeType, node.config, node.server);
-                let migrationResult = configMigration.applyMigration(node.config, node);
-                if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                    migrationResult.errors.forEach(
-                        error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
-                    );
-                    node.error(
-                        `Error with migration of node ${node.type} with id ${node.id}\n` +
-                        migrationResult.errors.join('\n') +
-                        '\nPlease open the node settings and update the configuration'
-                    );
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/server:status.migration_error"
-                    });
-                    return;
+            let initNode = function () {
+                node.server.off('onStart', initNode);
+                if (node.server.migrateNodeConfiguration(node)) {
+                    // Make sure that all expected config are defined
+                    node.config = Object.assign({}, defaultConfig, node.config);
+                    node.registerNode();
+                    node.server.updateNodeStatus(node, null);
+                    node.ready = true;
                 }
+            };
 
-                // Make sure that all expected config are defined
-                node.config = Object.assign({}, defaultConfig, node.config);
+            if (node.server.state.pooling.isValid === true) {
+                (async () => {
+                    await Utils.sleep(1500);
+                    initNode();
+                    node.server.propagateStartNews([node.id]);
+                })().then().catch((error) => {
+                    console.error(error);
+                });
+            } else {
+                node.server.on('onStart', initNode);
+            }
 
-                if (node.config.search_type === "device") {
-                    node.config.device_list.forEach(function (item) {
-                        node.server.registerNodeByDevicePath(node.config.id, item);
-                    });
-                } else {
-                    node.server.registerNodeWithQuery(node.config.id);
-                }
-
-                node.server.updateNodeStatus(node, null);
-                node.ready = true;
+            node.on('close', (removed, done) => {
+                this.unregisterNode();
+                done();
             });
 
         }
 
-        //TODO wait for migration before sending events
+        registerNode() {
+            let node = this;
+            if (node.config.search_type === 'device') {
+                node.config.device_list.forEach(function (item) {
+                    node.server.registerNodeByDevicePath(node.config.id, item);
+                });
+            } else {
+                node.server.registerNodeWithQuery(node.config.id);
+            }
+        }
+
+        unregisterNode() {
+            let node = this;
+            if (node.config.search_type === "device") {
+                node.config.device_list.forEach(function (item) {
+                    node.server.unregisterNodeByDevicePath(node.config.id, item);
+                });
+            } else {
+                node.server.unregisterNodeWithQuery(node.config.id);
+            }
+        }
+
         handleDeconzEvent(device, changed, rawEvent, opt) {
             let node = this;
 
@@ -100,7 +111,6 @@ module.exports = function (RED) {
                 let waitResult = await Utils.waitForEverythingReady(node);
                 if (waitResult) return;
 
-                let msgs = new Array(this.config.output_rules.length);
                 let options = Object.assign({
                     initialEvent: false,
                     errorEvent: false
@@ -117,6 +127,7 @@ module.exports = function (RED) {
                     return;
                 }
 
+                let msgs = new Array(this.config.output_rules.length);
                 this.config.output_rules.forEach((saved_rule, index) => {
                     // Make sure that all expected config are defined
                     const rule = Object.assign({}, defaultRule, saved_rule);
@@ -148,12 +159,9 @@ module.exports = function (RED) {
             })().then().catch((error) => {
                 console.error(error);
             });
-
         }
 
     }
 
     RED.nodes.registerType(NodeType, deConzItemIn);
 };
-
-

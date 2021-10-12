@@ -208,10 +208,17 @@ module.exports = function (RED) {
             }
         }
 
-        propagateStartNews() {
+        propagateStartNews(whitelistNodes) {
             let node = this;
             // Node with device selected
+
+            let filterMethod;
+            if (Array.isArray(whitelistNodes)) {
+                filterMethod = (id) => whitelistNodes.includes(id);
+            }
+
             for (let [device_path, nodeIDs] of Object.entries(node.nodesByDevicePath)) {
+                if (filterMethod) nodeIDs = nodeIDs.filter(filterMethod);
                 node.propagateNews(nodeIDs, {
                     type: 'start',
                     node_type: 'device_path',
@@ -221,6 +228,7 @@ module.exports = function (RED) {
 
             // Node with quety
             for (let nodeID of node.nodesWithQuery) {
+                if (filterMethod && filterMethod(nodeID) === false) continue;
                 let target = RED.nodes.getNode(nodeID);
 
                 if (!target) {
@@ -738,6 +746,28 @@ module.exports = function (RED) {
                     }
                     break;
             }
+        }
+
+        migrateNodeConfiguration(node) {
+            let configMigration = new ConfigMigration(node.type, node.config, this);
+            let migrationResult = configMigration.applyMigration(node.config, node);
+            if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
+                migrationResult.errors.forEach(
+                    error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
+                );
+                node.error(
+                    `Error with migration of node ${node.type} with id ${node.id}\n` +
+                    migrationResult.errors.join('\n') +
+                    '\nPlease open the node settings and update the configuration'
+                );
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: "node-red-contrib-deconz/server:status.migration_error"
+                });
+                return false;
+            }
+            return true;
         }
     }
 
