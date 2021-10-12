@@ -5,6 +5,12 @@ const Utils = require("../src/runtime/Utils");
 const NodeType = 'deconz-battery';
 module.exports = function (RED) {
 
+    const defaultRule = {
+        type: 'config',
+        format: 'single',
+        onstart: true
+    };
+
     const defaultConfig = {
         name: "",
         topic: "",
@@ -15,18 +21,9 @@ module.exports = function (RED) {
         device_name: "",
         query: "{}",
         outputs: 1,
-        output_rules: [{
-            type: 'config',
-            format: 'single',
-            onstart: true
-        }]
+        output_rules: [defaultRule]
     };
 
-    const defaultRule = {
-        type: 'config',
-        format: 'single',
-        onstart: true
-    };
 
     class deConzItemBattery {
         constructor(config) {
