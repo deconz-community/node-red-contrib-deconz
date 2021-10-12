@@ -68,20 +68,21 @@ class Utils {
                 shape: "dot",
                 text: "node-red-contrib-deconz/server:status.wait_for_server_start"
             });
-            await this.waitForReady(node.server.state);
+            await this.waitForReady(node.server.state, 30000);
             if (node.server.ready === false) {
                 node.status({
                     fill: "red",
                     shape: "dot",
                     text: "node-red-contrib-deconz/server:status.server_node_error"
                 });
+                console.error('Timeout, the server node is not ready after 30 seconds.');
                 return "node-red-contrib-deconz/server:status.server_node_error";
             } else {
                 node.status({});
             }
         }
 
-        await this.waitForReady(node);
+        await this.waitForReady(node, 30000);
 
         if (node.ready === false) {
             node.status({
@@ -89,6 +90,7 @@ class Utils {
                 shape: "dot",
                 text: "node-red-contrib-deconz/server:status.node_error"
             });
+            console.error('Timeout, the node is not ready after 30 seconds.');
             return "node-red-contrib-deconz/server:status.node_error";
         }
     }

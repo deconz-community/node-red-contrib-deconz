@@ -73,31 +73,25 @@ module.exports = function (RED) {
                 return;
             }
 
-            node.server.on('onStart', () => {
-                // Config migration
-                let configMigration = new ConfigMigration(NodeType, node.config, node.server);
-                let migrationResult = configMigration.applyMigration(node.config, node);
-                if (Array.isArray(migrationResult.errors) && migrationResult.errors.length > 0) {
-                    migrationResult.errors.forEach(
-                        error => console.error(`Error with migration of node ${node.type} with id ${node.id}`, error)
-                    );
-                    node.error(
-                        `Error with migration of node ${node.type} with id ${node.id}\n` +
-                        migrationResult.errors.join('\n') +
-                        '\nPlease open the node settings and update the configuration'
-                    );
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: "node-red-contrib-deconz/server:status.migration_error"
-                    });
-                    return;
+            let initNode = function () {
+                node.server.off('onStart', initNode);
+                if (node.server.migrateNodeConfiguration(node)) {
+                    // Make sure that all expected config are defined
+                    node.config = Object.assign({}, defaultConfig, node.config);
+                    node.ready = true;
                 }
+            };
 
-                // Make sure that all expected config are defined
-                node.config = Object.assign({}, defaultConfig, node.config);
-                node.ready = true;
-            });
+            if (node.server.state.pooling.isValid === true) {
+                (async () => {
+                    await Utils.sleep(1500);
+                    initNode();
+                })().then().catch((error) => {
+                    console.error(error);
+                });
+            } else {
+                node.server.on('onStart', initNode);
+            }
 
             node.on('input', (message_in, send, done) => {
                 // For maximum backwards compatibility, check that send and done exists.
