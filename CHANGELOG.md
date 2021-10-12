@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.5] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634079545?label=)
+
+### Fixed
+
+- Fix HomeKit loop detection.
+- Fix node error on partial deploy.
+
 ## [2.0.4] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633986241?label=)
 
 ### Changed
