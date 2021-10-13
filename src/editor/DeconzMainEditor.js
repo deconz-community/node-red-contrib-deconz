@@ -155,8 +155,6 @@ class DeconzMainEditor extends DeconzEditor {
 
         await this.configurationMigration();
 
-        this.serverNode = this.node.type === 'deconz-server' ? this.node : RED.nodes.node(this.$elements.server.val());
-
         // We save the init promise in the instance to pause the output rule before connecting
         this.initPromises = [];
         for (const editor of Object.values(this.subEditor)) {
@@ -171,9 +169,10 @@ class DeconzMainEditor extends DeconzEditor {
             connectPromises.push(editor.connect());
         }
         await Promise.all(connectPromises);
+    }
 
-        //TODO connect server on change ?
-
+    get serverNode() {
+        return this.node.type === 'deconz-server' ? this.node : RED.nodes.node(this.$elements.server.val());
     }
 
     /**

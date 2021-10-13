@@ -7,6 +7,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.6] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634158098?label=)
+
+### Fixed
+
+- Selecting an other server update the device list.
+- Duplicate gateways in discovery are ignored.
+- HomeKit format now send battery data only from the battery node.
+
 ## [2.0.5] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634079545?label=)
 
 ### Fixed

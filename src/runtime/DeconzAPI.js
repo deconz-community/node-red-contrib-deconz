@@ -121,11 +121,9 @@ class DeconzAPI {
         //TODO check if the current values are valid.
 
         let response = {log: []};
-        let gateways = [];
 
         response.log.push(`Fetching data from '${this.url.discover()}'.`);
         let discoverResult = await this.getDiscoveryData();
-        let discoverData;
         if (discoverResult === undefined) {
             response.log.push(`No data fetched from '${this.url.discover()}'.`);
         } else {
@@ -207,6 +205,15 @@ class DeconzAPI {
             };
             return response;
         }
+
+        let bridgeIds = [];
+        results = results.filter((result) => {
+            if (!bridgeIds.includes(result.bridge_id)) {
+                bridgeIds.push(result.bridge_id);
+                return true;
+            }
+            return false;
+        });
 
         // If multiple gateway found, let the user select.
         if (results.length > 1 && options.targetGatewayID === undefined) {

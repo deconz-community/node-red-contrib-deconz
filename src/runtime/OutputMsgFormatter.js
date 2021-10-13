@@ -443,7 +443,7 @@ class OutputMsgFormatter {
         }
 
         //battery status
-        if (config !== undefined) {
+        if (this.node_type === 'deconz-battery' && config !== undefined) {
             if (config.battery !== undefined && config.battery != null) {
                 if (no_reponse) {
                     characteristic.StatusLowBattery = "NO_RESPONSE";
