@@ -19,6 +19,6 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
       - name: Update Node-Red flow-library
-        uses: Zehir/update-package-node-red-flow-library-action@v1.0.0
+        uses: Zehir/update-package-node-red-flow-library-action@v1.0.3
         with:
           package-name: 'node-red-contrib-deconz'
