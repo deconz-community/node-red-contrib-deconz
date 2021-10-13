@@ -41,12 +41,14 @@ class DeconzDeviceEditor extends DeconzDeviceListEditor {
 
     async connect() {
         await super.connect();
-
-        this.$elements.refreshButton.on('click', () => {
+        let refreshDeviceList = () => {
             this.updateList($.extend(this.options, {useSelectedData: true}));
             if (this.mainEditor.options.have.output_rules)
                 this.mainEditor.subEditor.output_rules.refresh();
-        });
+        };
+
+        this.mainEditor.$elements.server.on('change', refreshDeviceList);
+        this.$elements.refreshButton.on('click', refreshDeviceList);
 
         if (this.mainEditor.options.have.output_rules) {
             this.$elements.list.on('change', () => {
