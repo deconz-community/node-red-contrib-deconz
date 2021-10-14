@@ -26,9 +26,10 @@ class Utils {
             REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
     }
 
-    static convertRange(value, r1, r2) {
+    static convertRange(value, r1, r2, roundValue = false) {
         if (typeof value !== 'number') return;
-        return Math.ceil((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
+        let result = (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
+        return roundValue ? Math.ceil(result) : result;
     }
 
     static isDeviceCover(device) {

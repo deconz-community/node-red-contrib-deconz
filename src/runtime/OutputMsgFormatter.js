@@ -408,18 +408,18 @@ class OutputMsgFormatter {
                 //colors
                 // if (state.colormode === 'hs' || state.colormode === 'xy') {
                 if (state.hue !== undefined) {
-                    characteristic.Hue = Utils.convertRange(state.hue, [0, 65535], [0, 360]);
+                    characteristic.Hue = Utils.convertRange(state.hue, [0, 65535], [0, 360], false);
                     if (no_reponse) characteristic.Hue = "NO_RESPONSE";
                 }
 
                 if (state.sat !== undefined) {
-                    characteristic.Saturation = Utils.convertRange(state.sat, [0, 255], [0, 100]);
+                    characteristic.Saturation = Utils.convertRange(state.sat, [0, 255], [0, 100], false);
                     if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
                 }
 
                 // } else if (state.colormode === 'ct') {
                 if (state.ct !== undefined) { //lightbulb bug: use hue or ct
-                    characteristic.ColorTemperature = Utils.convertRange(state.ct, [153, 500], [140, 500]);
+                    characteristic.ColorTemperature = state.ct;
                     if (no_reponse) characteristic.ColorTemperature = "NO_RESPONSE";
                 }
                 // }
