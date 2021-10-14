@@ -1,0 +1,24 @@
+name: ⭐️Feature Request
+description: I have an idea for a new thing
+labels: [ ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue tracker is for feature requests of the deCONZ plugin for Node-RED.
+
+        If your issue is:
+          - a general 'how-to' type question,
+          - a feature request or suggestion for a change,
+
+        please use the deCONZ community [Discord Server](https://discord.gg/3XGEYY9).
+
+        That way the whole Node-RED user community can help, rather than rely on the core development team.
+
+        To help us understand the issue, please fill-in as much of the following information as you can:
+  - type: textarea
+    attributes:
+      label: My idea
+      description: A clear & concise description of what the feature should do.
+    validations:
+      required: false
