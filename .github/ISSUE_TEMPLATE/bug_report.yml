@@ -1,0 +1,60 @@
+name: 🐞 Report a bug
+description: File a bug/issue on the deCONZ plugin for Node-RED
+labels: [ ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue tracker is for problems with the deCONZ plugin for Node-RED.
+
+        If your issue is:
+          - a general 'how-to' type question,
+          - a feature request or suggestion for a change,
+
+        please use the deCONZ community [Discord Server](https://discord.gg/3XGEYY9).
+
+        That way the whole Node-RED user community can help, rather than rely on the core development team.
+
+        To help us understand the issue, please fill-in as much of the following information as you can:
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A clear & concise description of what you're experiencing.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A clear & concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Example flow
+      description: If you have a minimal example flow that demonstrates the issue, share it here.
+      value: |
+        ```json
+        paste your flow here
+        ```
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Environment
+      description: Please tell us about your environment. Include any relevant information on how you are running Node-RED.
+      value: |
+        - deCONZ plugin version:
+        - HomeKit plugin version (if used):
+        - Node-RED version:
+        - Node.js version:
+        - npm version:
+        - Platform/OS:
+        - Browser:
+    validations:
+      required: false
