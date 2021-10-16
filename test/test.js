@@ -3,6 +3,7 @@ let should = require("should");
 const DevicesSample = require('./DevicesSample');
 const DeviceList = require('../src/runtime/DeviceList');
 const ConfigMigration = require("../src/migration/ConfigMigration");
+const HomeKitFormatter = require("../src/runtime/HomeKitFormatter");
 
 const QueryParams = {
     includeNotMatched: true,
@@ -3264,6 +3265,16 @@ describe('Device List', function () {
                 should(migrationResult.delete).containDeep(['apikey']);
             });
 
+        });
+
+    });
+
+    describe('HomeKitFormatter', function () {
+        it('buttonevent', function () {
+            let result = deviceList.getDeviceByUniqueID('55:66:77:88:99:00:11:22-01-1000');
+            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: result.state}, result);
+            should(homeKitResult).have.property('ProgrammableSwitchEvent', 0);
+            should(homeKitResult).have.property('ServiceLabelIndex', 2);
         });
 
     });
