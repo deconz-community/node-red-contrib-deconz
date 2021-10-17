@@ -247,10 +247,11 @@ class CommandParser {
                 if (device === undefined || device.data === undefined) continue;
 
                 // If the device type do not match the command type skip the device
-                if (!this.valid_domain.includes('any') &&
-                    (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||
-                        !this.valid_domain.includes(device.data.device_type))
-                ) continue;
+                if (!(
+                    this.valid_domain.includes('any') ||
+                    this.valid_domain.includes(device.data.device_type) ||
+                    (Utils.isDeviceCover(device.data) === true && this.valid_domain.includes('covers'))
+                )) continue;
 
                 // Make sure that the endpoint exist
                 let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
