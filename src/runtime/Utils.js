@@ -21,6 +21,7 @@ class Utils {
 
     static getNodeProperty(property, node, message_in, noValueTypes) {
         if (typeof property !== 'object') return;
+        if (property.type === 'num' && property.value === '') return;
         return Array.isArray(noValueTypes) && noValueTypes.includes(property.type) ?
             property.type :
             REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
