@@ -7,6 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.7] - 2021-10-17 ![Relative date](https://img.shields.io/date/1634484549?label=)
+
+### Fixed
+
+- Ignore group 0 if he doesn’t exist instead of staying stuck.
+- Fix toggle values for windows cover.
+- Discard empty numeric values instead of convert them to 0.
+- Fix device type detection for windows cover.
+
 ## [2.0.6] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634158098?label=)
 
 ### Fixed
