@@ -247,10 +247,11 @@ class CommandParser {
                 if (device === undefined || device.data === undefined) continue;
 
                 // If the device type do not match the command type skip the device
-                if (!this.valid_domain.includes('any') &&
-                    (Utils.isDeviceCover(device.data) && !this.valid_domain.includes('cover') ||
-                        !this.valid_domain.includes(device.data.device_type))
-                ) continue;
+                if (!(
+                    this.valid_domain.includes('any') ||
+                    this.valid_domain.includes(device.data.device_type) ||
+                    (Utils.isDeviceCover(device.data) === true && this.valid_domain.includes('covers'))
+                )) continue;
 
                 // Make sure that the endpoint exist
                 let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
@@ -278,12 +279,29 @@ class CommandParser {
                     if (request.params.on === 'toggle') {
                         switch (device.data.device_type) {
                             case 'lights':
-                                request.params.on = !device.data.state.on;
+                                if (typeof device.data.state.on === 'boolean') {
+                                    request.params.on = !device.data.state.on;
+                                } else {
+                                    if (node.error) {
+                                        node.error(`[deconz] The light ${device.data.device_path} don't have a 'on' state value.`);
+                                    }
+                                    delete request.params.on;
+                                }
                                 break;
                             case 'groups':
                                 delete request.params.on;
                                 request.params.toggle = true;
                                 break;
+                        }
+                    }
+                    if (request.params.open === 'toggle') {
+                        if (typeof device.data.state.open === 'boolean') {
+                            request.params.open = !device.data.state.open;
+                        } else {
+                            if (node.error) {
+                                node.error(`The cover ${device.data.device_path} don't have a 'open' state value.`);
+                            }
+                            delete request.params.open;
                         }
                     }
                     requests.push(request);
