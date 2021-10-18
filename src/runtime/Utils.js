@@ -27,8 +27,12 @@ class Utils {
             REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
     }
 
-    static convertRange(value, r1, r2, roundValue = false) {
+    static convertRange(value, r1, r2, roundValue = false, limitValue = false) {
         if (typeof value !== 'number') return;
+        if (limitValue) {
+            value = Math.max(value, r1[0]);
+            value = Math.min(value, r1[1]);
+        }
         let result = (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
         return roundValue ? Math.ceil(result) : result;
     }
@@ -103,6 +107,26 @@ class Utils {
         }
     }
 
+    static convertColorCapabilities(mask) {
+        let result = [];
+        if (mask === 0) result.push('unknown');
+        if ((mask & 0x1) === 0x1 || (mask & 0x2) === 0x2) result.push('hs');
+        if ((mask & 0x8) === 0x8) result.push('xy');
+        if ((mask & 0x4) === 0x4) result.push('effect');
+        if ((mask & 0x10) === 0x10) result.push('ct');
+        return result;
+    }
+
+    static supportColorCapability(deviceMeta, value) {
+        if (deviceMeta.colorcapabilities === 0) return true;
+        let values = Utils.sanitizeArray(value);
+        for (const v of values) {
+            if (Utils.convertColorCapabilities(deviceMeta.constructor).includes(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 module.exports = Utils;
