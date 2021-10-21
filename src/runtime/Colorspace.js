@@ -571,16 +571,12 @@ Colorspace.Rgb2Xyz = (R, G, B) => {
  * @param G the input sRGB values
  * @param B the input sRGB values
  */
-Colorspace.Rgb2xy = (R, G, B) => {
-    R = Colorspace.INVGAMMACORRECTION(R);
-    G = Colorspace.INVGAMMACORRECTION(G);
-    B = Colorspace.INVGAMMACORRECTION(B);
-    let X = (0.4123955889674142161 * R + 0.3575834307637148171 * G + 0.1804926473817015735 * B);
-    let Y = (0.2125862307855955516 * R + 0.7151703037034108499 * G + 0.07220049864333622685 * B);
-    let Z = (0.01929721549174694484 * R + 0.1191838645808485318 * G + 0.9504971251315797660 * B);
+Colorspace.Rgb2Xy = (R, G, B) => {
+    let C1 = Colorspace.Rgb2Xyz(R, G, B);
+    let C2 = Colorspace.Xyz2Xyb(C1.X, C1.Y, C1.Z);
     return {
-        X: X / (X + Y + Z),
-        Y: Y / (X + Y + Z)
+        X: C2.X,
+        Y: C2.Y
     };
 };
 
@@ -785,6 +781,25 @@ Colorspace.Cat02lms2Xyz = (L, M, S) => {
     };
 };
 
+/** @brief XYB to XYZ */
+Colorspace.Xyb2Xyz = (X, Y, B) => {
+    let z = 1 - X - Y;
+    return {
+        X: (B / Y) * X,
+        Y: B,
+        Z: (B / Y) * z
+    };
+};
+
+/** @brief XYZ to XYB */
+Colorspace.Xyz2Xyb = (X, Y, Z) => {
+    return {
+        X: X / (X + Y + Z),
+        Y: Y / (X + Y + Z),
+        B: Y,
+    };
+};
+
 /**
  * == Glue functions for multi-stage transforms ==
  */
@@ -826,6 +841,18 @@ Colorspace.Rgb2Cat02lms = (R, G, B) => {
 Colorspace.Cat02lms2Rgb = (L, M, S) => {
     let C1 = Colorspace.Cat02lms2Xyz(L, M, S);
     return Colorspace.Xyz2Rgb(C1.X, C1.Y, C1.Z);
+};
+
+Colorspace.Xyb2Hsv = (X, Y, B) => {
+    let C1 = Colorspace.Xyb2Xyz(X, Y, B);
+    let C2 = Colorspace.Xyz2Rgb(C1.X, C1.Y, C1.Z);
+    return Colorspace.Rgb2Hsv(C2.R, C2.G, C2.B);
+};
+
+Colorspace.Hsv2Xyb = (H, S, V) => {
+    let C1 = Colorspace.Hsv2Rgb(H, S, V);
+    let C2 = Colorspace.Rgb2Xyz(C1.R, C1.G, C1.B);
+    return Colorspace.Xyz2Xyb(C2.X, C2.Y, C2.Z);
 };
 
 Colorspace.TEMPERATURE_TO_X_TEMPERATURE_TRESHOLD = 4000;
