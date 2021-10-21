@@ -5,8 +5,27 @@ const DeconzAPI = require("./src/runtime/DeconzAPI");
 const CommandParser = require("./src/runtime/CommandParser");
 const got = require("got");
 const Utils = require("./src/runtime/Utils");
+const CompareVersion = require('compare-versions');
 
 module.exports = function (RED) {
+
+    /**
+     * Static files route because some users are using Node-Red 1.3.0 or lower
+     */
+    if (RED.version === undefined || CompareVersion.compare(RED.version(), '1.3.0', '<')) {
+        RED.httpAdmin.get('/resources' + NODE_PATH + '*', function (req, res) {
+            try {
+                let options = {
+                    root: __dirname + '/resources',
+                    dotfiles: 'deny'
+                };
+                res.sendFile(req.params[0], options);
+            } catch (e) {
+                console.error(e);
+                res.status(500).end();
+            }
+        });
+    }
 
     /**
      * Enable http route to multiple-select static files
