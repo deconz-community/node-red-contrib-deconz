@@ -45,7 +45,6 @@ class CommandParser {
                 }
                 this.valid_domain.push('lights');
                 this.valid_domain.push('group');
-                this.parseHomekitArgs();
                 break;
             case 'custom':
                 this.valid_domain.push('any');
@@ -161,8 +160,8 @@ class CommandParser {
         };
     }
 
-    parseHomekitArgs() {
-        (new HomeKitFormatter.toDeconz()).parse(this.getNodeProperty(this.arg.payload), this.result);
+    parseHomekitArgs(deviceMeta) {
+        (new HomeKitFormatter.toDeconz()).parse(this.getNodeProperty(this.arg.payload), this.result, deviceMeta);
         dotProp.set(this.result, 'state.transitiontime', this.getNodeProperty(this.arg.transitiontime));
     }
 
@@ -230,6 +229,15 @@ class CommandParser {
                     this.valid_domain.includes(device.data.device_type) ||
                     (Utils.isDeviceCover(device.data) === true && this.valid_domain.includes('covers'))
                 )) continue;
+
+                // Parse HomeKit values with device Meta
+                if (this.type === 'homekit') {
+                    this.result = {
+                        config: {},
+                        state: {}
+                    };
+                    this.parseHomekitArgs(device.data);
+                }
 
                 // Make sure that the endpoint exist
                 let deviceTypeEndpoint = deconzApi.url[device.data.device_type];
