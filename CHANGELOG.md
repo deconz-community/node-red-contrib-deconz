@@ -7,6 +7,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
+
+### Added
+
+- Backward compatibility for Node-Red 1.2.9.
+
+### Fixed
+
+- Migration of device when undefined.
+
 ## [2.0.7] - 2021-10-17 ![Relative date](https://img.shields.io/date/1634484549?label=)
 
 ### Fixed

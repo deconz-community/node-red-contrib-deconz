@@ -15,7 +15,7 @@ Hi it's [@Zehir](https://github.com/Zehir) here, I worked hard for months on a c
 a ton of new features, it's will be easier to do stuff on node-red. If you have any issue with this beta version, feel
 free to open issues on [GitHub](https://github.com/deconz-community/node-red-contrib-deconz/issues).
 
-This new version requires Node-Red version 2.0 or newer.
+__This new version requires Node-Red version 1.2.9 or newer.__
 
 Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/CHANGELOG.md)):
 
