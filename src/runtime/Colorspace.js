@@ -613,6 +613,21 @@ Colorspace.Xyz2Rgb = (X, Y, Z) => {
         B1 -= Min;
     }
 
+    /* Convert value greather than 1 */
+    if (R1 > 1 && R1 > G1 && R1 > B1) {
+        R1 = 1;
+        G1 /= R1;
+        B1 /= R1;
+    } else if (G1 > 1 && G1 > R1 && G1 > B1) {
+        R1 /= G1;
+        G1 = 1;
+        B1 /= G1;
+    } else if (B1 > 1 && B1 > R1 && B1 > G1) {
+        R1 /= B1;
+        G1 /= B1;
+        B1 = 1;
+    }
+
     /* Transform from RGB to R'G'B' */
     R = Colorspace.GAMMACORRECTION(R1);
     G = Colorspace.GAMMACORRECTION(G1);
