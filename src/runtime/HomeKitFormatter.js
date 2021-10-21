@@ -9,17 +9,17 @@ class Attribute {
     }
 
     needAttribute(attribute) {
-        this.requiredAttribute.concat(Utils.sanitizeArray(attribute));
+        this.requiredAttribute = this.requiredAttribute.concat(Utils.sanitizeArray(attribute));
         return this;
     }
 
     needEventMeta(event) {
-        this.requiredEventMeta.concat(Utils.sanitizeArray(event));
+        this.requiredEventMeta = this.requiredEventMeta.concat(Utils.sanitizeArray(event));
         return this;
     }
 
     needDeviceMeta(meta) {
-        this.requiredDeviceMeta.concat(Utils.sanitizeArray(meta));
+        this.requiredDeviceMeta = this.requiredDeviceMeta.concat(Utils.sanitizeArray(meta));
         return this;
     }
 
