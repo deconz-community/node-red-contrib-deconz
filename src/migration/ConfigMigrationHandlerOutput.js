@@ -46,7 +46,11 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         switch (this.config.commandType) {
             case 'deconz_cmd':
                 command.type = 'deconz_state';
-                if (this.config.device.substr(0, 6) === 'group_') {
+                if (typeof this.config.device === 'string' &&
+                    this.config.device !== 'undefined' &&
+                    this.config.device.length > 0 &&
+                    this.config.device.substr(0, 6) === 'group_'
+                ) {
                     command.domain = 'groups';
                 } else if (Utils.isDeviceCover(device)) {
                     command.domain = 'covers';
@@ -209,14 +213,16 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         command.domain = 'scene_call';
 
                         // Strip 'group_' from device name
-                        let part = this.config.device.substring(6);
-                        if (part.length === 0 || isNaN(parseInt(part))) {
-                            this.result.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
-                        } else {
-                            command.arg.group = {
-                                type: 'num',
-                                value: String(part)
-                            };
+                        if (typeof this.config.device === 'string' && this.config.device !== 'undefined' && this.config.device.length > 0) {
+                            let part = this.config.device.substring(6);
+                            if (part.length === 0 || isNaN(parseInt(part))) {
+                                this.result.errors.push(`Invalid group ID '${this.config.device}' for calling scene`);
+                            } else {
+                                command.arg.group = {
+                                    type: 'num',
+                                    value: String(part)
+                                };
+                            }
                         }
 
                         switch (this.config.payloadType) {
