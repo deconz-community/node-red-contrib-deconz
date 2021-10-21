@@ -1,4 +1,5 @@
 const Query = require('./Query');
+const Utils = require("./Utils");
 
 
 class DeviceList {
@@ -29,6 +30,7 @@ class DeviceList {
                 let idPath = this.getIDPathByDevice(device, true);
                 let uniquePath = this.getUniqueIDPathByDevice(device, true);
                 device.device_path = uniquePath || idPath;
+                Utils.convertLightsValues(device);
                 if (idPath) newDevices[resourceName].ById[device.device_id] = device;
                 if (uniquePath) newDevices[resourceName].ByUniqueID[device.uniqueid] = device;
                 if (this.getDeviceByPath(device.device_path) === undefined && typeof onNewDevice === 'function') {
