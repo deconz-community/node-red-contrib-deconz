@@ -1,4 +1,6 @@
 const REDUtil = require("@node-red/util/lib/util");
+const dotProp = require("dot-prop");
+const Colorspace = require("./Colorspace");
 
 class Utils {
     static sleep(ms, defaultValue) {
@@ -118,15 +120,21 @@ class Utils {
     }
 
     static supportColorCapability(deviceMeta, value) {
-        if (deviceMeta.colorcapabilities === 0) return true;
+        let deviceCapabilities = Utils.convertColorCapabilities(deviceMeta.colorcapabilities);
+        if (deviceMeta.colorcapabilities === 0) return deviceCapabilities.includes('unknown');
         let values = Utils.sanitizeArray(value);
         for (const v of values) {
-            if (Utils.convertColorCapabilities(deviceMeta.constructor).includes(value)) {
-                return true;
-            }
+            if (deviceCapabilities.includes(v)) return true;
         }
         return false;
     }
+
+    static convertLightsValues(deviceMeta) {
+        if (deviceMeta.colorcapabilities !== undefined) {
+            deviceMeta.device_colorcapabilities = Utils.convertColorCapabilities(deviceMeta.colorcapabilities);
+        }
+    }
+
 }
 
 module.exports = Utils;
