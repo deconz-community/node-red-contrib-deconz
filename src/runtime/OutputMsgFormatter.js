@@ -1,5 +1,6 @@
 const dotProp = require('dot-prop');
 const Utils = require("./Utils");
+const HomeKitFormatter = require("./HomeKitFormatter");
 
 class OutputMsgFormatter {
 
@@ -275,13 +276,12 @@ class OutputMsgFormatter {
             rawEvent = device;
         }
 
-        let state = rawEvent.state;
-        let config = rawEvent.config;
-        let deviceMeta = device;
-
         let no_reponse = options.errorEvent === true;
 
-        if ((state !== undefined && state.reachable === false) || (config !== undefined && config.reachable === false)) {
+        if (
+            (rawEvent.state !== undefined && rawEvent.state.reachable === false) ||
+            (rawEvent.config !== undefined && rawEvent.config.reachable === false)
+        ) {
             no_reponse = true;
             if (this.rule.onerror === false) {
                 return null;
@@ -289,169 +289,21 @@ class OutputMsgFormatter {
         }
 
         let msg = {};
-        let characteristic = {};
-        if (this.node_type === 'deconz-input' && state !== undefined) {
-            //by types
-            if ("type" in deviceMeta && (deviceMeta.type).toLowerCase() === 'window covering device') {
-                characteristic.CurrentPosition = Math.ceil(state.bri / 2.55);
-                characteristic.TargetPosition = Math.ceil(state.bri / 2.55);
-                if (no_reponse) {
-                    characteristic.CurrentPosition = "NO_RESPONSE";
-                    characteristic.TargetPosition = "NO_RESPONSE";
-                }
 
-                //by params
-            } else {
+        let batteryAttributes = ['BatteryLevel', 'StatusLowBattery'];
+        let characteristic = (new HomeKitFormatter.fromDeconz({
+            attributeBlacklist: this.node_type === 'deconz-input' ? batteryAttributes : [],
+            attributeWhitelist: this.node_type === 'deconz-battery' ? batteryAttributes : [],
+        })).parse(rawEvent, device);
 
-                if (state.temperature !== undefined) {
-                    characteristic.CurrentTemperature = state.temperature / 100;
-                    if (no_reponse) characteristic.CurrentTemperature = "NO_RESPONSE";
-                }
-
-                if (state.humidity !== undefined) {
-                    characteristic.CurrentRelativeHumidity = state.humidity / 100;
-                    if (no_reponse) characteristic.CurrentRelativeHumidity = "NO_RESPONSE";
-                }
-
-                if (state.lux !== undefined) {
-                    characteristic.CurrentAmbientLightLevel = state.lux;
-                    if (no_reponse) characteristic.CurrentAmbientLightLevel = "NO_RESPONSE";
-                }
-
-                if (state.fire !== undefined) {
-                    characteristic.SmokeDetected = state.fire;
-                    if (no_reponse) characteristic.SmokeDetected = "NO_RESPONSE";
-                }
-
-                if (state.buttonevent !== undefined) {
-                    //https://github.com/dresden-elektronik/deconz-rest-plugin/wiki/Xiaomi-WXKG01LM
-                    // Event        Button        Action
-                    // 1000            One            initial press
-                    // 1001           One            single hold
-                    // 1002            One            single short release
-                    // 1003            One            single hold release
-                    // 1004           One            double short press
-                    // 1005            One            triple short press
-                    // 1006            One            quad short press
-                    // 1010            One            five+ short press
-
-                    //https://github.com/NRCHKB/node-red-contrib-homekit-bridged/blob/master/docs/HAP-Specification-Non-Commercial-Version.pdf
-                    // -pressed once (programmable switch event = 0)
-                    // -pressed twice (programmable switch event = 1)
-                    // -held down (programmable switch event = 2)
-
-                    switch (state.buttonevent % 1000) {
-                        case 1 : // Hold Down
-                            characteristic.ProgrammableSwitchEvent = 2; // Long Press
-                            break;
-                        case 2: // Short press
-                            characteristic.ProgrammableSwitchEvent = 0; // Single Press
-                            break;
-                        case 4 : // Double press
-                        case 5 : // Triple press
-                        case 6 : // Quadtruple press
-                        case 10 : // Many press
-                            /*
-                             * Merge all many press event to 1 because homekit only support double press events.
-                             */
-                            characteristic.ProgrammableSwitchEvent = 1; // Double Press
-                            break;
-                    }
-
-                    if (no_reponse) characteristic.ProgrammableSwitchEvent = "NO_RESPONSE";
-
-                    //index of btn
-                    characteristic.ServiceLabelIndex = no_reponse ?
-                        "NO_RESPONSE" :
-                        Math.floor(state.buttonevent / 1000);
-                }
-
-                // if (state.consumption !== null){
-                //     characteristic.OutletInUse = state.consumption;
-                // }
-
-                if (state.power !== undefined) {
-                    characteristic.OutletInUse = state.power > 0;
-                    if (no_reponse) characteristic.OutletInUse = "NO_RESPONSE";
-                }
-
-                if (state.water !== undefined) {
-                    characteristic.LeakDetected = state.water ? 1 : 0;
-                    if (no_reponse) characteristic.LeakDetected = "NO_RESPONSE";
-                }
-
-                if (state.presence !== undefined) {
-                    characteristic.MotionDetected = state.presence;
-                    if (no_reponse) characteristic.MotionDetected = "NO_RESPONSE";
-                }
-
-                if (state.open !== undefined) {
-                    characteristic.ContactSensorState = state.open ? 1 : 0;
-                    if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
-                }
-
-                if (state.vibration !== undefined) {
-                    characteristic.ContactSensorState = state.vibration ? 1 : 0;
-                    if (no_reponse) characteristic.ContactSensorState = "NO_RESPONSE";
-                }
-
-                if (state.on !== undefined) {
-                    characteristic.On = state.on;
-                    if (no_reponse) characteristic.On = "NO_RESPONSE";
-                }
-
-                if (state.bri !== undefined) {
-                    characteristic.Brightness = Utils.convertRange(state.bri, [0, 255], [0, 100]);
-                    if (no_reponse) characteristic.Brightness = "NO_RESPONSE";
-                }
-
-                //colors
-                // if (state.colormode === 'hs' || state.colormode === 'xy') {
-                if (state.hue !== undefined) {
-                    characteristic.Hue = Utils.convertRange(state.hue, [0, 65535], [0, 360], false);
-                    if (no_reponse) characteristic.Hue = "NO_RESPONSE";
-                }
-
-                if (state.sat !== undefined) {
-                    characteristic.Saturation = Utils.convertRange(state.sat, [0, 255], [0, 100], false);
-                    if (no_reponse) characteristic.Saturation = "NO_RESPONSE";
-                }
-
-                // } else if (state.colormode === 'ct') {
-                if (state.ct !== undefined) { //lightbulb bug: use hue or ct
-                    characteristic.ColorTemperature = state.ct;
-                    if (no_reponse) characteristic.ColorTemperature = "NO_RESPONSE";
-                }
-                // }
-
-                if (state.lift !== undefined) {
-                    characteristic.CurrentPosition = Utils.convertRange(state.lift, [0, 100], [100, 0]);
-                    if (no_reponse) characteristic.CurrentPosition = "NO_RESPONSE";
-                    characteristic.TargetPosition = characteristic.CurrentPosition;
-                }
-
-                if (state.tilt !== undefined) {
-                    for (const side of ['Horizontal', 'Vertical']) {
-                        characteristic[`Current${side}TiltAngle`] = Utils.convertRange(state.tilt, [0, 100], [-90, 90]);
-                        if (no_reponse) characteristic[`Current${side}TiltAngle`] = "NO_RESPONSE";
-                        characteristic[`Target${side}TiltAngle`] = characteristic[`Current${side}TiltAngle`];
-                    }
-                }
-
-                msg.lastupdated = device.state.lastupdated;
+        if (no_reponse) {
+            for (const name of Object.keys(characteristic)) {
+                characteristic[name] = 'NO_RESPONSE';
             }
         }
 
-        //battery status
-        if (this.node_type === 'deconz-battery' && config !== undefined) {
-            if (config.battery !== undefined && config.battery != null) {
-                if (no_reponse) {
-                    characteristic.StatusLowBattery = "NO_RESPONSE";
-                } else {
-                    characteristic.BatteryLevel = parseInt(device.config.battery);
-                    characteristic.StatusLowBattery = parseInt(device.config.battery) <= 15 ? 1 : 0;
-                }
-            }
+        if (dotProp.has(device, 'state.lastupdated')) {
+            msg.lastupdated = dotProp.get(device, 'state.lastupdated');
         }
 
         if (Object.keys(characteristic).length === 0) return null; //empty response
