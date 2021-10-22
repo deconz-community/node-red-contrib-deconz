@@ -161,7 +161,28 @@ class CommandParser {
     }
 
     parseHomekitArgs(deviceMeta) {
-        (new HomeKitFormatter.toDeconz()).parse(this.getNodeProperty(this.arg.payload), this.result, deviceMeta);
+        let values = this.getNodeProperty(this.arg.payload);
+        let allValues = values;
+        if (dotProp.has(this.message_in, 'hap.allChars')) {
+            allValues = dotProp.get(this.message_in, 'hap.allChars');
+        }
+
+        if (!deviceMeta.device_colorcapabilities.includes('unknown')) {
+            let checkColorModesCompatibility = (charsName, mode) => {
+                if (dotProp.has(values, charsName) && !Utils.supportColorCapability(deviceMeta, mode)) {
+                    this.node.warn(
+                        `The light '${deviceMeta.name}' don't support '${charsName}' values. ` +
+                        `You can use only '${deviceMeta.device_colorcapabilities.toString()}' modes.`
+                    );
+                }
+            };
+
+            checkColorModesCompatibility('Hue', 'hs');
+            checkColorModesCompatibility('Saturation', 'hs');
+            checkColorModesCompatibility('ColorTemperature', 'ct');
+        }
+
+        (new HomeKitFormatter.toDeconz()).parse(values, allValues, this.result, deviceMeta);
         dotProp.set(this.result, 'state.transitiontime', this.getNodeProperty(this.arg.transitiontime));
     }
 
