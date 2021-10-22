@@ -87,7 +87,7 @@ const HomeKitFormat = (() => {
         let attr = new Attribute();
         attr.needEventMeta(path);
         if (direction.includes('to')) attr.to((rawEvent, deviceMeta) => dotProp.get(rawEvent, path));
-        if (direction.includes('from')) attr.from((value, result) => dotProp.set(result, path, value));
+        if (direction.includes('from')) attr.from((value, allValues, result) => dotProp.set(result, path, value));
         return attr;
     };
 
@@ -153,85 +153,45 @@ const HomeKitFormat = (() => {
         });
     //#endregion
     //#region Lights
-    HKF.On = directMap(['to'], 'state.on');
-
-    /*
+    HKF.On = directMap(['to', 'from'], 'state.on');
     HKF.Brightness = new Attribute()
         .needEventMeta('state.bri')
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
-            if (dotProp.get(deviceMeta, 'state.colormode') === 'hs') {
-                let bri = dotProp.get(rawEvent, 'state.bri');
-                return Utils.convertRange(bri, [0, 255], [0, 100], true, true);
-            } else if (dotProp.get(deviceMeta, 'state.colormode') === 'xy') {
-                let XY = dotProp.get(deviceMeta, 'state.xy');
-                let B = dotProp.get(deviceMeta, 'state.bri');
-                let HSV = Colorspace.Xyb2Hsv(XY[0], XY[1], B / 255);
-                console.log(HSV.V);
-                return Utils.convertRange(HSV.V, [0, 1], [0, 100], true, true);
-            }
+            let bri = dotProp.get(rawEvent, 'state.bri');
+            return Utils.convertRange(bri, [0, 255], [0, 100], true, true);
         })
-        .from((value, result, deviceMeta) => {
+        .from((value, allValues, result, deviceMeta) => {
             let bri = Utils.convertRange(value, [0, 100], [0, 255], true, true);
             dotProp.set(result, 'state.bri', bri);
             dotProp.set(result, 'state.on', bri > 0);
         });
     HKF.Hue = new Attribute()
         .needEventMeta('state.hue')
-        .needColorCapabilities(['hs', 'xy', 'unknown'])
+        .needColorCapabilities(['hs', 'unknown'])
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
-            if (dotProp.get(deviceMeta, 'state.colormode') === 'hs') {
-                let hue = dotProp.get(rawEvent, 'state.hue');
-                return Utils.convertRange(hue, [0, 65535], [0, 360], false, true);
-            } else if (dotProp.get(deviceMeta, 'state.colormode') === 'xy') {
-                let XY = dotProp.get(deviceMeta, 'state.xy');
-                let B = dotProp.get(deviceMeta, 'state.bri');
-                let HSV = Colorspace.Xyb2Hsv(XY[0], XY[1], B / 255);
-                return HSV.H;
-            }
+            let hue = dotProp.get(rawEvent, 'state.hue');
+            return Utils.convertRange(hue, [0, 65535], [0, 360], false, true);
         })
-        .from((value, result, deviceMeta) => {
-            if (deviceMeta.device_colorcapabilities.includes('hs') ||
-                deviceMeta.device_colorcapabilities.includes('unknown')) {
-                let hue = Utils.convertRange(value, [0, 360], [0, 65535], true, true);
-                dotProp.set(result, 'state.hue', hue);
-            } else if (deviceMeta.device_colorcapabilities.includes('xy')) {
-
-            }
-
-
-            console.log(deviceMeta);
-
-
+        .from((value, allValues, result, deviceMeta) => {
+            let hue = Utils.convertRange(value, [0, 360], [0, 65535], true, true);
+            dotProp.set(result, 'state.hue', hue);
         });
     HKF.Saturation = new Attribute()
         .needEventMeta('state.sat')
-        .needColorCapabilities(['hs', 'xy', 'unknown'])
+        .needColorCapabilities(['hs', 'unknown'])
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
-            if (dotProp.get(deviceMeta, 'state.colormode') === 'hs') {
-                let hue = dotProp.get(rawEvent, 'state.sat');
-                return Utils.convertRange(hue, [0, 255], [0, 100], false, true);
-            } else if (dotProp.get(deviceMeta, 'state.colormode') === 'xy') {
-                let XY = dotProp.get(deviceMeta, 'state.xy');
-                let B = dotProp.get(deviceMeta, 'state.bri');
-                let HSV = Colorspace.Xyb2Hsv(XY[0], XY[1], B / 255);
-                return Utils.convertRange(HSV.S, [0, 1], [0, 100], true, true);
-            }
+            let sat = dotProp.get(rawEvent, 'state.sat');
+            return Utils.convertRange(sat, [0, 255], [0, 100], false, true);
         })
-        .from((value, result) => {
-            dotProp.set(result, 'state.sat', Utils.convertRange(value, [0, 100], [0, 255], true, true));
+        .from((value, allValues, result) => {
+            let sat = Utils.convertRange(value, [0, 100], [0, 255], true, true);
+            dotProp.set(result, 'state.sat', sat);
         });
-
-     */
-    HKF.ColorTemperature = new Attribute()
-        .needEventMeta('state.ct')
-        .needColorCapabilities(['ct', 'unknown'])
-        .to((rawEvent, deviceMeta) => {
-            return dotProp.get(rawEvent, 'state.ct');
-        })
-        .from((value, result) => dotProp.set(result, 'state.ct', value));
+    HKF.ColorTemperature = directMap(['from', 'to'], 'state.ct')
+        .needColorCapabilities(['ct', 'unknown']);
     //#endregion
     //#region Window cover
     HKF.CurrentPosition = new Attribute()
@@ -285,10 +245,6 @@ class BaseFormatter {
 
 class fromDeconz extends BaseFormatter {
 
-    fromLights() {
-
-    }
-
     parse(rawEvent, deviceMeta) {
         let result = {};
         for (const property of this.propertyList) {
@@ -297,14 +253,13 @@ class fromDeconz extends BaseFormatter {
             result[property] = HomeKitFormat[property].toMethod(rawEvent, deviceMeta);
         }
 
-        this.fromLights(result, rawEvent, deviceMeta);
-
         // Cleanup undefined values or invalid attributes
         for (const property of Object.keys(result)) {
             if (result[property] === undefined || !HomeKitFormat[property].attributeIsValid(result)) {
                 delete result[property];
             }
         }
+
         return result;
     }
 
@@ -312,21 +267,16 @@ class fromDeconz extends BaseFormatter {
 
 class toDeconz extends BaseFormatter {
 
-    toLights() {
-
-    }
-
-    parse(values, result, deviceMeta) {
+    parse(values, allValues, result, deviceMeta) {
         if (result === undefined) result = {};
         for (const [property, value] of Object.entries(values)) {
             if (!this.propertyList.includes(property)) continue;
             if (HomeKitFormat[property].fromMethod === undefined) continue;
-            HomeKitFormat[property].fromMethod(value, result, deviceMeta);
+            HomeKitFormat[property].fromMethod(value, allValues, result, deviceMeta);
         }
 
-        this.toLights(result, values, deviceMeta);
-
         // TODO remove undefined values
+
         return result;
     }
 
