@@ -110,7 +110,8 @@
             "state": "State",
             "config": "Config",
             "homekit": "Homekit",
-            "scene_call": "Scene Call"
+            "scene_call": "Scene Call",
+            "button_event": "Button Event"
           },
           "add_button": {
             "label": "Add __type__",
@@ -153,6 +154,11 @@
           "label": "Error output",
           "icon": "external-link-square",
           "desc": "Send NO_RESPONSE on socket error."
+        },
+        "button_event": {
+          "label": "Button Event",
+          "icon": "hand-pointer-o",
+          "desc": "Send msg on specific button event."
         },
         "rule_button": {
           "desc": "Show list of nodes connected to this output."

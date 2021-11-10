@@ -15,7 +15,8 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             'output',
             'onstart',
             'onerror',
-            'outputButton'
+            'outputButton',
+            'buttonevent'
         ];
 
         let elements = {};
@@ -101,6 +102,9 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         if (this.node.type === 'deconz-input')
             await this.generateOnErrorField(this.container, rule.onerror !== undefined ? rule.onerror : this.defaultRule.onerror);
 
+        if (this.node.type === 'deconz-input')
+            await this.generateButtonEventFields(this.container, rule.button_event);
+
         await super.init();
 
         await this.listEditor.mainEditor.isInitialized();
@@ -159,18 +163,28 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 this.$elements.output.closest('.form-row').show();
                 this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').hide();
+                this.$elements.buttonevent.closest('.form-row').hide();
                 break;
             case 'homekit':
                 this.$elements.payload.closest('.form-row').show();
                 this.$elements.output.closest('.form-row').hide();
                 this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').show();
+                this.$elements.buttonevent.closest('.form-row').hide();
                 break;
             case 'scene_call':
                 this.$elements.payload.closest('.form-row').hide();
                 this.$elements.output.closest('.form-row').hide();
                 this.$elements.onstart.closest('.form-row').hide();
                 this.$elements.onerror.closest('.form-row').hide();
+                this.$elements.buttonevent.closest('.form-row').hide();
+                break;
+            case 'button_event':
+                this.$elements.payload.closest('.form-row').hide();
+                this.$elements.output.closest('.form-row').hide();
+                this.$elements.onstart.closest('.form-row').hide();
+                this.$elements.onerror.closest('.form-row').hide();
+                this.$elements.buttonevent.closest('.form-row').show();
                 break;
         }
     }
@@ -391,6 +405,21 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             i18n,
             currentValue: value,
         });
+    }
+
+    async generateButtonEventFields(container, value) {
+        let i18n = `${this.NRCD}/server:editor.inputs.outputs.button_event`;
+
+        await this.generateTypedInputField(container, {
+            id: this.elements.buttonevent,
+            i18n,
+            value,
+            addDefaultTypes: false,
+            typedInput: {
+                types: ['num']
+            }
+        });
+
     }
 
     //#endregion
