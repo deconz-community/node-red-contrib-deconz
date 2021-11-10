@@ -71,8 +71,16 @@ class Attribute {
             case 'string':
                 return dotProp.has(data, propertyMeta);
             case 'object':
-                for (const [k, v] of Object.entries(propertyMeta)) {
-                    console.log({k, v});
+                for (const [propertyName, expectedValue] of Object.entries(propertyMeta)) {
+                    if (!dotProp.has(data, propertyName)) return false;
+                    const currentValue = dotProp.get(data, propertyName);
+                    if (Array.isArray(expectedValue)) {
+                        if (expectedValue.includes(currentValue) === false) {
+                            return false;
+                        }
+                    } else {
+                        if (currentValue !== expectedValue) return false;
+                    }
                 }
                 break;
         }
