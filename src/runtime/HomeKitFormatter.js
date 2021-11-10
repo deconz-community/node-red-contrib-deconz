@@ -192,6 +192,143 @@ const HomeKitFormat = (() => {
             }
         });
     //#endregion
+    //#region ZHAThermostat
+    HKF.HeatingThresholdTemperature = new Attribute()
+        .services(['Heater Cooler', 'Thermostat'])
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('config.heatsetpoint')
+        .to((rawEvent, deviceMeta) =>
+            dotProp.get(rawEvent, 'config.heatsetpoint') / 100
+        )
+        .from((value, allValues, result, deviceMeta) => {
+            dotProp.set(result, 'config.heatsetpoint', value * 100);
+        });
+    HKF.CoolingThresholdTemperature = new Attribute()
+        .services(['Heater Cooler', 'Thermostat'])
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('config.coolsetpoint')
+        .to((rawEvent, deviceMeta) =>
+            dotProp.get(rawEvent, 'config.coolsetpoint') / 100
+        )
+        .from((value, allValues, result, deviceMeta) => {
+            dotProp.set(result, 'config.coolsetpoint', value * 100);
+        });
+    HKF.TargetTemperature = new Attribute()
+        .services('Thermostat')
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta((rawEvent, deviceMeta) =>
+            dotProp.has(rawEvent, 'config.heatsetpoint') ||
+            dotProp.has(rawEvent, 'config.coolsetpoint')
+        )
+        .to((rawEvent, deviceMeta) => {
+            // Device have only a heatsetpoint.
+            if (!dotProp.has(rawEvent, 'config.coolsetpoint')) {
+                return dotProp.get(rawEvent, 'config.heatsetpoint') / 100;
+            }
+            // Device have only a coolsetpoint.
+            if (!dotProp.has(rawEvent, 'config.heatsetpoint')) {
+                return dotProp.get(rawEvent, 'config.coolsetpoint') / 100;
+            }
+            // Device have heat and cool set points.
+            let currentTemp = HKF.CurrentTemperature.toMethod(rawEvent, deviceMeta);
+            // It's too cold.
+            if (currentTemp <= dotProp.get(rawEvent, 'config.heatsetpoint')) {
+                return dotProp.get(rawEvent, 'config.heatsetpoint') / 100;
+            }
+            // It's too hot.
+            if (currentTemp >= dotProp.get(rawEvent, 'config.coolsetpoint')) {
+                return dotProp.get(rawEvent, 'config.coolsetpoint') / 100;
+            }
+            // It's in the range I can't determine what the device is doing.
+        })
+        .from((value, allValues, result, deviceMeta) => {
+            if (!dotProp.has(deviceMeta, 'config.coolsetpoint')) {
+                // Device have only a heatsetpoint.
+                dotProp.set(result, 'config.heatsetpoint', value * 100);
+            } else if (!dotProp.has(deviceMeta, 'config.heatsetpoint')) {
+                // Device have only a coolsetpoint.
+                dotProp.set(result, 'config.coolsetpoint', value * 100);
+            } else {
+                // Don't know what to do with that.
+            }
+        });
+    HKF.Active = new Attribute()
+        .services('Heater Cooler')
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('state.on')
+        .to((rawEvent, deviceMeta) => {
+            return dotProp.get(rawEvent, 'state.on') === true ? 1 : 0;
+        }).from((value, allValues, result, deviceMeta) => {
+            if (value === 1) dotProp.set(result, 'state.on', true);
+            if (value === 0) dotProp.set(result, 'state.on', false);
+        });
+    HKF.CurrentHeatingCoolingState = new Attribute()
+        .services('Thermostat')
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('state.on')
+        .to((rawEvent, deviceMeta) => {
+            if (dotProp.get(rawEvent, 'state.on') === false) return 0; // Off.
+
+            // Device have only a heatsetpoint.
+            if (dotProp.has(deviceMeta, 'config.heatsetpoint') &&
+                !dotProp.has(deviceMeta, 'config.coolsetpoint')
+            ) return 1; // Heat. The Heater is currently on
+
+            // Device have only a coolsetpoint.
+            if (dotProp.has(deviceMeta, 'config.coolsetpoint') &&
+                !dotProp.has(deviceMeta, 'config.heatsetpoint')
+            ) return 2; // Cool. Cooler is currently on
+
+            // Device can heat and cool
+            let targetTemp = HKF.TargetTemperature.toMethod(rawEvent, deviceMeta);
+            let currentTemp = HKF.CurrentTemperature.toMethod(rawEvent, deviceMeta);
+            if (targetTemp === undefined || currentTemp === undefined) return;
+            if (currentTemp < targetTemp) return 1; // Heat. The Heater is currently on
+            if (currentTemp > targetTemp) return 2; // Cool. Cooler is currently on
+        });
+    HKF.TargetHeatingCoolingState = new Attribute()
+        .services('Thermostat')
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('config.mode')
+        .to((rawEvent, deviceMeta) => {
+            switch (dotProp.get(rawEvent, 'config.mode')) {
+                case 'off':
+                case 'sleep':
+                case 'fan only':
+                case 'dry':
+                    return 0; // Off
+                case 'heat':
+                case 'emergency heating':
+                    return 1; // Heat
+                case 'cool':
+                case 'precooling':
+                    return 2; // Cool
+                case 'auto':
+                    return 3; // Auto
+            }
+        });
+    HKF.LockPhysicalControls = new Attribute()
+        .services('Heater Cooler')
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needEventMeta('config.locked')
+        .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'config.locked') === true ? 1 : 0)
+        .from((value, allValues, result, deviceMeta) => {
+            if (value === 0) dotProp.set(result, 'config.locked', false);
+            if (value === 1) dotProp.set(result, 'config.locked', true);
+        });
+    HKF.TemperatureDisplayUnits_Celsius = new Attribute()
+        .services(['Heater Cooler', 'Thermostat'])
+        .name('TemperatureDisplayUnits')
+        .priority(10)
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .to((rawEvent, deviceMeta) => 0); // Celsius
+    HKF.TemperatureDisplayUnits_Fahrenheit = new Attribute()
+        .services(['Heater Cooler', 'Thermostat'])
+        .name('TemperatureDisplayUnits')
+        .priority(0)
+        .needDeviceMeta({type: 'ZHAThermostat'})
+        .to((rawEvent, deviceMeta) => 1); // Fahrenheit
+    //#endregion
     //#region Lights
     HKF.On = directMap(['to', 'from'], 'state.on')
         .services(['Lightbulb', 'Outlet']);

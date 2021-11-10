@@ -12,6 +12,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 #### HomeKit format
 
 - You can now select which characteristics you want in the payload.
+- Initial support for ZHAThermostat. Can be used with Heater Cooler or Thermostat.
 
 ## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
 
