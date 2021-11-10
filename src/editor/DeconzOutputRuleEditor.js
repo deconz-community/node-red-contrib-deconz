@@ -115,7 +115,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         await super.connect();
         this.$elements.type.on('change', () => {
             let type = this.$elements.type.val();
-            if (['attribute', 'state', 'config'].includes(type)) this.updatePayloadList();
+            if (['attribute', 'state', 'config', 'homekit'].includes(type)) this.updatePayloadList();
             this.updateShowHide(type);
         });
 
