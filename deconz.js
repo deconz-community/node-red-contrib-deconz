@@ -6,6 +6,7 @@ const CommandParser = require("./src/runtime/CommandParser");
 const got = require("got");
 const Utils = require("./src/runtime/Utils");
 const CompareVersion = require('compare-versions');
+const HomeKitFormatter = require("./src/runtime/HomeKitFormatter");
 
 module.exports = function (RED) {
 
@@ -151,6 +152,46 @@ module.exports = function (RED) {
                 res.status(500).end();
             }
         });
+    });
+
+    RED.httpAdmin.get(NODE_PATH + 'homekitlist', function (req, res) {
+        try {
+            let config = req.query;
+            let controller = RED.nodes.getNode(config.controllerID);
+            let devicesIDs = JSON.parse(config.devices);
+            if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
+
+                let sample = {homekit: {}};
+                let count = {homekit: {}};
+
+                const formatter = (new HomeKitFormatter.fromDeconz({}));
+
+                for (const deviceID of devicesIDs) {
+                    let device = controller.device_list.getDeviceByPath(deviceID);
+                    if (!device) continue;
+
+                    let propertiesList = formatter.getValidPropertiesList(device);
+                    let characteristics = formatter.parse(device, device);
+
+                    for (const property of propertiesList) {
+                        count.homekit[property] = (count.homekit[property] || 0) + 1;
+                        const propertyName = formatter.format[property]._name !== undefined ?
+                            formatter.format[property]._name :
+                            property;
+                        if (characteristics[propertyName] !== undefined) {
+                            sample.homekit[property] = characteristics[propertyName];
+                        }
+                    }
+                }
+
+                res.json({count, sample});
+            } else {
+                res.status(404).end();
+            }
+        } catch (e) {
+            console.error(e);
+            res.status(500).end();
+        }
     });
 
     /**

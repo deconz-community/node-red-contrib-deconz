@@ -291,10 +291,20 @@ class OutputMsgFormatter {
         let msg = {};
 
         let batteryAttributes = ['BatteryLevel', 'StatusLowBattery'];
-        let characteristic = (new HomeKitFormatter.fromDeconz({
-            attributeBlacklist: this.node_type === 'deconz-input' ? batteryAttributes : [],
-            attributeWhitelist: this.node_type === 'deconz-battery' ? batteryAttributes : [],
-        })).parse(rawEvent, device);
+
+        const opts = {
+            attributeWhitelist: [],
+            attributeBlacklist: []
+        };
+
+        if (this.rule.payload.includes('__auto__')) {
+            opts.attributeBlacklist = this.node_type === 'deconz-input' ? batteryAttributes : [];
+            opts.attributeWhitelist = this.node_type === 'deconz-battery' ? batteryAttributes : [];
+        } else {
+            opts.attributeWhitelist = this.rule.payload;
+        }
+
+        let characteristic = (new HomeKitFormatter.fromDeconz(opts)).parse(rawEvent, device);
 
         if (no_reponse) {
             for (const name of Object.keys(characteristic)) {

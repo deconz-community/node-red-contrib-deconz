@@ -7,6 +7,7 @@ class Attribute {
         this.requiredAttribute = [];
         this.requiredEventMeta = [];
         this.requiredDeviceMeta = [];
+        this.servicesList = [];
     }
 
     needAttribute(attribute) {
@@ -35,14 +36,35 @@ class Attribute {
     }
 
     from(method) {
+        if (this._name !== undefined) {
+            console.error("Can't use name with from method");
+        }
         this.fromMethod = method;
+        return this;
+    }
+
+    services(services) {
+        this.servicesList = this.servicesList.concat(Utils.sanitizeArray(services));
+        return this;
+    }
+
+    name(name) {
+        if (this.fromMethod !== undefined) {
+            console.error("Can't use name with from method");
+        }
+        this._name = name;
+        return this;
+    }
+
+    priority(priority) {
+        this._priority = priority;
         return this;
     }
 
     targetIsValid(rawEvent, deviceMeta) {
         for (const meta of this.requiredEventMeta) {
             if (typeof meta === 'function') {
-                if (meta(rawEvent) === false) return false;
+                if (meta(rawEvent, deviceMeta) === false) return false;
             } else if (Attribute._checkProperties(rawEvent, meta) === false) {
                 return false;
             }
@@ -58,8 +80,9 @@ class Attribute {
     }
 
     attributeIsValid(result) {
+        let resultList = Array.isArray(result) ? result : Object.keys(result);
         for (let attribute of this.requiredAttribute) {
-            if (!Object.keys(result).includes(attribute)) {
+            if (!resultList.includes(attribute)) {
                 return false;
             }
         }
@@ -88,7 +111,6 @@ class Attribute {
     }
 }
 
-
 const HomeKitFormat = (() => {
 
     let directMap = (direction, path) => {
@@ -102,12 +124,14 @@ const HomeKitFormat = (() => {
     const HKF = {};
     //#region Switchs
     HKF.ServiceLabelIndex = new Attribute()
+        .services('Stateless Programmable Switch')
         .needAttribute('ProgrammableSwitchEvent')
         .needEventMeta('state.buttonevent')
         .to((rawEvent, deviceMeta) =>
             Math.floor(dotProp.get(rawEvent, 'state.buttonevent') / 1000)
         );
     HKF.ProgrammableSwitchEvent = new Attribute()
+        .services('Stateless Programmable Switch')
         .needAttribute('ServiceLabelIndex')
         .needEventMeta('state.buttonevent')
         //.needDeviceMeta({type:['Window covering controller', 'Window covering device']})
@@ -130,24 +154,32 @@ const HomeKitFormat = (() => {
     //#endregion
     //#region Sensors
     HKF.CurrentTemperature = new Attribute()
+        .services(['Heater Cooler', 'Thermostat', 'Temperature Sensor'])
         .needEventMeta('state.temperature')
         .to((rawEvent, deviceMeta) =>
             dotProp.get(rawEvent, 'state.temperature') / 100
         );
     HKF.CurrentRelativeHumidity = new Attribute()
+        .services(['Thermostat', 'Humidity Sensor'])
         .needEventMeta('state.humidity')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'state.humidity') / 100);
-    HKF.CurrentAmbientLightLevel = directMap(['to'], 'state.lux');
-    HKF.SmokeDetected = directMap(['to'], 'state.fire');
+    HKF.CurrentAmbientLightLevel = directMap(['to'], 'state.lux')
+        .services('Light Sensor');
+    HKF.SmokeDetected = directMap(['to'], 'state.fire')
+        .services('Smoke Sensor');
     HKF.OutletInUse = new Attribute()
+        .services('Outlet')
         .needEventMeta('state.power')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'state.power') > 0);
     HKF.LeakDetected = new Attribute()
+        .services('Leak Sensor')
         .needEventMeta('state.water')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'state.water') ? 1 : 0);
-    HKF.MotionDetected = directMap(['to'], 'state.presence');
+    HKF.MotionDetected = directMap(['to'], 'state.presence')
+        .services('Motion Sensor');
     HKF.ContactSensorState = new Attribute()
-        .needEventMeta((rawEvent) =>
+        .services('Contact Sensor')
+        .needEventMeta((rawEvent, deviceMeta) =>
             dotProp.has(rawEvent, 'state.open') ||
             dotProp.has(rawEvent, 'state.vibration')
         )
@@ -161,8 +193,10 @@ const HomeKitFormat = (() => {
         });
     //#endregion
     //#region Lights
-    HKF.On = directMap(['to', 'from'], 'state.on');
+    HKF.On = directMap(['to', 'from'], 'state.on')
+        .services(['Lightbulb', 'Outlet']);
     HKF.Brightness = new Attribute()
+        .services('Lightbulb')
         .needEventMeta('state.bri')
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
@@ -175,6 +209,7 @@ const HomeKitFormat = (() => {
             dotProp.set(result, 'state.on', bri > 0);
         });
     HKF.Hue = new Attribute()
+        .services('Lightbulb')
         .needEventMeta('state.hue')
         .needColorCapabilities(['hs', 'unknown'])
         .to((rawEvent, deviceMeta) => {
@@ -187,6 +222,7 @@ const HomeKitFormat = (() => {
             dotProp.set(result, 'state.hue', hue);
         });
     HKF.Saturation = new Attribute()
+        .services('Lightbulb')
         .needEventMeta('state.sat')
         .needColorCapabilities(['hs', 'unknown'])
         .to((rawEvent, deviceMeta) => {
@@ -199,16 +235,19 @@ const HomeKitFormat = (() => {
             dotProp.set(result, 'state.sat', sat);
         });
     HKF.ColorTemperature = directMap(['from', 'to'], 'state.ct')
+        .services('Lightbulb')
         .needColorCapabilities(['ct', 'unknown']);
     //#endregion
     //#region Window cover
     HKF.CurrentPosition = new Attribute()
+        .services('Window Covering')
         .needEventMeta('state.lift')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.lift'), [0, 100], [100, 0])
         );
     HKF.TargetPosition = HKF.CurrentPosition;
     HKF.CurrentHorizontalTiltAngle = new Attribute()
+        .services('Window Covering')
         .needEventMeta('state.tilt')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90])
@@ -218,8 +257,10 @@ const HomeKitFormat = (() => {
     HKF.TargetVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     //#endregion
     //#region Battery
-    HKF.BatteryLevel = directMap(['to'], 'config.battery');
+    HKF.BatteryLevel = directMap(['to'], 'config.battery')
+        .services('Battery');
     HKF.StatusLowBattery = new Attribute()
+        .services('Battery')
         .needEventMeta('config.battery')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'config.battery') <= 15 ? 1 : 0);
     //#endregion
@@ -228,6 +269,7 @@ const HomeKitFormat = (() => {
 
 class BaseFormatter {
     constructor(options) {
+        this.format = HomeKitFormat;
         this.propertyList = Object.keys(HomeKitFormat);
 
         this.options = Object.assign({
@@ -248,6 +290,24 @@ class BaseFormatter {
                 !this.options.attributeBlacklist.includes(property)
             );
         }
+
+        // Sort properties by name
+        const get = (property, key) => HomeKitFormat[property][key] !== undefined ?
+            HomeKitFormat[property][key] :
+            property;
+        const getName = (property) => get(property, '_name');
+        const getPriority = (property) => get(property, '_priority');
+        this.propertyList.sort((propertyA, propertyB) => {
+            const aName = getName(propertyA);
+            const bName = getName(propertyB);
+            if (aName === bName) {
+                const aPriority = getPriority(propertyA);
+                const bPriority = getPriority(propertyB);
+                return (aPriority === undefined || bPriority === undefined) ? 0 : aPriority - bPriority;
+            } else {
+                return aName < bName ? -1 : 1;
+            }
+        });
     }
 }
 
@@ -255,19 +315,39 @@ class fromDeconz extends BaseFormatter {
 
     parse(rawEvent, deviceMeta) {
         let result = {};
+        let propertyMap = {};
+
         for (const property of this.propertyList) {
+            const propertyName = HomeKitFormat[property]._name !== undefined ?
+                HomeKitFormat[property]._name :
+                property;
             if (!HomeKitFormat[property].targetIsValid(rawEvent, deviceMeta)) continue;
             if (HomeKitFormat[property].toMethod === undefined) continue;
-            result[property] = HomeKitFormat[property].toMethod(rawEvent, deviceMeta);
+            propertyMap[propertyName] = property;
+            const resultValue = HomeKitFormat[property].toMethod(rawEvent, deviceMeta);
+            if (resultValue !== undefined) result[propertyName] = resultValue;
         }
 
-        // Cleanup undefined values or invalid attributes
+        // Cleanup invalid attributes
         for (const property of Object.keys(result)) {
-            if (result[property] === undefined || !HomeKitFormat[property].attributeIsValid(result)) {
+            if (!HomeKitFormat[propertyMap[property]].attributeIsValid(result)) {
                 delete result[property];
             }
         }
 
+        return result;
+    }
+
+    getValidPropertiesList(deviceMeta) {
+        let result = [];
+        for (const property of this.propertyList) {
+            if (!HomeKitFormat[property].targetIsValid(deviceMeta, deviceMeta)) continue;
+            if (HomeKitFormat[property].toMethod === undefined) continue;
+            result.push(property);
+        }
+
+        // Cleanup invalid attributes
+        result = result.filter((value) => HomeKitFormat[value].attributeIsValid(result));
         return result;
     }
 
@@ -283,7 +363,11 @@ class toDeconz extends BaseFormatter {
             HomeKitFormat[property].fromMethod(value, allValues, result, deviceMeta);
         }
 
-        // TODO remove undefined values
+        for (const property of Object.keys(result)) {
+            if (result[property] === undefined) {
+                delete result[property];
+            }
+        }
 
         return result;
     }
