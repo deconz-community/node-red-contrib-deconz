@@ -57,7 +57,9 @@ class OutputMsgFormatter {
             };
 
             for (const device of device_list) {
-                if (this.rule.payload.includes('__complete__')) {
+                if (this.rule.type === 'homekit') {
+                    generateOne(device, 'homekit');
+                } else if (this.rule.payload.includes('__complete__')) {
                     generateOne(device, '__complete__');
                 } else if (this.rule.payload.includes('__each__')) {
                     for (const payloadFormat of this.getDevicePayloadList(device)) {
