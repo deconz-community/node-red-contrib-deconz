@@ -39,13 +39,7 @@ class ConfigMigrationHandlerBattery extends ConfigMigrationHandler {
     }
 
     migrateHomeKitPayload() {
-        this.result.new.output_rules = this.config.output_rules.map((rule) => {
-            if (rule.type === 'homekit') {
-                this.result.info.push('node-red-contrib-deconz/server:tip.homekit_payload');
-                rule.payload = ['__auto__'];
-            }
-            return rule;
-        });
+        super.migrateHomeKitPayload();
         this.config_version = 2;
     }
 
