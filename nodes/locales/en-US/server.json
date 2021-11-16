@@ -559,6 +559,17 @@
             }
           }
         }
+      },
+      "mode": {
+        "label": "Mode",
+        "options": {
+          "raw_event": {
+            "label": "Raw Deconz Event"
+          },
+          "server_status": {
+            "label": "Server status"
+          }
+        }
       }
     }
   }

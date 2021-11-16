@@ -21,6 +21,23 @@
             </label>
             <input type="text" id="node-input-server">
         </div>
+
+        <!-- --- Mode --- -->
+        <div class="form-row">
+            <label for="node-input-mode" class="l-width">
+                <i class="fa fa-globe"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.mode.label"></span>
+            </label>
+            <select name="pets" id="node-input-mode">
+                <option value="raw_event"
+                        data-i18n="node-red-contrib-deconz/server:editor.inputs.mode.options.raw_event.label"
+                        selected
+                ></option>
+                <option value="server_status"
+                        data-i18n="node-red-contrib-deconz/server:editor.inputs.mode.options.server_status.label"
+                ></option>
+            </select>
+        </div>
         <!--#endregion -->
     </div>
 </script>
@@ -36,6 +53,9 @@
             server: {
                 type: "deconz-server",
                 required: true
+            },
+            mode: {
+                value: "raw_event"
             }
         },
         inputs: 0,
