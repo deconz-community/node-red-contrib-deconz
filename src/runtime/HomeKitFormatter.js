@@ -349,6 +349,7 @@ const HomeKitFormat = (() => {
         .services('Lightbulb')
         .needEventMeta('state.hue')
         .needColorCapabilities(['hs', 'unknown'])
+        .needDeviceMeta({'state.colormode': 'hs'})
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let hue = dotProp.get(rawEvent, 'state.hue');
@@ -362,6 +363,7 @@ const HomeKitFormat = (() => {
         .services('Lightbulb')
         .needEventMeta('state.sat')
         .needColorCapabilities(['hs', 'unknown'])
+        .needDeviceMeta({'state.colormode': 'hs'})
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let sat = dotProp.get(rawEvent, 'state.sat');
@@ -373,7 +375,8 @@ const HomeKitFormat = (() => {
         });
     HKF.ColorTemperature = directMap(['from', 'to'], 'state.ct')
         .services('Lightbulb')
-        .needColorCapabilities(['ct', 'unknown']);
+        .needColorCapabilities(['ct', 'unknown'])
+        .needDeviceMeta({'state.colormode': 'ct'});
     //#endregion
     //#region Window cover
     HKF.CurrentPosition = new Attribute()

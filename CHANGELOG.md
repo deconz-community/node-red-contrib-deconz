@@ -14,6 +14,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - You can now select which characteristics you want in the payload.
 - Initial support for ZHAThermostat. Can be used with Heater Cooler or Thermostat.
 
+### Changed
+
+#### HomeKit format
+
+- Rework HomeKit attributes handling.
+- The characteristics 'Hue', 'Saturation' and 'ColorTemperature' are now only added if the colormode of the light is '
+  hs' or 'ct'.
+
 ## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
 
 ### Added
