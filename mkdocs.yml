@@ -1,0 +1,14 @@
+site_name: Node-Red plugin for deCONZ
+theme:
+  name: readthedocs
+repo_url: https://github.com/deconz-community/node-red-contrib-deconz
+markdown_extensions:
+  - admonition
+  - attr_list
+  - smarty
+  - toc:
+      permalink: True
+nav:
+  - Introduction: index.md
+  - 'Device Queries': device_queries.md
+  - 'Msg Format': msg_format.md
