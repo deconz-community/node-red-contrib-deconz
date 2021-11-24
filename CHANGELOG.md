@@ -101,8 +101,8 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 ### Added
 
 - The nodes now allow multiple device selection.
-- The nodes accept [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries) instead of
-  a device list.
+- The nodes accept [queries](https://deconz-community.github.io/node-red-contrib-deconz/device_queries/) instead of a
+  device list.
 - Each outputs of the nodes are now customizable. If you don't need the HomeKit output, just remove it.
 - Reworked the Auto configuration of server. It looks for Home-Assistant installations as well.
 

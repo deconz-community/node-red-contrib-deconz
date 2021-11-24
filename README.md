@@ -20,7 +20,7 @@ __This new version requires Node-Red version 1.2.9 or newer.__
 Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/CHANGELOG.md)):
 
 * Multiple device selection.
-* Select device using [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries).
+* Select device using [queries](https://deconz-community.github.io/node-red-contrib-deconz/device_queries/).
 * Multiple commands at once.
 * Query multiple devices and merge the result.
 
