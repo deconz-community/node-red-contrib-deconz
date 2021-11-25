@@ -353,7 +353,7 @@ const HomeKitFormat = (() => {
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let hue = dotProp.get(rawEvent, 'state.hue');
-            return Utils.convertRange(hue, [0, 65535], [0, 360], false, true);
+            return Utils.convertRange(hue, [0, 65535], [0, 360], true, true);
         })
         .from((value, allValues, result, deviceMeta) => {
             let hue = Utils.convertRange(value, [0, 360], [0, 65535], true, true);
@@ -367,7 +367,7 @@ const HomeKitFormat = (() => {
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let sat = dotProp.get(rawEvent, 'state.sat');
-            return Utils.convertRange(sat, [0, 255], [0, 100], false, true);
+            return Utils.convertRange(sat, [0, 255], [0, 100], true, true);
         })
         .from((value, allValues, result) => {
             let sat = Utils.convertRange(value, [0, 100], [0, 255], true, true);
@@ -383,14 +383,14 @@ const HomeKitFormat = (() => {
         .services('Window Covering')
         .needEventMeta('state.lift')
         .to((rawEvent, deviceMeta) =>
-            Utils.convertRange(dotProp.get(rawEvent, 'state.lift'), [0, 100], [100, 0])
+            Utils.convertRange(dotProp.get(rawEvent, 'state.lift'), [0, 100], [100, 0], true, true)
         );
     HKF.TargetPosition = HKF.CurrentPosition;
     HKF.CurrentHorizontalTiltAngle = new Attribute()
         .services('Window Covering')
         .needEventMeta('state.tilt')
         .to((rawEvent, deviceMeta) =>
-            Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90])
+            Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90], true, true)
         );
     HKF.TargetHorizontalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     HKF.CurrentVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
