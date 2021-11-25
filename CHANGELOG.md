@@ -22,6 +22,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The characteristics 'Hue', 'Saturation' and 'ColorTemperature' are now only added if the colormode of the light is '
   hs' or 'ct'.
 
+### Fixed
+
+- Fix add button now showing up in NR 1.2.9 on the Output rules and Commands.
+
 ## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
 
 ### Added
