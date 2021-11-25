@@ -46,6 +46,8 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                     value.onstart = this.$elements.onstart.is(":checked");
                 if (this.node.type === 'deconz-input')
                     value.onerror = this.$elements.onerror.is(":checked");
+                if (['deconz-input', 'deconz-get'].includes(this.node.type))
+                    value.payload = this.$elements.payload.multipleSelect('getSelects');
                 break;
             case 'scene_call':
                 break;
@@ -113,7 +115,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         await super.connect();
         this.$elements.type.on('change', () => {
             let type = this.$elements.type.val();
-            if (['attribute', 'state', 'config'].includes(type)) this.updatePayloadList();
+            if (['attribute', 'state', 'config', 'homekit'].includes(type)) this.updatePayloadList();
             this.updateShowHide(type);
         });
 
@@ -159,7 +161,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 this.$elements.onerror.closest('.form-row').hide();
                 break;
             case 'homekit':
-                this.$elements.payload.closest('.form-row').hide();
+                this.$elements.payload.closest('.form-row').show();
                 this.$elements.output.closest('.form-row').hide();
                 this.$elements.onstart.closest('.form-row').show();
                 this.$elements.onerror.closest('.form-row').show();
@@ -184,17 +186,23 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         let devices = this.listEditor.mainEditor.subEditor.device.value;
         let type = this.$elements.type.val();
 
-        if (!['attribute', 'state', 'config'].includes(type)) return;
+        if (!['attribute', 'state', 'config', 'homekit'].includes(type)) return;
 
         let i18n = `${this.NRCD}/server:editor.inputs.outputs.payload`;
 
-        let html = '<option value="__complete__">' + RED._(`${i18n}.options.complete`) + '</option>';
-        if (this.options.enableEachState === true) {
-            html += '<option value="__each__">' + RED._(`${i18n}.options.each`) + '</option>';
+        let html = '';
+        if (type === 'homekit') {
+            html += '<option value="__auto__">' + RED._(`${i18n}.options.auto`) + '</option>';
+        } else {
+            html += '<option value="__complete__">' + RED._(`${i18n}.options.complete`) + '</option>';
+            if (this.options.enableEachState === true) {
+                html += '<option value="__each__">' + RED._(`${i18n}.options.each`) + '</option>';
+            }
         }
 
         this.$elements.payload.html(html);
 
+        //Todo how with homekit ? display all characteristics ?
         if (queryType === 'device') {
             let data = await $.getJSON(`${this.NRCD}/${type}list`, {
                 controllerID: this.listEditor.mainEditor.serverNode.id,
@@ -204,9 +212,9 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             let type_list = (type === 'attribute') ? ['attribute', 'state', 'config'] : [type];
 
             for (const _type of type_list) {
-                let groupHtml = $('<optgroup/>', {
-                    label: RED._(`${i18n}.group_label.${_type}`)
-                });
+                let label = this.getI18n(`${i18n}.group_label.${_type}`);
+                if (label === undefined) label = _type;
+                let groupHtml = $('<optgroup/>', {label});
 
                 for (const item of Object.keys(data.count[_type]).sort()) {
                     let sample = data.sample[_type][item];
@@ -279,21 +287,24 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
                 switch (view.value) {
                     case '__complete__':
                     case '__each__':
+                    case '__auto__':
                         list.multipleSelect('setSelects', [view.value]);
                         break;
                     default:
                         list.multipleSelect('uncheck', '__complete__');
                         list.multipleSelect('uncheck', '__each__');
+                        list.multipleSelect('uncheck', '__auto__');
                         break;
                 }
             },
             onUncheckAll: () => {
-                list.multipleSelect('setSelects', '__complete__');
+                list.multipleSelect('setSelects', ['__complete__', '__auto__']);
             },
             onOptgroupClick: (view) => {
                 if (!view.selected) return;
                 list.multipleSelect('uncheck', '__complete__');
                 list.multipleSelect('uncheck', '__each__');
+                list.multipleSelect('uncheck', '__auto__');
             },
         });
 

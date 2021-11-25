@@ -2,12 +2,13 @@ const ConfigMigrationHandler = require('./ConfigMigrationHandler');
 
 class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
     get lastVersion() {
-        return 1; // Don't forget to update node declaration too
+        return 2; // Don't forget to update node declaration too
     }
 
     migrate(controller) {
         this.controller = controller;
         if (this.currentVersion === undefined) this.migrateFromLegacy();
+        if (this.currentVersion === 1) this.migrateHomeKitPayload();
         this.result.new.config_version = this.config_version;
     }
 
@@ -39,6 +40,10 @@ class ConfigMigrationHandlerInput extends ConfigMigrationHandler {
         this.config_version = 1;
     }
 
+    migrateHomeKitPayload() {
+        super.migrateHomeKitPayload();
+        this.config_version = 2;
+    }
 }
 
 module.exports = ConfigMigrationHandlerInput;

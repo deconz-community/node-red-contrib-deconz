@@ -1,4 +1,6 @@
 const Utils = require("./Utils");
+const HomeKitFormatter = require("./HomeKitFormatter");
+const dotProp = require("dot-prop");
 
 class CommandParser {
 
@@ -43,7 +45,6 @@ class CommandParser {
                 }
                 this.valid_domain.push('lights');
                 this.valid_domain.push('group');
-                this.parseHomekitArgs();
                 break;
             case 'custom':
                 this.valid_domain.push('any');
@@ -159,33 +160,30 @@ class CommandParser {
         };
     }
 
-    parseHomekitArgs() {
-        // Based on legacy code
-        let HK = this.getNodeProperty(this.arg.payload);
-        if (HK.On !== undefined) {
-            this.result.state.on = HK.On;
-        } else if (HK.Brightness !== undefined) {
-            this.result.state.bri = Utils.convertRange(HK.Brightness, [0, 100], [0, 255]);
-            if (HK.Brightness >= 254) HK.Brightness = 255;
-            this.result.state.on = HK.Brightness > 0;
-        } else if (HK.Hue !== undefined) {
-            this.result.state.hue = Utils.convertRange(HK.Hue, [0, 360], [0, 65535]);
-            this.result.state.on = true;
-        } else if (HK.Saturation !== undefined) {
-            this.result.state.sat = Utils.convertRange(HK.Saturation, [0, 100], [0, 255]);
-            this.result.state.on = true;
-        } else if (HK.ColorTemperature !== undefined) {
-            this.result.state.ct = Utils.convertRange(HK.ColorTemperature, [140, 500], [153, 500]);
-            this.result.state.on = true;
+    parseHomekitArgs(deviceMeta) {
+        let values = this.getNodeProperty(this.arg.payload);
+        let allValues = values;
+        if (dotProp.has(this.message_in, 'hap.allChars')) {
+            allValues = dotProp.get(this.message_in, 'hap.allChars');
         }
-        if (HK.TargetPosition !== undefined) {
-            this.result.state.lift = Utils.convertRange(HK.TargetPosition, [100, 0], [0, 100]);
+
+        if (!deviceMeta.device_colorcapabilities.includes('unknown')) {
+            let checkColorModesCompatibility = (charsName, mode) => {
+                if (dotProp.has(values, charsName) && !Utils.supportColorCapability(deviceMeta, mode)) {
+                    this.node.warn(
+                        `The light '${deviceMeta.name}' don't support '${charsName}' values. ` +
+                        `You can use only '${deviceMeta.device_colorcapabilities.toString()}' modes.`
+                    );
+                }
+            };
+
+            checkColorModesCompatibility('Hue', 'hs');
+            checkColorModesCompatibility('Saturation', 'hs');
+            checkColorModesCompatibility('ColorTemperature', 'ct');
         }
-        for (const side of ['Horizontal', 'Vertical']) {
-            if (HK[`Target${side}TiltAngle`] !== undefined)
-                this.result.state.tilt = Utils.convertRange(HK[`Target${side}TiltAngle`], [-90, 90], [0, 100]);
-        }
-        this.result.state.transitiontime = this.getNodeProperty(this.arg.transitiontime);
+
+        (new HomeKitFormatter.toDeconz()).parse(values, allValues, this.result, deviceMeta);
+        dotProp.set(this.result, 'state.transitiontime', this.getNodeProperty(this.arg.transitiontime));
     }
 
     parseCustomArgs() {
@@ -252,6 +250,15 @@ class CommandParser {
                     this.valid_domain.includes(device.data.device_type) ||
                     (Utils.isDeviceCover(device.data) === true && this.valid_domain.includes('covers'))
                 )) continue;
+
+                // Parse HomeKit values with device Meta
+                if (this.type === 'homekit') {
+                    this.result = {
+                        config: {},
+                        state: {}
+                    };
+                    this.parseHomekitArgs(device.data);
+                }
 
                 // Make sure that the endpoint exist
                 let deviceTypeEndpoint = deconzApi.url[device.data.device_type];

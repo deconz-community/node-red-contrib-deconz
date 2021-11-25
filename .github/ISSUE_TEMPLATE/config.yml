@@ -3,6 +3,6 @@ contact_links:
   - name: ❓ Questions
     url: https://discord.gg/3XGEYY9
     about: Ask your question on the deCONZ community Discord
-  - name: 🗂 Wiki
-    url: https://github.com/deconz-community/node-red-contrib-deconz/wiki
-    about: Go straight to the wiki
+  - name: 🗂 Documentation
+    url: https://deconz-community.github.io/node-red-contrib-deconz/
+    about: Go straight to the documentation

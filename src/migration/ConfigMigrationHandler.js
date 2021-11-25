@@ -55,6 +55,20 @@ class ConfigMigrationHandler {
         return device;
     }
 
+    migrateHomeKitPayload() {
+        let currentRules = this.config.output_rules;
+        if (currentRules === undefined) currentRules = this.result.new.output_rules;
+        if (Array.isArray(currentRules)) {
+            this.result.new.output_rules = currentRules.map((rule) => {
+                if (rule.type === 'homekit') {
+                    this.result.info.push('node-red-contrib-deconz/server:tip.homekit_payload');
+                    rule.payload = ['__auto__'];
+                }
+                return rule;
+            });
+        }
+    }
+
 }
 
 module.exports = ConfigMigrationHandler;

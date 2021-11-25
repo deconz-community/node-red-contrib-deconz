@@ -18,7 +18,8 @@
     "secured_apikey_warning_message_update": "<b>Important:</b> Please click on update to save the API key in the vault.",
     "input_device_warning_message_update": "<b>Important:</b> The device save format changed. Please click on Done to save with the new format.",
     "update_2_0_0_or_later": "You just upgraded the Deconz Plugin to version 2.0.0 or later. Please make sure that all your nodes are working fine.",
-    "help_discord_github": "If you have any issues you can get help from <a href=\"https://discord.gg/3XGEYY9\">Deconz-Community Discord server</a>. Or you can open an issue on <a href=\"https://github.com/deconz-community/node-red-contrib-deconz/issues\">GitHub</a>."
+    "help_discord_github": "If you have any issues you can get help from <a href=\"https://discord.gg/3XGEYY9\">Deconz-Community Discord server</a>. Or you can open an issue on <a href=\"https://github.com/deconz-community/node-red-contrib-deconz/issues\">GitHub</a>.",
+    "homekit_payload": "You can now select which HomeKit characteristics you want in the payload."
   },
   "status": {
     "disconnected": "disconnected",
@@ -123,13 +124,15 @@
           "group_label": {
             "attribute": "Attribute",
             "state": "State",
-            "config": "Config"
+            "config": "Config",
+            "homekit": "HomeKit"
           },
           "item_list": "__name__ (__sample__)",
           "item_list_mix": "__name__ [__item_count__/__device_count__] (__sample__)",
           "options": {
             "complete": "Complete payload",
-            "each": "Each payload"
+            "each": "Each payload",
+            "auto": "Automatic"
           }
         },
         "output": {

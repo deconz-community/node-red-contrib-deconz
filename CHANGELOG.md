@@ -7,6 +7,27 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.1.0] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637870587?label=)
+
+### Added
+
+#### HomeKit format
+
+- You can now select which characteristics you want in the payload.
+- Initial support for ZHAThermostat. Can be used with Heater Cooler or Thermostat.
+
+### Changed
+
+#### HomeKit format
+
+- Rework HomeKit attributes handling.
+- The characteristics 'Hue', 'Saturation' and 'ColorTemperature' are now only added if the colormode of the light is '
+  hs' or 'ct'.
+
+### Fixed
+
+- Fix add button now showing up in NR 1.2.9 on the Output rules and Commands.
+
 ## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
 
 ### Added
@@ -86,8 +107,8 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 ### Added
 
 - The nodes now allow multiple device selection.
-- The nodes accept [queries](https://github.com/deconz-community/node-red-contrib-deconz/wiki/Device-queries) instead of
-  a device list.
+- The nodes accept [queries](https://deconz-community.github.io/node-red-contrib-deconz/device_queries/) instead of a
+  device list.
 - Each outputs of the nodes are now customizable. If you don't need the HomeKit output, just remove it.
 - Reworked the Auto configuration of server. It looks for Home-Assistant installations as well.
 
