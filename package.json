@@ -29,6 +29,10 @@
       "url": "https://github.com/Zehir"
     }
   ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
   "files": [
     "deconz.*",
     "/nodes/",
