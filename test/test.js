@@ -798,7 +798,7 @@ describe('Device List', function () {
                         onerror: true
                     }
                 ]);
-                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
                 should(migrationResult.errors).have.length(0);
             });
@@ -842,7 +842,7 @@ describe('Device List', function () {
                         onerror: true
                     }
                 ]);
-                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
                 should(migrationResult.errors).have.length(0);
             });
@@ -947,7 +947,7 @@ describe('Device List', function () {
                     {type: 'config', format: 'single', onstart: true},
                     {type: 'homekit', format: 'single', onstart: true}
                 ]);
-                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
                 should(migrationResult.errors).have.length(0);
             });
@@ -978,7 +978,7 @@ describe('Device List', function () {
                     {type: 'config', format: 'single', onstart: false},
                     {type: 'homekit', format: 'single', onstart: false}
                 ]);
-                should(migrationResult.new.config_version).equal(1);
+                should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
                 should(migrationResult.errors).have.length(0);
             });
@@ -2387,7 +2387,7 @@ describe('Device List', function () {
                     let node = {
                         config: {
                             type: "deconz-input",
-                            config_version: 1
+                            config_version: 2
                         }
                     };
                     should.doesNotThrow(() => {
