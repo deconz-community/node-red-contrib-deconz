@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.1.1] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637877535?label=)
+
+### Fixed
+
+- Fix tests of configuration migration.
+
 ## [2.1.0] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637870587?label=)
 
 ### Added

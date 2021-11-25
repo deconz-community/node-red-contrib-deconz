@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-deconz",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "deCONZ connectivity nodes for node-red",
   "keywords": [
     "deconz",
