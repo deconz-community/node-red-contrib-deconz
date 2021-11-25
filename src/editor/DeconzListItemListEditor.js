@@ -18,13 +18,18 @@ class DeconzListItemListEditor extends DeconzEditor {
     }
 
     async initList(itemEditorClass, items = []) {
-        let buttons = this.buttons;
+        const buttons = this.buttons;
+        // Add the add button if there is no custom button
+        // or if the user use and old version that don't support custom buttons.
+        const addButton =
+            buttons.length === 0 ||
+            DeconzEditor.versionCompare(RED.settings.version, '1.3.0') < 0;
         this.$elements.list.editableList({
             sortable: true,
             removable: true,
             height: 'auto',
-            addButton: buttons.length === 0,
-            buttons: buttons,
+            addButton,
+            buttons,
             addItem: (row, index, item) => {
                 // Create item editor
                 let itemEditor = new itemEditorClass(this.node, this, row, this.options);
