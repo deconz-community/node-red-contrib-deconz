@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.1.0] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637870587?label=)
+
 ### Added
 
 #### HomeKit format
