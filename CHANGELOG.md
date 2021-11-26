@@ -11,8 +11,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Fix formatting value of ContactSensorState for HomeKit.
-  ([@WildPhilippAppeared](https://github.com/WildPhilippAppeared) - #180)
+- Fix formatting value of ContactSensorState for HomeKit. (@WildPhilippAppeared - #180)
 
 ## [2.1.1] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637877535?label=)
 
