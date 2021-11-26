@@ -185,10 +185,10 @@ const HomeKitFormat = (() => {
         )
         .to((rawEvent, deviceMeta) => {
             if (dotProp.has(rawEvent, 'state.vibration')) {
-                return dotProp.has(rawEvent, 'state.vibration') ? 1 : 0;
+                return dotProp.get(rawEvent, 'state.vibration') ? 1 : 0;
             }
             if (dotProp.has(rawEvent, 'state.open')) {
-                return dotProp.has(rawEvent, 'state.open') ? 1 : 0;
+                return dotProp.get(rawEvent, 'state.open') ? 1 : 0;
             }
         });
     //#endregion
