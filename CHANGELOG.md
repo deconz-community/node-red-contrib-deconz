@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.1.2] - 2021-11-26 ![Relative date](https://img.shields.io/date/1637939322?label=)
+
+### Fixed
+
+- Fix formatting value of ContactSensorState for HomeKit. (@WildPhilippAppeared - #180)
+
 ## [2.1.1] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637877535?label=)
 
 ### Fixed
