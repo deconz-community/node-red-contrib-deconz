@@ -408,7 +408,7 @@ const HomeKitFormat = (() => {
 })();
 
 class BaseFormatter {
-    constructor(options) {
+    constructor(options = {}) {
         this.format = HomeKitFormat;
         this.propertyList = Object.keys(HomeKitFormat);
 

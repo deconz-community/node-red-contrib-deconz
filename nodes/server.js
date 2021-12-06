@@ -730,7 +730,8 @@ module.exports = function (RED) {
                             let firstOutputRule = node.config.output_rules[0];
                             if (firstOutputRule === undefined) return;
                             if (Array.isArray(firstOutputRule.payload) && firstOutputRule.payload.length === 1 &&
-                                !['__complete__', '__each__'].includes(firstOutputRule.payload[0])
+                                !['__complete__', '__each__', '__auto__'].includes(firstOutputRule.payload[0]) &&
+                                typeof firstmsg.payload !== 'object'
                             ) {
                                 node.status({
                                     fill: "green",

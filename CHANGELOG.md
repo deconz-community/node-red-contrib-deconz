@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.1.3] - 2021-12-06 ![Relative date](https://img.shields.io/date/1638803271?label=)
+
+### Fixed
+
+- Fix error msg for device with no color. Fix #182.
+- Fix input node displaying incorrect status.
+
 ## [2.1.2] - 2021-11-26 ![Relative date](https://img.shields.io/date/1637939322?label=)
 
 ### Fixed
