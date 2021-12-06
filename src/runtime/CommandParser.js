@@ -167,7 +167,11 @@ class CommandParser {
             allValues = dotProp.get(this.message_in, 'hap.allChars');
         }
 
-        if (!deviceMeta.device_colorcapabilities.includes('unknown')) {
+        if (
+            deviceMeta.hascolor === true &&
+            Array.isArray(deviceMeta.device_colorcapabilities) &&
+            !deviceMeta.device_colorcapabilities.includes('unknown')
+        ) {
             let checkColorModesCompatibility = (charsName, mode) => {
                 if (dotProp.has(values, charsName) && !Utils.supportColorCapability(deviceMeta, mode)) {
                     this.node.warn(
