@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Fixed
+
+- Fix error msg for device with no color. Fix #182.
+
 ## [2.1.2] - 2021-11-26 ![Relative date](https://img.shields.io/date/1637939322?label=)
 
 ### Fixed
