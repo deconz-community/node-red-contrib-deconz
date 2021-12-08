@@ -380,13 +380,12 @@ let result =
 
 :warning: You cannot mix rules and pair key-value inside the same match definition. It's also not a valid json format.
 
+<!-- @formatter:off -->
 ```json
 {
   "method": "OR",
   "match": [
-    "hascolor"
-    :
-    true,
+    "hascolor": true,
     {
       "match": {
         "type": "Color temperature light",
@@ -396,6 +395,7 @@ let result =
   ]
 }
 ```
+<!-- @formatter:on -->
 
 ## Special cases
 
