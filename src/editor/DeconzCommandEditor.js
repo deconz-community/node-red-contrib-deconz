@@ -610,7 +610,6 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     //#region Scene HTML Helpers
     async generateSceneModeField(container, value = {}) {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.mode`;
-        console.log({value});
         await this.generateTypedInputField(container, {
             id: this.elements.scene_mode,
             i18n,
