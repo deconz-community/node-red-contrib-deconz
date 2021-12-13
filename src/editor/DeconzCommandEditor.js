@@ -17,7 +17,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Windows Cover
             'open', 'stop', 'lift', 'tilt',
             // Scene
-            'group', 'scene',
+            'scene_mode', 'group', 'scene',
             // Homekit, object
             'target',
             'command',
@@ -150,6 +150,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 delay: {type: 'num', value: 2000},
                 target: {type: 'state'},
                 group: {type: 'num'},
+                scene_mode: {type: 'single'},
                 scene_call: {type: 'num'},
                 retryonerror: {type: 'num', value: 0},
                 aftererror: {type: 'continue'}
@@ -184,6 +185,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         // Scenes
         this.containers.scene_call = $('<div>').appendTo(this.container);
+        await this.generateSceneModeField(this.containers.scene_call, command.arg.scene_mode);
         await this.generateScenePickerField(this.containers.scene_call, `${command.arg.group}.${command.arg.scene}`);
         await this.generateSceneGroupField(this.containers.scene_call, command.arg.group);
         await this.generateSceneSceneField(this.containers.scene_call, command.arg.scene);
@@ -606,6 +608,23 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     //#endregion
 
     //#region Scene HTML Helpers
+    async generateSceneModeField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.mode`;
+        console.log({value});
+        await this.generateTypedInputField(container, {
+            id: this.elements.scene_mode,
+            i18n,
+            value,
+            addDefaultTypes: false,
+            typedInput: {
+                types: [
+                    this.generateTypedInputType(i18n, 'single', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'dynamic', {hasValue: false})
+                ]
+            }
+        });
+    }
+
     async generateScenePickerField(container, value = '') {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.picker`;
         let list = await this.generateSimpleListField(container, {
