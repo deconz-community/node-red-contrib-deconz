@@ -679,7 +679,13 @@ module.exports = function (RED) {
                 return;
             }
 
-            if (node.config.search_type === "device" && node.config.device_list.length === 0) {
+            if (node.config.search_type === "device" && (node.config.device_list.length === 0) &&
+                // Check if the commands do not contain only scene call
+                !(
+                    Array.isArray(node.config.commands) &&
+                    node.config.commands.every(c => c.type === 'deconz_state' && c.domain === 'scene_call')
+                )
+            ) {
                 node.status({
                     fill: "red",
                     shape: "dot",
