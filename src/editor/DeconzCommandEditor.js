@@ -236,13 +236,14 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     this.sendError("Error : The run command can only work with device list.", 5000);
                     return;
                 }
+                let command = this.value;
+                
                 let devices = this.listEditor.mainEditor.subEditor.device.value;
-                if (devices.length === 0) {
+                if (devices.length === 0 && !(command.type === 'deconz_state' && command.domain === 'scene_call')) {
                     this.sendError("Error : No device selected.", 5000);
                     return;
                 }
 
-                let command = this.value;
                 if (command.type === 'pause') {
                     this.sendError("Error : Can't test pause command.", 5000);
                     return;
