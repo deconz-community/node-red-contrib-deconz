@@ -255,6 +255,9 @@ module.exports = function (RED) {
                                     await Utils.sleep(sleep_delay);
 
                                 } catch (error) {
+                                    // Clean up status
+                                    node.status({});
+
                                     if (resultTiming !== 'never') {
                                         let errorMsg = {};
                                         if (resultTiming === 'after_command') {
@@ -288,6 +291,7 @@ module.exports = function (RED) {
                                 }
                             }
                         } catch (error) {
+                            node.status({});
                             node.error(`Error while processing command #${command_id + 1}, ${error}`, message_in);
                             console.warn(error);
                         }

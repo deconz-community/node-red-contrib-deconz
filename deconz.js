@@ -254,6 +254,7 @@ module.exports = function (RED) {
     RED.httpAdmin.post(NODE_PATH + 'testCommand', async function (req, res) {
         try {
             let config = req.body;
+            if (!Array.isArray(config.device_list)) config.device_list = [];
             let controller = RED.nodes.getNode(config.controllerID);
             if (controller && controller.constructor.name === "ServerNode") {
                 let fakeNode = {server: controller};

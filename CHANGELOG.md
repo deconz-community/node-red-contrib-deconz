@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.2.0] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640544039?label=)
+
+### Added
+
+- Dynamic scene call, you can now call a scene from the device selection and the scene name. Implement #184.
+
+### Fixed
+
+- Cleanup status on requests errors. Fix #185
+- Do not display device not set if commands have only scene call. Fix #186
+
 ## [2.1.3] - 2021-12-06 ![Relative date](https://img.shields.io/date/1638803271?label=)
 
 ### Fixed
