@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.2.1] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640557627?label=)
+
 ### Fixed
 
 - Display error when trying to load a device list with an undeployed server configuration node.
