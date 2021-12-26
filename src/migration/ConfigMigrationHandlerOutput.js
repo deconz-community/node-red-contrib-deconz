@@ -3,12 +3,13 @@ const Utils = require("../runtime/Utils");
 
 class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
     get lastVersion() {
-        return 1; // Don't forget to update node declaration too
+        return 2; // Don't forget to update node declaration too
     }
 
     migrate(controller) {
         this.controller = controller;
         if (this.currentVersion === undefined) this.migrateFromLegacy();
+        if (this.currentVersion === 1) this.migrateSceneCallMode();
         this.result.new.config_version = this.config_version;
     }
 
@@ -550,6 +551,22 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             result: {type: 'at_end'},
         };
         this.config_version = 1;
+    }
+
+    migrateSceneCallMode() {
+        // For each commands
+        let newCommands = [];
+        if (Array.isArray(this.config.commands)) {
+            for (let i = 0; i < this.config.commands.length; i++) {
+                let command = this.config.commands[i];
+                if (command.type === 'deconz_state' && command.domain === 'scene_call') {
+                    command.arg.scene_mode = {type: 'single', value: ''};
+                }
+                newCommands[i] = command;
+            }
+            this.result.new.commands = newCommands;
+            this.config_version = 2;
+        }
     }
 
 }
