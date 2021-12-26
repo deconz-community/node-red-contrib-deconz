@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Added
+
+- Dynamic scene call, you can now call a scene from the device selection and the scene name. Implement #184.
+
 ### Fixed
 
 - Cleanup status on requests errors. Fix #185

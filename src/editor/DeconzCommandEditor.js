@@ -17,7 +17,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             // Windows Cover
             'open', 'stop', 'lift', 'tilt',
             // Scene
-            'group', 'scene',
+            'scene_mode', 'group', 'scene', 'scene_name',
             // Homekit, object
             'target',
             'command',
@@ -150,7 +150,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 delay: {type: 'num', value: 2000},
                 target: {type: 'state'},
                 group: {type: 'num'},
+                scene_mode: {type: 'single'},
                 scene_call: {type: 'num'},
+                scene_name: {type: 'str'},
                 retryonerror: {type: 'num', value: 0},
                 aftererror: {type: 'continue'}
             }
@@ -184,9 +186,13 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         // Scenes
         this.containers.scene_call = $('<div>').appendTo(this.container);
-        await this.generateScenePickerField(this.containers.scene_call, `${command.arg.group}.${command.arg.scene}`);
-        await this.generateSceneGroupField(this.containers.scene_call, command.arg.group);
-        await this.generateSceneSceneField(this.containers.scene_call, command.arg.scene);
+        await this.generateSceneModeField(this.containers.scene_call, command.arg.scene_mode);
+        this.containers.scene_call_single = $('<div>').appendTo(this.containers.scene_call);
+        await this.generateScenePickerField(this.containers.scene_call_single, `${command.arg.group}.${command.arg.scene}`);
+        await this.generateSceneGroupField(this.containers.scene_call_single, command.arg.group);
+        await this.generateSceneSceneField(this.containers.scene_call_single, command.arg.scene);
+        this.containers.scene_call_dynamic = $('<div>').appendTo(this.containers.scene_call);
+        await this.generateSceneNameField(this.containers.scene_call_dynamic, command.arg.scene_name);
 
         // Command
         this.containers.command = $('<div>').appendTo(this.container);
@@ -316,6 +322,13 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             this.$elements.scene_picker.on('change', updateSceneGroupSelection);
         };
 
+        const updateSceneMode = () => {
+            const isSingle = this.$elements.scene_mode.typedInput('type') === 'single';
+            this.containers.scene_call_single.toggle(isSingle);
+            this.containers.scene_call_dynamic.toggle(!isSingle);
+        };
+
+        this.$elements.scene_mode.on('change', updateSceneMode);
         this.$elements.scene_picker.on('change', updateSceneGroupSelection);
         this.$elements.group.on('change', updateScenePickerSelection);
         this.$elements.scene.on('change', updateScenePickerSelection);
@@ -339,6 +352,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     case 'scene_call':
                         containers.push('scene_call');
                         await this.updateSceneList();
+                        containers.push(
+                            'scene_call_' +
+                            (this.$elements.scene_mode.typedInput('type') === 'single' ? 'single' : 'dynamic')
+                        );
                         break;
                 }
                 containers.push('common');
@@ -607,6 +624,22 @@ class DeconzCommandEditor extends DeconzListItemEditor {
     //#endregion
 
     //#region Scene HTML Helpers
+    async generateSceneModeField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.mode`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.scene_mode,
+            i18n,
+            value,
+            addDefaultTypes: false,
+            typedInput: {
+                types: [
+                    this.generateTypedInputType(i18n, 'single', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'dynamic', {hasValue: false})
+                ]
+            }
+        });
+    }
+
     async generateScenePickerField(container, value = '') {
         let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.picker`;
         let list = await this.generateSimpleListField(container, {
@@ -669,6 +702,21 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     this.generateTypedInputType(i18n, 'deconz', {
                         subOptions: ['next', 'prev']
                     })
+                ]
+            }
+        });
+    }
+
+    async generateSceneNameField(container, value = {}) {
+        let i18n = `${this.NRCD}/server:editor.inputs.commands.type.options.deconz_state.options.scene_call.fields.scene_name`;
+        await this.generateTypedInputField(container, {
+            id: this.elements.scene_name,
+            i18n,
+            value,
+            typedInput: {
+                types: [
+                    'str',
+                    're'
                 ]
             }
         });

@@ -154,10 +154,21 @@ class CommandParser {
     }
 
     parseDeconzStateSceneCallArgs() {
-        this.result.scene_call = {
-            groupId: this.getNodeProperty(this.arg.group),
-            sceneId: this.getNodeProperty(this.arg.scene)
-        };
+        switch (this.getNodeProperty(this.arg.scene_mode, ['single', 'dynamic'])) {
+            case 'single':
+                this.result.scene_call = {
+                    mode: 'single',
+                    groupId: this.getNodeProperty(this.arg.group),
+                    sceneId: this.getNodeProperty(this.arg.scene)
+                };
+                break;
+            case 'dynamic':
+                this.result.scene_call = {
+                    mode: 'dynamic',
+                    sceneName: this.getNodeProperty(this.arg.scene_name)
+                };
+                break;
+        }
     }
 
     parseHomekitArgs(deviceMeta) {
@@ -224,24 +235,52 @@ class CommandParser {
         let requests = [];
 
         if (this.type === 'deconz_state' && this.domain === 'scene_call') {
-            let request = {};
-            request.endpoint = deconzApi.url.groups.scenes.recall(
-                this.result.scene_call.groupId,
-                this.result.scene_call.sceneId
-            );
-            request.meta = node.server.device_list.getDeviceByDomainID(
-                'groups',
-                this.result.scene_call.groupId
-            );
+            switch (this.result.scene_call.mode) {
+                case 'single':
+                    let request = {};
+                    request.endpoint = deconzApi.url.groups.scenes.recall(
+                        this.result.scene_call.groupId,
+                        this.result.scene_call.sceneId
+                    );
+                    request.meta = node.server.device_list.getDeviceByDomainID(
+                        'groups',
+                        this.result.scene_call.groupId
+                    );
+                    if (request.meta && Array.isArray(request.meta.scenes)) {
+                        request.scene_meta = request.meta.scenes.filter(
+                            scene => Number(scene.id) === this.result.scene_call.sceneId
+                        ).shift();
+                    }
+                    request.params = Utils.clone(this.result);
+                    requests.push(request);
+                    break;
+                case 'dynamic':
+                    // For each device that is light group
+                    for (let device of devices) {
+                        if (device.data.type === 'LightGroup') {
+                            // Filter scene by name
+                            let sceneMeta = device.data.scenes.filter(
+                                scene => (this.result.scene_call.sceneName instanceof RegExp) ?
+                                    this.result.scene_call.sceneName.test(scene.name) :
+                                    scene.name === this.result.scene_call.sceneName
+                            ).shift();
 
-            if (request.meta && Array.isArray(request.meta.scenes)) {
-                request.scene_meta = request.meta.scenes.filter(
-                    scene => Number(scene.id) === this.result.scene_call.sceneId
-                ).shift();
+                            if (sceneMeta) {
+                                let request = {};
+                                request.endpoint = deconzApi.url.groups.scenes.recall(
+                                    device.data.id,
+                                    sceneMeta.id
+                                );
+                                request.meta = device;
+                                request.scene_meta = sceneMeta;
+                                request.params = Utils.clone(this.result);
+                                requests.push(request);
+                            }
+                        }
+                    }
+                    break;
             }
 
-            request.params = Utils.clone(this.result);
-            requests.push(request);
         } else {
             if (this.valid_domain.length === 0) return requests;
             for (let device of devices) {

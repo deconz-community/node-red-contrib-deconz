@@ -464,6 +464,23 @@
                 "scene_call": {
                   "label": "Scenes call",
                   "fields": {
+                    "mode": {
+                      "label": "Mode",
+                      "icon": "bullseye",
+                      "title": "Select how scene should be called.",
+                      "options": {
+                        "single": {
+                          "label": "Single scene",
+                          "icon": "hand-pointer-o",
+                          "title": "Select one scene independent from device list."
+                        },
+                        "dynamic": {
+                          "label": "Dynamic scenes",
+                          "icon": "magic",
+                          "title": "Select scene based on the select device."
+                        }
+                      }
+                    },
                     "picker": {
                       "label": "Picker",
                       "icon": "crosshairs",
@@ -498,6 +515,11 @@
                           }
                         }
                       }
+                    },
+                    "scene_name": {
+                      "label": "Scene Name",
+                      "icon": "tag",
+                      "title": "Select the scene to call by his name"
                     }
                   }
                 }
