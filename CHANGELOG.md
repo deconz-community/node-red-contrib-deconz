@@ -10,7 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - Display error when trying to load a device list with an undeployed server configuration node.
-- Make sure that the default scene call mode is single.
+- Make sure that the default scene call mode is single. #190.
 - Fix scene picker loading on undeployed server node. #190.
 
 ## [2.2.0] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640544039?label=)
