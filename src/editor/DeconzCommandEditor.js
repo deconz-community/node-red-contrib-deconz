@@ -404,7 +404,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         params.queryType = 'json';
         params.query = JSON.stringify({match: {device_type: 'groups'}});
         let groups = await queryEditor.getItems({refresh: true, keepOnlyMatched: true}, params);
-        if (groups.LightGroup === undefined) return;
+        if (groups === undefined || groups.LightGroup === undefined) return;
         for (const group of groups.LightGroup) {
             let groupHtml = $('<optgroup/>', {
                 label: `${group.id} - ${group.name}`
