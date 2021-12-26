@@ -35,6 +35,7 @@ class DeconzDeviceListEditor extends DeconzEditor {
 
         if (result && result.error_message) {
             console.warn(result.error_message);
+            RED.notify(`Warning : ${result.error_message}`, {type: "warning", timeout: 10000});
             return;
         }
 
