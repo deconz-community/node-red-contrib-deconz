@@ -156,6 +156,7 @@ class CommandParser {
     parseDeconzStateSceneCallArgs() {
         switch (this.getNodeProperty(this.arg.scene_mode, ['single', 'dynamic'])) {
             case 'single':
+            case undefined:
                 this.result.scene_call = {
                     mode: 'single',
                     groupId: this.getNodeProperty(this.arg.group),
