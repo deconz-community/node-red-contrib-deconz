@@ -54,7 +54,7 @@ To match this rule the device need to be a `sensors` and have his uniqueid set t
 ```
 
 The `device_type` can be omitted but in rare cases there can be multiple devices with the same `uniqueid`.
-See [#77](/deconz-community/node-red-contrib-deconz/issues/77).
+See [#77](https://github.com/deconz-community/node-red-contrib-deconz/issues/77).
 
 ```json
 {
@@ -335,7 +335,7 @@ Example : get all device with `swversion` superior or equal to 2.0.0
 ###### Array comparaison
 
 For now you can't make query on devices values that is array like `devicemembership`.
-See [#134](/deconz-community/node-red-contrib-deconz/issues/134).
+See [#172](https://github.com/deconz-community/node-red-contrib-deconz/discussions/172).
 
 ##### Sub Match
 
@@ -380,13 +380,12 @@ let result =
 
 :warning: You cannot mix rules and pair key-value inside the same match definition. It's also not a valid json format.
 
+<!-- @formatter:off -->
 ```json
 {
   "method": "OR",
   "match": [
-    "hascolor"
-    :
-    true,
+    "hascolor": true,
     {
       "match": {
         "type": "Color temperature light",
@@ -396,6 +395,7 @@ let result =
   ]
 }
 ```
+<!-- @formatter:on -->
 
 ## Special cases
 
