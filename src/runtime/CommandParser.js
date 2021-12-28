@@ -203,7 +203,7 @@ class CommandParser {
     }
 
     parseCustomArgs() {
-        let target = this.getNodeProperty(this.arg.target, ['attribute', 'state', 'config']);
+        let target = this.getNodeProperty(this.arg.target, ['attribute', 'state', 'config', 'scene_call']);
         let command = this.getNodeProperty(this.arg.command, ['object']);
         let value = this.getNodeProperty(this.arg.payload);
         switch (target) {
@@ -222,6 +222,29 @@ class CommandParser {
                     this.result[target][command] = value;
                 }
                 break;
+            case 'scene_call':
+                if (typeof value !== 'object') return;
+                if (value.group !== undefined && value.scene !== undefined) {
+                    this.result.scene_call = {
+                        mode: 'single',
+                        groupId: value.group,
+                        sceneId: value.scene
+                    };
+                } else if (value.scene_name !== undefined) {
+                    this.result.scene_call = {
+                        mode: 'dynamic',
+                        sceneName: value.scene_name
+                    };
+                } else if (value.scene_regexp !== undefined) {
+                    this.result.scene_call = {
+                        mode: 'dynamic',
+                        sceneName: RegExp(value.scene_regexp)
+                    };
+                } else if (this.node.error) {
+                    this.node.error("Deconz outptut node received a message with scene call target but " +
+                        "no scene name or scene regex or group/scene id.");
+                }
+                break;
         }
     }
 
@@ -235,7 +258,10 @@ class CommandParser {
         let deconzApi = node.server.api;
         let requests = [];
 
-        if (this.type === 'deconz_state' && this.domain === 'scene_call') {
+        if (
+            (this.type === 'deconz_state' && this.domain === 'scene_call') ||
+            (this.type === 'custom' && this.arg.target.type === 'scene_call')
+        ) {
             switch (this.result.scene_call.mode) {
                 case 'single':
                     let request = {};

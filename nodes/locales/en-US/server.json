@@ -185,6 +185,10 @@
                     "config": {
                       "label": "Config",
                       "icon": "wrench"
+                    },
+                    "scene_call": {
+                      "label": "Scenes call",
+                      "icon": "lightbulb-o"
                     }
                   }
                 },

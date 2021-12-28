@@ -214,6 +214,30 @@
                     </li>
                     <li><code>state</code> - the value is a state.</li>
                     <li><code>config</code> - the value is a config.</li>
+                    <li><code>scene_call</code> - the value is a scene_call object.</li>
+                </ul>
+                <p>The scene_call object need to have the flowing properties. The dynamic mode will use each LightGroup
+                    defined in the Devices selection. Only the first match will be used per group of lights.</p>
+                <ul>
+                    <li>
+                        <p>Mode: single</p>
+                        <ul>
+                            <li><code>group</code> - the ID of the light group.</li>
+                            <li><code>scene</code> - the ID of the scene.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p>Mode: dynamic by complete name match</p>
+                        <ul>
+                            <li><code>scene_name</code> - the name of the scene.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p>Mode: dynamic by regex name match</p>
+                        <ul>
+                            <li><code>scene_regexp</code> - the ID of the scene.</li>
+                        </ul>
+                    </li>
                 </ul>
             </dd>
             <dt class="optional">Command <span class="property-type">string</span></dt>

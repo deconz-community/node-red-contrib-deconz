@@ -683,7 +683,10 @@ module.exports = function (RED) {
                 // Check if the commands do not contain only scene call
                 !(
                     Array.isArray(node.config.commands) &&
-                    node.config.commands.every(c => c.type === 'deconz_state' && c.domain === 'scene_call')
+                    node.config.commands.every(
+                        c => (c.type === 'deconz_state' && c.domain === 'scene_call') ||
+                            (c.type === 'custom' && !['attribute', 'state', 'config'].includes(c.arg.target.type))
+                    )
                 )
             ) {
                 node.status({
