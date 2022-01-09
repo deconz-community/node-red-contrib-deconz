@@ -7,6 +7,19 @@ module.exports = function (RED) {
     const defaultConfig = {
         name: "",
         topic: "",
+        specific: {
+            value: {
+                method: {
+                    value: {type: 'GET'}
+                },
+                endpoint: {
+                    value: {type: 'str', value: '/'}
+                },
+                payload: {
+                    value: {type: 'json', value: '{}'}
+                }
+            }
+        }
     };
 
     class deConzItemApi {
@@ -29,12 +42,6 @@ module.exports = function (RED) {
                 });
                 return;
             }
-
-            node.status({
-                fill: "blue",
-                shape: "dot",
-                text: "node-red-contrib-deconz/server:status.starting"
-            });
 
             let initNode = function () {
                 node.server.off('onStart', initNode);

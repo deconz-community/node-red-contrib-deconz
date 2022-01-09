@@ -1,7 +1,7 @@
 <script type="text/html" data-template-name="deconz-api">
     <link rel="stylesheet" href="node-red-contrib-deconz/multiple-select/multiple-select.css" type="text/css">
     <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css">
-    <div class="deconz-editor">
+    <div class="deconz-editor" id="deconz-api-form">
         <!-- --- Tip Box --- -->
         <div class="form-row" id="node-input-tip-box"></div>
         <!--#region --- Main settings --- -->
@@ -32,18 +32,6 @@
             <input type="text" id="node-input-server">
         </div>
         <!--#endregion -->
-
-        <!-- --- Status text --- -->
-        <div class="form-row deconz-node">
-            <label for="node-input-statustext" class="l-width">
-                <i class="fa fa-search"></i>
-                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.statustext.label"></span>
-            </label>
-            <input type="text" id="node-input-statustext">
-            <input type="hidden" id="node-input-statustext_type">
-        </div>
-        <!--#endregion -->
-
     </div>
 </script>
 
@@ -68,6 +56,19 @@
             server: {
                 type: 'deconz-server',
                 required: true
+            },
+            specific: {
+                value: {
+                    method: {
+                        value: {type: 'GET'}
+                    },
+                    endpoint: {
+                        value: {type: 'str', value: '/'}
+                    },
+                    payload: {
+                        value: {type: 'json', value: '{}'}
+                    }
+                }
             }
         },
         inputs: 1,
@@ -86,7 +87,16 @@
         oneditprepare: function () {
             (async () => {
                 let node = this;
-                node.nodeEditor = new DeconzMainEditor(node, {});
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        statustext: false,
+                        query: false,
+                        device: false,
+                        output_rules: false,
+                        commands: false,
+                        specific: true
+                    }
+                });
                 await node.nodeEditor.init();
             })().then().catch((error) => {
                 console.error(error);

@@ -584,6 +584,20 @@
               }
             }
           }
+        },
+        "api": {
+          "method": {
+            "label": "Method",
+            "icon": "tasks"
+          },
+          "endpoint": {
+            "label": "Endpoint",
+            "icon": "globe"
+          },
+          "payload": {
+            "label": "Payload",
+            "icon": "database"
+          }
         }
       }
     }

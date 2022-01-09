@@ -369,6 +369,7 @@ class DeconzEditor {
     }
 
     async generateInputWithLabel(input, options = {}) {
+        //TODO: rework style positioning
         let row = $('<div/>', {
             class: 'form-row',
             style: 'padding:5px;margin:0;display:table;min-width:420px;'
