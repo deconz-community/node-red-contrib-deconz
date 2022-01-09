@@ -242,10 +242,11 @@ class DeconzEditor {
         typedInputOptions.typeField = options.typeId;
 
         if (options.addDefaultTypes) {
-            typedInputOptions.types.push('msg');
-            typedInputOptions.types.push('flow');
-            typedInputOptions.types.push('global');
-            typedInputOptions.types.push('jsonata');
+            for (let type of ['msg', 'flow', 'global', 'jsonata']) {
+                if (!typedInputOptions.types.includes(type)) {
+                    typedInputOptions.types.push(type);
+                }
+            }
         }
 
         if (options.displayOnlyIcon) {
