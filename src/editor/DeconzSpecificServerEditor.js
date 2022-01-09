@@ -39,7 +39,7 @@ class DeconzSpecificServerEditor extends DeconzEditor {
         // API Key migration
         if (this.node.migration_secured_apikey) {
             this.$elements.apikey.val(this.node.migration_secured_apikey);
-            this.$elements.apikey.change();
+            this.$elements.apikey.trigger('change');
         }
     }
 
@@ -207,7 +207,7 @@ class DeconzSpecificServerEditor extends DeconzEditor {
         this.$elements.secure.prop('checked', newValues.secure);
         this.$elements.polling.val(newValues.polling);
         for (const element of Object.values(this.$elements)) {
-            element.change();
+            element.trigger('change');
         }
     }
 
