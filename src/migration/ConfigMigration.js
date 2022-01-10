@@ -1,4 +1,5 @@
 const dotProp = require('dot-prop');
+const ConfigMigrationHandlerApi = require("./ConfigMigrationHandlerApi");
 const ConfigMigrationHandlerInput = require('./ConfigMigrationHandlerInput');
 const ConfigMigrationHandlerGet = require('./ConfigMigrationHandlerGet');
 const ConfigMigrationHandlerOutput = require('./ConfigMigrationHandlerOutput');
@@ -10,6 +11,9 @@ class ConfigMigration {
     constructor(type, config, server) {
         this.type = type;
         switch (this.type) {
+            case 'deconz-api':
+                this.handler = new ConfigMigrationHandlerApi(config, server);
+                break;
             case 'deconz-input':
                 this.handler = new ConfigMigrationHandlerInput(config, server);
                 break;

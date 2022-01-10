@@ -35,6 +35,7 @@
     "device_not_set": "device not set",
     "reconnecting": "reconnecting...",
     "starting": "starting...",
+    "pending": "pending...",
     "query_error": "can't read device query",
     "only_always": "Complete payload only accept Always as output setting",
     "migration_error": "migration error",
@@ -185,6 +186,10 @@
                     "config": {
                       "label": "Config",
                       "icon": "wrench"
+                    },
+                    "scene_call": {
+                      "label": "Scenes call",
+                      "icon": "lightbulb-o"
                     }
                   }
                 },
@@ -579,6 +584,20 @@
                 "icon": "hourglass-end"
               }
             }
+          }
+        },
+        "api": {
+          "method": {
+            "label": "Method",
+            "icon": "tasks"
+          },
+          "endpoint": {
+            "label": "Endpoint",
+            "icon": "globe"
+          },
+          "payload": {
+            "label": "Payload",
+            "icon": "database"
           }
         }
       }

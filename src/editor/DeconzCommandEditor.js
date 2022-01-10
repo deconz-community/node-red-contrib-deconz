@@ -194,9 +194,12 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.containers.scene_call_dynamic = $('<div>').appendTo(this.containers.scene_call);
         await this.generateSceneNameField(this.containers.scene_call_dynamic, command.arg.scene_name);
 
+        // Target
+        this.containers.target = $('<div>').appendTo(this.container);
+        await this.generateTargetField(this.containers.target, command.arg.target);
+
         // Command
         this.containers.command = $('<div>').appendTo(this.container);
-        await this.generateTargetField(this.containers.command, command.arg.target);
         await this.generateCommandField(this.containers.command, command.arg.command);
 
         // Payload
@@ -245,7 +248,13 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 let command = this.value;
                 
                 let devices = this.listEditor.mainEditor.subEditor.device.value;
-                if (devices.length === 0 && !(command.type === 'deconz_state' && command.domain === 'scene_call')) {
+                if (
+                    devices.length === 0 &&
+                    !(
+                        (command.type === 'deconz_state' && command.domain === 'scene_call') ||
+                        (command.type === 'custom' && command.arg.target.type === 'scene_call')
+                    )
+                ) {
                     this.sendError("Error : No device selected.", 5000);
                     return;
                 }
@@ -334,6 +343,11 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this.$elements.scene.on('change', updateScenePickerSelection);
         this.$elements.scene_picker_refresh.on('click', () => this.updateSceneList());
 
+        // Hide command for scene_call target
+        this.$elements.target.on('change', (event, type, value) => {
+            this.containers.command.toggle(type !== 'scene_call');
+        });
+
     }
 
     async updateShowHide(type, domain) {
@@ -369,7 +383,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 containers.push('common');
                 break;
             case 'custom':
-                containers.push('command');
+                containers.push('target');
+                if (this.$elements.target.typedInput('type') !== 'scene_call') containers.push('command');
                 this.$elements.payload.typedInput('types', [
                     'msg', 'flow', 'global',
                     'str', 'num', 'bool',
@@ -735,7 +750,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     this.generateTypedInputType(i18n, 'attribute', {hasValue: false}),
                     this.generateTypedInputType(i18n, 'state', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'config', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'config', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'scene_call', {hasValue: false})
                 ]
             }
         });

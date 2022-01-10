@@ -39,7 +39,9 @@ class DeconzMainEditor extends DeconzEditor {
                 }
             },
             specific: {
-                output: {}
+                api: {},
+                output: {},
+                server: {}
             }
         }, options));
 
@@ -52,7 +54,10 @@ class DeconzMainEditor extends DeconzEditor {
         if (this.options.have.query) this.subEditor.query = new DeconzQueryEditor(this.node, this.options.query);
         if (this.options.have.specific) {
             switch (this.node.type) {
-                case'deconz-output':
+                case 'deconz-api':
+                    this.subEditor.specific = new DeconzSpecificApiEditor(this.node, this.options.specific.api);
+                    break;
+                case 'deconz-output':
                     this.subEditor.specific = new DeconzSpecificOutputEditor(this.node, this.options.specific.output);
                     break;
                 case 'deconz-server':

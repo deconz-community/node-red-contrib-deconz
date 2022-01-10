@@ -7,6 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.0] - 2022-01-10 ![Relative date](https://img.shields.io/date/1641848273?label=)
+
+### Added
+
+- Scenes call target for Custom commands. Implement #184.
+- Api node for sending commands to the bridge. Implement #193.
+
+### Fixed
+
+- Do not display websocket errors on server stop. Fix #165 and #192.
+
 ## [2.2.1] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640557627?label=)
 
 ### Fixed
@@ -139,7 +150,7 @@ Make sure you backup your flow before updating, you will not be able to downgrad
 Everything should be seamless, all your configurations will be migrated to the new save format. It will save the updated
 configuration only when you open the node configuration and click Deploy. If you are not performing it, the node will
 migrate the configuration on each start of Node-Red. Check the Node-Red log if you have any errors that shows up. If you
-have any issues you may visit the [Deconz-Community Discord](https://discord.gg/3XGEYY9) server or open
+have any issues you may visit the [deCONZ-Community Discord](https://discord.gg/3XGEYY9) server or open
 an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz/issues).
 
 ### Added
@@ -184,7 +195,7 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 
 - New command types
     - Windows Cover - For easier comprehension of commands.
-    - Custom command - For thoses tricky things that don't fit in a Deconz state command.
+    - Custom command - For thoses tricky things that don't fit in a deCONZ state command.
         - Target - Set where you wan't to send data. Can be 'attribute', 'state' or 'config'.
         - Command - Set the option name. Can be object if the payload contains an object with keys and values.
         - Payload - Set the value.

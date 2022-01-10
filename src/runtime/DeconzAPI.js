@@ -369,15 +369,7 @@ class DeconzAPI {
 
     async getConfig(keyName, timeout) {
         try {
-            const discover = await got(
-                this.url.main() + this.url.config.main(),
-                {
-                    method: 'GET',
-                    retry: 1,
-                    responseType: 'json',
-                    timeout: timeout || 2000
-                }
-            );
+            const discover = await this.doRequest(this.url.config.main(), {timeout});
             return keyName === undefined ? discover.body : discover.body[keyName];
         } catch (e) {
             if (this.enableLogs) console.warn(e);
@@ -399,6 +391,30 @@ class DeconzAPI {
             secure: this.secured,
             polling: this.polling
         };
+    }
+
+    async doRequest(endpoint, params = {}) {
+        // remove leading and trailing slashes
+        endpoint = endpoint.replace(/^\/|\/$/g, '');
+        if (typeof params !== 'object') params = {};
+        // make sure the method is valid
+        if (!['GET', 'POST', 'PUT', 'DELETE'].includes(params.method)) params.method = 'GET';
+        // make sure the timeout is valid
+        if (params.timeout === undefined) params.timeout = 2000;
+
+        let requestParams = {
+            method: params.method,
+            retry: 1,
+            responseType: 'json',
+            timeout: (params.timeout || 2000),
+        };
+
+        if (params.method !== 'GET') {
+            requestParams.json = params.body;
+        }
+
+        // return the response
+        return got(this.url.main() + '/' + endpoint, requestParams);
     }
 }
 

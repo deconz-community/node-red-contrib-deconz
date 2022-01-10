@@ -1,0 +1,111 @@
+<script type="text/html" data-template-name="deconz-api">
+    <link rel="stylesheet" href="node-red-contrib-deconz/multiple-select/multiple-select.css" type="text/css">
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css">
+    <div class="deconz-editor" id="deconz-api-form">
+        <!-- --- Tip Box --- -->
+        <div class="form-row" id="node-input-tip-box"></div>
+        <!--#region --- Main settings --- -->
+        <!-- --- Name --- -->
+        <div class="form-row">
+            <label for="node-input-name" class="l-width">
+                <i class="fa fa-tag"></i>
+                <span data-i18n="node-red:common.label.name"></span>
+            </label>
+            <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+        </div>
+
+        <!-- --- Topic --- -->
+        <div class="form-row">
+            <label for="node-input-topic" class="l-width">
+                <i class="fa fa-tasks"></i>
+                <span data-i18n="node-red:common.label.topic"></span>
+            </label>
+            <input type="text" id="node-input-topic" autocomplete="off">
+        </div>
+
+        <!-- --- Server --- -->
+        <div class="form-row">
+            <label for="node-input-server" class="l-width">
+                <i class="fa fa-globe"></i>
+                <span data-i18n="node-red-contrib-deconz/server:editor.inputs.server.label"></span>
+            </label>
+            <input type="text" id="node-input-server">
+        </div>
+        <!--#endregion -->
+    </div>
+</script>
+
+
+<script type='text/javascript'>
+
+    RED.nodes.registerType('deconz-api', {
+        category: 'deCONZ',
+        color: '#f7aa3f',
+        defaults: {
+            name: {
+                value: ""
+            },
+            topic: {
+                value: "",
+                required: false
+            },
+            config_version: {
+                value: 1,
+                required: true
+            },
+            server: {
+                type: 'deconz-server',
+                required: true
+            },
+            specific: {
+                value: {
+                    method: {
+                        value: {type: 'GET'}
+                    },
+                    endpoint: {
+                        value: {type: 'str', value: '/'}
+                    },
+                    payload: {
+                        value: {type: 'json', value: '{}'}
+                    }
+                }
+            }
+        },
+        inputs: 1,
+        outputs: 1,
+        outputLabels: 'output',
+        paletteLabel: 'api',
+        icon: "deconz.png",
+        label: function () {
+            let label = 'deconz-api';
+            if (this.name) {
+                label = this.name;
+            }
+
+            return label;
+        },
+        oneditprepare: function () {
+            (async () => {
+                let node = this;
+                node.nodeEditor = new DeconzMainEditor(node, {
+                    have: {
+                        statustext: false,
+                        query: false,
+                        device: false,
+                        output_rules: false,
+                        commands: false,
+                        specific: true
+                    }
+                });
+                await node.nodeEditor.init();
+            })().then().catch((error) => {
+                console.error(error);
+            });
+        },
+        oneditsave: function () {
+            let node = this;
+            node.nodeEditor.oneditsave();
+        }
+    });
+
+</script>
