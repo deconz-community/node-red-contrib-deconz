@@ -401,14 +401,20 @@ class DeconzAPI {
         if (!['GET', 'POST', 'PUT', 'DELETE'].includes(params.method)) params.method = 'GET';
         // make sure the timeout is valid
         if (params.timeout === undefined) params.timeout = 2000;
-        // return the response
-        return got(this.url.main() + '/' + endpoint, {
+
+        let requestParams = {
             method: params.method,
             retry: 1,
             responseType: 'json',
             timeout: (params.timeout || 2000),
-            json: params.body
-        });
+        };
+
+        if (params.method !== 'GET') {
+            requestParams.json = params.body;
+        }
+
+        // return the response
+        return got(this.url.main() + '/' + endpoint, requestParams);
     }
 }
 
