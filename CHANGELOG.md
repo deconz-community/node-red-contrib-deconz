@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.0] - 2022-01-10 ![Relative date](https://img.shields.io/date/1641848273?label=)
+
 ### Added
 
 - Scenes call target for Custom commands. Implement #184.
