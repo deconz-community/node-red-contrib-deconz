@@ -1,0 +1,36 @@
+<script type="text/html" data-help-name="deconz-api">
+    <link rel="stylesheet" href="resources/node-red-contrib-deconz/css/common.css" type="text/css"/>
+    <div class="deconz-help">
+        <p>This node send custom request to the deCONZ Rest API.</p>
+        <p>Check the <a href="https://dresden-elektronik.github.io/deconz-rest-doc/getting_started/">deCONZ Rest API</a>
+            for detail about custom API requests.</p>
+        <h3>Configuration</h3>
+        <dl class="message-properties">
+            <dt class="optional">Name <span class="property-type">string</span></dt>
+            <dd>Provide a custom name for this node.</dd>
+            <dt class="optional">Topic <span class="property-type">string</span></dt>
+            <dd>An optional property that can be configured in the node.</dd>
+            <dt>Server <span class="property-type">object</span></dt>
+            <dd>Choose the deconz server instance to use.</dd>
+            <dt>Method <span class="property-type">string</span></dt>
+            <dd>Choose the http method to use. (Default : GET)</dd>
+            <dt>Endpoint <span class="property-type">string</span></dt>
+            <dd>Choose the api endpoint to use. (Ex : /lights)</dd>
+            <dt>Payload <span class="property-type">object</span></dt>
+            <dd>Set the request params.</dd>
+        </dl>
+
+        <h3>Outputs</h3>
+        <p>For backward compatibility reason the values of the payload are copied on the message root.</p>
+        <dl class="message-properties">
+            <dt>topic <span class="property-type">string</span></dt>
+            <dd>The topic from the node settings.</dd>
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd>Complete data of the request response.</dd>
+            <dt>status.code<span class="property-type">int</span></dt>
+            <dd>The response http status code.</dd>
+            <dt>status.message<span class="property-type">string</span></dt>
+            <dd>The response http status message.</dd>
+        </dl>
+    </div>
+</script>
