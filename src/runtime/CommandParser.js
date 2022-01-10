@@ -38,7 +38,7 @@ class CommandParser {
                 break;
             case 'homekit':
                 if (this.message_in.hap !== undefined && this.message_in.hap.session === undefined) {
-                    this.node.error("Deconz outptut node received a message that was not initiated by a HomeKit node. " +
+                    this.node.error("deCONZ outptut node received a message that was not initiated by a HomeKit node. " +
                         "Make sure you disable the 'Allow Message Passthrough' in homekit-bridge node or ensure " +
                         "appropriate filtering of the messages.");
                     return null;
@@ -241,7 +241,7 @@ class CommandParser {
                         sceneName: RegExp(value.scene_regexp)
                     };
                 } else if (this.node.error) {
-                    this.node.error("Deconz outptut node received a message with scene call target but " +
+                    this.node.error("deCONZ outptut node received a message with scene call target but " +
                         "no scene name or scene regex or group/scene id.");
                 }
                 break;
