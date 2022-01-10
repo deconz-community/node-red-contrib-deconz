@@ -35,6 +35,7 @@
     "device_not_set": "device not set",
     "reconnecting": "reconnecting...",
     "starting": "starting...",
+    "pending": "pending...",
     "query_error": "can't read device query",
     "only_always": "Complete payload only accept Always as output setting",
     "migration_error": "migration error",
