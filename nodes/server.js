@@ -18,6 +18,7 @@ module.exports = function (RED) {
             node.state = {
                 ready: false,
                 startFailed: false,
+                isStopping: false,
                 pooling: {
                     isValid: false,
                     reachable: false,
@@ -142,12 +143,16 @@ module.exports = function (RED) {
                 let node = this;
                 node.state.websocket.reachable = false;
                 node.state.websocket.lastDisconnected = Date.now();
-                node.error(`WebSocket error: ${err}`);
+                // don't bother the user unless there's a reason or if the server is stopping.
+                if (err && node.state.isStopping === false) {
+                    node.error(`WebSocket error: ${err}`);
+                }
             });
             node.socket.on('close', (code, reason) => {
                 node.state.websocket.reachable = false;
                 node.state.websocket.lastDisconnected = Date.now();
-                if (reason) { // don't bother the user unless there's a reason
+                // don't bother the user unless there's a reason or if the server is stopping.
+                if (reason && node.state.isStopping === false) {
                     node.warn(`WebSocket disconnected: ${code} - ${reason}`);
                 }
                 if (node.state.ready) node.propagateErrorNews(code, reason);
@@ -525,6 +530,7 @@ module.exports = function (RED) {
 
         onClose() {
             let node = this;
+            node.state.isStopping = true;
             node.log('Shutting down deconz server node.');
             (async () => {
                 if (node.refreshDiscoverTimer)

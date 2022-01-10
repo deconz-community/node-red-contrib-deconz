@@ -12,6 +12,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Scenes call target for Custom commands. Implement #184.
 - Api node for sending commands to the bridge. Implement #193.
 
+### Fixed
+
+- Do not display websocket errors on server stop. Fix #165 and #192.
+
 ## [2.2.1] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640557627?label=)
 
 ### Fixed
