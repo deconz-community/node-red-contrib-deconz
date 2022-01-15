@@ -384,6 +384,8 @@ const HomeKitFormat = (() => {
         .needEventMeta('state.lift')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.lift'), [0, 100], [100, 0], true, true)
+        ).from((value, allValues, result) =>
+            dotProp.set(result, 'state.lift', Utils.convertRange(value, [100, 0], [0, 100], true, true))
         );
     HKF.TargetPosition = HKF.CurrentPosition;
     HKF.CurrentHorizontalTiltAngle = new Attribute()
@@ -391,6 +393,8 @@ const HomeKitFormat = (() => {
         .needEventMeta('state.tilt')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90], true, true)
+        ).from((value, allValues, result) =>
+            dotProp.set(result, 'state.tilt', Utils.convertRange(value, [-90, 90], [0, 100], true, true))
         );
     HKF.TargetHorizontalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     HKF.CurrentVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
