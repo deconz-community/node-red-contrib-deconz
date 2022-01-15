@@ -11,56 +11,56 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Add missing HomeKit conversion for Windows cover attributes. Fix #196.
+- Add missing HomeKit conversion for Windows cover attributes. (#196) @Zehir
 
 ## [2.3.0] - 2022-01-10 ![Relative date](https://img.shields.io/date/1641848273?label=)
 
 ### Added
 
-- Scenes call target for Custom commands. Implement #184.
-- Api node for sending commands to the bridge. Implement #193.
+- Scenes call target for Custom commands. (#184) @Zehir
+- Api node for sending commands to the bridge. (#193) @Zehir
 
 ### Fixed
 
-- Do not display websocket errors on server stop. Fix #165 and #192.
+- Do not display websocket errors on server stop. (#165) (#192) @Zehir
 
 ## [2.2.1] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640557627?label=)
 
 ### Fixed
 
-- Display error when trying to load a device list with an undeployed server configuration node.
-- Make sure that the default scene call mode is single. #190.
-- Fix scene picker loading on undeployed server node. #190.
+- Display error when trying to load a device list with an undeployed server configuration node. @Zehir
+- Make sure that the default scene call mode is single. (#190) @Zehir
+- Fix scene picker loading on undeployed server node. (#190) @Zehir
 
 ## [2.2.0] - 2021-12-26 ![Relative date](https://img.shields.io/date/1640544039?label=)
 
 ### Added
 
-- Dynamic scene call, you can now call a scene from the device selection and the scene name. Implement #184.
+- Dynamic scene call, you can now call a scene from the device selection and the scene name. (#184) @Zehir
 
 ### Fixed
 
-- Cleanup status on requests errors. Fix #185
-- Do not display device not set if commands have only scene call. Fix #186
+- Cleanup status on requests errors. (#185) @Zehir
+- Do not display device not set if commands have only scene call. (#186) @Zehir
 
 ## [2.1.3] - 2021-12-06 ![Relative date](https://img.shields.io/date/1638803271?label=)
 
 ### Fixed
 
-- Fix error msg for device with no color. Fix #182.
-- Fix input node displaying incorrect status.
+- Fix error msg for device with no color. (#182) @Zehir
+- Fix input node displaying incorrect status. @Zehir
 
 ## [2.1.2] - 2021-11-26 ![Relative date](https://img.shields.io/date/1637939322?label=)
 
 ### Fixed
 
-- Fix formatting value of ContactSensorState for HomeKit. (@WildPhilippAppeared - #180)
+- Fix formatting value of ContactSensorState for HomeKit. (#180) @WildPhilippAppeared
 
 ## [2.1.1] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637877535?label=)
 
 ### Fixed
 
-- Fix tests of configuration migration.
+- Fix tests of configuration migration. @Zehir
 
 ## [2.1.0] - 2021-11-25 ![Relative date](https://img.shields.io/date/1637870587?label=)
 
@@ -68,84 +68,84 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 #### HomeKit format
 
-- You can now select which characteristics you want in the payload.
-- Initial support for ZHAThermostat. Can be used with Heater Cooler or Thermostat.
+- You can now select which characteristics you want in the payload. @Zehir
+- Initial support for ZHAThermostat. Can be used with Heater Cooler or Thermostat. @Zehir
 
 ### Changed
 
 #### HomeKit format
 
-- Rework HomeKit attributes handling.
+- Rework HomeKit attributes handling. @Zehir
 - The characteristics 'Hue', 'Saturation' and 'ColorTemperature' are now only added if the colormode of the light is '
-  hs' or 'ct'.
+  hs' or 'ct'. @Zehir
 
 ### Fixed
 
-- Fix add button now showing up in NR 1.2.9 on the Output rules and Commands.
+- Fix add button now showing up in NR 1.2.9 on the Output rules and Commands. @Zehir
 
 ## [2.0.8] - 2021-10-22 ![Relative date](https://img.shields.io/date/1634857494?label=)
 
 ### Added
 
-- Backward compatibility for Node-Red 1.2.9.
+- Backward compatibility for Node-Red 1.2.9. @Zehir
 
 ### Fixed
 
-- Migration of device when undefined.
+- Migration of device when undefined. @Zehir
 
 ## [2.0.7] - 2021-10-17 ![Relative date](https://img.shields.io/date/1634484549?label=)
 
 ### Fixed
 
-- Ignore group 0 if he doesn’t exist instead of staying stuck.
-- Fix toggle values for windows cover.
-- Discard empty numeric values instead of convert them to 0.
-- Fix device type detection for windows cover.
+- Ignore group 0 if he doesn’t exist instead of staying stuck. @Zehir
+- Fix toggle values for windows cover. @Zehir
+- Discard empty numeric values instead of convert them to 0. @Zehir
+- Fix device type detection for windows cover. @Zehir
 
 ## [2.0.6] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634158098?label=)
 
 ### Fixed
 
-- Selecting an other server update the device list.
-- Duplicate gateways in discovery are ignored.
-- HomeKit format now send battery data only from the battery node.
+- Selecting an other server update the device list. @Zehir
+- Duplicate gateways in discovery are ignored. @Zehir
+- HomeKit format now send battery data only from the battery node. @Zehir
 
 ## [2.0.5] - 2021-10-13 ![Relative date](https://img.shields.io/date/1634079545?label=)
 
 ### Fixed
 
-- Fix HomeKit loop detection.
-- Fix node error on partial deploy.
+- Fix HomeKit loop detection. @Zehir
+- Fix node error on partial deploy. @Zehir
 
 ## [2.0.4] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633986241?label=)
 
 ### Changed
 
-- Cleanup old files.
+- Cleanup old files. @Zehir
 
 ## [2.0.3] - 2021-10-11 ![Relative date](https://img.shields.io/date/1633985783?label=)
 
 ### Added
 
-- Magic 'All' group is not displayed in the groups list with the id 0.
-- Display an error message if a device is not found on output nodes and continue processing.
+- Magic 'All' group is not displayed in the groups list with the id 0. @Zehir
+- Display an error message if a device is not found on output nodes and continue processing. @Zehir
 
 ### Fixed
 
-- The msg that go through HomeKit and back to an output node are now discarded with a warning message.
-- Attribute requests was not updating if there was no config.
+- The msg that go through HomeKit and back to an output node are now discarded with a warning message. @Zehir
+- Attribute requests was not updating if there was no config. @Zehir
 
 ## [2.0.2] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633881662?label=)
 
 ### Fixed
 
-- Update read me image url.
+- Update read me image url. @Zehir
 
 ## [2.0.1] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633879095?label=)
 
 ### Fixed
 
-- Update npm deployment workflow.
+- Update npm deployment workflow. @Zehir
 
 ## [2.0.0] - 2021-10-10 ![Relative date](https://img.shields.io/date/1633877978?label=)
 
@@ -216,42 +216,44 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 - New message property meta is associated to the event with the device configuration.
 - Now displays the event count since the last deploy.
 
+This big update was brought to you by @Zehir
+
 ## [1.3.4] - 2021-09-28 ![Relative date](https://img.shields.io/date/1632782604?label=)
 
 ### Changed
 
-- Update readme for 2.0 version.
+- Update readme for 2.0 version. @Zehir
 
 ## [1.3.3] - 2021-06-20 ![Relative date](https://img.shields.io/date/1624190689?label=)
 
 ### Fixed
 
-- Update multi-select to 1.15.2 for monaco-editor compatibility in node-red 2.0. #140
+- Update multi-select to 1.15.2 for monaco-editor compatibility in node-red 2.0. (#140) @Zehir
 
 ## [1.3.2] - 2021-03-06 ![Relative date](https://img.shields.io/date/1615059740?label=)
 
 ### Fixed
 
-- Device list was empty. #89
+- Device list was empty. (#89) @Zehir
 
 ## [1.3.1] - 2021-02-20 ![Relative date](https://img.shields.io/date/1613827429?label=)
 
 ### Fixed
 
-- Removed unwanted transition time on out node when the transition time is not set. #118
+- Removed unwanted transition time on out node when the transition time is not set. (#118) @Zehir
 
 ## [1.3.0] - 2021-02-19 ![Relative date](https://img.shields.io/date/1613738128?label=)
 
 ### Added
 
-- Adding the possibility to change progamatically the "Transition Time". #107
+- Adding the possibility to change progamatically the "Transition Time". (#107) @Zehir
 
 ### Security
 
 Please edit server configuration and click on update to save the API Key in node-red credentials.
 
-- API Key is now stored in node-red credentials. #94
+- API Key is now stored in node-red credentials. (#94) @Zehir
 
 ## [1.2.0] - 2020-07-12 ![Relative date](https://img.shields.io/date/1594559914?label=)
 
-- Lastest version from [@andreypopov](https://github.com/andreypopov).
+- Lastest version from @andreypopov.
