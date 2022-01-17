@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Fixed
+
+- Fix loading of default values for api node. @Zehir
+
 ## [2.3.1] - 2022-01-10 ![Relative date](https://img.shields.io/date/1642253886?label=)
 
 ### Fixed
