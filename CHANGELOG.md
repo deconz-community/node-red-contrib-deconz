@@ -7,6 +7,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.2] - 2022-01-29 ![Relative date](https://img.shields.io/date/1643459917?label=)
+
+### Added
+
+- Added HomeKit attribute Position State for windows cover. @Zehir
+
+### Changed
+
+- Removed invalid HomeKit attributes ContactSensorState and On for windows cover. @Zehir
+
+### Fixed
+
+- Fix loading of default values for api node. @Zehir
+
 ## [2.3.1] - 2022-01-10 ![Relative date](https://img.shields.io/date/1642253886?label=)
 
 ### Fixed

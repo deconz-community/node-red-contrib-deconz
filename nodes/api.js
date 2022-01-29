@@ -9,17 +9,9 @@ module.exports = function (RED) {
         name: "",
         topic: "",
         specific: {
-            value: {
-                method: {
-                    value: {type: 'GET'}
-                },
-                endpoint: {
-                    value: {type: 'str', value: '/'}
-                },
-                payload: {
-                    value: {type: 'json', value: '{}'}
-                }
-            }
+            method: {type: 'GET'},
+            endpoint: {type: 'str', value: '/'},
+            payload: {type: 'json', value: '{}'}
         }
     };
 

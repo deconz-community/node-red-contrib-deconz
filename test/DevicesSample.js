@@ -176,9 +176,9 @@ module.exports = {
             "modelid": "Windows cover",
             "name": "Light 3",
             "state": {
-                "bri": 0,
-                "lift": 0,
-                "on": false,
+                "bri": 178, // (deprecated by "lift")
+                "lift": 70, // mean 70% closed
+                "on": false, // (deprecated by "open")
                 "open": true,
                 "reachable": true,
             },
