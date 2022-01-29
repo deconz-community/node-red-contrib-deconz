@@ -134,7 +134,6 @@ const HomeKitFormat = (() => {
         .services('Stateless Programmable Switch')
         .needAttribute('ServiceLabelIndex')
         .needEventMeta('state.buttonevent')
-        //.needDeviceMeta({type:['Window covering controller', 'Window covering device']})
         .to((rawEvent, deviceMeta) => {
             switch (dotProp.get(rawEvent, 'state.buttonevent') % 1000) {
                 case 1 : // Hold Down
@@ -179,6 +178,9 @@ const HomeKitFormat = (() => {
         .services('Motion Sensor');
     HKF.ContactSensorState = new Attribute()
         .services('Contact Sensor')
+        .needDeviceMeta((deviceMeta) => {
+            return !['Window covering controller', 'Window covering device'].includes(deviceMeta.type);
+        })
         .needEventMeta((rawEvent, deviceMeta) =>
             dotProp.has(rawEvent, 'state.open') ||
             dotProp.has(rawEvent, 'state.vibration')
@@ -331,7 +333,10 @@ const HomeKitFormat = (() => {
     //#endregion
     //#region Lights
     HKF.On = directMap(['to', 'from'], 'state.on')
-        .services(['Lightbulb', 'Outlet']);
+        .services(['Lightbulb', 'Outlet'])
+        .needDeviceMeta((deviceMeta) => {
+            return !['Window covering controller', 'Window covering device'].includes(deviceMeta.type);
+        });
     HKF.Brightness = new Attribute()
         .services('Lightbulb')
         .needEventMeta('state.bri')
@@ -390,6 +395,7 @@ const HomeKitFormat = (() => {
     HKF.TargetPosition = HKF.CurrentPosition;
     HKF.CurrentHorizontalTiltAngle = new Attribute()
         .services('Window Covering')
+        .needDeviceMeta({type: ['Window covering controller', 'Window covering device']})
         .needEventMeta('state.tilt')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90], true, true)
@@ -399,6 +405,10 @@ const HomeKitFormat = (() => {
     HKF.TargetHorizontalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     HKF.CurrentVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     HKF.TargetVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
+    HKF.PositionState = new Attribute()
+        .services('Window Covering')
+        .needDeviceMeta({type: ['Window covering controller', 'Window covering device']})
+        .to((rawEvent, deviceMeta) => 2); // Stopped
     //#endregion
     //#region Battery
     HKF.BatteryLevel = directMap(['to'], 'config.battery')

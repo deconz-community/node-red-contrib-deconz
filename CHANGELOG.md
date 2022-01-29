@@ -7,6 +7,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Added
+
+- Added HomeKit attribute Position State for windows cover. @Zehir
+
+### Changed
+
+- Removed invalid HomeKit attributes ContactSensorState and On for windows cover. @Zehir
+
 ### Fixed
 
 - Fix loading of default values for api node. @Zehir

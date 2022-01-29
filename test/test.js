@@ -3277,5 +3277,14 @@ describe('Device List', function () {
             should(homeKitResult).have.property('ServiceLabelIndex', 2);
         });
 
+        it('Windows Cover', function () {
+            let result = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
+            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: result.state}, result);
+            should(homeKitResult).have.property('PositionState', 2);
+            should(homeKitResult).have.property('CurrentPosition', 30);
+            should(homeKitResult).have.property('TargetPosition', 30);
+            should(Object.keys(homeKitResult)).have.length(3);
+        });
+
     });
 });
