@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.2] - 2022-01-29 ![Relative date](https://img.shields.io/date/1643459917?label=)
+
 ### Added
 
 - Added HomeKit attribute Position State for windows cover. @Zehir
