@@ -177,7 +177,9 @@ module.exports = {
             "name": "Light 3",
             "state": {
                 "bri": 178, // (deprecated by "lift")
+                "sat": 64, // (deprecated by "tilt")
                 "lift": 70, // mean 70% closed
+                "tilt": 25, // mean 25% tilted
                 "on": false, // (deprecated by "open")
                 "open": true,
                 "reachable": true,

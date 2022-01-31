@@ -3271,19 +3271,36 @@ describe('Device List', function () {
 
     describe('HomeKitFormatter', function () {
         it('buttonevent', function () {
-            let result = deviceList.getDeviceByUniqueID('55:66:77:88:99:00:11:22-01-1000');
-            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: result.state}, result);
+            const deviceMeta = deviceList.getDeviceByUniqueID('55:66:77:88:99:00:11:22-01-1000');
+            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
             should(homeKitResult).have.property('ProgrammableSwitchEvent', 0);
             should(homeKitResult).have.property('ServiceLabelIndex', 2);
         });
 
-        it('Windows Cover', function () {
-            let result = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
-            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: result.state}, result);
-            should(homeKitResult).have.property('PositionState', 2);
-            should(homeKitResult).have.property('CurrentPosition', 30);
-            should(homeKitResult).have.property('TargetPosition', 30);
-            should(Object.keys(homeKitResult)).have.length(3);
+        describe('Windows Cover', function () {
+            it('From Deconz', function () {
+                const deviceMeta = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
+                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
+                should(homeKitResult).have.property('PositionState', 2);
+                should(homeKitResult).have.property('CurrentPosition', 30);
+                should(homeKitResult).have.property('TargetPosition', 30);
+                should(homeKitResult).have.property('CurrentHorizontalTiltAngle', -45);
+                should(homeKitResult).have.property('CurrentVerticalTiltAngle', -45);
+                should(homeKitResult).have.property('TargetHorizontalTiltAngle', -45);
+                should(homeKitResult).have.property('TargetVerticalTiltAngle', -45);
+                should(Object.keys(homeKitResult)).have.length(7);
+            });
+
+            it('To Deconz', function () {
+                const deviceMeta = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
+                const params = {"TargetPosition": 30, "TargetHorizontalTiltAngle": -45};
+                let result = {};
+                (new HomeKitFormatter.toDeconz()).parse(params, params, result, deviceMeta);
+                should(result.state).have.property('lift', 70);
+                should(result.state).have.property('tilt', 25);
+                should(Object.keys(result.state)).have.length(2);
+            });
+
         });
 
     });
