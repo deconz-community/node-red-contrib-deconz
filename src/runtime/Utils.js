@@ -26,14 +26,19 @@ class Utils {
         if (property.type === 'num' && property.value === '') return;
         return Array.isArray(noValueTypes) && noValueTypes.includes(property.type) ?
             property.type :
-            REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in);
+            REDUtil.evaluateNodeProperty(property.value, property.type, node, message_in, undefined);
     }
 
     static convertRange(value, r1, r2, roundValue = false, limitValue = false) {
         if (typeof value !== 'number') return;
         if (limitValue) {
-            value = Math.max(value, r1[0]);
-            value = Math.min(value, r1[1]);
+            if (r1[0] < r1[1]) {
+                if (value < r1[0]) value = r1[0];
+                if (value > r1[1]) value = r1[1];
+            } else {
+                if (value > r1[0]) value = r1[0];
+                if (value < r1[1]) value = r1[1];
+            }
         }
         let result = (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
         return roundValue ? Math.ceil(result) : result;
