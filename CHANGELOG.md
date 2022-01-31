@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.3] - 2022-01-30 ![Relative date](https://img.shields.io/date/1643634592?label=)
+
+### Fixed
+
+- Fix HomeKit value translation for inverted range. (#196) @Zehir
+
 ## [2.3.2] - 2022-01-29 ![Relative date](https://img.shields.io/date/1643459917?label=)
 
 ### Added
