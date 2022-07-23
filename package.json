@@ -45,6 +45,7 @@
   ],
   "scripts": {
     "prepack": "grunt build",
+    "watch" : "grunt watch",
     "test": "mocha"
   },
   "dependencies": {
