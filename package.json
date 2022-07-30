@@ -51,7 +51,7 @@
   "dependencies": {
     "@node-red/util": "^2.0.6",
     "compare-versions": "^3.6.0",
-    "dot-prop": "^6.0.1",
+    "dot-prop": "^7.2.0",
     "got": "^11.8.2",
     "multiple-select": "^1.5.2",
     "set-interval-async": "^2.0.3",
