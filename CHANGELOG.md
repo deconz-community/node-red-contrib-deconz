@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Added HomeKit attribute Lock Target State and Lock Current State for door lock. (#213) @Zehir
+- Added HomeKit attributes Lock Target State and Lock Current State for door lock. (#213) @Zehir
 
 ## [2.3.3] - 2022-01-30 ![Relative date](https://img.shields.io/date/1643634592?label=)
 
