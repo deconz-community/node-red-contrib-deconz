@@ -425,15 +425,15 @@ const HomeKitFormat = (() => {
         const map = {
             false : 0, 
             true : 1
-        }
+        };
         return map[dotProp.get(deviceMeta, 'config.lock')];
     })
     .from((value, allValues, result) => {
         const map = {
             0 : false, 
             1 : true
-        }
-        dotProp.set(result, 'config.lock', map[value])
+        };
+        dotProp.set(result, 'config.lock', map[value]);
     });
     HKF.LockCurrentState = new Attribute()
         .services('Lock Mechanism')
@@ -444,8 +444,8 @@ const HomeKitFormat = (() => {
                 "unlocked" : 0,
                 "undefined" : 3,
                 "not fully locked" : 2
-            }
-            const result = map[dotProp.get(rawEvent, 'state.lockstate')]
+            };
+            const result = map[dotProp.get(rawEvent, 'state.lockstate')];
             return result !== undefined ? result : map['undefined'];
         })
     //#endregion
