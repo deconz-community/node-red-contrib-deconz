@@ -3,7 +3,7 @@ name: NPM Publish
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   publish:
@@ -23,4 +23,4 @@ jobs:
         name: Update Node-Red flow-library
         uses: Zehir/update-package-node-red-flow-library-action@v1.0.5
         with:
-          package-name: 'node-red-contrib-deconz'
+          package-name: "node-red-contrib-deconz"
