@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Added
+
+- Added HomeKit attribute Lock Target State and Lock Current State for door lock. (#213) @Zehir
+
 ## [2.3.3] - 2022-01-30 ![Relative date](https://img.shields.io/date/1643634592?label=)
 
 ### Fixed
@@ -190,42 +194,42 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 #### Input and Battey nodes
 
 - New output types
-    - Attribute - Contains all information about the device, include State and Config.
-    - Config - Contains configuration data.
-    - Scene Call - Called when a scene is called.
+  - Attribute - Contains all information about the device, include State and Config.
+  - Config - Contains configuration data.
+  - Scene Call - Called when a scene is called.
 - New properties on messages
-    - payload_format - The name of the value or __complete__ if the selected payload is "Complete payload".
-    - payload_type - The option selected in the output type.
-    - meta_changed - List of param path that changed since last message. Exemple : "state.lastupdated".
+  - payload_format - The name of the value or **complete** if the selected payload is "Complete payload".
+  - payload_type - The option selected in the output type.
+  - meta_changed - List of param path that changed since last message. Exemple : "state.lastupdated".
 - Connection preview, you can press the top right button of each output rule to see what nodes are connected.
 - Start output is now configurable for each type. To avoid fake button events you should disable it for switch devices.
 
 #### Get node
 
 - New output types
-    - Attribute
-    - Config
+  - Attribute
+  - Config
 - New output formats
-    - Single - The node will send a message per device that sends data.
-    - Array - The node will send a message with all payload inside an array. The message will contain a payload that is
-      an array of single message. E.g. msg.payload[0].payload is the payload of the first device. Each element will
-      contain only the properties payload, meta, meta_changed. The properties topic, payload_format, payload_raw will be
-      on the msg directly.
-    - Sum - All properties of the devices will be added individually.
-    - Average - All properties of the devices will be added recursively and then divided by the number of devices that
-      have that property.
-    - Min - The result will be a set with the minimal value of each property.
-    - Max - The result will be a set with the maximal value of each property.
+  - Single - The node will send a message per device that sends data.
+  - Array - The node will send a message with all payload inside an array. The message will contain a payload that is
+    an array of single message. E.g. msg.payload[0].payload is the payload of the first device. Each element will
+    contain only the properties payload, meta, meta_changed. The properties topic, payload_format, payload_raw will be
+    on the msg directly.
+  - Sum - All properties of the devices will be added individually.
+  - Average - All properties of the devices will be added recursively and then divided by the number of devices that
+    have that property.
+  - Min - The result will be a set with the minimal value of each property.
+  - Max - The result will be a set with the maximal value of each property.
 
 #### Output node
 
 - New command types
-    - Windows Cover - For easier comprehension of commands.
-    - Custom command - For thoses tricky things that don't fit in a deCONZ state command.
-        - Target - Set where you wan't to send data. Can be 'attribute', 'state' or 'config'.
-        - Command - Set the option name. Can be object if the payload contains an object with keys and values.
-        - Payload - Set the value.
-    - Pause - Add delay between 2 commands.
+  - Windows Cover - For easier comprehension of commands.
+  - Custom command - For thoses tricky things that don't fit in a deCONZ state command.
+    - Target - Set where you wan't to send data. Can be 'attribute', 'state' or 'config'.
+    - Command - Set the option name. Can be object if the payload contains an object with keys and values.
+    - Payload - Set the value.
+  - Pause - Add delay between 2 commands.
 - Added output to see the result of the api request.
 - All options can be set in one command. You can now set brightness and color in a single step.
 - Multiple commands can be added and executed one by one.
