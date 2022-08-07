@@ -261,6 +261,24 @@ module.exports = {
             },
             "type": "ZHAConsumption",
             "uniqueid": "66:77:88:99:00:11:22:33-01-0702"
+        },
+        "4": {
+            "config": {
+                "on": true,
+                "reachable": false,
+                "lock": true
+            },
+            "ep": 1,
+            "etag": "item10",
+            "lastseen": null,
+            "manufacturername": "Homestead",
+            "modelid": "Door Lock",
+            "name": "Deck entrance",
+            "state": {
+                "lockstate": "not fully locked",
+            },
+            "type": "ZHADoorLock",
+            "uniqueid": "B6:01:CC:20:2A:91:5F:CD-01-0001"
         }
     }
 };

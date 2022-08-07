@@ -21,7 +21,9 @@
 		"spmeesseman.vscode-taskexplorer",
 		"ms-azuretools.vscode-docker",
 		"eamodio.gitlens",
-		"mhutchie.git-graph"
+		"mhutchie.git-graph",
+		"hbenl.vscode-test-explorer",
+		"hbenl.vscode-mocha-test-adapter"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

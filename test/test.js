@@ -3303,5 +3303,25 @@ describe('Device List', function () {
 
         });
 
+        describe('Door Lock', function () {
+            it('From Deconz', function () {
+                const deviceMeta = deviceList.getDeviceByUniqueID('B6:01:CC:20:2A:91:5F:CD-01-0001');
+                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
+                should(homeKitResult).have.property('LockTargetState', 1);
+                should(homeKitResult).have.property('LockCurrentState', 2);
+                should(Object.keys(homeKitResult)).have.length(2);
+            });
+
+            it('To Deconz', function () {
+                const deviceMeta = deviceList.getDeviceByUniqueID('B6:01:CC:20:2A:91:5F:CD-01-0001');
+                const params = {"LockTargetState": 0};
+                let result = {};
+                (new HomeKitFormatter.toDeconz()).parse(params, params, result, deviceMeta);
+                should(result.config).have.property('lock', false);
+                should(Object.keys(result.config)).have.length(1);
+            });
+
+        });
+        
     });
 });

@@ -418,6 +418,36 @@ const HomeKitFormat = (() => {
         .needEventMeta('config.battery')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'config.battery') <= 15 ? 1 : 0);
     //#endregion
+    //#region Lock Mechanism
+    HKF.LockTargetState = new Attribute()
+    .services('Lock Mechanism')
+    .to((rawEvent, deviceMeta) => {
+        const map = {
+            false : 0, 
+            true : 1
+        }
+        return map[dotProp.get(deviceMeta, 'config.lock')];
+    })
+    .from((value, allValues, result) => {
+        const map = {
+            0 : false, 
+            1 : true
+        }
+        dotProp.set(result, 'config.lock', map[value])
+    });
+    HKF.LockCurrentState = new Attribute()
+        .services('Lock Mechanism')
+        .needEventMeta('state.lockstate')
+        .to((rawEvent, deviceMeta) => {
+            const map = {
+                "locked" : 1,
+                "unlocked" : 0,
+                "undefined" : 3,
+                "not fully locked" : 2
+            }
+            return map[dotProp.get(rawEvent, 'state.lockstate')] ?? map['undefined'];
+        })
+    //#endregion
     return HKF;
 })();
 
