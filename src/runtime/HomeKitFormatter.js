@@ -446,8 +446,8 @@ const HomeKitFormat = (() => {
                 "not fully locked" : 2
             };
             const result = map[dotProp.get(rawEvent, 'state.lockstate')];
-            return result !== undefined ? result : map['undefined'];
-        })
+            return result !== undefined ? result : map.undefined;
+        });
     //#endregion
     return HKF;
 })();
