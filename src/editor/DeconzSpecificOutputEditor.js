@@ -14,8 +14,8 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
 
     get default() {
         return {
-            delay: {type: 'num', value: 50},
-            result: {type: 'at_end'},
+            delay: { type: 'num', value: 50 },
+            result: { type: 'at_end' },
         };
     }
 
@@ -37,7 +37,7 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
             i18n,
             value,
             width: '250px',
-            typedInput: {types: ['num']}
+            typedInput: { types: ['num'] }
         });
     }
 
@@ -50,9 +50,9 @@ class DeconzSpecificOutputEditor extends DeconzEditor {
             width: '250px',
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'never', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'after_command', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'at_end', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'never', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'after_command', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'at_end', { hasValue: false })
                 ]
             }
         });

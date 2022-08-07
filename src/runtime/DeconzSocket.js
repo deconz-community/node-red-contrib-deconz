@@ -3,16 +3,16 @@ const WebSocket = require('ws');
 
 class DeconzSocket extends EventEmitter {
     constructor({
-                    hostname,
-                    port = 443,
-                    token,
-                    secure = false,
-                    pingInterval = 10000,
-                    pingTimeout = 3000,
-                    reconnectInterval = 10000,
-                    reconnectMaxRetries = Infinity,
-                    autoConnect = true
-                } = {}) {
+        hostname,
+        port = 443,
+        token,
+        secure = false,
+        pingInterval = 10000,
+        pingTimeout = 3000,
+        reconnectInterval = 10000,
+        reconnectMaxRetries = Infinity,
+        autoConnect = true
+    } = {}) {
         super();
 
         this.hostname = hostname;

@@ -136,14 +136,14 @@ const HomeKitFormat = (() => {
         .needEventMeta('state.buttonevent')
         .to((rawEvent, deviceMeta) => {
             switch (dotProp.get(rawEvent, 'state.buttonevent') % 1000) {
-                case 1 : // Hold Down
+                case 1: // Hold Down
                     return 2; // Long Press
                 case 2: // Short press
                     return 0; // Single Press
-                case 4 : // Double press
-                case 5 : // Triple press
-                case 6 : // Quadtruple press
-                case 10 : // Many press
+                case 4: // Double press
+                case 5: // Triple press
+                case 6: // Quadtruple press
+                case 10: // Many press
                     /*
                      * Merge all many press event to 1 because homekit only support double press events.
                      */
@@ -197,7 +197,7 @@ const HomeKitFormat = (() => {
     //#region ZHAThermostat
     HKF.HeatingThresholdTemperature = new Attribute()
         .services(['Heater Cooler', 'Thermostat'])
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('config.heatsetpoint')
         .to((rawEvent, deviceMeta) =>
             dotProp.get(rawEvent, 'config.heatsetpoint') / 100
@@ -207,7 +207,7 @@ const HomeKitFormat = (() => {
         });
     HKF.CoolingThresholdTemperature = new Attribute()
         .services(['Heater Cooler', 'Thermostat'])
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('config.coolsetpoint')
         .to((rawEvent, deviceMeta) =>
             dotProp.get(rawEvent, 'config.coolsetpoint') / 100
@@ -217,7 +217,7 @@ const HomeKitFormat = (() => {
         });
     HKF.TargetTemperature = new Attribute()
         .services('Thermostat')
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta((rawEvent, deviceMeta) =>
             dotProp.has(rawEvent, 'config.heatsetpoint') ||
             dotProp.has(rawEvent, 'config.coolsetpoint')
@@ -256,7 +256,7 @@ const HomeKitFormat = (() => {
         });
     HKF.Active = new Attribute()
         .services('Heater Cooler')
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('state.on')
         .to((rawEvent, deviceMeta) => {
             return dotProp.get(rawEvent, 'state.on') === true ? 1 : 0;
@@ -266,7 +266,7 @@ const HomeKitFormat = (() => {
         });
     HKF.CurrentHeatingCoolingState = new Attribute()
         .services('Thermostat')
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('state.on')
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') === false) return 0; // Off.
@@ -290,7 +290,7 @@ const HomeKitFormat = (() => {
         });
     HKF.TargetHeatingCoolingState = new Attribute()
         .services('Thermostat')
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('config.mode')
         .to((rawEvent, deviceMeta) => {
             switch (dotProp.get(rawEvent, 'config.mode')) {
@@ -311,7 +311,7 @@ const HomeKitFormat = (() => {
         });
     HKF.LockPhysicalControls = new Attribute()
         .services('Heater Cooler')
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .needEventMeta('config.locked')
         .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, 'config.locked') === true ? 1 : 0)
         .from((value, allValues, result, deviceMeta) => {
@@ -322,13 +322,13 @@ const HomeKitFormat = (() => {
         .services(['Heater Cooler', 'Thermostat'])
         .name('TemperatureDisplayUnits')
         .priority(10)
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .to((rawEvent, deviceMeta) => 0); // Celsius
     HKF.TemperatureDisplayUnits_Fahrenheit = new Attribute()
         .services(['Heater Cooler', 'Thermostat'])
         .name('TemperatureDisplayUnits')
         .priority(0)
-        .needDeviceMeta({type: 'ZHAThermostat'})
+        .needDeviceMeta({ type: 'ZHAThermostat' })
         .to((rawEvent, deviceMeta) => 1); // Fahrenheit
     //#endregion
     //#region Lights
@@ -354,7 +354,7 @@ const HomeKitFormat = (() => {
         .services('Lightbulb')
         .needEventMeta('state.hue')
         .needColorCapabilities(['hs', 'unknown'])
-        .needDeviceMeta({'state.colormode': 'hs'})
+        .needDeviceMeta({ 'state.colormode': 'hs' })
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let hue = dotProp.get(rawEvent, 'state.hue');
@@ -368,7 +368,7 @@ const HomeKitFormat = (() => {
         .services('Lightbulb')
         .needEventMeta('state.sat')
         .needColorCapabilities(['hs', 'unknown'])
-        .needDeviceMeta({'state.colormode': 'hs'})
+        .needDeviceMeta({ 'state.colormode': 'hs' })
         .to((rawEvent, deviceMeta) => {
             if (dotProp.get(rawEvent, 'state.on') !== true) return;
             let sat = dotProp.get(rawEvent, 'state.sat');
@@ -381,7 +381,7 @@ const HomeKitFormat = (() => {
     HKF.ColorTemperature = directMap(['from', 'to'], 'state.ct')
         .services('Lightbulb')
         .needColorCapabilities(['ct', 'unknown'])
-        .needDeviceMeta({'state.colormode': 'ct'});
+        .needDeviceMeta({ 'state.colormode': 'ct' });
     //#endregion
     //#region Window cover
     HKF.CurrentPosition = new Attribute()
@@ -395,7 +395,7 @@ const HomeKitFormat = (() => {
     HKF.TargetPosition = HKF.CurrentPosition;
     HKF.CurrentHorizontalTiltAngle = new Attribute()
         .services('Window Covering')
-        .needDeviceMeta({type: ['Window covering controller', 'Window covering device']})
+        .needDeviceMeta({ type: ['Window covering controller', 'Window covering device'] })
         .needEventMeta('state.tilt')
         .to((rawEvent, deviceMeta) =>
             Utils.convertRange(dotProp.get(rawEvent, 'state.tilt'), [0, 100], [-90, 90], true, true)
@@ -407,7 +407,7 @@ const HomeKitFormat = (() => {
     HKF.TargetVerticalTiltAngle = HKF.CurrentHorizontalTiltAngle;
     HKF.PositionState = new Attribute()
         .services('Window Covering')
-        .needDeviceMeta({type: ['Window covering controller', 'Window covering device']})
+        .needDeviceMeta({ type: ['Window covering controller', 'Window covering device'] })
         .to((rawEvent, deviceMeta) => 2); // Stopped
     //#endregion
     //#region Battery
@@ -420,30 +420,30 @@ const HomeKitFormat = (() => {
     //#endregion
     //#region Lock Mechanism
     HKF.LockTargetState = new Attribute()
-    .services('Lock Mechanism')
-    .to((rawEvent, deviceMeta) => {
-        const map = {
-            false : 0, 
-            true : 1
-        };
-        return map[dotProp.get(deviceMeta, 'config.lock')];
-    })
-    .from((value, allValues, result) => {
-        const map = {
-            0 : false, 
-            1 : true
-        };
-        dotProp.set(result, 'config.lock', map[value]);
-    });
+        .services('Lock Mechanism')
+        .to((rawEvent, deviceMeta) => {
+            const map = {
+                false: 0,
+                true: 1
+            };
+            return map[dotProp.get(deviceMeta, 'config.lock')];
+        })
+        .from((value, allValues, result) => {
+            const map = {
+                0: false,
+                1: true
+            };
+            dotProp.set(result, 'config.lock', map[value]);
+        });
     HKF.LockCurrentState = new Attribute()
         .services('Lock Mechanism')
         .needEventMeta('state.lockstate')
         .to((rawEvent, deviceMeta) => {
             const map = {
-                "locked" : 1,
-                "unlocked" : 0,
-                "undefined" : 3,
-                "not fully locked" : 2
+                "locked": 1,
+                "unlocked": 0,
+                "undefined": 3,
+                "not fully locked": 2
             };
             const result = map[dotProp.get(rawEvent, 'state.lockstate')];
             return result !== undefined ? result : map.undefined;
@@ -559,4 +559,4 @@ class toDeconz extends BaseFormatter {
 
 }
 
-module.exports = {fromDeconz, toDeconz};
+module.exports = { fromDeconz, toDeconz };

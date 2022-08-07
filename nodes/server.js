@@ -7,7 +7,7 @@ const DeconzSocket = require("../src/runtime/DeconzSocket");
 const ConfigMigration = require("../src/migration/ConfigMigration");
 const Query = require('../src/runtime/Query');
 const Utils = require("../src/runtime/Utils");
-const {setIntervalAsync, clearIntervalAsync} = require('set-interval-async/fixed');
+const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/fixed');
 
 module.exports = function (RED) {
     class ServerNode {
@@ -69,7 +69,7 @@ module.exports = function (RED) {
                 await Utils.sleep(1500);
 
                 let pooling = async () => {
-                    let result = await node.discoverDevices({forceRefresh: true});
+                    let result = await node.discoverDevices({ forceRefresh: true });
                     if (result === true) {
                         if (node.state.pooling.isValid === false) {
                             node.state.pooling.isValid = true;
@@ -186,7 +186,7 @@ module.exports = function (RED) {
 
             node.state.pooling.discoverProcessRunning = true;
             try {
-                let mainConfig = await got(node.api.url.main(), {retry: 1, timeout: 2000}).json();
+                let mainConfig = await got(node.api.url.main(), { retry: 1, timeout: 2000 }).json();
                 try {
                     let group0 = await got(node.api.url.main() + node.api.url.groups.main(0), {
                         retry: 1,
@@ -406,7 +406,7 @@ module.exports = function (RED) {
                                     news.device,
                                     [],
                                     news.device,
-                                    {initialEvent: true}
+                                    { initialEvent: true }
                                 );
                                 break;
                         }
@@ -800,7 +800,7 @@ module.exports = function (RED) {
 
     RED.nodes.registerType('deconz-server', ServerNode, {
         credentials: {
-            secured_apikey: {type: "text"}
+            secured_apikey: { type: "text" }
         }
     });
 };

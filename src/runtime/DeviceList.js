@@ -80,7 +80,7 @@ class DeviceList {
     }
 
     createQuery(device) {
-        return {device_path: this.getPathByDevice(device)};
+        return { device_path: this.getPathByDevice(device) };
     }
 
     getAllDevices() {

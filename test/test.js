@@ -207,7 +207,7 @@ describe('Device List', function () {
 
             it('Invalid query type value', function () {
                 should.throws(() => {
-                    let result = deviceList.getDevicesByQuery({"type": "DOES_NOT_EXIST"}, QueryParams);
+                    let result = deviceList.getDevicesByQuery({ "type": "DOES_NOT_EXIST" }, QueryParams);
                 });
             });
 
@@ -727,7 +727,7 @@ describe('Device List', function () {
 
                     it('too many levels', function () {
                         try {
-                            let query = {"match": {"type": "ZHASwitch"}};
+                            let query = { "match": { "type": "ZHASwitch" } };
                             for (let i = 0; i < 20; i++) {
                                 query = {
                                     "method": "AND",
@@ -751,7 +751,7 @@ describe('Device List', function () {
     describe('Configuration Migration', function () {
         let server;
         beforeEach('Parse without error', function () {
-            server = {device_list: deviceList};
+            server = { device_list: deviceList };
         });
 
         afterEach(function () {
@@ -944,8 +944,8 @@ describe('Device List', function () {
                 should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/44:55:66:77:88:99:00:11-01-0101']);
                 should(migrationResult.new.outputs).equal(2);
                 should(migrationResult.new.output_rules).containDeep([
-                    {type: 'config', format: 'single', onstart: true},
-                    {type: 'homekit', format: 'single', onstart: true}
+                    { type: 'config', format: 'single', onstart: true },
+                    { type: 'homekit', format: 'single', onstart: true }
                 ]);
                 should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
@@ -975,8 +975,8 @@ describe('Device List', function () {
                 should(migrationResult.new.device_list).containDeep(['sensors/uniqueid/44:55:66:77:88:99:00:11-01-0101']);
                 should(migrationResult.new.outputs).equal(2);
                 should(migrationResult.new.output_rules).containDeep([
-                    {type: 'config', format: 'single', onstart: false},
-                    {type: 'homekit', format: 'single', onstart: false}
+                    { type: 'config', format: 'single', onstart: false },
+                    { type: 'homekit', format: 'single', onstart: false }
                 ]);
                 should(migrationResult.new.config_version).equal(2);
                 should(migrationResult.delete).containDeep(['device', 'state', 'output', 'outputAtStartup']);
@@ -1017,14 +1017,14 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            transition: {type: 'num'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            transition: { type: 'num' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
 
                     should(migrationResult.new.config_version).equal(1);
@@ -1070,15 +1070,15 @@ describe('Device List', function () {
                         domain: 'groups',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'false'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'false' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }
                     ]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1123,14 +1123,14 @@ describe('Device List', function () {
                         domain: 'covers',
                         target: 'state',
                         arg: {
-                            open: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            open: { type: 'set', value: 'true' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1175,14 +1175,14 @@ describe('Device List', function () {
                         domain: 'covers',
                         target: 'state',
                         arg: {
-                            open: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            open: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1227,14 +1227,14 @@ describe('Device List', function () {
                         domain: 'covers',
                         target: 'state',
                         arg: {
-                            lift: {type: 'num', value: '50'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            lift: { type: 'num', value: '50' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1279,14 +1279,14 @@ describe('Device List', function () {
                         domain: 'covers',
                         target: 'state',
                         arg: {
-                            lift: {type: 'stop'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            lift: { type: 'stop' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1331,14 +1331,14 @@ describe('Device List', function () {
                         domain: 'covers',
                         target: 'state',
                         arg: {
-                            tilt: {type: 'num', value: '60'},
-                            transition: {type: 'num', value: '20'},
-                            aftererror: {type: 'continue'}
+                            tilt: { type: 'num', value: '60' },
+                            transition: { type: 'num', value: '20' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
                     should(migrationResult.new.config_version).equal(1);
                     should(migrationResult.delete).containDeep([
@@ -1383,8 +1383,8 @@ describe('Device List', function () {
                     should(migrationResult.new.query).equal('{}');
                     should(migrationResult.new.device_list).containDeep(['lights/uniqueid/00:11:22:33:44:55:66:77-01']);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
 
                     should(migrationResult.new.config_version).equal(1);
@@ -1416,9 +1416,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1439,9 +1439,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'false'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'false' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1460,9 +1460,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'toggle', value: ''},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'toggle', value: '' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1483,9 +1483,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1506,9 +1506,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1529,9 +1529,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'false'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'false' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1552,9 +1552,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1575,9 +1575,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'false'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'false' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1598,9 +1598,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1621,10 +1621,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            bri: {direction: 'set', type: 'num', value: '150'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            bri: { direction: 'set', type: 'num', value: '150' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1645,10 +1645,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            bri: {direction: 'set', type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            bri: { direction: 'set', type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1669,10 +1669,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            hue: {direction: 'set', type: 'num', value: '10000'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            hue: { direction: 'set', type: 'num', value: '10000' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1693,10 +1693,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            sat: {direction: 'set', type: 'num', value: '120'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            sat: { direction: 'set', type: 'num', value: '120' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1717,10 +1717,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'num', value: '320'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'num', value: '320' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1741,10 +1741,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'deconz', value: 'cold'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'deconz', value: 'cold' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1765,10 +1765,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'deconz', value: 'white'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'deconz', value: 'white' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1789,10 +1789,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'deconz', value: 'warm'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'deconz', value: 'warm' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1813,10 +1813,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'num', value: '250'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'num', value: '250' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1837,10 +1837,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            ct: {direction: 'set', type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            ct: { direction: 'set', type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1861,10 +1861,10 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            on: {type: 'set', value: 'true'},
-                            xy: {direction: 'set', type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            on: { type: 'set', value: 'true' },
+                            xy: { direction: 'set', type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1885,9 +1885,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'deconz', value: 'none'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'deconz', value: 'none' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1908,9 +1908,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'deconz', value: 'select'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'deconz', value: 'select' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1931,9 +1931,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'deconz', value: 'lselect'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'deconz', value: 'lselect' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1954,9 +1954,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -1977,9 +1977,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'deconz', value: 'none'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'deconz', value: 'none' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2000,9 +2000,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            alert: {type: 'str', value: 'unkwnon-alert'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            alert: { type: 'str', value: 'unkwnon-alert' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2023,9 +2023,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            effect: {type: 'deconz', value: 'none'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            effect: { type: 'deconz', value: 'none' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2046,9 +2046,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            effect: {type: 'deconz', value: 'colorloop'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            effect: { type: 'deconz', value: 'colorloop' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2069,9 +2069,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            effect: {type: 'deconz', value: 'colorloop'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            effect: { type: 'deconz', value: 'colorloop' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2092,9 +2092,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            effect: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            effect: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2115,9 +2115,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            colorloopspeed: {type: 'num', value: '15'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            colorloopspeed: { type: 'num', value: '15' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2138,9 +2138,9 @@ describe('Device List', function () {
                         domain: 'lights',
                         target: 'state',
                         arg: {
-                            colorloopspeed: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            colorloopspeed: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2159,9 +2159,9 @@ describe('Device List', function () {
                     should(migrationResult.new.commands).deepEqual([{
                         type: 'homekit',
                         arg: {
-                            payload: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            payload: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2180,11 +2180,11 @@ describe('Device List', function () {
                     should(migrationResult.new.commands).deepEqual([{
                         type: 'custom',
                         arg: {
-                            target: {type: 'state'},
-                            command: {type: 'msg', value: 'command'},
-                            payload: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            target: { type: 'state' },
+                            command: { type: 'msg', value: 'command' },
+                            payload: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2203,11 +2203,11 @@ describe('Device List', function () {
                     should(migrationResult.new.commands).deepEqual([{
                         type: 'custom',
                         arg: {
-                            target: {type: 'state'},
-                            command: {type: 'object'},
-                            payload: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: '10'},
-                            aftererror: {type: 'continue'}
+                            target: { type: 'state' },
+                            command: { type: 'object' },
+                            payload: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '10' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2241,8 +2241,8 @@ describe('Device List', function () {
                     should(migrationResult.new.query).equal('{}');
                     should(migrationResult.new.device_list).containDeep(['groups/uniqueid/33:44:55:66:77:88:99:00']);
                     should(migrationResult.new.specific).deepEqual({
-                        delay: {type: 'num', value: 50},
-                        result: {type: 'at_end'}
+                        delay: { type: 'num', value: 50 },
+                        result: { type: 'at_end' }
                     });
 
                     should(migrationResult.new.config_version).equal(1);
@@ -2274,10 +2274,10 @@ describe('Device List', function () {
                         domain: 'scene_call',
                         target: 'state',
                         arg: {
-                            group: {type: 'num', value: '1'},
-                            scene: {type: 'num', value: '2'},
-                            transition: {type: 'num', value: ''},
-                            aftererror: {type: 'continue'}
+                            group: { type: 'num', value: '1' },
+                            scene: { type: 'num', value: '2' },
+                            transition: { type: 'num', value: '' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2298,10 +2298,10 @@ describe('Device List', function () {
                         domain: 'scene_call',
                         target: 'state',
                         arg: {
-                            group: {type: 'num', value: '1'},
-                            scene: {type: 'num', value: '2'},
-                            transition: {type: 'num', value: ''},
-                            aftererror: {type: 'continue'}
+                            group: { type: 'num', value: '1' },
+                            scene: { type: 'num', value: '2' },
+                            transition: { type: 'num', value: '' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2322,10 +2322,10 @@ describe('Device List', function () {
                         domain: 'scene_call',
                         target: 'state',
                         arg: {
-                            group: {type: 'num', value: '1'},
-                            scene: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: ''},
-                            aftererror: {type: 'continue'}
+                            group: { type: 'num', value: '1' },
+                            scene: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2344,11 +2344,11 @@ describe('Device List', function () {
                     should(migrationResult.new.commands).deepEqual([{
                         type: 'custom',
                         arg: {
-                            target: {type: 'state'},
-                            command: {type: 'str', value: 'custom-command'},
-                            payload: {type: 'msg', value: 'payload'},
-                            transition: {type: 'num', value: ''},
-                            aftererror: {type: 'continue'}
+                            target: { type: 'state' },
+                            command: { type: 'str', value: 'custom-command' },
+                            payload: { type: 'msg', value: 'payload' },
+                            transition: { type: 'num', value: '' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -2369,11 +2369,11 @@ describe('Device List', function () {
                     should(migrationResult.new.commands).deepEqual([{
                         type: 'custom',
                         arg: {
-                            target: {type: 'state'},
-                            command: {type: 'str', value: 'custom-command'},
-                            payload: {type: 'msg', value: 'payload'},
-                            transition: {type: 'msg', value: 'transitiontime'},
-                            aftererror: {type: 'continue'}
+                            target: { type: 'state' },
+                            command: { type: 'str', value: 'custom-command' },
+                            payload: { type: 'msg', value: 'payload' },
+                            transition: { type: 'msg', value: 'transitiontime' },
+                            aftererror: { type: 'continue' }
                         }
                     }]);
                 });
@@ -3272,7 +3272,7 @@ describe('Device List', function () {
     describe('HomeKitFormatter', function () {
         it('buttonevent', function () {
             const deviceMeta = deviceList.getDeviceByUniqueID('55:66:77:88:99:00:11:22-01-1000');
-            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
+            let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({ state: deviceMeta.state }, deviceMeta);
             should(homeKitResult).have.property('ProgrammableSwitchEvent', 0);
             should(homeKitResult).have.property('ServiceLabelIndex', 2);
         });
@@ -3280,7 +3280,7 @@ describe('Device List', function () {
         describe('Windows Cover', function () {
             it('From Deconz', function () {
                 const deviceMeta = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
-                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
+                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({ state: deviceMeta.state }, deviceMeta);
                 should(homeKitResult).have.property('PositionState', 2);
                 should(homeKitResult).have.property('CurrentPosition', 30);
                 should(homeKitResult).have.property('TargetPosition', 30);
@@ -3293,7 +3293,7 @@ describe('Device List', function () {
 
             it('To Deconz', function () {
                 const deviceMeta = deviceList.getDeviceByUniqueID('22:88:44:11:66:22:88:99-01');
-                const params = {"TargetPosition": 30, "TargetHorizontalTiltAngle": -45};
+                const params = { "TargetPosition": 30, "TargetHorizontalTiltAngle": -45 };
                 let result = {};
                 (new HomeKitFormatter.toDeconz()).parse(params, params, result, deviceMeta);
                 should(result.state).have.property('lift', 70);
@@ -3306,7 +3306,7 @@ describe('Device List', function () {
         describe('Door Lock', function () {
             it('From Deconz', function () {
                 const deviceMeta = deviceList.getDeviceByUniqueID('B6:01:CC:20:2A:91:5F:CD-01-0001');
-                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({state: deviceMeta.state}, deviceMeta);
+                let homeKitResult = (new HomeKitFormatter.fromDeconz()).parse({ state: deviceMeta.state }, deviceMeta);
                 should(homeKitResult).have.property('LockTargetState', 1);
                 should(homeKitResult).have.property('LockCurrentState', 2);
                 should(Object.keys(homeKitResult)).have.length(2);
@@ -3314,7 +3314,7 @@ describe('Device List', function () {
 
             it('To Deconz', function () {
                 const deviceMeta = deviceList.getDeviceByUniqueID('B6:01:CC:20:2A:91:5F:CD-01-0001');
-                const params = {"LockTargetState": 0};
+                const params = { "LockTargetState": 0 };
                 let result = {};
                 (new HomeKitFormatter.toDeconz()).parse(params, params, result, deviceMeta);
                 should(result.config).have.property('lock', false);
@@ -3322,6 +3322,6 @@ describe('Device List', function () {
             });
 
         });
-        
+
     });
 });

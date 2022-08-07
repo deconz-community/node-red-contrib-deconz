@@ -111,7 +111,7 @@ class CommandParser {
                                     break;
                             }
                             break;
-                        default :
+                        default:
                             this.result.state[k] = Number(value);
                             break;
                     }

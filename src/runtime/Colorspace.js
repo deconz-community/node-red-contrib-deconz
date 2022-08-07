@@ -293,7 +293,7 @@ Colorspace.Rgb2Hsv = (R, G, B) => {
     } else {
         H = S = 0;
     }
-    return {H, S, V};
+    return { H, S, V };
 };
 
 /**
@@ -356,7 +356,7 @@ Colorspace.Hsv2Rgb = (H, S, V) => {
         default:
             R = G = B = 0;
     }
-    return {R, G, B};
+    return { R, G, B };
 };
 
 /**
@@ -400,7 +400,7 @@ Colorspace.Rgb2Hsl = (R, G, B) => {
         H = S = 0;
     }
 
-    return {H, S, L};
+    return { H, S, L };
 };
 
 /**
@@ -463,7 +463,7 @@ Colorspace.Hsl2Rgb = (H, S, L) => {
         default:
             R = G = B = 0;
     }
-    return {R, G, B};
+    return { R, G, B };
 };
 
 /**
@@ -494,7 +494,7 @@ Colorspace.Rgb2Hsi = (R, G, B) => {
     } else {
         H = S = 0;
     }
-    return {H, S, I};
+    return { H, S, I };
 };
 
 /**
@@ -531,7 +531,7 @@ Colorspace.Hsi2Rgb = (H, S, I) => {
         B = I * (1 + S * Math.cos(H * (Colorspace.M_PI / 180)) / Math.cos((60 - H) * (Colorspace.M_PI / 180)));
         R = 3 * I - G - B;
     }
-    return {R, G, B};
+    return { R, G, B };
 };
 
 /*
@@ -629,7 +629,7 @@ Colorspace.Xyz2Rgb = (X, Y, Z) => {
     G = Colorspace.GAMMACORRECTION(G1);
     B = Colorspace.GAMMACORRECTION(B1);
 
-    return {R, G, B};
+    return { R, G, B };
 };
 
 /**
@@ -652,7 +652,7 @@ Colorspace.Xyz2Lab = (X, Y, Z) => {
     L = 116 * Y - 16;
     A = 500 * (X - Y);
     B = 200 * (Y - Z);
-    return {L, A, B};
+    return { L, A, B };
 };
 
 /**
@@ -700,7 +700,7 @@ Colorspace.Xyz2Luv = (X, Y, Z) => {
     L = 116 * Y - 16;
     U = 13 * (L) * (u1 - Colorspace.WHITEPOINT_U);
     V = 13 * (L) * (v1 - Colorspace.WHITEPOINT_V);
-    return {L, U, V};
+    return { L, U, V };
 };
 
 /**
@@ -726,7 +726,7 @@ Colorspace.Luv2Xyz = (L, U, V) => {
     V = V / 13 + Colorspace.WHITEPOINT_V;
     X = (Y) * ((9 * U) / (4 * V));
     Z = (Y) * ((3 - 0.75 * U) / V - 5);
-    return {X, Y, Z};
+    return { X, Y, Z };
 };
 
 /**
@@ -747,7 +747,7 @@ Colorspace.Xyz2Lch = (X, Y, Z) => {
     C = Math.sqrt(C1.A * C1.A + C1.B * C1.B);
     H = Math.atan2(C1.B, C1.A) * 180.0 / Colorspace.M_PI;
     if (H < 0) H += 360;
-    return {L, C, H};
+    return { L, C, H };
 };
 
 /**

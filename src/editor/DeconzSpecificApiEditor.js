@@ -17,9 +17,9 @@ class DeconzSpecificApiEditor extends DeconzEditor {
     get default() {
         return {
             name: '',
-            method: {type: 'GET'},
-            endpoint: {type: 'str', value: '/'},
-            payload: {type: 'json', value: '{}'}
+            method: { type: 'GET' },
+            endpoint: { type: 'str', value: '/' },
+            payload: { type: 'json', value: '{}' }
         };
     }
 
@@ -75,10 +75,10 @@ class DeconzSpecificApiEditor extends DeconzEditor {
             width: '250px',
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'GET', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'POST', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'PUT', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'DELETE', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'GET', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'POST', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'PUT', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'DELETE', { hasValue: false }),
                 ]
             }
         });

@@ -11,28 +11,28 @@ module.exports = function (RED) {
         type: 'deconz_state',
         domain: 'lights',
         arg: {
-            on: {type: 'keep', value: ""},
-            alert: {type: 'str', value: ""},
-            effect: {type: 'str', value: ""},
-            colorloopspeed: {type: 'num', value: ""},
-            open: {type: 'keep', value: ""},
-            stop: {type: 'keep', value: ""},
-            lift: {type: 'num', value: ""},
-            tilt: {type: 'num', value: ""},
-            group: {type: 'num', value: ""},
-            scene: {type: 'num', value: ""},
-            target: {type: 'state', value: ""},
-            command: {type: 'str', value: "on"},
-            payload: {type: 'msg', value: "payload"},
-            delay: {type: 'num', value: "2000"},
-            transitiontime: {type: 'num', value: ""},
-            retryonerror: {type: 'num', value: "0"},
-            aftererror: {type: 'continue', value: ""},
-            bri: {direction: 'set', type: 'num', value: ""},
-            sat: {direction: 'set', type: 'num', value: ""},
-            hue: {direction: 'set', type: 'num', value: ""},
-            ct: {direction: 'set', type: 'num', value: ""},
-            xy: {direction: 'set', type: 'json', value: "[]"}
+            on: { type: 'keep', value: "" },
+            alert: { type: 'str', value: "" },
+            effect: { type: 'str', value: "" },
+            colorloopspeed: { type: 'num', value: "" },
+            open: { type: 'keep', value: "" },
+            stop: { type: 'keep', value: "" },
+            lift: { type: 'num', value: "" },
+            tilt: { type: 'num', value: "" },
+            group: { type: 'num', value: "" },
+            scene: { type: 'num', value: "" },
+            target: { type: 'state', value: "" },
+            command: { type: 'str', value: "on" },
+            payload: { type: 'msg', value: "payload" },
+            delay: { type: 'num', value: "2000" },
+            transitiontime: { type: 'num', value: "" },
+            retryonerror: { type: 'num', value: "0" },
+            aftererror: { type: 'continue', value: "" },
+            bri: { direction: 'set', type: 'num', value: "" },
+            sat: { direction: 'set', type: 'num', value: "" },
+            hue: { direction: 'set', type: 'num', value: "" },
+            ct: { direction: 'set', type: 'num', value: "" },
+            xy: { direction: 'set', type: 'json', value: "[]" }
         }
     };
 
@@ -46,8 +46,8 @@ module.exports = function (RED) {
         query: '{}',
         commands: [defaultCommand],
         specific: {
-            delay: {type: 'num', value: '50'},
-            result: {type: 'at_end', value: ''}
+            delay: { type: 'num', value: '50' },
+            result: { type: 'at_end', value: '' }
         }
     };
 
@@ -121,7 +121,7 @@ module.exports = function (RED) {
                             for (let path of node.config.device_list) {
                                 let device = node.server.device_list.getDeviceByPath(path);
                                 if (device) {
-                                    devices.push({data: device});
+                                    devices.push({ data: device });
                                 } else {
                                     done(`Error : Device not found : '${path}'`);
                                 }
@@ -136,7 +136,7 @@ module.exports = function (RED) {
                             );
                             try {
                                 for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
-                                    devices.push({data: r});
+                                    devices.push({ data: r });
                                 }
                             } catch (e) {
                                 node.status({

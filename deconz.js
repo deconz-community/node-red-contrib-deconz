@@ -74,11 +74,11 @@ module.exports = function (RED) {
             if (controller && controller.constructor.name === "ServerNode") {
                 (async () => {
                     try {
-                        if (forceRefresh) await controller.discoverDevices({forceRefresh: true});
+                        if (forceRefresh) await controller.discoverDevices({ forceRefresh: true });
                         if (query === undefined) {
-                            res.json({items: controller.device_list.getAllDevices()});
+                            res.json({ items: controller.device_list.getAllDevices() });
                         } else {
-                            res.json({items: controller.device_list.getDevicesByQuery(query)});
+                            res.json({ items: controller.device_list.getDevicesByQuery(query) });
                         }
                     } catch (e) {
                         return res.json({
@@ -143,7 +143,7 @@ module.exports = function (RED) {
                         }
                     }
 
-                    res.json({count: count, sample: sample});
+                    res.json({ count: count, sample: sample });
                 } else {
                     res.status(404).end();
                 }
@@ -161,8 +161,8 @@ module.exports = function (RED) {
             let devicesIDs = JSON.parse(config.devices);
             if (controller && controller.constructor.name === "ServerNode" && devicesIDs) {
 
-                let sample = {homekit: {}};
-                let count = {homekit: {}};
+                let sample = { homekit: {} };
+                let count = { homekit: {} };
 
                 const formatter = (new HomeKitFormatter.fromDeconz({}));
 
@@ -184,7 +184,7 @@ module.exports = function (RED) {
                     }
                 }
 
-                res.json({count, sample});
+                res.json({ count, sample });
             } else {
                 res.status(404).end();
             }
@@ -222,7 +222,7 @@ module.exports = function (RED) {
             let config = JSON.parse(data.config);
             let server = RED.nodes.getNode(data.type === 'deconz-server' ? data.id : config.server);
             if (server === undefined) {
-                res.json({errors: [`Could not find the server node.`]});
+                res.json({ errors: [`Could not find the server node.`] });
                 return;
             }
             if (server.state.ready === true || (data.type === 'deconz-server')) {
@@ -230,7 +230,7 @@ module.exports = function (RED) {
                 let result = configMigration.migrate(config);
                 res.json(result);
             } else {
-                res.json({errors: [`The server node is not ready. Please check the server configuration.`]});
+                res.json({ errors: [`The server node is not ready. Please check the server configuration.`] });
             }
         } catch (e) {
             console.error(e);
@@ -257,13 +257,13 @@ module.exports = function (RED) {
             if (!Array.isArray(config.device_list)) config.device_list = [];
             let controller = RED.nodes.getNode(config.controllerID);
             if (controller && controller.constructor.name === "ServerNode") {
-                let fakeNode = {server: controller};
+                let fakeNode = { server: controller };
                 let cp = new CommandParser(config.command, {}, fakeNode);
                 let devices = [];
                 for (let path of config.device_list) {
                     let device = controller.device_list.getDeviceByPath(path);
                     if (device) {
-                        devices.push({data: device});
+                        devices.push({ data: device });
                     } else {
                         console.warn(`Error : Device not found : '${path}'`);
                     }

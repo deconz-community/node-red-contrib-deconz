@@ -34,7 +34,7 @@ class ConfigMigration {
 
     migrate(config) {
         if (this.handler === undefined || !this.handler.migrate) {
-            return {errors: [`Configuration migration handler not found for node type '${this.type}'.`]};
+            return { errors: [`Configuration migration handler not found for node type '${this.type}'.`] };
         }
 
         if (!this.handler.isLastestVersion) {
@@ -51,7 +51,7 @@ class ConfigMigration {
             );
             return this.handler.result;
         } else {
-            return {notNeeded: true};
+            return { notNeeded: true };
         }
     }
 

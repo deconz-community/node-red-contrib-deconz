@@ -135,26 +135,26 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             domain: 'lights',
             target: 'state',
             arg: {
-                on: {type: 'keep'},
-                bri: {direction: 'set', type: 'num'},
-                sat: {direction: 'set', type: 'num'},
-                hue: {direction: 'set', type: 'num'},
-                ct: {direction: 'set', type: 'num'},
-                xy: {direction: 'set', type: 'num'},
-                alert: {type: 'str'},
-                effect: {type: 'str'},
-                colorloopspeed: {type: 'num'},
-                transitiontime: {type: 'num'},
-                command: {type: 'str', value: 'on'},
-                payload: {type: 'msg', value: 'payload'},
-                delay: {type: 'num', value: 2000},
-                target: {type: 'state'},
-                group: {type: 'num'},
-                scene_mode: {type: 'single'},
-                scene_call: {type: 'num'},
-                scene_name: {type: 'str'},
-                retryonerror: {type: 'num', value: 0},
-                aftererror: {type: 'continue'}
+                on: { type: 'keep' },
+                bri: { direction: 'set', type: 'num' },
+                sat: { direction: 'set', type: 'num' },
+                hue: { direction: 'set', type: 'num' },
+                ct: { direction: 'set', type: 'num' },
+                xy: { direction: 'set', type: 'num' },
+                alert: { type: 'str' },
+                effect: { type: 'str' },
+                colorloopspeed: { type: 'num' },
+                transitiontime: { type: 'num' },
+                command: { type: 'str', value: 'on' },
+                payload: { type: 'msg', value: 'payload' },
+                delay: { type: 'num', value: 2000 },
+                target: { type: 'state' },
+                group: { type: 'num' },
+                scene_mode: { type: 'single' },
+                scene_call: { type: 'num' },
+                scene_name: { type: 'str' },
+                retryonerror: { type: 'num', value: 0 },
+                aftererror: { type: 'continue' }
             }
         };
     }
@@ -163,7 +163,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
         this._index = index;
         command = $.extend(true, this.defaultCommand, command);
 
-        await this.generateTypeDomainField(this.container, {type: command.type, value: command.domain});
+        await this.generateTypeDomainField(this.container, { type: command.type, value: command.domain });
 
         // Lights
         this.containers.light = $('<div>').appendTo(this.container);
@@ -246,7 +246,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     return;
                 }
                 let command = this.value;
-                
+
                 let devices = this.listEditor.mainEditor.subEditor.device.value;
                 if (
                     devices.length === 0 &&
@@ -283,8 +283,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                         command,
                         delay: this.listEditor.mainEditor.subEditor.specific.value.delay
                     }).catch((t, u) => {
-                    this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
-                });
+                        this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
+                    });
 
                 myNotification.close();
 
@@ -417,8 +417,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         let params = queryEditor.xhrParams;
         params.queryType = 'json';
-        params.query = JSON.stringify({match: {device_type: 'groups'}});
-        let groups = await queryEditor.getItems({refresh: true, keepOnlyMatched: true}, params);
+        params.query = JSON.stringify({ match: { device_type: 'groups' } });
+        let groups = await queryEditor.getItems({ refresh: true, keepOnlyMatched: true }, params);
         if (groups === undefined || groups.LightGroup === undefined) return;
         for (const group of groups.LightGroup) {
             let groupHtml = $('<optgroup/>', {
@@ -457,10 +457,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                     this.generateTypedInputType(i18n, 'deconz_state', {
                         subOptions: ['lights', 'covers', 'groups', 'scene_call']
                     }),
-                    this.generateTypedInputType(i18n, 'homekit', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'custom', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'homekit', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'custom', { hasValue: false }),
                     //this.generateTypedInputType(i18n, 'animation', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'pause', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'pause', { hasValue: false }),
                 ]
             }
         });
@@ -476,9 +476,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 default: 'keep',
                 types: [
-                    this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']}),
-                    this.generateTypedInputType(i18n, 'toggle', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'keep', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'set', { subOptions: ['true', 'false'] }),
+                    this.generateTypedInputType(i18n, 'toggle', { hasValue: false }),
                 ]
             }
         });
@@ -490,24 +490,24 @@ class DeconzCommandEditor extends DeconzListItemEditor {
 
         let fieldFormat = ['num'];
         let directionsFormat = [
-            this.generateTypedInputType(`${i18n}.lightFields`, 'set', {hasValue: false})
+            this.generateTypedInputType(`${i18n}.lightFields`, 'set', { hasValue: false })
         ];
 
         switch (fieldName) {
             case 'bri':
                 fieldFormat.push('str');
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}));
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}));
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', { hasValue: false }));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', { hasValue: false }));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', { hasValue: false }));
                 break;
             case 'ct':
                 fieldFormat.push('str');
                 fieldFormat.push(this.generateTypedInputType(`${i18n}.ct`, 'deconz', {
                     subOptions: ['cold', 'white', 'warm']
                 }));
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', {hasValue: false}));
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', {hasValue: false}));
-                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', {hasValue: false}));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'inc', { hasValue: false }));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'dec', { hasValue: false }));
+                directionsFormat.push(this.generateTypedInputType(`${i18n}.lightFields`, 'detect_from_value', { hasValue: false }));
                 break;
             case 'xy':
                 fieldFormat = ['json'];
@@ -519,16 +519,16 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 id: this.elements[`${fieldName}_direction`],
                 i18n: `${i18n}.${fieldName}`,
                 addDefaultTypes: false,
-                value: {type: value.direction},
-                typedInput: {types: directionsFormat}
+                value: { type: value.direction },
+                typedInput: { types: directionsFormat }
             }, {
-                id: this.elements[fieldName],
-                value: {
-                    type: value.type,
-                    value: [fieldName !== 'xy' ? value.value : (value.value === undefined ? '[]' : value.value)]
-                },
-                typedInput: {types: fieldFormat}
-            }
+            id: this.elements[fieldName],
+            value: {
+                type: value.type,
+                value: [fieldName !== 'xy' ? value.value : (value.value === undefined ? '[]' : value.value)]
+            },
+            typedInput: { types: fieldFormat }
+        }
         );
     }
 
@@ -572,7 +572,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.colorloopspeed,
             i18n,
             value,
-            typedInput: {types: ["num"]}
+            typedInput: { types: ["num"] }
         });
     }
 
@@ -587,9 +587,9 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             value,
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']}),
-                    this.generateTypedInputType(i18n, 'toggle', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'keep', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'set', { subOptions: ['true', 'false'] }),
+                    this.generateTypedInputType(i18n, 'toggle', { hasValue: false }),
                 ]
             }
         });
@@ -603,8 +603,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             value,
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'keep', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'set', {subOptions: ['true', 'false']})
+                    this.generateTypedInputType(i18n, 'keep', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'set', { subOptions: ['true', 'false'] })
                 ]
             }
         });
@@ -620,7 +620,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
                 types: [
                     'num',
                     'str',
-                    this.generateTypedInputType(i18n, 'stop', {hasValue: false}),
+                    this.generateTypedInputType(i18n, 'stop', { hasValue: false }),
                 ]
             }
         });
@@ -632,7 +632,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.tilt,
             i18n,
             value,
-            typedInput: {types: ['num']}
+            typedInput: { types: ['num'] }
         });
     }
 
@@ -648,8 +648,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             addDefaultTypes: false,
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'single', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'dynamic', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'single', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'dynamic', { hasValue: false })
                 ]
             }
         });
@@ -748,10 +748,10 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             value,
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'attribute', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'state', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'config', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'scene_call', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'attribute', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'state', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'config', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'scene_call', { hasValue: false })
                 ]
             }
         });
@@ -766,7 +766,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             typedInput: {
                 types: [
                     'str',
-                    this.generateTypedInputType(i18n, 'object', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'object', { hasValue: false })
                 ]
             }
         });
@@ -816,7 +816,7 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             id: this.elements.transitiontime,
             i18n,
             value,
-            typedInput: {types: ["num"]}
+            typedInput: { types: ["num"] }
         });
     }
 
@@ -843,8 +843,8 @@ class DeconzCommandEditor extends DeconzListItemEditor {
             value,
             typedInput: {
                 types: [
-                    this.generateTypedInputType(i18n, 'continue', {hasValue: false}),
-                    this.generateTypedInputType(i18n, 'stop', {hasValue: false})
+                    this.generateTypedInputType(i18n, 'continue', { hasValue: false }),
+                    this.generateTypedInputType(i18n, 'stop', { hasValue: false })
                 ]
             }
         });

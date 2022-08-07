@@ -189,7 +189,7 @@ class DeconzEditor {
     }
 
     async generateSimpleListField(container, options) {
-        let input = $('<select/>', {id: options.id});
+        let input = $('<select/>', { id: options.id });
 
         if (options.choices) {
             for (const [key, value] of options.choices) {
@@ -341,7 +341,7 @@ class DeconzEditor {
                 data.options.push(
                     this.generateTypedInputType(
                         `${i18n}.options.${name}`, (typeof opt === 'string' ? opt : opt.name),
-                        {icon: false}
+                        { icon: false }
                     )
                 );
             }

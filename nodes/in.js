@@ -138,7 +138,7 @@ module.exports = function (RED) {
 
                         // Format msgs, can get one or many msgs.
                         let formatter = new OutputMsgFormatter(rule, NodeType, this.config);
-                        let msgToSend = formatter.getMsgs({data: device, changed}, rawEvent, options);
+                        let msgToSend = formatter.getMsgs({ data: device, changed }, rawEvent, options);
 
                         // Make sure that the result is an array
                         if (!Array.isArray(msgToSend)) msgToSend = [msgToSend];

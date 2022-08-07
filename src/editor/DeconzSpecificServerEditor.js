@@ -76,7 +76,7 @@ class DeconzSpecificServerEditor extends DeconzEditor {
             let params = Object.assign({}, this.value, overrideSettings);
             if (params.discoverParam === undefined) params.discoverParam = {};
             params.discoverParam.devicetype = 'Node-Red Deconz Plugin' + (this.node ? ` id:${this.node.id}` : '');
-            let request = await $.getJSON(this.xhrURL, {config: JSON.stringify(params)})
+            let request = await $.getJSON(this.xhrURL, { config: JSON.stringify(params) })
                 .catch((t, u) => {
                     this.sendError(t.status === 400 && t.responseText ? t.responseText : u.toString());
                 });

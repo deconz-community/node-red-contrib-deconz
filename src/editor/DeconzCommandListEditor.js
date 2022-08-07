@@ -17,10 +17,10 @@ class DeconzCommandListEditor extends DeconzListItemListEditor {
             if (enabled) {
                 let type_name = this.getI18n(`${i18n}.options.${type}`, 'label');
                 buttons.push({
-                    label: this.getI18n(`${i18n}.add_button`, 'label', {type: type_name}),
+                    label: this.getI18n(`${i18n}.add_button`, 'label', { type: type_name }),
                     icon: this.getIcon(this.getI18n(`${i18n}.add_button`, 'icon'), true),
-                    title: this.getI18n(`${i18n}.add_button`, 'title', {type: type_name}),
-                    click: () => this.$elements.list.editableList('addItem', {type})
+                    title: this.getI18n(`${i18n}.add_button`, 'title', { type: type_name }),
+                    click: () => this.$elements.list.editableList('addItem', { type })
                 });
             }
         }

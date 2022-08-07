@@ -120,7 +120,7 @@ class DeconzAPI {
 
         //TODO check if the current values are valid.
 
-        let response = {log: []};
+        let response = { log: [] };
 
         response.log.push(`Fetching data from '${this.url.discover()}'.`);
         let discoverResult = await this.getDiscoveryData();
@@ -144,18 +144,18 @@ class DeconzAPI {
         }
         if (Array.isArray(discoverResult) && discoverResult.length > 0) {
             for (const result of discoverResult) {
-                guesses.push({secured: false, ip: result.internalipaddress, ports: [result.internalport]});
+                guesses.push({ secured: false, ip: result.internalipaddress, ports: [result.internalport] });
             }
         }
         if (this.ip !== 'localhost') {
-            guesses.push({secured: false, ip: 'localhost', ports: [80, 443, 8080]});
-            guesses.push({secured: true, ip: 'localhost', ports: [80, 443, 8080]});
+            guesses.push({ secured: false, ip: 'localhost', ports: [80, 443, 8080] });
+            guesses.push({ secured: true, ip: 'localhost', ports: [80, 443, 8080] });
         }
         for (const ip of ['core-deconz.local.hass.io', 'homeassistant.local']) {
             if (this.ip !== ip) {
                 let ports = [40850];
                 if (!ports.includes(this.port)) ports.unshift(this.port);
-                guesses.push({secured: false, ip, ports});
+                guesses.push({ secured: false, ip, ports });
             }
         }
 
@@ -347,7 +347,7 @@ class DeconzAPI {
                 {
                     method: 'POST',
                     retry: 1,
-                    json: {devicetype: devicetype},
+                    json: { devicetype: devicetype },
                     responseType: 'json',
                     timeout: 2000
                 }
@@ -369,7 +369,7 @@ class DeconzAPI {
 
     async getConfig(keyName, timeout) {
         try {
-            const discover = await this.doRequest(this.url.config.main(), {timeout});
+            const discover = await this.doRequest(this.url.config.main(), { timeout });
             return keyName === undefined ? discover.body : discover.body[keyName];
         } catch (e) {
             if (this.enableLogs) console.warn(e);

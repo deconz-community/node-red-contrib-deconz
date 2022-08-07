@@ -344,7 +344,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                                 break;
                             case 'str':
                             case 'num':
-                                command.arg.colorloopspeed = {type: 'num'};
+                                command.arg.colorloopspeed = { type: 'num' };
                                 if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'colorloopspeed'`);
                                 } else {
@@ -392,7 +392,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                             case 'str':
                             case 'num':
                                 if (this.config.payload === 'stop') {
-                                    command.arg.lift = {type: 'stop'};
+                                    command.arg.lift = { type: 'stop' };
                                 } else if (isNaN(parseInt(this.config.payload))) {
                                     this.result.errors.push(`Invalid value '${this.config.payload}' for option 'lift'`);
                                 } else {
@@ -440,9 +440,9 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                         'open', 'stop', 'lift', 'tilt'
                     ].includes(this.config.command)
                 )
-                    command.arg.on = {type: 'set', value: 'true'};
+                    command.arg.on = { type: 'set', value: 'true' };
                 if (this.config.command === 'bri' && !isNaN(this.config.payload))
-                    command.arg.on = {type: 'set', value: Number(this.config.payload) > 0 ? 'true' : 'false'};
+                    command.arg.on = { type: 'set', value: Number(this.config.payload) > 0 ? 'true' : 'false' };
                 break;
 
             case 'homekit':
@@ -472,7 +472,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
 
             case 'str':
                 command.type = 'custom';
-                command.arg.target = {type: 'state'};
+                command.arg.target = { type: 'state' };
                 command.arg.command = {
                     type: 'str',
                     value: this.config.command
@@ -484,7 +484,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             case 'msg':
                 command.type = 'custom';
-                command.arg.target = {type: 'state'};
+                command.arg.target = { type: 'state' };
                 command.arg.command = {
                     type: 'msg',
                     value: this.config.command
@@ -496,8 +496,8 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             case 'object':
                 command.type = 'custom';
-                command.arg.target = {type: 'state'};
-                command.arg.command = {type: 'object'};
+                command.arg.target = { type: 'state' };
+                command.arg.command = { type: 'object' };
                 command.arg.payload = {
                     type: this.config.payloadType,
                     value: this.config.payload
@@ -519,7 +519,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             case 'str':
             case 'num':
-                command.arg.transition = {type: 'num'};
+                command.arg.transition = { type: 'num' };
                 if (this.config.transitionTime === '') {
                     command.arg.transition.value = '';
                 } else if (isNaN(parseInt(this.config.transitionTime))) {
@@ -530,7 +530,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
                 break;
             default:
                 if (typeof this.config.transitionTimeType === 'undefined') {
-                    command.arg.transition = {type: 'num'};
+                    command.arg.transition = { type: 'num' };
                 } else {
                     this.result.errors.push(`Invalid value type '${this.config.transitionTimeType}' for option 'transition'`);
                 }
@@ -544,11 +544,11 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
         this.result.delete.push('transitionTime');
         this.result.delete.push('transitionTimeType');
 
-        command.arg.aftererror = {type: 'continue'};
+        command.arg.aftererror = { type: 'continue' };
         this.result.new.commands = [command];
         this.result.new.specific = {
-            delay: {type: 'num', value: 50},
-            result: {type: 'at_end'},
+            delay: { type: 'num', value: 50 },
+            result: { type: 'at_end' },
         };
         this.config_version = 1;
     }
@@ -560,7 +560,7 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
             for (let i = 0; i < this.config.commands.length; i++) {
                 let command = this.config.commands[i];
                 if (command.type === 'deconz_state' && command.domain === 'scene_call') {
-                    command.arg.scene_mode = {type: 'single', value: ''};
+                    command.arg.scene_mode = { type: 'single', value: '' };
                 }
                 newCommands[i] = command;
             }

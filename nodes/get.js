@@ -89,7 +89,7 @@ module.exports = function (RED) {
                     switch (node.config.search_type) {
                         case 'device':
                             for (let path of node.config.device_list) {
-                                devices.push({data: node.server.device_list.getDeviceByPath(path)});
+                                devices.push({ data: node.server.device_list.getDeviceByPath(path) });
                             }
                             break;
                         case 'json':
@@ -101,7 +101,7 @@ module.exports = function (RED) {
                             );
                             try {
                                 for (let r of node.server.device_list.getDevicesByQuery(querySrc).matched) {
-                                    devices.push({data: r});
+                                    devices.push({ data: r });
                                 }
                             } catch (e) {
                                 node.status({

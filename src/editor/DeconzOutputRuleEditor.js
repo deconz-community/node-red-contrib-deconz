@@ -122,7 +122,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
         // Add button to get connected nodes of the output. This is using not documented API so can be broken at anytime.
         this.$elements.outputButton.on('click', () => {
             try {
-                let nodes = RED.nodes.filterLinks({source: this.node, sourcePort: this.index}).map((l) => {
+                let nodes = RED.nodes.filterLinks({ source: this.node, sourcePort: this.index }).map((l) => {
                     let result = l.target.type;
                     if (l.target.name !== "") {
                         return result + ':' + l.target.name;
@@ -214,7 +214,7 @@ class DeconzOutputRuleEditor extends DeconzListItemEditor {
             for (const _type of type_list) {
                 let label = this.getI18n(`${i18n}.group_label.${_type}`);
                 if (label === undefined) label = _type;
-                let groupHtml = $('<optgroup/>', {label});
+                let groupHtml = $('<optgroup/>', { label });
 
                 for (const item of Object.keys(data.count[_type]).sort()) {
                     let sample = data.sample[_type][item];

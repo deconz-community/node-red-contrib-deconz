@@ -9,9 +9,9 @@ module.exports = function (RED) {
         name: "",
         topic: "",
         specific: {
-            method: {type: 'GET'},
-            endpoint: {type: 'str', value: '/'},
-            payload: {type: 'json', value: '{}'}
+            method: { type: 'GET' },
+            endpoint: { type: 'str', value: '/' },
+            payload: { type: 'json', value: '{}' }
         }
     };
 
@@ -89,7 +89,7 @@ module.exports = function (RED) {
                     });
 
                     // Do request
-                    const response = await node.server.api.doRequest(endpoint, {method, body: payload});
+                    const response = await node.server.api.doRequest(endpoint, { method, body: payload });
 
                     // Add output properties
                     let outputProperties = {

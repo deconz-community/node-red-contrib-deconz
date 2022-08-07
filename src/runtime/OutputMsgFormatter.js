@@ -94,10 +94,10 @@ class OutputMsgFormatter {
                     resultMsgs.push(msg);
                 }
                 break;
-            case 'average' :
+            case 'average':
             case 'sum':
-            case 'min' :
-            case 'max' :
+            case 'min':
+            case 'max':
                 let mergeData;
                 let mergeMethod;
                 if (this.rule.format === 'average') {
@@ -121,10 +121,10 @@ class OutputMsgFormatter {
                         case 'sum':
                             mergeMethod = (a, b) => (a + b);
                             break;
-                        case 'min' :
+                        case 'min':
                             mergeMethod = Math.min;
                             break;
-                        case 'max' :
+                        case 'max':
                             mergeMethod = Math.max;
                             break;
                     }
@@ -163,7 +163,7 @@ class OutputMsgFormatter {
                             mergeData('', msg.payload, msg.payload_count, data.payload, mergeMethod);
                         } else {
                             isSingleValue = true;
-                            mergeData('', msg.payload, msg.payload_count, {value: data.payload}, mergeMethod);
+                            mergeData('', msg.payload, msg.payload_count, { value: data.payload }, mergeMethod);
                         }
                     }
                     if (isSingleValue === true) {
