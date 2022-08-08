@@ -52,7 +52,7 @@
     "@node-red/util": "^2.0.6",
     "compare-versions": "^3.6.0",
     "dot-prop": "^6.0.1",
-    "got": "^11.8.2",
+    "got": "^12.3.1",
     "multiple-select": "^1.5.2",
     "set-interval-async": "^2.0.3",
     "ws": "latest"
