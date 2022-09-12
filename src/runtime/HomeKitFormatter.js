@@ -448,7 +448,7 @@ const HomeKitFormat = (() => {
             const map = {
                 false : 0,
                 true : 1
-            }
+            };
             const result = map[dotProp.get(rawEvent, 'state.on')];
             return result !== undefined ? result : map.undefined;
         });
