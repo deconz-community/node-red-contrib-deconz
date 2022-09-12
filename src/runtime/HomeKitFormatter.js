@@ -335,7 +335,11 @@ const HomeKitFormat = (() => {
     HKF.On = directMap(['to', 'from'], 'state.on')
         .services(['Lightbulb', 'Outlet'])
         .needDeviceMeta((deviceMeta) => {
-            return !['Window covering controller', 'Window covering device'].includes(deviceMeta.type);
+            return ![
+                'Window covering controller', 
+                'Window covering device',
+                'Door Lock'
+            ].includes(deviceMeta.type);
         });
     HKF.Brightness = new Attribute()
         .services('Lightbulb')
@@ -421,31 +425,31 @@ const HomeKitFormat = (() => {
     //#region Lock Mechanism
     HKF.LockTargetState = new Attribute()
         .services('Lock Mechanism')
+        .needDeviceMeta({ type: 'Door Lock' })
         .to((rawEvent, deviceMeta) => {
             const map = {
                 false: 0,
                 true: 1
             };
-            return map[dotProp.get(deviceMeta, 'config.lock')];
+            return map[dotProp.get(deviceMeta, 'state.on')];
         })
         .from((value, allValues, result) => {
             const map = {
                 0: false,
                 1: true
             };
-            dotProp.set(result, 'config.lock', map[value]);
+            dotProp.set(result, 'state.on', map[value]);
         });
     HKF.LockCurrentState = new Attribute()
         .services('Lock Mechanism')
-        .needEventMeta('state.lockstate')
+        .needDeviceMeta({ type: 'Door Lock' })
+        .needEventMeta('state.on')
         .to((rawEvent, deviceMeta) => {
             const map = {
-                "locked": 1,
-                "unlocked": 0,
-                "undefined": 3,
-                "not fully locked": 2
-            };
-            const result = map[dotProp.get(rawEvent, 'state.lockstate')];
+                false : 0,
+                true : 1
+            }
+            const result = map[dotProp.get(rawEvent, 'state.on')];
             return result !== undefined ? result : map.undefined;
         });
     //#endregion

@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.5] - 2022-09-12 ![Relative date](https://img.shields.io/date/1662979773?label=)
+
+### Fixed
+
+- Fix HomeKit attributes Lock Target State and Lock Current State for door lock. (#213) @Zehir
+
 ## [2.3.4] - 2022-08-07 ![Relative date](https://img.shields.io/date/1659874532?label=)
 
 ### Added
