@@ -5,12 +5,6 @@ module.exports = (grunt) => {
   let srcFiles = ["Gruntfile.js", "src/**/*.js"];
 
   grunt.initConfig({
-    jshint: {
-      options: {
-        jshintrc: true,
-      },
-      dist: srcFiles,
-    },
     uglify: {
       options: {
         mangle: false,
@@ -43,5 +37,5 @@ module.exports = (grunt) => {
     },
   });
 
-  grunt.registerTask("build", ["jshint", "uglify"]);
+  grunt.registerTask("build", ["uglify"]);
 };
