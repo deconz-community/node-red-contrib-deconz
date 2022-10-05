@@ -1,6 +1,6 @@
 name: 🐞 Report a bug
 description: File a bug/issue on the deCONZ plugin for Node-RED
-labels: [ ]
+labels: []
 body:
   - type: markdown
     attributes:

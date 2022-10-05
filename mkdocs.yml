@@ -10,5 +10,5 @@ markdown_extensions:
       permalink: True
 nav:
   - Introduction: index.md
-  - 'Device Queries': device_queries.md
-  - 'Msg Format': msg_format.md
+  - "Device Queries": device_queries.md
+  - "Msg Format": msg_format.md

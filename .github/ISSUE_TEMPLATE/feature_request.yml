@@ -1,6 +1,6 @@
 name: ⭐️Feature Request
 description: I have an idea for a new thing
-labels: [ ]
+labels: []
 body:
   - type: markdown
     attributes:

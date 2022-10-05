@@ -17,8 +17,8 @@ The value set inside the node configuration.
 
 ### payload_format :new:
 
-Contain what is send inside the payload. Can be ‘__complete__’ if the payload contains all attributes of the device or
-one of the keys of the value. Ex : buttonevent
+Contain what is send inside the payload. Can be `complete` if the payload contains all attributes of the device or
+one of the keys of the value. Ex : `buttonevent`
 
 ### payload_raw (Only for input node)
 
@@ -34,12 +34,12 @@ All attributes of the device that send data
 
 ### meta_changed :new:
 
-Contain an array of all values changed since last time in dot notation. Ex : “state.lastupdated”
+Contain an array of all values changed since last time in dot notation. Ex : `state.lastupdated`
 
 ## Payload format
 
 The payload format value can be either Complete payload, Each payload or a list of selected value. Be careful, you will
-get a message per selected value. If you want to have multiple value inside a message just select Complete payload.
+get a message per selected value. If you want to have multiple value inside a message just select `Complete payload`.
 
 ## Device format
 
@@ -53,13 +53,13 @@ The node will send a message per device that send data.
 ### Array [x,y,z]
 
 The node will send a message with all payload inside an array. The message will contain a payload that is an array of
-single message. Ex msg.payload[0].payload is the payload of the first device. Each element will contain only the
-properties payload, meta, meta_changed. The properties topic, payload_format, payload_raw will be on the msg directly.
+single message. Ex `msg.payload[0].payload` is the payload of the first device. Each element will contain only the
+properties payload, meta, meta_changed. The properties `topic`, `payload_format`, `payload_raw` will be on the msg directly.
 
 ### Maths formats
 
 Where is specials format that do simple maths on values. The result will be inside the payload with the same structure
-as the initial payload. Only numeric values are kept, the values like “1234” are string and not numeric. The meta
+as the initial payload. Only numeric values are kept, the values like `"1234"` are string and not numeric. The meta
 property will be always an array with all devices. If some devices don’t have all properties the missing one will be
 skipped for devices that don’t have it.
 
