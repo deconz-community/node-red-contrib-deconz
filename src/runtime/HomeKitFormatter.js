@@ -8,6 +8,10 @@ class Attribute {
     this.requiredEventMeta = [];
     this.requiredDeviceMeta = [];
     this.servicesList = [];
+    this.valueLimits = {
+      min: -Infinity,
+      max: Infinity,
+    };
   }
 
   needAttribute(attribute) {
@@ -39,7 +43,14 @@ class Attribute {
   }
 
   to(method) {
-    this.toMethod = method;
+    this.toMethod = (...attr) => {
+      let value = method(...attr);
+      if (typeof value === "number") {
+        value = Math.max(value, this.valueLimits.min);
+        value = Math.min(value, this.valueLimits.max);
+      }
+      return value;
+    };
     return this;
   }
 
@@ -48,6 +59,17 @@ class Attribute {
       console.error("Can't use name with from method");
     }
     this.fromMethod = method;
+    return this;
+  }
+
+  /**
+   *
+   * @param {number} min
+   * @param {number} max
+   */
+  limit(min, max) {
+    this.valueLimits.min = min;
+    this.valueLimits.max = max;
     return this;
   }
 
@@ -168,16 +190,16 @@ const HomeKitFormat = (() => {
     .needEventMeta("state.temperature")
     .to(
       (rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.temperature") / 100
-    );
+    )
+    .limit(0, 100);
   HKF.CurrentRelativeHumidity = new Attribute()
     .services(["Thermostat", "Humidity Sensor"])
     .needEventMeta("state.humidity")
-    .to(
-      (rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.humidity") / 100
-    );
-  HKF.CurrentAmbientLightLevel = directMap(["to"], "state.lux").services(
-    "Light Sensor"
-  );
+    .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.humidity") / 100)
+    .limit(0, 100);
+  HKF.CurrentAmbientLightLevel = directMap(["to"], "state.lux")
+    .services("Light Sensor")
+    .limit(0.0001, 100000);
   HKF.SmokeDetected = directMap(["to"], "state.fire").services("Smoke Sensor");
   HKF.OutletInUse = new Attribute()
     .services("Outlet")
@@ -224,7 +246,8 @@ const HomeKitFormat = (() => {
     )
     .from((value, allValues, result, deviceMeta) => {
       dotProp.set(result, "config.heatsetpoint", value * 100);
-    });
+    })
+    .limit(0, 25);
   HKF.CoolingThresholdTemperature = new Attribute()
     .services(["Heater Cooler", "Thermostat"])
     .needDeviceMeta({ type: "ZHAThermostat" })
@@ -235,7 +258,8 @@ const HomeKitFormat = (() => {
     )
     .from((value, allValues, result, deviceMeta) => {
       dotProp.set(result, "config.coolsetpoint", value * 100);
-    });
+    })
+    .limit(10, 35);
   HKF.TargetTemperature = new Attribute()
     .services("Thermostat")
     .needDeviceMeta({ type: "ZHAThermostat" })
@@ -275,7 +299,8 @@ const HomeKitFormat = (() => {
       } else {
         // Don't know what to do with that.
       }
-    });
+    })
+    .limit(10, 38);
   HKF.Active = new Attribute()
     .services("Heater Cooler")
     .needDeviceMeta({ type: "ZHAThermostat" })
@@ -470,7 +495,9 @@ const HomeKitFormat = (() => {
     .to((rawEvent, deviceMeta) => 2); // Stopped
   //#endregion
   //#region Battery
-  HKF.BatteryLevel = directMap(["to"], "config.battery").services("Battery");
+  HKF.BatteryLevel = directMap(["to"], "config.battery")
+    .services("Battery")
+    .limit(0, 100);
   HKF.StatusLowBattery = new Attribute()
     .services("Battery")
     .needEventMeta("config.battery")
