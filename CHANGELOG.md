@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.6] - 2022-10-05 ![Relative date](https://img.shields.io/date/1665001644?label=)
+
+### Added
+
+- Added HomeKit attributes min/max value limits. @Zehir
+
 ## [2.3.5] - 2022-09-12 ![Relative date](https://img.shields.io/date/1662979773?label=)
 
 ### Fixed
@@ -288,4 +294,4 @@ Please edit server configuration and click on update to save the API Key in node
 
 ## [1.2.0] - 2020-07-12 ![Relative date](https://img.shields.io/date/1594559914?label=)
 
-- Lastest version from @andreypopov.
+- Lastest legacy version. @andreypopov
