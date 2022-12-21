@@ -7,11 +7,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.8] - 2022-12-21 ![Relative date](https://img.shields.io/date/1671643824?label=)
+
+### Changed
+
+- Update dependencies. @Zehir
+
 ## [2.3.7] - 2022-12-21 ![Relative date](https://img.shields.io/date/1671642885?label=)
 
 ### Fixed
 
-- Fix UI not loading on Safari (#217) @Zehir
+- Fix UI not loading on Safari. (#217) @Zehir
 
 ### Changed
 
