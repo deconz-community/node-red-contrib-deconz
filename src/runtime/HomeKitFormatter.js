@@ -190,8 +190,7 @@ const HomeKitFormat = (() => {
     .needEventMeta("state.temperature")
     .to(
       (rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.temperature") / 100
-    )
-    .limit(0, 100);
+    );
   HKF.CurrentRelativeHumidity = new Attribute()
     .services(["Thermostat", "Humidity Sensor"])
     .needEventMeta("state.humidity")
