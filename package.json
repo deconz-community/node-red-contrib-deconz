@@ -55,7 +55,7 @@
     "got": "^11.8.2",
     "multiple-select": "^1.5.2",
     "set-interval-async": "^2.0.3",
-    "ws": "latest"
+    "ws": "^8.11.0"
   },
   "devDependencies": {
     "grunt": "^1.5.3",
@@ -78,5 +78,8 @@
       "battery": "nodes/battery.js",
       "server": "nodes/server.js"
     }
+  },
+  "engines": {
+    "node": ">=12.0.0"
   }
 }
