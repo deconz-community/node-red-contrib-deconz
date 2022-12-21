@@ -198,15 +198,17 @@ class DeconzEditor {
     return input;
   }
 
-  async generateTypedInput(container, options) {
+  async generateTypedInput(id, placeholder) {
+    // Don't use an object to setup the option here
+    // See : https://github.com/deconz-community/node-red-contrib-deconz/issues/217#issuecomment-1361670862
     let input = $("<input/>", {
-      id: options.id,
-      placeholder: RED._(options.placeholder),
+      id,
+      placeholder: RED._(placeholder),
       //class: 's-width',
     });
 
     let inputType = $("<input/>", {
-      id: `${options.id}_type`,
+      id: `${id}_type`,
       //class: 's-width',
       type: "hidden",
     });
@@ -285,10 +287,10 @@ class DeconzEditor {
   }
 
   async generateTypedInputField(container, options) {
-    let input = await this.generateTypedInput(container, {
-      id: options.id,
-      placeholder: this.getI18n(options.i18n, "placeholder"),
-    });
+    let input = await this.generateTypedInput(
+      options.id,
+      this.getI18n(options.i18n, "placeholder")
+    );
 
     let row = await this.generateInputWithLabel(input, options);
     container.append(row);
@@ -297,10 +299,16 @@ class DeconzEditor {
   }
 
   async generateDoubleTypedInputField(container, optionsFirst, optionsSecond) {
-    let inputFirst = await this.generateTypedInput(container, optionsFirst);
+    let inputFirst = await this.generateTypedInput(
+      optionsFirst.id,
+      optionsFirst.placeholder
+    );
     let row = await this.generateInputWithLabel(inputFirst, optionsFirst);
 
-    let inputSecond = await this.generateTypedInput(container, optionsSecond);
+    let inputSecond = await this.generateTypedInput(
+      optionsSecond.id,
+      optionsSecond.placeholder
+    );
     row.append(inputSecond);
 
     container.append(row);
