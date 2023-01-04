@@ -7,8 +7,10 @@ module.exports = (grunt) => {
   grunt.initConfig({
     uglify: {
       options: {
-        mangle: false,
+        mangle: { webkit: true },
+        compress: { webkit: true },
         sourceMap: true,
+        //beautify: true,
       },
       dist: {
         files: {
