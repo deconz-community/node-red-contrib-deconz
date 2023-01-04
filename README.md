@@ -1,7 +1,7 @@
 # Node-Red deCONZ
 
 [![GitHub](https://img.shields.io/github/license/deconz-community/node-red-contrib-deconz)](https://github.com/deconz-community/node-red-contrib-deconz/blob/main/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/deconz-community/node-red-contrib-deconz/NPM%20Publish)](https://github.com/deconz-community/node-red-contrib-deconz/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/deconz-community/node-red-contrib-deconz/npm-publish.yml?branch=main)](https://github.com/deconz-community/node-red-contrib-deconz/actions)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/deconz-community/node-red-contrib-deconz?include_prereleases&label=github&sort=semver)](https://github.com/deconz-community/node-red-contrib-deconz/releases)
 [![npm](https://img.shields.io/npm/v/node-red-contrib-deconz)](https://www.npmjs.com/package/node-red-contrib-deconz)
 [![GitHub issues](https://img.shields.io/github/issues/deconz-community/node-red-contrib-deconz)](https://github.com/deconz-community/node-red-contrib-deconz/issues)
@@ -15,14 +15,14 @@ Hi it's [@Zehir](https://github.com/Zehir) here, I worked hard for months on a c
 a ton of new features, it's will be easier to do stuff on node-red. If you have any issue with this beta version, feel
 free to open issues on [GitHub](https://github.com/deconz-community/node-red-contrib-deconz/issues).
 
-__This new version requires Node-Red version 1.2.9 or newer.__
+**This new version requires Node-Red version 1.2.9 or newer.**
 
 Some new features ([Changelog](https://github.com/deconz-community/node-red-contrib-deconz/blob/master/CHANGELOG.md)):
 
-* Multiple device selection.
-* Select device using [queries](https://deconz-community.github.io/node-red-contrib-deconz/device_queries/).
-* Multiple commands at once.
-* Query multiple devices and merge the result.
+- Multiple device selection.
+- Select device using [queries](https://deconz-community.github.io/node-red-contrib-deconz/device_queries/).
+- Multiple commands at once.
+- Query multiple devices and merge the result.
 
 ### Migrate from 1.3.4
 
@@ -36,11 +36,11 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 
 ## Available nodes
 
-* deconz-in: A node to subscribe to deCONZ events.
-* deconz-get: get state of device or group.
-* deconz-out: send actions or data to device or group.
-* deconz-battery: get battery status of device
-* deconz-event: get all deconz events
+- deconz-in: A node to subscribe to deCONZ events.
+- deconz-get: get state of device or group.
+- deconz-out: send actions or data to device or group.
+- deconz-battery: get battery status of device
+- deconz-event: get all deconz events
 
 [![Flow sample](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/flow_sample.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/flow_sample.png)
 [![Server setup](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/server_setup.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/server_setup.png)
