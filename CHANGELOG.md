@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+### Fixed
+
+- Fix JSONata Expression handling for Node-Red 4.0 @Zehir
+
 ## [2.3.9] - 2023-01-04 ![Relative date](https://img.shields.io/date/1672868800?label=)
 
 ### Fixed

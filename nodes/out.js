@@ -138,11 +138,16 @@ module.exports = function (RED) {
               break;
             case "json":
             case "jsonata":
-              let querySrc = RED.util.evaluateJSONataExpression(
-                RED.util.prepareJSONataExpression(node.config.query, node),
-                message_in,
-                undefined
-              );
+              const querySrc = await new Promise((resolve, reject) => {
+                RED.util.evaluateJSONataExpression(
+                  RED.util.prepareJSONataExpression(node.config.query, node),
+                  message_in,
+                  (err, value) => {
+                    if (err) reject(err);
+                    else resolve(value);
+                  }
+                );
+              });
               try {
                 for (let r of node.server.device_list.getDevicesByQuery(
                   querySrc

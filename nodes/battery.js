@@ -64,7 +64,7 @@ module.exports = function (RED) {
         (async () => {
           await Utils.sleep(1500);
           initNode();
-          node.server.propagateStartNews([node.id]);
+          await node.server.propagateStartNews([node.id]);
         })()
           .then()
           .catch((error) => {

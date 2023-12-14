@@ -109,7 +109,7 @@ module.exports = function (RED) {
               "Please check server configuration.";
             if (node.state.pooling.errorTriggered === false) {
               node.state.pooling.errorTriggered = true;
-              node.propagateErrorNews(code, reason, true);
+              await node.propagateErrorNews(code, reason, true);
             }
             if (node.state.pooling.failCount % 4 === 2) {
               node.error(reason);
@@ -123,7 +123,7 @@ module.exports = function (RED) {
 
             if (node.state.pooling.errorTriggered === false) {
               node.state.pooling.errorTriggered = true;
-              node.propagateErrorNews(code, reason, true);
+              await node.propagateErrorNews(code, reason, true);
             }
             if (node.state.pooling.failCount % 4 === 2) {
               node.error(reason);
@@ -248,7 +248,7 @@ module.exports = function (RED) {
             "discoverDevices: Can't use to deconz API, invalid api key. " +
             "Please check server configuration.";
           node.error(reason);
-          node.propagateErrorNews(code, reason, true);
+          await node.propagateErrorNews(code, reason, true);
           node.onClose();
         }
         //node.error(`discoverDevices: Can't connect to deconz API.`);
@@ -257,7 +257,7 @@ module.exports = function (RED) {
       }
     }
 
-    propagateStartNews(whitelistNodes) {
+    async propagateStartNews(whitelistNodes) {
       let node = this;
       // Node with device selected
 
@@ -293,11 +293,17 @@ module.exports = function (RED) {
         }
 
         // TODO Cache JSONata expresssions ?
-        let querySrc = RED.util.evaluateJSONataExpression(
-          RED.util.prepareJSONataExpression(target.config.query, target),
-          {},
-          undefined
-        );
+        const querySrc = await new Promise((resolve, reject) => {
+          RED.util.evaluateJSONataExpression(
+            RED.util.prepareJSONataExpression(target.config.query, target),
+            {},
+            (err, value) => {
+              if (err) reject(err);
+              else resolve(value);
+            }
+          );
+        });
+
         try {
           let devices = node.device_list.getDevicesByQuery(querySrc);
           if (devices.matched.length === 0) continue;
@@ -325,7 +331,7 @@ module.exports = function (RED) {
       }
     }
 
-    propagateErrorNews(code, reason, isGlobalError = false) {
+    async propagateErrorNews(code, reason, isGlobalError = false) {
       let node = this;
       if (!reason) return;
 
@@ -381,11 +387,17 @@ module.exports = function (RED) {
         }
 
         // TODO Cache JSONata expresssions ?
-        let querySrc = RED.util.evaluateJSONataExpression(
-          RED.util.prepareJSONataExpression(target.config.query, target),
-          {},
-          undefined
-        );
+        const querySrc = await new Promise((resolve, reject) => {
+          RED.util.evaluateJSONataExpression(
+            RED.util.prepareJSONataExpression(target.config.query, target),
+            {},
+            (err, value) => {
+              if (err) reject(err);
+              else resolve(value);
+            }
+          );
+        });
+
         try {
           let devices = node.device_list.getDevicesByQuery(querySrc);
           if (devices.matched.length === 0) continue;
@@ -681,7 +693,7 @@ module.exports = function (RED) {
       return changed;
     }
 
-    onSocketMessage(dataParsed) {
+    async onSocketMessage(dataParsed) {
       let node = this;
       node.state.websocket.lastEvent = Date.now();
       node.state.websocket.isValid = true;
@@ -749,11 +761,17 @@ module.exports = function (RED) {
         }
 
         // TODO Cache JSONata expresssions ?
-        let querySrc = RED.util.evaluateJSONataExpression(
-          RED.util.prepareJSONataExpression(target.config.query, target),
-          {},
-          undefined
-        );
+        const querySrc = await new Promise((resolve, reject) => {
+          RED.util.evaluateJSONataExpression(
+            RED.util.prepareJSONataExpression(target.config.query, target),
+            {},
+            (err, value) => {
+              if (err) reject(err);
+              else resolve(value);
+            }
+          );
+        });
+
         try {
           let query = new Query(querySrc);
           if (query.match(device)) {
