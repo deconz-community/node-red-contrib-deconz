@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -16,7 +16,7 @@ dependencies:
     version: 6.0.1
   got:
     specifier: ^11.8.2
-    version: 11.8.2
+    version: 11.8.5
   multiple-select:
     specifier: ^1.5.2
     version: 1.7.0(jquery@3.7.1)
@@ -1485,8 +1485,8 @@ packages:
       get-intrinsic: 1.2.2
     dev: true
 
-  /got@11.8.2:
-    resolution: {integrity: sha512-D0QywKgIe30ODs+fm8wMZiAcZjypcCodPNuMz5H9Mny7RJ+IjJ10BdmGW7OM7fHXP+O7r6ZwapQ/YQmMSvB0UQ==}
+  /got@11.8.5:
+    resolution: {integrity: sha512-o0Je4NvQObAuZPHLFoRSkdG2lTgtcynqymzg2Vupdx6PorhaT5MCbIyXG6d4D94kk8ZG57QeosgdiqfJWhEhlQ==}
     engines: {node: '>=10.19.0'}
     dependencies:
       '@sindresorhus/is': 4.6.0
