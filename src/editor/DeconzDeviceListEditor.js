@@ -70,8 +70,14 @@ class DeconzDeviceListEditor extends DeconzEditor {
       options.keepOnlyMatched = true;
       params.query = JSON.stringify({
         type: "match",
+        method: "OR",
         match: {
           "config.battery": {
+            type: "complex",
+            operator: "!==",
+            value: undefined,
+          },
+          "state.battery": {
             type: "complex",
             operator: "!==",
             value: undefined,

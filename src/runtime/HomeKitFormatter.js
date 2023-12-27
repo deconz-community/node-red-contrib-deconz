@@ -494,15 +494,31 @@ const HomeKitFormat = (() => {
     .to((rawEvent, deviceMeta) => 2); // Stopped
   //#endregion
   //#region Battery
-  HKF.BatteryLevel = directMap(["to"], "config.battery")
+  HKF.BatteryLevel = new Attribute()
     .services("Battery")
+    .to((rawEvent, deviceMeta) => {
+      let battery = dotProp.get(rawEvent, "config.battery");
+      if (battery === undefined) {
+        battery = dotProp.get(rawEvent, "state.battery");
+      }
+      return battery;
+    })
     .limit(0, 100);
   HKF.StatusLowBattery = new Attribute()
     .services("Battery")
-    .needEventMeta("config.battery")
-    .to((rawEvent, deviceMeta) =>
-      dotProp.get(rawEvent, "config.battery") <= 15 ? 1 : 0
-    );
+    .needEventMeta(
+      (rawEvent, deviceMeta) =>
+        dotProp.has(rawEvent, "config.battery") ||
+        dotProp.has(rawEvent, "state.battery")
+    )
+    .to((rawEvent, deviceMeta) => {
+      let battery = dotProp.get(rawEvent, "config.battery");
+      if (battery === undefined) {
+        battery = dotProp.get(rawEvent, "state.battery");
+      }
+      return battery <= 15 ? 1 : 0;
+    });
+
   //#endregion
   //#region Lock Mechanism
   HKF.LockTargetState = new Attribute()

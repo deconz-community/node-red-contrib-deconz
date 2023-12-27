@@ -21,18 +21,24 @@ class Utils {
     return msg;
   }
 
-  static getNodeProperty(property, node, message_in, noValueTypes) {
+  static async getNodeProperty(property, node, message_in, noValueTypes) {
     if (typeof property !== "object") return;
     if (property.type === "num" && property.value === "") return;
+
     return Array.isArray(noValueTypes) && noValueTypes.includes(property.type)
       ? property.type
-      : REDUtil.evaluateNodeProperty(
-          property.value,
-          property.type,
-          node,
-          message_in,
-          undefined
-        );
+      : await new Promise((resolve, reject) => {
+          RED.util.evaluateNodeProperty(
+            property.value,
+            property.type,
+            node,
+            message_in,
+            (err, value) => {
+              if (err) reject(err);
+              else resolve(value);
+            }
+          );
+        });
   }
 
   static convertRange(value, r1, r2, roundValue = false, limitValue = false) {

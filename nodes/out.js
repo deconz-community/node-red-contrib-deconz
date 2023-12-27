@@ -117,7 +117,7 @@ module.exports = function (RED) {
             return;
           }
 
-          let delay = Utils.getNodeProperty(
+          let delay = await Utils.getNodeProperty(
             node.config.specific.delay,
             this,
             message_in
@@ -169,7 +169,7 @@ module.exports = function (RED) {
           let resultMsgs = [];
           let errorMsgs = [];
           let resultTimings = ["never", "after_command", "at_end"];
-          let resultTiming = Utils.getNodeProperty(
+          let resultTiming = await Utils.getNodeProperty(
             node.config.specific.result,
             this,
             message_in,
@@ -185,7 +185,7 @@ module.exports = function (RED) {
             // Make sure that all expected config are defined
             const command = Object.assign({}, defaultCommand, saved_command);
             if (command.type === "pause") {
-              let sleep_delay = Utils.getNodeProperty(
+              let sleep_delay = await Utils.getNodeProperty(
                 command.arg.delay,
                 this,
                 message_in
@@ -211,7 +211,8 @@ module.exports = function (RED) {
 
             try {
               let cp = new CommandParser(command, message_in, node);
-              let requests = cp.getRequests(node, devices);
+              await cp.build();
+              let requests = await cp.getRequests(node, devices);
               let request_count = requests.length;
               for (const [request_id, request] of requests.entries()) {
                 try {
@@ -238,11 +239,11 @@ module.exports = function (RED) {
                     {
                       method: "PUT",
                       retry:
-                        Utils.getNodeProperty(
+                        (await Utils.getNodeProperty(
                           command.arg.retryonerror,
                           this,
                           message_in
-                        ) || 0,
+                        )) || 0,
                       json: request.params,
                       responseType: "json",
                       timeout: 2000, // TODO make configurable ?
@@ -343,12 +344,12 @@ module.exports = function (RED) {
                   }
 
                   if (
-                    Utils.getNodeProperty(
+                    (await Utils.getNodeProperty(
                       command.arg.aftererror,
                       this,
                       message_in,
                       ["continue", "stop"]
-                    ) === "stop"
+                    )) === "stop"
                   )
                     return;
 

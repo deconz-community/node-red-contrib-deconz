@@ -49,7 +49,7 @@ module.exports = function (RED) {
   /**
    * Enable http route to JSON itemlist for each controller (controller id passed as GET query parameter)
    */
-  RED.httpAdmin.get(NODE_PATH + "itemlist", function (req, res) {
+  RED.httpAdmin.get(NODE_PATH + "itemlist", async function (req, res) {
     try {
       let config = req.query;
       let controller = RED.nodes.getNode(config.controllerID);
@@ -64,13 +64,18 @@ module.exports = function (RED) {
           req.query.query !== undefined &&
           ["json", "jsonata"].includes(queryType)
         ) {
-          query = RED.util.evaluateNodeProperty(
-            req.query.query,
-            queryType,
-            RED.nodes.getNode(req.query.nodeID),
-            {},
-            undefined
-          );
+          query = await new Promise((resolve, reject) => {
+            RED.util.evaluateNodeProperty(
+              req.query.query,
+              queryType,
+              RED.nodes.getNode(req.query.nodeID),
+              {},
+              (err, value) => {
+                if (err) reject(err);
+                else resolve(value);
+              }
+            );
+          });
         }
       } catch (e) {
         return res.json({
@@ -290,6 +295,7 @@ module.exports = function (RED) {
       if (controller && controller.constructor.name === "ServerNode") {
         let fakeNode = { server: controller };
         let cp = new CommandParser(config.command, {}, fakeNode);
+        await cp.build();
         let devices = [];
         for (let path of config.device_list) {
           let device = controller.device_list.getDeviceByPath(path);
@@ -299,25 +305,25 @@ module.exports = function (RED) {
             console.warn(`Error : Device not found : '${path}'`);
           }
         }
-        let requests = cp.getRequests(fakeNode, devices);
+        let requests = await cp.getRequests(fakeNode, devices);
         for (const [request_id, request] of requests.entries()) {
           const response = await got(
             controller.api.url.main() + request.endpoint,
             {
               method: "PUT",
               retry:
-                Utils.getNodeProperty(
+                (await Utils.getNodeProperty(
                   config.command.arg.retryonerror,
                   this,
                   {}
-                ) || 0,
+                )) || 0,
               json: request.params,
               responseType: "json",
               timeout: 2000, // TODO make configurable ?
             }
           );
           await Utils.sleep(
-            Utils.getNodeProperty(config.delay, this, {}) || 50
+            (await Utils.getNodeProperty(config.delay, this, {})) || 50
           );
         }
         res.status(200).end();

@@ -80,7 +80,7 @@ module.exports = function (RED) {
           // Load the config
           let config = node.config;
           let methods = ["GET", "POST", "PUT", "DELETE"];
-          let method = Utils.getNodeProperty(
+          let method = await Utils.getNodeProperty(
             config.specific.method,
             node,
             message_in,
@@ -88,12 +88,12 @@ module.exports = function (RED) {
           );
           // Make sure the method is valid
           if (!methods.includes(method)) method = "GET";
-          let endpoint = Utils.getNodeProperty(
+          let endpoint = await Utils.getNodeProperty(
             config.specific.endpoint,
             node,
             message_in
           );
-          let payload = Utils.getNodeProperty(
+          let payload = await Utils.getNodeProperty(
             config.specific.payload,
             node,
             message_in

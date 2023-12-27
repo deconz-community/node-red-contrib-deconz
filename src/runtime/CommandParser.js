@@ -14,24 +14,26 @@ class CommandParser {
       config: {},
       state: {},
     };
+  }
 
+  async build() {
     switch (this.type) {
       case "deconz_state":
         switch (this.domain) {
           case "lights":
             this.valid_domain.push("lights");
-            this.parseDeconzStateLightArgs();
+            await this.parseDeconzStateLightArgs();
             break;
           case "covers":
             this.valid_domain.push("covers");
-            this.parseDeconzStateCoverArgs();
+            await this.parseDeconzStateCoverArgs();
             break;
           case "groups":
             this.valid_domain.push("groups");
-            this.parseDeconzStateLightArgs();
+            await this.parseDeconzStateLightArgs();
             break;
           case "scene_call":
-            this.parseDeconzStateSceneCallArgs();
+            await this.parseDeconzStateSceneCallArgs();
             break;
         }
         break;
@@ -52,14 +54,14 @@ class CommandParser {
         break;
       case "custom":
         this.valid_domain.push("any");
-        this.parseCustomArgs();
+        await this.parseCustomArgs();
         break;
     }
   }
 
-  parseDeconzStateLightArgs() {
+  async parseDeconzStateLightArgs() {
     // On command
-    this.result.state.on = this.getNodeProperty(
+    this.result.state.on = await this.getNodeProperty(
       this.arg.on,
       ["toggle"],
       [
@@ -84,26 +86,28 @@ class CommandParser {
       switch (this.arg[k].direction) {
         case "set":
           if (k === "xy") {
-            let xy = this.getNodeProperty(this.arg.xy);
+            let xy = await this.getNodeProperty(this.arg.xy);
             if (Array.isArray(xy) && xy.length === 2) {
               this.result.state[k] = xy.map(Number);
             }
           } else {
-            this.result.state[k] = Number(this.getNodeProperty(this.arg[k]));
+            this.result.state[k] = Number(
+              await this.getNodeProperty(this.arg[k])
+            );
           }
           break;
         case "inc":
           this.result.state[`${k}_inc`] = Number(
-            this.getNodeProperty(this.arg[k])
+            await this.getNodeProperty(this.arg[k])
           );
           break;
         case "dec":
           this.result.state[`${k}_inc`] = -Number(
-            this.getNodeProperty(this.arg[k])
+            await this.getNodeProperty(this.arg[k])
           );
           break;
         case "detect_from_value":
-          let value = this.getNodeProperty(this.arg[k]);
+          let value = await this.getNodeProperty(this.arg[k]);
           switch (typeof value) {
             case "string":
               switch (value.substr(0, 1)) {
@@ -130,12 +134,12 @@ class CommandParser {
       if (this.arg[k] === undefined || this.arg[k].value === undefined)
         continue;
       if (this.arg[k].value.length > 0)
-        this.result.state[k] = this.getNodeProperty(this.arg[k]);
+        this.result.state[k] = await this.getNodeProperty(this.arg[k]);
     }
   }
 
-  parseDeconzStateCoverArgs() {
-    this.result.state.open = this.getNodeProperty(
+  async parseDeconzStateCoverArgs() {
+    this.result.state.open = await this.getNodeProperty(
       this.arg.open,
       ["toggle"],
       [
@@ -145,7 +149,7 @@ class CommandParser {
       ]
     );
 
-    this.result.state.stop = this.getNodeProperty(
+    this.result.state.stop = await this.getNodeProperty(
       this.arg.stop,
       [],
       [
@@ -155,31 +159,35 @@ class CommandParser {
       ]
     );
 
-    this.result.state.lift = this.getNodeProperty(this.arg.lift, ["stop"]);
-    this.result.state.tilt = this.getNodeProperty(this.arg.tilt);
+    this.result.state.lift = await this.getNodeProperty(this.arg.lift, [
+      "stop",
+    ]);
+    this.result.state.tilt = await this.getNodeProperty(this.arg.tilt);
   }
 
-  parseDeconzStateSceneCallArgs() {
-    switch (this.getNodeProperty(this.arg.scene_mode, ["single", "dynamic"])) {
+  async parseDeconzStateSceneCallArgs() {
+    switch (
+      await this.getNodeProperty(this.arg.scene_mode, ["single", "dynamic"])
+    ) {
       case "single":
       case undefined:
         this.result.scene_call = {
           mode: "single",
-          groupId: this.getNodeProperty(this.arg.group),
-          sceneId: this.getNodeProperty(this.arg.scene),
+          groupId: await this.getNodeProperty(this.arg.group),
+          sceneId: await this.getNodeProperty(this.arg.scene),
         };
         break;
       case "dynamic":
         this.result.scene_call = {
           mode: "dynamic",
-          sceneName: this.getNodeProperty(this.arg.scene_name),
+          sceneName: await this.getNodeProperty(this.arg.scene_name),
         };
         break;
     }
   }
 
-  parseHomekitArgs(deviceMeta) {
-    let values = this.getNodeProperty(this.arg.payload);
+  async parseHomekitArgs(deviceMeta) {
+    let values = await this.getNodeProperty(this.arg.payload);
     let allValues = values;
     if (dotProp.has(this.message_in, "hap.allChars")) {
       allValues = dotProp.get(this.message_in, "hap.allChars");
@@ -216,19 +224,19 @@ class CommandParser {
     dotProp.set(
       this.result,
       "state.transitiontime",
-      this.getNodeProperty(this.arg.transitiontime)
+      await this.getNodeProperty(this.arg.transitiontime)
     );
   }
 
-  parseCustomArgs() {
-    let target = this.getNodeProperty(this.arg.target, [
+  async parseCustomArgs() {
+    let target = await this.getNodeProperty(this.arg.target, [
       "attribute",
       "state",
       "config",
       "scene_call",
     ]);
-    let command = this.getNodeProperty(this.arg.command, ["object"]);
-    let value = this.getNodeProperty(this.arg.payload);
+    let command = await this.getNodeProperty(this.arg.command, ["object"]);
+    let value = await this.getNodeProperty(this.arg.payload);
     switch (target) {
       case "attribute":
         if (command === "object") {
@@ -279,7 +287,7 @@ class CommandParser {
    * @param devices Device[]
    * @returns {*[]}
    */
-  getRequests(node, devices) {
+  async getRequests(node, devices) {
     let deconzApi = node.server.api;
     let requests = [];
 
@@ -359,7 +367,7 @@ class CommandParser {
             config: {},
             state: {},
           };
-          this.parseHomekitArgs(device.data);
+          await this.parseHomekitArgs(device.data);
         }
 
         // Make sure that the endpoint exist
@@ -446,7 +454,7 @@ class CommandParser {
     return requests;
   }
 
-  getNodeProperty(property, noValueTypes, valueMaps) {
+  async getNodeProperty(property, noValueTypes, valueMaps) {
     if (typeof property === "undefined") return undefined;
     if (Array.isArray(valueMaps))
       for (const map of valueMaps)
@@ -457,7 +465,7 @@ class CommandParser {
             `${property.type}.${property.value}` === map[0])
         )
           return map[1];
-    return Utils.getNodeProperty(
+    return await Utils.getNodeProperty(
       property,
       this.node,
       this.message_in,

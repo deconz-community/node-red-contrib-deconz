@@ -7,6 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.11] - 2023-12-27 ![Relative date](https://img.shields.io/date/1703697133?label=)
+
+### Fixed
+
+- Fix more JSONata Expression handling for Node-Red 4.0. @Zehir
+- Fix default value for node status of deconz-battery. @Zehir
+- Fix deconz-battery node filter not showing devices with `state.battery`. (#228) @Zehir
+- Fix HomeKit attribute BatteryLevel and StatusLowBattery for devices with `state.battery`. @Zehir
+
 ## [2.3.10] - 2023-12-14 ![Relative date](https://img.shields.io/date/1702556236?label=)
 
 ### Fixed

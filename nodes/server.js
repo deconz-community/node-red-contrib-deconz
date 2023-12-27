@@ -823,7 +823,7 @@ module.exports = function (RED) {
       }
     }
 
-    updateNodeStatus(node, msgToSend) {
+    async updateNodeStatus(node, msgToSend) {
       if (node.server.ready === false) {
         node.status({
           fill: "red",
@@ -885,7 +885,7 @@ module.exports = function (RED) {
           node.status({
             fill: "green",
             shape: "dot",
-            text: Utils.getNodeProperty(
+            text: await Utils.getNodeProperty(
               {
                 type: node.config.statustext_type,
                 value: node.config.statustext,
@@ -924,6 +924,8 @@ module.exports = function (RED) {
               break;
             case "deconz-battery":
               let battery = dotProp.get(firstmsg, "meta.config.battery");
+              if (battery === undefined)
+                battery = dotProp.get(firstmsg, "meta.state.battery");
               if (battery === undefined) return;
               node.status({
                 fill:
