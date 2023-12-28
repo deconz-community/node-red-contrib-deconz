@@ -50,10 +50,6 @@ an [issue on Github](https://github.com/deconz-community/node-red-contrib-deconz
 ## Home Assistant
 
 Do not forget to open ports if you are using Node-Red from outside Home Assistant containers :
+This is not needed if you are using Node-Red from inside Home Assistant containers.
+
 [![HA setup](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/ha_setup.png)](https://raw.githubusercontent.com/deconz-community/node-red-contrib-deconz/master/readme/ha_setup.png)
-
-## Legacy version
-
-The last version of the "legacy" version will be 1.3.4. This version was originally created
-by [@Andreypopov](https://github.com/andreypopov), he mentioned that he stopped development. Dennis the Community
-Manager of deCONZ asked him to transfer the repository so we can advance on it later. Please bear with us.
