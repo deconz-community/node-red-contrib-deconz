@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] :construction:
 
+## [2.3.12] - 2023-12-28 ![Relative date](https://img.shields.io/date/1703764977?label=)
+
+### Fixed
+
+- Fix RED utils typo. (#229) @Zehir
+
 ## [2.3.11] - 2023-12-27 ![Relative date](https://img.shields.io/date/1703697133?label=)
 
 ### Fixed

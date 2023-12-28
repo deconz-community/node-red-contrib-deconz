@@ -28,7 +28,7 @@ class Utils {
     return Array.isArray(noValueTypes) && noValueTypes.includes(property.type)
       ? property.type
       : await new Promise((resolve, reject) => {
-          RED.util.evaluateNodeProperty(
+          REDUtil.evaluateNodeProperty(
             property.value,
             property.type,
             node,
