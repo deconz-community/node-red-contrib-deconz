@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.14
+
+### Patch Changes
+
+- 00cad79: Fix publish workflow
+
 ## 2.3.13
 
 ### Patch Changes
