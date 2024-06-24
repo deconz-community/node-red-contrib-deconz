@@ -9,6 +9,13 @@ const CompareVersion = require("compare-versions");
 const HomeKitFormatter = require("./src/runtime/HomeKitFormatter");
 
 module.exports = function (RED) {
+
+  function backendNode(config) {
+    RED.nodes.createNode(this, config);
+  }
+
+  RED.nodes.registerType("deconz-ui-backend", backendNode);
+
   /**
    * Static files route because some users are using Node-Red 1.3.0 or lower
    */

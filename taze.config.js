@@ -1,7 +1,7 @@
 import { defineConfig } from "taze";
 
 export default defineConfig({
-  mode: "minor",
+  mode: "major",
   recursive: true,
 
   // fetch latest package info from registry without cache

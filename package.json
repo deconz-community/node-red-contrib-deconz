@@ -44,28 +44,29 @@
     "/src/runtime"
   ],
   "scripts": {
-    "prepack": "grunt build",
-    "watch": "grunt watch",
+    "build": "grunt build",
+    "dev": "grunt watch",
     "test": "mocha"
   },
   "dependencies": {
-    "@node-red/util": "^3.1.5",
+    "@node-red/util": "^4.0.0",
     "compare-versions": "^6.1.0",
     "dot-prop": "^6.0.1",
     "got": "^11.8.6",
     "multiple-select": "^1.7.0",
-    "set-interval-async": "^2.0.3",
-    "ws": "^8.16.0"
+    "set-interval-async": "^3.0.3",
+    "ws": "^8.17.1"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.6",
     "grunt": "^1.6.1",
     "grunt-contrib-uglify": "^5.2.2",
     "grunt-contrib-watch": "^1.1.0",
     "load-grunt-tasks": "^5.1.0",
-    "mocha": "^8.4.0",
-    "nyc": "^15.1.0",
+    "mocha": "^10.4.0",
+    "nyc": "^17.0.0",
     "should": "^13.2.3",
-    "taze": "^0.13.3"
+    "taze": "^0.13.8"
   },
   "node-red": {
     "version": ">=1.2.9",
