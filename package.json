@@ -46,7 +46,8 @@
   "scripts": {
     "build": "grunt build",
     "dev": "grunt watch",
-    "test": "mocha"
+    "test": "mocha",
+    "release": "pnpm run test && pnpm run build && changeset publish"
   },
   "packageManager": "pnpm@9.4.0",
   "dependencies": {
