@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Msg Format - Node-Red plugin for deCONZ</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Msg Format";
+        var mkdocs_page_input_path = "msg_format.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Node-Red plugin for deCONZ
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../device_queries/">Device Queries</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Msg Format</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#basic-format-example">Basic format example</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#payload">payload</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#topic">topic</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#payload_format-new">payload_format :new:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#payload_raw-only-for-input-node">payload_raw (Only for input node)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#payload_count-only-for-get-node-with-maths-format-new">payload_count (Only for get node with maths format) :new:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#meta">meta</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#meta_changed-new">meta_changed :new:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#payload-format">Payload format</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-format">Device format</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#single-x-y-z">Single x … y … z</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#array-xyz">Array [x,y,z]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maths-formats">Maths formats</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#sum-xyz">Sum (x+y+z)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#average-xyz3">Average (x+y+z)/3</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#min-xyz-y">Min X+y+Z = y</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#max-x-y-z-x">Max X + y + z = X</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Node-Red plugin for deCONZ</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Msg Format</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/deconz-community/node-red-contrib-deconz/edit/master/docs/msg_format.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="msg-format">Msg Format<a class="headerlink" href="#msg-format" title="Permanent link">&para;</a></h1>
+<p>On the input and get nodes you can have different payload format for the outputs. There are multiple kinds of settings
+for the data format, the type, the device format and the payload format.</p>
+<h2 id="basic-format-example">Basic format example<a class="headerlink" href="#basic-format-example" title="Permanent link">&para;</a></h2>
+<p>The message will contain multiple properties.</p>
+<h3 id="payload">payload<a class="headerlink" href="#payload" title="Permanent link">&para;</a></h3>
+<p>The payload as selected in the payload setting. It’s could be a simple value or an object with key value.</p>
+<h3 id="topic">topic<a class="headerlink" href="#topic" title="Permanent link">&para;</a></h3>
+<p>The value set inside the node configuration.</p>
+<h3 id="payload_format-new">payload_format :new:<a class="headerlink" href="#payload_format-new" title="Permanent link">&para;</a></h3>
+<p>Contain what is send inside the payload. Can be <code>complete</code> if the payload contains all attributes of the device or
+one of the keys of the value. Ex : <code>buttonevent</code></p>
+<h3 id="payload_raw-only-for-input-node">payload_raw (Only for input node)<a class="headerlink" href="#payload_raw-only-for-input-node" title="Permanent link">&para;</a></h3>
+<p>Contain the raw data sent by deconz that lead to this msg.</p>
+<h3 id="payload_count-only-for-get-node-with-maths-format-new">payload_count (Only for get node with maths format) :new:<a class="headerlink" href="#payload_count-only-for-get-node-with-maths-format-new" title="Permanent link">&para;</a></h3>
+<p>Contain the count of devices used to calculate the value for the given attribute.</p>
+<h3 id="meta">meta<a class="headerlink" href="#meta" title="Permanent link">&para;</a></h3>
+<p>All attributes of the device that send data</p>
+<h3 id="meta_changed-new">meta_changed :new:<a class="headerlink" href="#meta_changed-new" title="Permanent link">&para;</a></h3>
+<p>Contain an array of all values changed since last time in dot notation. Ex : <code>state.lastupdated</code></p>
+<h2 id="payload-format">Payload format<a class="headerlink" href="#payload-format" title="Permanent link">&para;</a></h2>
+<p>The payload format value can be either Complete payload, Each payload or a list of selected value. Be careful, you will
+get a message per selected value. If you want to have multiple value inside a message just select <code>Complete payload</code>.</p>
+<h2 id="device-format">Device format<a class="headerlink" href="#device-format" title="Permanent link">&para;</a></h2>
+<p>The device format set if the data should be sent one message per device, or one message with all device, or apply some
+math on the values.</p>
+<h3 id="single-x-y-z">Single x … y … z<a class="headerlink" href="#single-x-y-z" title="Permanent link">&para;</a></h3>
+<p>The node will send a message per device that send data.</p>
+<h3 id="array-xyz">Array [x,y,z]<a class="headerlink" href="#array-xyz" title="Permanent link">&para;</a></h3>
+<p>The node will send a message with all payload inside an array. The message will contain a payload that is an array of
+single message. Ex <code>msg.payload[0].payload</code> is the payload of the first device. Each element will contain only the
+properties payload, meta, meta_changed. The properties <code>topic</code>, <code>payload_format</code>, <code>payload_raw</code> will be on the msg directly.</p>
+<h3 id="maths-formats">Maths formats<a class="headerlink" href="#maths-formats" title="Permanent link">&para;</a></h3>
+<p>Where is specials format that do simple maths on values. The result will be inside the payload with the same structure
+as the initial payload. Only numeric values are kept, the values like <code>"1234"</code> are string and not numeric. The meta
+property will be always an array with all devices. If some devices don’t have all properties the missing one will be
+skipped for devices that don’t have it.</p>
+<p>For examples below the data are:</p>
+<p>Device x</p>
+<pre><code class="language-json">{
+  &quot;lastupdated&quot;: &quot;2021-09-06T15:39:13.168&quot;,
+  &quot;temperature&quot;: 2500
+}
+</code></pre>
+<p>Device y</p>
+<pre><code class="language-json">{
+  &quot;lastupdated&quot;: &quot;2021-09-06T15:39:13.168&quot;,
+  &quot;temperature&quot;: 3000
+}
+</code></pre>
+<p>Device z</p>
+<pre><code class="language-json">{
+  &quot;lastupdated&quot;: &quot;2021-09-06T15:39:13.168&quot;,
+  &quot; humidity&quot;: 5570
+}
+</code></pre>
+<h4 id="sum-xyz">Sum (x+y+z)<a class="headerlink" href="#sum-xyz" title="Permanent link">&para;</a></h4>
+<p>All properties of the devices will be added individually.</p>
+<p>Example results</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 5500,
+  &quot;humidity&quot;: 5570
+}
+</code></pre>
+<p>I know adding temperature don’t make sense but could be useful for power usage.</p>
+<h4 id="average-xyz3">Average (x+y+z)/3<a class="headerlink" href="#average-xyz3" title="Permanent link">&para;</a></h4>
+<p>All properties of the devices will be added recursively and then divided by the amount of device that have that
+property.</p>
+<p>Example results</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 2750,
+  &quot;humidity&quot;: 5570
+}
+</code></pre>
+<h4 id="min-xyz-y">Min X+y+Z = y<a class="headerlink" href="#min-xyz-y" title="Permanent link">&para;</a></h4>
+<p>The result will be a set of minimal value of each property. Example results</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 2500,
+  &quot;humidity&quot;: 5570
+}
+</code></pre>
+<h4 id="max-x-y-z-x">Max X + y + z = X<a class="headerlink" href="#max-x-y-z-x" title="Permanent link">&para;</a></h4>
+<p>The result will be a set of maximal value of each property. Example results</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 3000,
+  &quot;humidity&quot;: 5570
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../device_queries/" class="btn btn-neutral float-left" title="Device Queries"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/deconz-community/node-red-contrib-deconz" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../device_queries/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
