@@ -48,6 +48,7 @@
     "dev": "grunt watch",
     "test": "mocha"
   },
+  "packageManager": "pnpm@9.4.0",
   "dependencies": {
     "@node-red/util": "^4.0.0",
     "compare-versions": "^6.1.0",
