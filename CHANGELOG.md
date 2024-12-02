@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.16
+
+### Patch Changes
+
+- 2e80b0b: Update external dependency
+
 ## 2.3.15
 
 ### Patch Changes
