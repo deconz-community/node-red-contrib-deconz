@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.15
+
+### Patch Changes
+
+- dfb5c3d: Update dependency
+
 ## 2.3.14
 
 ### Patch Changes
