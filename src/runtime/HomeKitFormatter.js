@@ -1,4 +1,4 @@
-const dotProp = require("dot-prop");
+import { getProperty, setProperty, hasProperty, deleteProperty } from "dot-prop";
 const Utils = require("./Utils");
 const Colorspace = require("./Colorspace");
 
@@ -122,13 +122,13 @@ class Attribute {
   static _checkProperties(data, propertyMeta) {
     switch (typeof propertyMeta) {
       case "string":
-        return dotProp.has(data, propertyMeta);
+        return hasProperty(data, propertyMeta);
       case "object":
         for (const [propertyName, expectedValue] of Object.entries(
           propertyMeta
         )) {
-          if (!dotProp.has(data, propertyName)) return false;
-          const currentValue = dotProp.get(data, propertyName);
+          if (!hasProperty(data, propertyName)) return false;
+          const currentValue = getProperty(data, propertyName);
           if (Array.isArray(expectedValue)) {
             if (expectedValue.includes(currentValue) === false) {
               return false;
@@ -148,9 +148,9 @@ const HomeKitFormat = (() => {
     let attr = new Attribute();
     attr.needEventMeta(path);
     if (direction.includes("to"))
-      attr.to((rawEvent, deviceMeta) => dotProp.get(rawEvent, path));
+      attr.to((rawEvent, deviceMeta) => getProperty(rawEvent, path));
     if (direction.includes("from"))
-      attr.from((value, allValues, result) => dotProp.set(result, path, value));
+      attr.from((value, allValues, result) => setProperty(result, path, value));
     return attr;
   };
 
@@ -161,14 +161,14 @@ const HomeKitFormat = (() => {
     .needAttribute("ProgrammableSwitchEvent")
     .needEventMeta("state.buttonevent")
     .to((rawEvent, deviceMeta) =>
-      Math.floor(dotProp.get(rawEvent, "state.buttonevent") / 1000)
+      Math.floor(getProperty(rawEvent, "state.buttonevent") / 1000)
     );
   HKF.ProgrammableSwitchEvent = new Attribute()
     .services("Stateless Programmable Switch")
     .needAttribute("ServiceLabelIndex")
     .needEventMeta("state.buttonevent")
     .to((rawEvent, deviceMeta) => {
-      switch (dotProp.get(rawEvent, "state.buttonevent") % 1000) {
+      switch (getProperty(rawEvent, "state.buttonevent") % 1000) {
         case 1: // Hold Down
           return 2; // Long Press
         case 2: // Short press
@@ -189,12 +189,12 @@ const HomeKitFormat = (() => {
     .services(["Heater Cooler", "Thermostat", "Temperature Sensor"])
     .needEventMeta("state.temperature")
     .to(
-      (rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.temperature") / 100
+      (rawEvent, deviceMeta) => getProperty(rawEvent, "state.temperature") / 100
     );
   HKF.CurrentRelativeHumidity = new Attribute()
     .services(["Thermostat", "Humidity Sensor"])
     .needEventMeta("state.humidity")
-    .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.humidity") / 100)
+    .to((rawEvent, deviceMeta) => getProperty(rawEvent, "state.humidity") / 100)
     .limit(0, 100);
   HKF.CurrentAmbientLightLevel = directMap(["to"], "state.lux")
     .services("Light Sensor")
@@ -203,12 +203,12 @@ const HomeKitFormat = (() => {
   HKF.OutletInUse = new Attribute()
     .services("Outlet")
     .needEventMeta("state.power")
-    .to((rawEvent, deviceMeta) => dotProp.get(rawEvent, "state.power") > 0);
+    .to((rawEvent, deviceMeta) => getProperty(rawEvent, "state.power") > 0);
   HKF.LeakDetected = new Attribute()
     .services("Leak Sensor")
     .needEventMeta("state.water")
     .to((rawEvent, deviceMeta) =>
-      dotProp.get(rawEvent, "state.water") ? 1 : 0
+      getProperty(rawEvent, "state.water") ? 1 : 0
     );
   HKF.MotionDetected = directMap(["to"], "state.presence").services(
     "Motion Sensor"
@@ -222,15 +222,15 @@ const HomeKitFormat = (() => {
     })
     .needEventMeta(
       (rawEvent, deviceMeta) =>
-        dotProp.has(rawEvent, "state.open") ||
-        dotProp.has(rawEvent, "state.vibration")
+        hasProperty(rawEvent, "state.open") ||
+        hasProperty(rawEvent, "state.vibration")
     )
     .to((rawEvent, deviceMeta) => {
-      if (dotProp.has(rawEvent, "state.vibration")) {
-        return dotProp.get(rawEvent, "state.vibration") ? 1 : 0;
+      if (hasProperty(rawEvent, "state.vibration")) {
+        return getProperty(rawEvent, "state.vibration") ? 1 : 0;
       }
-      if (dotProp.has(rawEvent, "state.open")) {
-        return dotProp.get(rawEvent, "state.open") ? 1 : 0;
+      if (hasProperty(rawEvent, "state.open")) {
+        return getProperty(rawEvent, "state.open") ? 1 : 0;
       }
     });
   //#endregion
@@ -241,10 +241,10 @@ const HomeKitFormat = (() => {
     .needEventMeta("config.heatsetpoint")
     .to(
       (rawEvent, deviceMeta) =>
-        dotProp.get(rawEvent, "config.heatsetpoint") / 100
+        getProperty(rawEvent, "config.heatsetpoint") / 100
     )
     .from((value, allValues, result, deviceMeta) => {
-      dotProp.set(result, "config.heatsetpoint", value * 100);
+      setProperty(result, "config.heatsetpoint", value * 100);
     })
     .limit(0, 25);
   HKF.CoolingThresholdTemperature = new Attribute()
@@ -253,10 +253,10 @@ const HomeKitFormat = (() => {
     .needEventMeta("config.coolsetpoint")
     .to(
       (rawEvent, deviceMeta) =>
-        dotProp.get(rawEvent, "config.coolsetpoint") / 100
+        getProperty(rawEvent, "config.coolsetpoint") / 100
     )
     .from((value, allValues, result, deviceMeta) => {
-      dotProp.set(result, "config.coolsetpoint", value * 100);
+      setProperty(result, "config.coolsetpoint", value * 100);
     })
     .limit(10, 35);
   HKF.TargetTemperature = new Attribute()
@@ -264,37 +264,37 @@ const HomeKitFormat = (() => {
     .needDeviceMeta({ type: "ZHAThermostat" })
     .needEventMeta(
       (rawEvent, deviceMeta) =>
-        dotProp.has(rawEvent, "config.heatsetpoint") ||
-        dotProp.has(rawEvent, "config.coolsetpoint")
+        hasProperty(rawEvent, "config.heatsetpoint") ||
+        hasProperty(rawEvent, "config.coolsetpoint")
     )
     .to((rawEvent, deviceMeta) => {
       // Device have only a heatsetpoint.
-      if (!dotProp.has(rawEvent, "config.coolsetpoint")) {
-        return dotProp.get(rawEvent, "config.heatsetpoint") / 100;
+      if (!hasProperty(rawEvent, "config.coolsetpoint")) {
+        return getProperty(rawEvent, "config.heatsetpoint") / 100;
       }
       // Device have only a coolsetpoint.
-      if (!dotProp.has(rawEvent, "config.heatsetpoint")) {
-        return dotProp.get(rawEvent, "config.coolsetpoint") / 100;
+      if (!hasProperty(rawEvent, "config.heatsetpoint")) {
+        return getProperty(rawEvent, "config.coolsetpoint") / 100;
       }
       // Device have heat and cool set points.
       let currentTemp = HKF.CurrentTemperature.toMethod(rawEvent, deviceMeta);
       // It's too cold.
-      if (currentTemp <= dotProp.get(rawEvent, "config.heatsetpoint")) {
-        return dotProp.get(rawEvent, "config.heatsetpoint") / 100;
+      if (currentTemp <= getProperty(rawEvent, "config.heatsetpoint")) {
+        return getProperty(rawEvent, "config.heatsetpoint") / 100;
       }
       // It's too hot.
-      if (currentTemp >= dotProp.get(rawEvent, "config.coolsetpoint")) {
-        return dotProp.get(rawEvent, "config.coolsetpoint") / 100;
+      if (currentTemp >= getProperty(rawEvent, "config.coolsetpoint")) {
+        return getProperty(rawEvent, "config.coolsetpoint") / 100;
       }
       // It's in the range I can't determine what the device is doing.
     })
     .from((value, allValues, result, deviceMeta) => {
-      if (!dotProp.has(deviceMeta, "config.coolsetpoint")) {
+      if (!hasProperty(deviceMeta, "config.coolsetpoint")) {
         // Device have only a heatsetpoint.
-        dotProp.set(result, "config.heatsetpoint", value * 100);
-      } else if (!dotProp.has(deviceMeta, "config.heatsetpoint")) {
+        setProperty(result, "config.heatsetpoint", value * 100);
+      } else if (!hasProperty(deviceMeta, "config.heatsetpoint")) {
         // Device have only a coolsetpoint.
-        dotProp.set(result, "config.coolsetpoint", value * 100);
+        setProperty(result, "config.coolsetpoint", value * 100);
       } else {
         // Don't know what to do with that.
       }
@@ -305,30 +305,30 @@ const HomeKitFormat = (() => {
     .needDeviceMeta({ type: "ZHAThermostat" })
     .needEventMeta("state.on")
     .to((rawEvent, deviceMeta) => {
-      return dotProp.get(rawEvent, "state.on") === true ? 1 : 0;
+      return getProperty(rawEvent, "state.on") === true ? 1 : 0;
     })
     .from((value, allValues, result, deviceMeta) => {
-      if (value === 1) dotProp.set(result, "state.on", true);
-      if (value === 0) dotProp.set(result, "state.on", false);
+      if (value === 1) setProperty(result, "state.on", true);
+      if (value === 0) setProperty(result, "state.on", false);
     });
   HKF.CurrentHeatingCoolingState = new Attribute()
     .services("Thermostat")
     .needDeviceMeta({ type: "ZHAThermostat" })
     .needEventMeta("state.on")
     .to((rawEvent, deviceMeta) => {
-      if (dotProp.get(rawEvent, "state.on") === false) return 0; // Off.
+      if (getProperty(rawEvent, "state.on") === false) return 0; // Off.
 
       // Device have only a heatsetpoint.
       if (
-        dotProp.has(deviceMeta, "config.heatsetpoint") &&
-        !dotProp.has(deviceMeta, "config.coolsetpoint")
+        hasProperty(deviceMeta, "config.heatsetpoint") &&
+        !hasProperty(deviceMeta, "config.coolsetpoint")
       )
         return 1; // Heat. The Heater is currently on
 
       // Device have only a coolsetpoint.
       if (
-        dotProp.has(deviceMeta, "config.coolsetpoint") &&
-        !dotProp.has(deviceMeta, "config.heatsetpoint")
+        hasProperty(deviceMeta, "config.coolsetpoint") &&
+        !hasProperty(deviceMeta, "config.heatsetpoint")
       )
         return 2; // Cool. Cooler is currently on
 
@@ -344,7 +344,7 @@ const HomeKitFormat = (() => {
     .needDeviceMeta({ type: "ZHAThermostat" })
     .needEventMeta("config.mode")
     .to((rawEvent, deviceMeta) => {
-      switch (dotProp.get(rawEvent, "config.mode")) {
+      switch (getProperty(rawEvent, "config.mode")) {
         case "off":
         case "sleep":
         case "fan only":
@@ -365,11 +365,11 @@ const HomeKitFormat = (() => {
     .needDeviceMeta({ type: "ZHAThermostat" })
     .needEventMeta("config.locked")
     .to((rawEvent, deviceMeta) =>
-      dotProp.get(rawEvent, "config.locked") === true ? 1 : 0
+      getProperty(rawEvent, "config.locked") === true ? 1 : 0
     )
     .from((value, allValues, result, deviceMeta) => {
-      if (value === 0) dotProp.set(result, "config.locked", false);
-      if (value === 1) dotProp.set(result, "config.locked", true);
+      if (value === 0) setProperty(result, "config.locked", false);
+      if (value === 1) setProperty(result, "config.locked", true);
     });
   HKF.TemperatureDisplayUnits_Celsius = new Attribute()
     .services(["Heater Cooler", "Thermostat"])
@@ -398,14 +398,14 @@ const HomeKitFormat = (() => {
     .services("Lightbulb")
     .needEventMeta("state.bri")
     .to((rawEvent, deviceMeta) => {
-      if (dotProp.get(rawEvent, "state.on") !== true) return;
-      let bri = dotProp.get(rawEvent, "state.bri");
+      if (getProperty(rawEvent, "state.on") !== true) return;
+      let bri = getProperty(rawEvent, "state.bri");
       return Utils.convertRange(bri, [0, 255], [0, 100], true, true);
     })
     .from((value, allValues, result, deviceMeta) => {
       let bri = Utils.convertRange(value, [0, 100], [0, 255], true, true);
-      dotProp.set(result, "state.bri", bri);
-      dotProp.set(result, "state.on", bri > 0);
+      setProperty(result, "state.bri", bri);
+      setProperty(result, "state.on", bri > 0);
     });
   HKF.Hue = new Attribute()
     .services("Lightbulb")
@@ -413,13 +413,13 @@ const HomeKitFormat = (() => {
     .needColorCapabilities(["hs", "unknown"])
     .needDeviceMeta({ "state.colormode": "hs" })
     .to((rawEvent, deviceMeta) => {
-      if (dotProp.get(rawEvent, "state.on") !== true) return;
-      let hue = dotProp.get(rawEvent, "state.hue");
+      if (getProperty(rawEvent, "state.on") !== true) return;
+      let hue = getProperty(rawEvent, "state.hue");
       return Utils.convertRange(hue, [0, 65535], [0, 360], true, true);
     })
     .from((value, allValues, result, deviceMeta) => {
       let hue = Utils.convertRange(value, [0, 360], [0, 65535], true, true);
-      dotProp.set(result, "state.hue", hue);
+      setProperty(result, "state.hue", hue);
     });
   HKF.Saturation = new Attribute()
     .services("Lightbulb")
@@ -427,13 +427,13 @@ const HomeKitFormat = (() => {
     .needColorCapabilities(["hs", "unknown"])
     .needDeviceMeta({ "state.colormode": "hs" })
     .to((rawEvent, deviceMeta) => {
-      if (dotProp.get(rawEvent, "state.on") !== true) return;
-      let sat = dotProp.get(rawEvent, "state.sat");
+      if (getProperty(rawEvent, "state.on") !== true) return;
+      let sat = getProperty(rawEvent, "state.sat");
       return Utils.convertRange(sat, [0, 255], [0, 100], true, true);
     })
     .from((value, allValues, result) => {
       let sat = Utils.convertRange(value, [0, 100], [0, 255], true, true);
-      dotProp.set(result, "state.sat", sat);
+      setProperty(result, "state.sat", sat);
     });
   HKF.ColorTemperature = directMap(["from", "to"], "state.ct")
     .services("Lightbulb")
@@ -446,7 +446,7 @@ const HomeKitFormat = (() => {
     .needEventMeta("state.lift")
     .to((rawEvent, deviceMeta) =>
       Utils.convertRange(
-        dotProp.get(rawEvent, "state.lift"),
+        getProperty(rawEvent, "state.lift"),
         [0, 100],
         [100, 0],
         true,
@@ -454,7 +454,7 @@ const HomeKitFormat = (() => {
       )
     )
     .from((value, allValues, result) =>
-      dotProp.set(
+      setProperty(
         result,
         "state.lift",
         Utils.convertRange(value, [100, 0], [0, 100], true, true)
@@ -469,7 +469,7 @@ const HomeKitFormat = (() => {
     .needEventMeta("state.tilt")
     .to((rawEvent, deviceMeta) =>
       Utils.convertRange(
-        dotProp.get(rawEvent, "state.tilt"),
+        getProperty(rawEvent, "state.tilt"),
         [0, 100],
         [-90, 90],
         true,
@@ -477,7 +477,7 @@ const HomeKitFormat = (() => {
       )
     )
     .from((value, allValues, result) =>
-      dotProp.set(
+      setProperty(
         result,
         "state.tilt",
         Utils.convertRange(value, [-90, 90], [0, 100], true, true)
@@ -497,9 +497,9 @@ const HomeKitFormat = (() => {
   HKF.BatteryLevel = new Attribute()
     .services("Battery")
     .to((rawEvent, deviceMeta) => {
-      let battery = dotProp.get(rawEvent, "config.battery");
+      let battery = getProperty(rawEvent, "config.battery");
       if (battery === undefined) {
-        battery = dotProp.get(rawEvent, "state.battery");
+        battery = getProperty(rawEvent, "state.battery");
       }
       return battery;
     })
@@ -508,13 +508,13 @@ const HomeKitFormat = (() => {
     .services("Battery")
     .needEventMeta(
       (rawEvent, deviceMeta) =>
-        dotProp.has(rawEvent, "config.battery") ||
-        dotProp.has(rawEvent, "state.battery")
+        hasProperty(rawEvent, "config.battery") ||
+        hasProperty(rawEvent, "state.battery")
     )
     .to((rawEvent, deviceMeta) => {
-      let battery = dotProp.get(rawEvent, "config.battery");
+      let battery = getProperty(rawEvent, "config.battery");
       if (battery === undefined) {
-        battery = dotProp.get(rawEvent, "state.battery");
+        battery = getProperty(rawEvent, "state.battery");
       }
       return battery <= 15 ? 1 : 0;
     });
@@ -529,14 +529,14 @@ const HomeKitFormat = (() => {
         false: 0,
         true: 1,
       };
-      return map[dotProp.get(deviceMeta, "state.on")];
+      return map[getProperty(deviceMeta, "state.on")];
     })
     .from((value, allValues, result) => {
       const map = {
         0: false,
         1: true,
       };
-      dotProp.set(result, "state.on", map[value]);
+      setProperty(result, "state.on", map[value]);
     });
   HKF.LockCurrentState = new Attribute()
     .services("Lock Mechanism")
@@ -547,7 +547,7 @@ const HomeKitFormat = (() => {
         false: 0,
         true: 1,
       };
-      const result = map[dotProp.get(rawEvent, "state.on")];
+      const result = map[getProperty(rawEvent, "state.on")];
       return result !== undefined ? result : map.undefined;
     });
   //#endregion

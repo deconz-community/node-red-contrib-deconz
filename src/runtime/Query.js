@@ -1,4 +1,4 @@
-const dotProp = require("dot-prop");
+const { getProperty, setProperty, hasProperty, deleteProperty } = require("dot-prop");
 const compareVersion = require("compare-versions");
 
 const getRuleConstructor = (rule) => {
@@ -67,7 +67,7 @@ const getComparaisonConstructor = (field, value) => {
           default:
             throw Error(
               "Invalid comparaison type provided. Got : " +
-                (typeof value.type).toString()
+              (typeof value.type).toString()
             );
         }
       }
@@ -270,13 +270,13 @@ class Comparaison {
 
 class ComparaisonStrictEqual extends Comparaison {
   match(device) {
-    return dotProp.get(device, this.field) === this.target;
+    return getProperty(device, this.field) === this.target;
   }
 }
 
 class ComparaisonArray extends Comparaison {
   match(device) {
-    return this.target.includes(dotProp.get(device, this.field));
+    return this.target.includes(getProperty(device, this.field));
   }
 }
 
@@ -378,7 +378,7 @@ class ComparaisonComplex extends Comparaison {
   }
 
   match(device) {
-    let value = dotProp.get(device, this.field);
+    let value = getProperty(device, this.field);
     if (this.conversionMethod !== undefined)
       value = this.conversionMethod(value);
     return this.matchMethod(value);
@@ -395,7 +395,7 @@ class ComparaisonDate extends Comparaison {
           if (Number.isNaN(result)) {
             throw Error(
               `Invalid value provided for date comparaison, can't parse '${typeof value[
-                side
+              side
               ]}'`
             );
           } else {
@@ -412,7 +412,7 @@ class ComparaisonDate extends Comparaison {
         default:
           throw Error(
             `Invalid value type provided for date comparaison, got '${typeof value[
-              side
+            side
             ]}' and expect 'string' or 'number'`
           );
       }
@@ -421,7 +421,7 @@ class ComparaisonDate extends Comparaison {
 
   match(device) {
     if (this.valid !== true) return false;
-    let value = dotProp.get(device, this.field);
+    let value = getProperty(device, this.field);
     if (value === undefined) return false;
     if (typeof value === "string") value = Date.parse(value);
     return !(
@@ -442,7 +442,7 @@ class ComparaisonRegex extends Comparaison {
   match(device) {
     if (this.patt === undefined) return false;
     this.patt.lastIndex = 0;
-    return this.patt.test(dotProp.get(device, this.field));
+    return this.patt.test(getProperty(device, this.field));
   }
 }
 
@@ -472,7 +472,7 @@ class ComparaisonVersion extends Comparaison {
   }
 
   match(device) {
-    let value = String(dotProp.get(device, this.field));
+    let value = String(getProperty(device, this.field));
     if (this.version === undefined || compareVersion.validate(value) === false)
       return false;
     if (this.operator === "!=") return value !== this.version;

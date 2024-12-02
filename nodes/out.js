@@ -2,7 +2,7 @@ const CommandParser = require("../src/runtime/CommandParser");
 const Utils = require("../src/runtime/Utils");
 const got = require("got");
 const ConfigMigration = require("../src/migration/ConfigMigration");
-const dotProp = require("dot-prop");
+const { getProperty, setProperty, hasProperty, deleteProperty } = require("dot-prop");
 
 const NodeType = "deconz-output";
 module.exports = function (RED) {
@@ -291,7 +291,7 @@ module.exports = function (RED) {
                   }
 
                   let sleep_delay =
-                    delay - dotProp.get(response, "timings.phases.total", 0);
+                    delay - getProperty(response, "timings.phases.total", 0);
                   if (sleep_delay >= 200)
                     node.status({
                       fill: "blue",
@@ -329,8 +329,8 @@ module.exports = function (RED) {
                     errorMsg.errors = [
                       {
                         type: 0,
-                        code: dotProp.get(error, "response.statusCode"),
-                        message: dotProp.get(error, "response.statusMessage"),
+                        code: getProperty(error, "response.statusCode"),
+                        message: getProperty(error, "response.statusMessage"),
                         description: `${error.name}: ${error.message}`,
                         apiEndpoint: request.endpoint,
                       },
@@ -355,7 +355,7 @@ module.exports = function (RED) {
 
                   if (error.timings !== undefined) {
                     await Utils.sleep(
-                      delay - dotProp.get(error, "timings.phases.total", 0)
+                      delay - getProperty(error, "timings.phases.total", 0)
                     );
                   } else {
                     await Utils.sleep(delay);

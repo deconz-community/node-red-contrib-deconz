@@ -1,4 +1,4 @@
-const dotProp = require("dot-prop");
+import { getProperty, setProperty, hasProperty, deleteProperty } from "dot-prop";
 const ConfigMigrationHandlerApi = require("./ConfigMigrationHandlerApi");
 const ConfigMigrationHandlerInput = require("./ConfigMigrationHandlerInput");
 const ConfigMigrationHandlerGet = require("./ConfigMigrationHandlerGet");
@@ -69,15 +69,15 @@ class ConfigMigration {
 
     // Apply new configuration
     for (const [k, v] of Object.entries(result.new)) {
-      dotProp.set(config, k, v);
+      setProperty(config, k, v);
     }
-    result.delete.forEach((k) => dotProp.delete(config, k));
+    result.delete.forEach((k) => deleteProperty(config, k));
 
     // Apply new data on controller
     for (const [k, v] of Object.entries(result.controller.new)) {
-      dotProp.set(node, k, v);
+      setProperty(node, k, v);
     }
-    result.controller.delete.forEach((k) => dotProp.delete(node, k));
+    result.controller.delete.forEach((k) => deleteProperty(node, k));
 
     return result;
   }

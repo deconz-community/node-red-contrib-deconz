@@ -1,6 +1,6 @@
 const Utils = require("./Utils");
 const HomeKitFormatter = require("./HomeKitFormatter");
-const dotProp = require("dot-prop");
+const { getProperty, setProperty, hasProperty, deleteProperty } = require("dot-prop");
 
 class CommandParser {
   constructor(command, message_in, node) {
@@ -44,8 +44,8 @@ class CommandParser {
         ) {
           this.node.error(
             "deCONZ outptut node received a message that was not initiated by a HomeKit node. " +
-              "Make sure you disable the 'Allow Message Passthrough' in homekit-bridge node or ensure " +
-              "appropriate filtering of the messages."
+            "Make sure you disable the 'Allow Message Passthrough' in homekit-bridge node or ensure " +
+            "appropriate filtering of the messages."
           );
           return null;
         }
@@ -167,7 +167,7 @@ class CommandParser {
 
   async parseDeconzStateSceneCallArgs() {
     switch (
-      await this.getNodeProperty(this.arg.scene_mode, ["single", "dynamic"])
+    await this.getNodeProperty(this.arg.scene_mode, ["single", "dynamic"])
     ) {
       case "single":
       case undefined:
@@ -189,8 +189,8 @@ class CommandParser {
   async parseHomekitArgs(deviceMeta) {
     let values = await this.getNodeProperty(this.arg.payload);
     let allValues = values;
-    if (dotProp.has(this.message_in, "hap.allChars")) {
-      allValues = dotProp.get(this.message_in, "hap.allChars");
+    if (hasProperty(this.message_in, "hap.allChars")) {
+      allValues = getProperty(this.message_in, "hap.allChars");
     }
 
     if (
@@ -200,12 +200,12 @@ class CommandParser {
     ) {
       let checkColorModesCompatibility = (charsName, mode) => {
         if (
-          dotProp.has(values, charsName) &&
+          hasProperty(values, charsName) &&
           !Utils.supportColorCapability(deviceMeta, mode)
         ) {
           this.node.warn(
             `The light '${deviceMeta.name}' don't support '${charsName}' values. ` +
-              `You can use only '${deviceMeta.device_colorcapabilities.toString()}' modes.`
+            `You can use only '${deviceMeta.device_colorcapabilities.toString()}' modes.`
           );
         }
       };
@@ -221,7 +221,7 @@ class CommandParser {
       this.result,
       deviceMeta
     );
-    dotProp.set(
+    setProperty(
       this.result,
       "state.transitiontime",
       await this.getNodeProperty(this.arg.transitiontime)
@@ -274,7 +274,7 @@ class CommandParser {
         } else if (this.node.error) {
           this.node.error(
             "deCONZ outptut node received a message with scene call target but " +
-              "no scene name or scene regex or group/scene id."
+            "no scene name or scene regex or group/scene id."
           );
         }
         break;

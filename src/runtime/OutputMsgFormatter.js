@@ -1,4 +1,4 @@
-const dotProp = require("dot-prop");
+import { getProperty, setProperty, hasProperty, deleteProperty } from "dot-prop";
 const Utils = require("./Utils");
 const HomeKitFormatter = require("./HomeKitFormatter");
 
@@ -127,11 +127,11 @@ class OutputMsgFormatter {
             for (const [k, v] of Object.entries(currentData)) {
               if (k === "device_id") continue;
               if (typeof v === "number") {
-                let count = dotProp.get(targetCount, prefix + k, 0) + 1;
-                let total = dotProp.get(payloadTotal, prefix + k, 0) + v;
-                dotProp.set(targetData, prefix + k, total / count);
-                dotProp.set(targetCount, prefix + k, count);
-                dotProp.set(payloadTotal, prefix + k, total);
+                let count = getProperty(targetCount, prefix + k, 0) + 1;
+                let total = getProperty(payloadTotal, prefix + k, 0) + v;
+                setProperty(targetData, prefix + k, total / count);
+                setProperty(targetCount, prefix + k, count);
+                setProperty(payloadTotal, prefix + k, total);
               } else if (["state", "config"].includes(k)) {
                 mergeData(`${k}.`, targetData, targetCount, v, mergeMethod);
               }
@@ -159,16 +159,16 @@ class OutputMsgFormatter {
             for (const [k, v] of Object.entries(currentData)) {
               if (k === "device_id") continue;
               if (typeof v === "number") {
-                let currentValue = dotProp.get(targetData, prefix + k);
+                let currentValue = getProperty(targetData, prefix + k);
                 let value;
                 if (currentValue !== undefined) {
                   value = mergeMethod(currentValue, v);
                 } else {
                   value = v;
                 }
-                let count = dotProp.get(targetCount, prefix + k, 0) + 1;
-                dotProp.set(targetData, prefix + k, value);
-                dotProp.set(targetCount, prefix + k, count);
+                let count = getProperty(targetCount, prefix + k, 0) + 1;
+                setProperty(targetData, prefix + k, value);
+                setProperty(targetCount, prefix + k, count);
               } else if (["state", "config"].includes(k)) {
                 mergeData(`${k}.`, targetData, targetCount, v, mergeMethod);
               }
@@ -246,7 +246,7 @@ class OutputMsgFormatter {
 
     switch (this.rule.type) {
       case "attribute":
-        if (dotProp.has(device, "data"))
+        if (hasProperty(device, "data"))
           msg.payload = this.formatDevicePayload(
             device.data,
             payloadFormat,
@@ -254,7 +254,7 @@ class OutputMsgFormatter {
           );
         break;
       case "state":
-        if (dotProp.has(device, "data.state"))
+        if (hasProperty(device, "data.state"))
           msg.payload = this.formatDevicePayload(
             device.data.state,
             payloadFormat,
@@ -262,7 +262,7 @@ class OutputMsgFormatter {
           );
         break;
       case "config":
-        if (dotProp.has(device, "data.config"))
+        if (hasProperty(device, "data.config"))
           msg.payload = this.formatDevicePayload(
             device.data.config,
             payloadFormat,
@@ -270,7 +270,7 @@ class OutputMsgFormatter {
           );
         break;
       case "homekit":
-        if (dotProp.has(device, "data"))
+        if (hasProperty(device, "data"))
           msg = this.formatHomeKit(
             device.data,
             device.changed,
@@ -279,7 +279,7 @@ class OutputMsgFormatter {
           );
         break;
       case "scene_call":
-        if (dotProp.has(device, "data.scenes"))
+        if (hasProperty(device, "data.scenes"))
           msg.payload = device.data.scenes
             .filter((v) => v.id === rawEvent.scid)
             .shift();
@@ -304,7 +304,7 @@ class OutputMsgFormatter {
     if (payloadFormat === "__complete__") {
       return device;
     } else {
-      return dotProp.get(device, payloadFormat);
+      return getProperty(device, payloadFormat);
     }
   }
 
@@ -402,8 +402,8 @@ class OutputMsgFormatter {
       }
     }
 
-    if (dotProp.has(device, "state.lastupdated")) {
-      msg.lastupdated = dotProp.get(device, "state.lastupdated");
+    if (hasProperty(device, "state.lastupdated")) {
+      msg.lastupdated = getProperty(device, "state.lastupdated");
     }
 
     if (Object.keys(characteristic).length === 0) return null; //empty response
