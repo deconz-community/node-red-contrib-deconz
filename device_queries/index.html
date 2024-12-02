@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Device Queries - Node-Red plugin for deCONZ</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Device Queries";
+        var mkdocs_page_input_path = "device_queries.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Node-Red plugin for deCONZ
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Introduction</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Device Queries</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#rules">Rules</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#basic-rule">Basic rule</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-by-unique-id">Get by unique id</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-by-id">Get by id</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-by-path">Get by path</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#other-params">Other params</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#advanced-rules">Advanced rules</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#rules_1">Rules</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#match-rule">Match rule</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#special-cases">Special cases</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#empty-queries">Empty queries</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#all-device-query">All device query</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../msg_format/">Msg Format</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Node-Red plugin for deCONZ</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Device Queries</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/deconz-community/node-red-contrib-deconz/edit/master/docs/device_queries.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="device-queries">Device queries<a class="headerlink" href="#device-queries" title="Permanent link">&para;</a></h1>
+<p>In the nodes you can set a json object or msg object to dynamically select devices.</p>
+<p>You need to understand the <code>JSON</code> format before using queries. A <a href="https://www.javatpoint.com/json-array">Json Array</a> is
+not <a href="https://www.javatpoint.com/json-object">Json Object</a>.</p>
+<p>A query is made of one or more rule.<br />
+The root condition of query is <code>AND</code>, they need to match all rules of the query.</p>
+<h2 id="rules">Rules<a class="headerlink" href="#rules" title="Permanent link">&para;</a></h2>
+<p>A rule have always a <code>type</code>. The possibles values are <code>basic</code>, <code>match</code>. If the <code>type</code> is ommited, and will be detected
+in this order:</p>
+<ul>
+<li>If a <code>device_type</code>, <code>device_id</code>, <code>device_path</code> or <code>uniqueid</code> value is present it&rsquo;s a <code>basic</code> rule.</li>
+<li>If a <code>match</code> value is present it&rsquo;s a <code>match</code> rule.</li>
+</ul>
+<p>If you want to set more than one rule you need to put them in an array. A device need to match all rules to be valid. If
+you want <code>OR</code> condition check <a href="#sub-match">Sub Match</a>.</p>
+<pre><code class="language-json">[
+  {
+    &quot;type&quot;: &quot;match&quot;,
+    &quot;match&quot;: {
+      &quot;type&quot;: &quot;Color light&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;match&quot;,
+    &quot;match&quot;: {
+      &quot;state.on&quot;: true
+    }
+  }
+]
+</code></pre>
+<h3 id="basic-rule">Basic rule<a class="headerlink" href="#basic-rule" title="Permanent link">&para;</a></h3>
+<p>In basic rule you can only use <code>device_type</code>, <code>device_id</code>, <code>device_path</code>, <code>uniqueid</code> to filter devices. They are faster
+than advanced queries.</p>
+<h4 id="get-by-unique-id">Get by unique id<a class="headerlink" href="#get-by-unique-id" title="Permanent link">&para;</a></h4>
+<p>To match this rule the device need to be a <code>sensors</code> and have his uniqueid set to <code>00:11:22:33:44:55:66:77-01-1000</code>.</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;basic&quot;,
+  &quot;device_type&quot;: &quot;sensors&quot;,
+  &quot;uniqueid&quot;: &quot;00:11:22:33:44:55:66:77-01-1000&quot;
+}
+</code></pre>
+<p>The <code>device_type</code> can be omitted but in rare cases there can be multiple devices with the same <code>uniqueid</code>.
+See <a href="https://github.com/deconz-community/node-red-contrib-deconz/issues/77">#77</a>.</p>
+<pre><code class="language-json">{
+  &quot;uniqueid&quot;: &quot;00:11:22:33:44:55:66:77-01-1000&quot;
+}
+</code></pre>
+<h4 id="get-by-id">Get by id<a class="headerlink" href="#get-by-id" title="Permanent link">&para;</a></h4>
+<p>To match this rule the device, need to be a <code>sensors</code> and have his id set to 1. This is not recommended because the id
+can change.</p>
+<pre><code class="language-json">{
+  &quot;device_type&quot;: &quot;sensors&quot;,
+  &quot;device_id&quot;: 1
+}
+</code></pre>
+<h4 id="get-by-path">Get by path<a class="headerlink" href="#get-by-path" title="Permanent link">&para;</a></h4>
+<p>To match this rule the device, need to be a <code>sensors</code> and have his id set to 1. This is not recommended because the id
+can change.</p>
+<pre><code class="language-json">{
+  &quot;device_path&quot;: &quot;sensors/device_id/1&quot;
+}
+</code></pre>
+<p>To match this rule the device need to be a <code>sensors</code> and have his uniqueid set to <code>00:11:22:33:44:55:66:77-01-1000</code>.</p>
+<pre><code class="language-json">{
+  &quot;device_path&quot;: &quot;sensors/uniqueid/00:11:22:33:44:55:66:77-01-1000&quot;
+}
+</code></pre>
+<h4 id="other-params">Other params<a class="headerlink" href="#other-params" title="Permanent link">&para;</a></h4>
+<p>For all other params you need to use an advanced query.</p>
+<h2 id="advanced-rules">Advanced rules<a class="headerlink" href="#advanced-rules" title="Permanent link">&para;</a></h2>
+<p>An advanced rule is made of one or more comparaison.</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;match&quot;,
+  &quot;match&quot;: {
+    &quot;type&quot;: &quot;Color light&quot;
+  }
+}
+</code></pre>
+<p>A field name can have a dot notation to go deeper inside data like <code>state.on</code>. If the key contain the dot character you
+need to escape it like this : <code>name\\.lastname</code>. Currently you can do deeper inside an array but that
+my <a href="/sindresorhus/dot-prop/pull/82">change</a> later.</p>
+<h3 id="rules_1">Rules<a class="headerlink" href="#rules_1" title="Permanent link">&para;</a></h3>
+<h4 id="match-rule">Match rule<a class="headerlink" href="#match-rule" title="Permanent link">&para;</a></h4>
+<p>See also <a href="#sub-match">Sub Match</a>.</p>
+<ul>
+<li><code>type</code> is <code>match</code>.</li>
+<li><code>inverted</code> can be <code>true</code> or <code>false</code> the result of the rule will be inverted.</li>
+<li><code>method</code> can be <code>AND</code> or <code>OR</code>. The method value is not case sensitive.</li>
+<li>The methods <code>&amp;&amp;</code> and <code>||</code> are also valid.</li>
+<li>The rule need to match all (<code>AND</code>) the condition listed in <code>match</code> or at least one (<code>OR</code>).</li>
+<li>By default, the method is <code>AND</code>.</li>
+<li><code>match</code> rule is a object of key-value rules to match the device data.</li>
+<li>A value can be a <code>boolean</code>, <code>number</code> or <code>string</code>.</li>
+<li>If the value is an array the value need to be strictly equal to one of the value. Theses values can only
+    be <code>boolean</code>, <code>number</code> or <code>string</code>.</li>
+<li>It the value is an object it&rsquo;s a <a href="#complex-comparaison">Complex comparaison</a>.</li>
+</ul>
+<h5 id="note-about-match-object">Note about match object<a class="headerlink" href="#note-about-match-object" title="Permanent link">&para;</a></h5>
+<ul>
+<li>The key can be a path like <code>state.on</code>.</li>
+<li>The value need to
+  be <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality">Strict equality</a> to
+  be able to match.</li>
+<li>If the value is an array the device value needs to be equal to at least one of the values.</li>
+<li>The value can be an array of mixed types of <code>boolean</code>, <code>number</code>, <code>string</code> or <code>object</code>
+  for <a href="#complex-comparaison">Complex comparaison</a>.</li>
+<li>If <code>match</code> is equal to <code>true</code> all device will be matched.</li>
+<li>If <code>match</code> is equal to <code>false</code> or <code>undefined</code> none device will be matched.</li>
+</ul>
+<h5 id="base-format">Base format<a class="headerlink" href="#base-format" title="Permanent link">&para;</a></h5>
+<pre><code class="language-json">{
+  &quot;match&quot;: {
+    &quot;state.on&quot;: true,
+    &quot;state.alert&quot;: &quot;none&quot;,
+    &quot;mode&quot;: 3,
+    &quot;type&quot;: [&quot;Color temperature light&quot;, &quot;Color light&quot;]
+  }
+}
+</code></pre>
+<p>Same query with all options;</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;match&quot;,
+  &quot;method&quot;: &quot;AND&quot;,
+  &quot;match&quot;: {
+    &quot;state.on&quot;: true,
+    &quot;state.alert&quot;: &quot;none&quot;,
+    &quot;mode&quot;: 3,
+    &quot;type&quot;: [&quot;Color temperature light&quot;, &quot;Color light&quot;]
+  }
+}
+</code></pre>
+<h5 id="object-comparaison">Object comparaison<a class="headerlink" href="#object-comparaison" title="Permanent link">&para;</a></h5>
+<p>You can set a more advanced comparaison using an object.</p>
+<p>For all object comparaison the <code>type</code> can be ommited, and will be detected in this order:</p>
+<ul>
+<li>If a <code>value</code> value is present it&rsquo;s a <code>complex</code> comparaison.</li>
+<li>If a <code>after</code> or <code>before</code> value is present it&rsquo;s a <code>date</code> comparaison.</li>
+<li>If a <code>regex</code> value is present it&rsquo;s a <code>regex</code> comparaison.</li>
+<li>If a <code>version</code> value is present it&rsquo;s a <code>version</code> comparaison.</li>
+</ul>
+<p>For example if you set a <code>regex</code> and <code>version</code> values, only the <code>regex</code> will be used.<br />
+In case you want to set multiple comparaison on the same value define an array of objects.</p>
+<h6 id="complex-comparaison">Complex comparaison<a class="headerlink" href="#complex-comparaison" title="Permanent link">&para;</a></h6>
+<p>In case strict compare is not for you, you can define more customizable comparaison.</p>
+<ul>
+<li><code>type</code> always <code>complex</code>.</li>
+<li><code>convertTo</code> a value type to convert the value, can be <code>boolean</code>, <code>number</code>, <code>string</code>, <code>date</code>. By default do not
+  convert.</li>
+<li><code>convertLeft</code> boolean, if you want to convert the device value. By default : true.</li>
+<li><code>convertRight</code> boolean, if you want to convert the query value. By default : false.</li>
+<li><code>operator</code> the operator, can be <code>===</code>, <code>!==</code>, <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>. By default : <code>==</code>.</li>
+<li><code>strict</code> do the comparaison is strict, if yes the value types need be the same, can be <code>true</code> or <code>false</code>. By
+  default : <code>false</code>.</li>
+<li><code>value</code> a value to compare to, can be <code>boolean</code>, <code>number</code>, <code>string</code>, <code>date</code>. It&rsquo;s can also be an <code>array</code> of values,
+  see notes.</li>
+</ul>
+<p>The comparaison is done in the order <code>device</code> <code>operator</code> <code>value</code>. Ex : <code>ctmax &gt; 65000</code>;</p>
+<h6 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h6>
+<ul>
+<li>The <code>convertTo</code> will used on left side by default. Check <code>convertLeft</code> and <code>convertRight</code>.</li>
+<li>The <code>convertTo</code> <code>date</code> will use the method Date.parse.</li>
+<li>Try avoiding the operator <code>==</code> and <code>!=</code> because this may cause
+  unexpected <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness">type coercion</a>.</li>
+<li>The <code>operator</code> <code>===</code> and <code>!==</code> are always strict.</li>
+<li>If the value is an array, each element of the array will converted and tested. To be matched the comparaisons need to
+  be <code>true</code> at least one time.</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;match&quot;: {
+    &quot;type&quot;: &quot;Color temperature light&quot;,
+    &quot;ctmax&quot;: {
+      &quot;convertTo&quot;: &quot;number&quot;,
+      &quot;convertRight&quot;: true,
+      &quot;operator&quot;: &quot;&gt;&quot;,
+      &quot;value&quot;: &quot;65000&quot;
+    }
+  }
+}
+</code></pre>
+<h6 id="date-comparaison">Date comparaison<a class="headerlink" href="#date-comparaison" title="Permanent link">&para;</a></h6>
+<p>You can define a special comparaison that compare only dates.</p>
+<ul>
+<li><code>type</code> always <code>date</code>.</li>
+<li><code>after</code> the device value should be after or equal to the date set.</li>
+<li><code>before</code> the device value should be before or equal to the date set.</li>
+</ul>
+<h6 id="notes_1">Notes<a class="headerlink" href="#notes_1" title="Permanent link">&para;</a></h6>
+<ul>
+<li>One of the two date options can be omitted.</li>
+<li>If booth settings set, he need to match all.</li>
+<li>If none valid, he return always false.</li>
+<li>The value can be anything supported by <a href="https://www.w3schools.com/jsref/jsref_parse.asp">Date.parse</a> or a
+  valid <a href="https://en.wikipedia.org/wiki/Unix_time">Unix timestamp</a>*1000. It&rsquo;s a number representing the milliseconds
+  elapsed since January 1, 1970, 00:00:00 UTC. It&rsquo;s also can be a value of type <code>timestamp</code> from an node-red&rsquo;s input
+  node.</li>
+<li>If the value is set to undefined it&rsquo;s will be ignored.</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;match&quot;: {
+    &quot;state.lastupdated&quot;: {
+      &quot;type&quot;: &quot;date&quot;,
+      &quot;after&quot;: &quot;1969-07-21T02:56Z&quot;,
+      &quot;before&quot;: &quot;1972-12-14T12:00Z&quot;
+    }
+  }
+}
+</code></pre>
+<p>Or with JSONata expression: Ex not updated in the last hour.</p>
+<pre><code class="language-jsonata">{
+    &quot;match&quot;:{
+        &quot;state.lastupdated&quot;:{
+            &quot;type&quot;:&quot;date&quot;,
+            &quot;before&quot;:$millis()-60*60*1000
+        }
+    }
+}
+</code></pre>
+<h6 id="regex-comparaison">Regex comparaison<a class="headerlink" href="#regex-comparaison" title="Permanent link">&para;</a></h6>
+<p>The regex will be compared to the device value with <a href="https://www.w3schools.com/jsref/jsref_match.asp">match</a> method.</p>
+<ul>
+<li><code>type</code> always <code>regex</code>.</li>
+<li><code>regex</code> can be any value accepted
+  by <a href="https://www.w3schools.com/jsref/jsref_regexp_constructor.asp">RegExp constructor</a>.</li>
+<li>A <code>regex</code> needs to be a <code>string</code> otherwise it&rsquo;s will never match.</li>
+<li>If the value is empty (<code>""</code>) it&rsquo;s will always match.</li>
+<li>Don&rsquo;t forget to put <code>^</code> and <code>$</code> if you want to match the complete value.</li>
+<li><code>flag</code> will be the second argument
+  of <a href="https://www.w3schools.com/jsref/jsref_regexp_constructor.asp">RegExp constructor</a>. By default &lsquo;g&rsquo;.</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;match&quot;: {
+    &quot;state.on&quot;: false,
+    &quot;modelid&quot;: {
+      &quot;type&quot;: &quot;regex&quot;,
+      &quot;regex&quot;: &quot;^(.*)bulb E27(.*)$&quot;,
+      &quot;flag&quot;: &quot;g&quot;
+    }
+  }
+}
+</code></pre>
+<h6 id="version-comparaison">Version comparaison<a class="headerlink" href="#version-comparaison" title="Permanent link">&para;</a></h6>
+<p>You can define a special comparaison that compare only <a href="https://semver.org/">semver</a> versions.<br />
+This method will use the method <a href="https://www.npmjs.com/package/compare-versions">compare-versions</a>.</p>
+<ul>
+<li><code>type</code> always <code>version</code>.</li>
+<li><code>operator</code> the operator, can be <code>===</code>, <code>!==</code>, <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>. By default : &lsquo;&gt;=&rsquo;.</li>
+<li><code>version</code> a <a href="https://semver.org/">semver</a> version to compare to.</li>
+</ul>
+<h5 id="notes_2">Notes<a class="headerlink" href="#notes_2" title="Permanent link">&para;</a></h5>
+<ul>
+<li>If the version is not valid it&rsquo;s will always return false;</li>
+<li>Be carefull with big integer version like <code>123456</code> because it&rsquo;s superior to <code>2.0.0</code>.</li>
+</ul>
+<p>Example : get all device with <code>swversion</code> superior or equal to 2.0.0</p>
+<pre><code class="language-json">{
+  &quot;match&quot;: {
+    &quot;type&quot;: &quot;Color temperature light&quot;,
+    &quot;swversion&quot;: {
+      &quot;type&quot;: &quot;version&quot;,
+      &quot;operator&quot;: &quot;&gt;=&quot;,
+      &quot;version&quot;: &quot;2.0.0&quot;
+    }
+  }
+}
+</code></pre>
+<h6 id="array-comparaison">Array comparaison<a class="headerlink" href="#array-comparaison" title="Permanent link">&para;</a></h6>
+<p>For now you can&rsquo;t make query on devices values that is array like <code>devicemembership</code>.
+See <a href="https://github.com/deconz-community/node-red-contrib-deconz/discussions/172">#172</a>.</p>
+<h5 id="sub-match">Sub Match<a class="headerlink" href="#sub-match" title="Permanent link">&para;</a></h5>
+<p>In case you want to do more rules inside a rule you can use an array to define a list of rules instead of a pair key
+value to check.<br />
+To avoid infinite loops the depth is limited to 10 and will not match any devices if he reaches this limit.</p>
+<pre><code class="language-json">{
+  &quot;method&quot;: &quot;OR&quot;,
+  &quot;match&quot;: [
+    {
+      &quot;method&quot;: &quot;OR&quot;,
+      &quot;match&quot;: {
+        &quot;state.on&quot;: true,
+        &quot;colorcapabilities&quot;: 0
+      }
+    },
+    {
+      &quot;match&quot;: {
+        &quot;type&quot;: &quot;Color temperature light&quot;,
+        &quot;swversion&quot;: &quot;2.0.029&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<p>This will result to this code in javascript.</p>
+<pre><code class="language-javascript">let result =
+  device.state.on === true ||
+  device.colorcapabilities === 0 ||
+  (device.type === &quot;Color temperature light&quot; &amp;&amp; device.swversion === &quot;2.0.029&quot;);
+</code></pre>
+<p>:warning: You cannot mix rules and pair key-value inside the same match definition. It&rsquo;s also not a valid json format.</p>
+<!-- @formatter:off -->
+
+<pre><code class="language-json">{
+  &quot;method&quot;: &quot;OR&quot;,
+  &quot;match&quot;: [
+    &quot;hascolor&quot;: true,
+    {
+      &quot;match&quot;: {
+        &quot;type&quot;: &quot;Color temperature light&quot;,
+        &quot;colorcapabilities&quot;: 8
+      }
+    }
+  ]
+}
+</code></pre>
+<!-- @formatter:on -->
+
+<h2 id="special-cases">Special cases<a class="headerlink" href="#special-cases" title="Permanent link">&para;</a></h2>
+<h3 id="empty-queries">Empty queries<a class="headerlink" href="#empty-queries" title="Permanent link">&para;</a></h3>
+<p>Theses query will not match any devices.</p>
+<pre><code class="language-json">{}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;match&quot;: false
+}
+</code></pre>
+<h3 id="all-device-query">All device query<a class="headerlink" href="#all-device-query" title="Permanent link">&para;</a></h3>
+<p>This query will match all devices.</p>
+<pre><code class="language-json">{
+  &quot;match&quot;: true
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../msg_format/" class="btn btn-neutral float-right" title="Msg Format">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/deconz-community/node-red-contrib-deconz" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../msg_format/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
