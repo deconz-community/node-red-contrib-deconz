@@ -45,7 +45,7 @@
   ],
   "scripts": {
     "build": "grunt build",
-    "dev": "grunt watch",
+    "dev": "pnpm run build && node ./dev.cjs",
     "test": "mocha",
     "release": "pnpm run test && pnpm run build && changeset publish"
   },
@@ -61,6 +61,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.6",
+    "concurrently": "^9.1.0",
     "grunt": "^1.6.1",
     "grunt-contrib-uglify": "^5.2.2",
     "grunt-contrib-watch": "^1.1.0",
