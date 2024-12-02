@@ -86,5 +86,10 @@
   },
   "engines": {
     "node": ">=14"
+  },
+  "resolutions": {
+    "braces": "^3.0.3",
+    "cross-spawn": "^7.0.6",
+    "micromatch": "^4.0.8"
   }
 }
