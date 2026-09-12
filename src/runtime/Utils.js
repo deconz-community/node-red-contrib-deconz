@@ -1,4 +1,6 @@
-import { util as REDUtil } from "@node-red/util";
+import nodeRedUtil from "@node-red/util";
+
+const { util: REDUtil } = nodeRedUtil;
 
 class Utils {
   static sleep(ms, defaultValue) {
