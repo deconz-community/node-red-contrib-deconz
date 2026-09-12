@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
@@ -13,28 +18,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v6
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: pnpm release
+          publish-script: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Use OIDC for npm authentication instead of NPM_TOKEN
+          NPM_TOKEN: "" # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
+          NPM_CONFIG_PROVENANCE: true
 
       - name: Update Node-Red flow-library
         if: steps.changesets.outputs.published == 'true'
