@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.0
+
+### Minor Changes
+
+- 4451fce: Migrate package to ESM
+- ab03cd0: Removed got library
+- 10ef8b0: Removed ws library
+
 ## 2.3.16
 
 ### Patch Changes
