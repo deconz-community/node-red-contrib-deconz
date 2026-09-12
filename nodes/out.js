@@ -1,6 +1,5 @@
 import CommandParser from "../src/runtime/CommandParser.js";
 import Utils from "../src/runtime/Utils.js";
-import got from "got";
 import { getProperty } from "dot-prop";
 
 const NodeType = "deconz-output";
@@ -236,7 +235,7 @@ export default function (RED) {
                       ),
                   });
 
-                  const response = await got(
+                  const response = await Utils.httpRequest(
                     node.server.api.url.main() + request.endpoint,
                     {
                       method: "PUT",
@@ -247,7 +246,6 @@ export default function (RED) {
                           message_in
                         )) || 0,
                       json: request.params,
-                      responseType: "json",
                       timeout: 2000, // TODO make configurable ?
                     }
                   );
@@ -292,22 +290,17 @@ export default function (RED) {
                     }
                   }
 
-                  let sleep_delay =
-                    delay - getProperty(response, "timings.phases.total", 0);
+                  let sleep_delay = delay - getProperty(response, "duration", 0);
                   if (sleep_delay >= 200)
                     node.status({
                       fill: "blue",
                       shape: "dot",
-                      text: RED._(
-                        "node-red-contrib-deconz/server:status.out_commands.main"
-                      )
+                      text: RED._("node-red-contrib-deconz/server:status.out_commands.main")
                         .replace("{{index}}", (command_id + 1).toString())
                         .replace("{{count}}", command_count)
                         .replace(
                           "{{status}}",
-                          RED._(
-                            "node-red-contrib-deconz/server:status.out_commands.delay"
-                          ).replace("{{delay}}", sleep_delay)
+                          RED._("node-red-contrib-deconz/server:status.out_commands.delay").replace("{{delay}}", sleep_delay)
                         ),
                     });
                   await Utils.sleep(sleep_delay);
@@ -355,9 +348,9 @@ export default function (RED) {
                   )
                     return;
 
-                  if (error.timings !== undefined) {
+                  if (error.duration !== undefined) {
                     await Utils.sleep(
-                      delay - getProperty(error, "timings.phases.total", 0)
+                      delay - getProperty(error, "duration", 0)
                     );
                   } else {
                     await Utils.sleep(delay);

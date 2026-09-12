@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import ConfigMigration from "./src/migration/ConfigMigration.js";
 import DeconzAPI from "./src/runtime/DeconzAPI.js";
 import CommandParser from "./src/runtime/CommandParser.js";
-import got from "got";
 import Utils from "./src/runtime/Utils.js";
 import CompareVersion from "compare-versions";
 import HomeKitFormatter from "./src/runtime/HomeKitFormatter.js";
@@ -322,7 +321,7 @@ export default function (RED) {
         }
         let requests = await cp.getRequests(fakeNode, devices);
         for (const [request_id, request] of requests.entries()) {
-          const response = await got(
+          const response = await Utils.httpRequest(
             controller.api.url.main() + request.endpoint,
             {
               method: "PUT",
@@ -333,7 +332,6 @@ export default function (RED) {
                   {}
                 )) || 0,
               json: request.params,
-              responseType: "json",
               timeout: 2000, // TODO make configurable ?
             }
           );

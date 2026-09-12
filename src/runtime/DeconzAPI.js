@@ -1,4 +1,3 @@
-import got from "got";
 import dns from "dns";
 import Utils from "./Utils.js";
 const dnsPromises = dns.promises;
@@ -386,10 +385,9 @@ class DeconzAPI {
 
   async getDiscoveryData() {
     try {
-      const discover = await got(this.url.discover(), {
+      const discover = await Utils.httpRequest(this.url.discover(), {
         method: "GET",
         retry: 1,
-        responseType: "json",
         timeout: 2000,
       });
       return discover.body;
@@ -400,20 +398,15 @@ class DeconzAPI {
 
   async getAPIKey(devicetype) {
     try {
-      const discover = await got(this.url.api(), {
+      const discover = await Utils.httpRequest(this.url.api(), {
         method: "POST",
         retry: 1,
         json: { devicetype: devicetype },
-        responseType: "json",
         timeout: 2000,
       });
       return discover.body[0];
     } catch (e) {
-      if (
-        e instanceof got.RequestError &&
-        e.response !== undefined &&
-        e.response.statusCode === 403
-      ) {
+      if (e.response !== undefined && e.response.statusCode === 403) {
         if (Array.isArray(e.response.body)) {
           return e.response.body[0];
         }
@@ -464,7 +457,6 @@ class DeconzAPI {
     let requestParams = {
       method: params.method,
       retry: 1,
-      responseType: "json",
       timeout: params.timeout || 2000,
     };
 
@@ -473,7 +465,7 @@ class DeconzAPI {
     }
 
     // return the response
-    return got(this.url.main() + "/" + endpoint, requestParams);
+    return Utils.httpRequest(this.url.main() + "/" + endpoint, requestParams);
   }
 }
 

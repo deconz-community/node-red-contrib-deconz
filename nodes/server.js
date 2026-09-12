@@ -1,5 +1,3 @@
-import got from "got";
-
 import { getProperty, hasProperty, setProperty } from "dot-prop";
 import DeviceList from "../src/runtime/DeviceList.js";
 import DeconzAPI from "../src/runtime/DeconzAPI.js";
@@ -217,18 +215,22 @@ export default function (RED) {
 
       node.state.pooling.discoverProcessRunning = true;
       try {
-        let mainConfig = await got(node.api.url.main(), {
-          retry: 1,
-          timeout: 2000,
-        }).json();
+        let mainConfig = (
+          await Utils.httpRequest(node.api.url.main(), {
+            retry: 1,
+            timeout: 2000,
+          })
+        ).body;
         try {
-          let group0 = await got(
-            node.api.url.main() + node.api.url.groups.main(0),
-            {
-              retry: 1,
-              timeout: 2000,
-            }
-          ).json();
+          let group0 = (
+            await Utils.httpRequest(
+              node.api.url.main() + node.api.url.groups.main(0),
+              {
+                retry: 1,
+                timeout: 2000,
+              }
+            )
+          ).body;
           node.device_list.all_group_real_id = group0.id;
           mainConfig.groups["0"] = group0;
         } catch (e) {

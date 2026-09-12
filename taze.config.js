@@ -13,6 +13,5 @@ export default defineConfig({
   // override with different bumping mode for each package
   packageMode: {
     "dot-prop": "minor",
-    "got": "minor",
   },
 });
