@@ -1,10 +1,12 @@
-const ConfigMigration = require("../src/migration/ConfigMigration");
-const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
-const dotProp = require("dot-prop");
-const Utils = require("../src/runtime/Utils");
+import OutputMsgFormatter from "../src/runtime/OutputMsgFormatter.js";
+import { getProperty } from "dot-prop";
+import Utils from "../src/runtime/Utils.js";
 
 const NodeType = "deconz-get";
-module.exports = function (RED) {
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
   const defaultRule = {
     type: "state",
     format: "single",
@@ -151,13 +153,13 @@ module.exports = function (RED) {
               msgs[index] = msg;
               send(msgs);
               if (
-                dotProp.get(msg, "meta.state.reachable") === false ||
-                dotProp.get(msg, "meta.config.reachable") === false
+                getProperty(msg, "meta.state.reachable") === false ||
+                getProperty(msg, "meta.config.reachable") === false
               ) {
-                let device_path = dotProp.get(msg, "meta.device_path");
+                let device_path = getProperty(msg, "meta.device_path");
                 if (device_path && !unreachableDevices.includes(device_path)) {
                   done(
-                    `Device "${dotProp.get(
+                    `Device "${getProperty(
                       msg,
                       "meta.name"
                     )}" is not reachable.`

@@ -1,9 +1,10 @@
-const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
-const Utils = require("../src/runtime/Utils");
-const got = require("got");
+import Utils from "../src/runtime/Utils.js";
 
 const NodeType = "deconz-api";
-module.exports = function (RED) {
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
   const defaultConfig = {
     name: "",
     topic: "",

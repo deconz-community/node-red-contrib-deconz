@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   groups: {
     1: {
       action: {

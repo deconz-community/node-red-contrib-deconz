@@ -1,14 +1,21 @@
-const NODE_PATH = "/node-red-contrib-deconz/";
-const path = require("path");
-const ConfigMigration = require("./src/migration/ConfigMigration");
-const DeconzAPI = require("./src/runtime/DeconzAPI");
-const CommandParser = require("./src/runtime/CommandParser");
-const got = require("got");
-const Utils = require("./src/runtime/Utils");
-const CompareVersion = require("compare-versions");
-const HomeKitFormatter = require("./src/runtime/HomeKitFormatter");
 
-module.exports = function (RED) {
+import { dirname } from "path";
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+import ConfigMigration from "./src/migration/ConfigMigration.js";
+import DeconzAPI from "./src/runtime/DeconzAPI.js";
+import CommandParser from "./src/runtime/CommandParser.js";
+import Utils from "./src/runtime/Utils.js";
+import CompareVersion from "compare-versions";
+import HomeKitFormatter from "./src/runtime/HomeKitFormatter.js";
+
+const require = createRequire(import.meta.url);
+const NODE_PATH = "/node-red-contrib-deconz/";
+
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
 
   function backendNode(config) {
     RED.nodes.createNode(this, config);
@@ -26,7 +33,7 @@ module.exports = function (RED) {
     RED.httpAdmin.get("/resources" + NODE_PATH + "*", function (req, res) {
       try {
         let options = {
-          root: __dirname + "/resources",
+          root: fileURLToPath(new URL("./resources", import.meta.url)),
           dotfiles: "deny",
         };
         res.sendFile(req.params[0], options);
@@ -43,7 +50,7 @@ module.exports = function (RED) {
   RED.httpAdmin.get(NODE_PATH + "multiple-select/*", function (req, res) {
     try {
       let options = {
-        root: path.dirname(require.resolve("multiple-select")),
+        root: dirname(require.resolve("multiple-select")),
         dotfiles: "deny",
       };
       res.sendFile(req.params[0], options);
@@ -314,7 +321,7 @@ module.exports = function (RED) {
         }
         let requests = await cp.getRequests(fakeNode, devices);
         for (const [request_id, request] of requests.entries()) {
-          const response = await got(
+          const response = await Utils.httpRequest(
             controller.api.url.main() + request.endpoint,
             {
               method: "PUT",
@@ -325,7 +332,6 @@ module.exports = function (RED) {
                   {}
                 )) || 0,
               json: request.params,
-              responseType: "json",
               timeout: 2000, // TODO make configurable ?
             }
           );

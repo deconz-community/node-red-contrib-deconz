@@ -541,7 +541,7 @@ Colorspace.Hsi2Rgb = (H, S, I) => {
       I *
       (1 +
         (S * Math.cos(H * (Colorspace.M_PI / 180))) /
-          Math.cos((60 - H) * (Colorspace.M_PI / 180)));
+        Math.cos((60 - H) * (Colorspace.M_PI / 180)));
     G = 3 * I - R - B;
   } else if (H < 240) {
     H -= 120;
@@ -550,7 +550,7 @@ Colorspace.Hsi2Rgb = (H, S, I) => {
       I *
       (1 +
         (S * Math.cos(H * (Colorspace.M_PI / 180))) /
-          Math.cos((60 - H) * (Colorspace.M_PI / 180)));
+        Math.cos((60 - H) * (Colorspace.M_PI / 180)));
     B = 3 * I - R - G;
   } else {
     H -= 240;
@@ -559,7 +559,7 @@ Colorspace.Hsi2Rgb = (H, S, I) => {
       I *
       (1 +
         (S * Math.cos(H * (Colorspace.M_PI / 180))) /
-          Math.cos((60 - H) * (Colorspace.M_PI / 180)));
+        Math.cos((60 - H) * (Colorspace.M_PI / 180)));
     R = 3 * I - G - B;
   }
   return { R, G, B };
@@ -945,60 +945,60 @@ Colorspace.MiredColorTemperatureToXY = (temperature) => {
       Colorspace.TEMPERATURE_TO_X_FOURTH_FACTOR_FIRST_EQUATION -
       Colorspace.TEMPERATURE_TO_X_SECOND_FACTOR_FIRST_EQUATION / temp / temp -
       Colorspace.TEMPERATURE_TO_X_FIRST_FACTOR_FIRST_EQUATION /
-        temp /
-        temp /
-        temp;
+      temp /
+      temp /
+      temp;
   else
     localX =
       Colorspace.TEMPERATURE_TO_X_SECOND_FACTOR_SECOND_EQUATION / temp / temp +
       Colorspace.TEMPERATURE_TO_X_THIRD_FACTOR_SECOND_EQUATION / temp +
       Colorspace.TEMPERATURE_TO_X_FOURTH_FACTOR_SECOND_EQUATION -
       Colorspace.TEMPERATURE_TO_X_FIRST_FACTOR_SECOND_EQUATION /
-        temp /
-        temp /
-        temp;
+      temp /
+      temp /
+      temp;
 
   if (Colorspace.TEMPERATURE_TO_Y_FIRST_TEMPERATURE_TRESHOLD > temp)
     localY =
       (Colorspace.TEMPERATURE_TO_Y_THIRD_FACTOR_FIRST_EQUATION * localX) /
-        65536 -
+      65536 -
       (Colorspace.TEMPERATURE_TO_Y_FIRST_FACTOR_FIRST_EQUATION *
         localX *
         localX *
         localX) /
-        281474976710656 -
+      281474976710656 -
       (Colorspace.TEMPERATURE_TO_Y_SECOND_FACTOR_FIRST_EQUATION *
         localX *
         localX) /
-        4294967296 -
+      4294967296 -
       Colorspace.TEMPERATURE_TO_Y_FOURTH_FACTOR_FIRST_EQUATION;
   else if (Colorspace.TEMPERATURE_TO_Y_SECOND_TEMPERATURE_TRESHOLD > temp)
     localY =
       (Colorspace.TEMPERATURE_TO_Y_THIRD_FACTOR_SECOND_EQUATION * localX) /
-        65536 -
+      65536 -
       (Colorspace.TEMPERATURE_TO_Y_FIRST_FACTOR_SECOND_EQUATION *
         localX *
         localX *
         localX) /
-        281474976710656 -
+      281474976710656 -
       (Colorspace.TEMPERATURE_TO_Y_SECOND_FACTOR_SECOND_EQUATION *
         localX *
         localX) /
-        4294967296 -
+      4294967296 -
       Colorspace.TEMPERATURE_TO_Y_FOURTH_FACTOR_SECOND_EQUATION;
   else {
     localY =
       (Colorspace.TEMPERATURE_TO_Y_THIRD_FACTOR_THIRD_EQUATION * localX) /
-        65536 +
+      65536 +
       (Colorspace.TEMPERATURE_TO_Y_FIRST_FACTOR_THIRD_EQUATION *
         localX *
         localX *
         localX) /
-        281474976710656 -
+      281474976710656 -
       (Colorspace.TEMPERATURE_TO_Y_SECOND_FACTOR_THIRD_EQUATION *
         localX *
         localX) /
-        4294967296 -
+      4294967296 -
       Colorspace.TEMPERATURE_TO_Y_FOURTH_FACTOR_THIRD_EQUATION;
   }
 
@@ -1010,4 +1010,4 @@ Colorspace.MiredColorTemperatureToXY = (temperature) => {
   };
 };
 
-module.exports = Colorspace;
+export default Colorspace;

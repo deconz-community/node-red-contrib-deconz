@@ -1,11 +1,74 @@
-const REDUtil = require("@node-red/util/lib/util");
-const dotProp = require("dot-prop");
-const Colorspace = require("./Colorspace");
+import nodeRedUtil from "@node-red/util";
+
+const { util: REDUtil } = nodeRedUtil;
 
 class Utils {
   static sleep(ms, defaultValue) {
     if (typeof ms !== "number") ms = defaultValue;
     return new Promise((resolve) => setTimeout(() => resolve(), ms));
+  }
+
+  /**
+   * Small replacement for the `got` library, based on the `fetch` API.
+   * @returns {Promise<{body: *, statusCode: number, statusMessage: string, duration: number}>}
+   */
+  static async httpRequest(url, options = {}) {
+    const {
+      method = "GET",
+      json,
+      timeout = 2000,
+      retry = 0,
+    } = options;
+
+    const maxAttempts = (typeof retry === "number" ? retry : 0) + 1;
+    let lastError;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      const start = Date.now();
+      try {
+        const fetchOptions = { method, signal: controller.signal, headers: {} };
+        if (json !== undefined) {
+          fetchOptions.headers["Content-Type"] = "application/json";
+          fetchOptions.body = JSON.stringify(json);
+        }
+
+        const res = await fetch(url, fetchOptions);
+        const duration = Date.now() - start;
+        const text = await res.text();
+        let body;
+        try {
+          body = text.length ? JSON.parse(text) : undefined;
+        } catch (e) {
+          body = text;
+        }
+
+        if (!res.ok) {
+          const error = new Error(`Response code ${res.status} (${res.statusText})`);
+          error.response = { statusCode: res.status, statusMessage: res.statusText, body };
+          error.duration = duration;
+          throw error;
+        }
+
+        return {
+          body,
+          statusCode: res.status,
+          statusMessage: res.statusText,
+          duration,
+        };
+      } catch (e) {
+        if (e.name === "AbortError") {
+          e.message = `Timeout awaiting 'request' for ${timeout}ms`;
+        }
+        lastError = e;
+        if (e.response !== undefined || attempt === maxAttempts - 1) throw e;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    throw lastError;
   }
 
   static cloneMessage(message_in, moveData) {
@@ -28,17 +91,17 @@ class Utils {
     return Array.isArray(noValueTypes) && noValueTypes.includes(property.type)
       ? property.type
       : await new Promise((resolve, reject) => {
-          REDUtil.evaluateNodeProperty(
-            property.value,
-            property.type,
-            node,
-            message_in,
-            (err, value) => {
-              if (err) reject(err);
-              else resolve(value);
-            }
-          );
-        });
+        REDUtil.evaluateNodeProperty(
+          property.value,
+          property.type,
+          node,
+          message_in,
+          (err, value) => {
+            if (err) reject(err);
+            else resolve(value);
+          }
+        );
+      });
   }
 
   static convertRange(value, r1, r2, roundValue = false, limitValue = false) {
@@ -164,4 +227,4 @@ class Utils {
   }
 }
 
-module.exports = Utils;
+export default Utils;

@@ -1,6 +1,5 @@
-const got = require("got");
-const dns = require("dns");
-const Utils = require("./Utils");
+import dns from "dns";
+import Utils from "./Utils.js";
 const dnsPromises = dns.promises;
 
 class DeconzAPI {
@@ -27,8 +26,7 @@ class DeconzAPI {
       config: {
         main: () => `/config`,
         whitelist: (api_key) =>
-          `${this.url.config.main()}/whitelist${
-            api_key !== undefined ? `/${api_key}` : ""
+          `${this.url.config.main()}/whitelist${api_key !== undefined ? `/${api_key}` : ""
           }`,
         update: () => `${this.url.config.main()}/update`,
         updatefirmware: () => `${this.url.config.main()}/updatefirmware`,
@@ -40,8 +38,7 @@ class DeconzAPI {
         import: () => `${this.url.config.main()}/import`, // Undocumented
         password: () => `${this.url.config.main()}/password`,
         zigbee: (zigbee_id) =>
-          `${this.url.config.main()}/zigbee${
-            zigbee_id !== undefined ? `/${zigbee_id}` : ""
+          `${this.url.config.main()}/zigbee${zigbee_id !== undefined ? `/${zigbee_id}` : ""
           }`,
         // Beta endpoint
         wifi: {
@@ -63,8 +60,7 @@ class DeconzAPI {
         action: (group_id) => `${this.url.groups.main(group_id)}/action`,
         scenes: {
           main: (group_id, scene_id) =>
-            `${this.url.groups.main(group_id)}/scenes${
-              scene_id !== undefined ? `/${scene_id}` : ""
+            `${this.url.groups.main(group_id)}/scenes${scene_id !== undefined ? `/${scene_id}` : ""
             }`,
           store: (group_id, scene_id) =>
             `${this.url.groups.scenes.main(group_id, scene_id)}/store`,
@@ -76,8 +72,7 @@ class DeconzAPI {
             `${this.url.groups.scenes.main(group_id, "prev")}/recall`,
           light: {
             main: (group_id, scene_id, light_id) =>
-              `${this.url.groups.scenes.main(group_id, scene_id)}/lights${
-                light_id !== undefined ? `/${light_id}/state` : ""
+              `${this.url.groups.scenes.main(group_id, scene_id)}/lights${light_id !== undefined ? `/${light_id}/state` : ""
               }`,
             action: (group_id, scene_id, light_id) =>
               `${this.url.groups.scenes.light.main(
@@ -99,8 +94,7 @@ class DeconzAPI {
       },
       resourcelinks: {
         main: (resourcelink_id) =>
-          `/resourcelinks${
-            resourcelink_id !== undefined ? `/${resourcelink_id}` : ""
+          `/resourcelinks${resourcelink_id !== undefined ? `/${resourcelink_id}` : ""
           }`,
       },
       rules: {
@@ -121,12 +115,10 @@ class DeconzAPI {
         main: () => `/touchlink`,
         scan: () => `${this.url.touchlink.main()}/scan`,
         identify: (result_id) =>
-          `${this.url.touchlink.main()}${
-            result_id !== undefined ? `/${result_id}` : ""
+          `${this.url.touchlink.main()}${result_id !== undefined ? `/${result_id}` : ""
           }/identify`,
         reset: (result_id) =>
-          `${this.url.touchlink.main()}${
-            result_id !== undefined ? `/${result_id}` : ""
+          `${this.url.touchlink.main()}${result_id !== undefined ? `/${result_id}` : ""
           }/reset`,
       },
       device: {
@@ -136,8 +128,7 @@ class DeconzAPI {
       },
       userparameter: {
         main: (userparameter_id) =>
-          `/userparameters${
-            userparameter_id !== undefined ? `/${userparameter_id}` : ""
+          `/userparameters${userparameter_id !== undefined ? `/${userparameter_id}` : ""
           }`,
       },
     };
@@ -394,10 +385,9 @@ class DeconzAPI {
 
   async getDiscoveryData() {
     try {
-      const discover = await got(this.url.discover(), {
+      const discover = await Utils.httpRequest(this.url.discover(), {
         method: "GET",
         retry: 1,
-        responseType: "json",
         timeout: 2000,
       });
       return discover.body;
@@ -408,20 +398,15 @@ class DeconzAPI {
 
   async getAPIKey(devicetype) {
     try {
-      const discover = await got(this.url.api(), {
+      const discover = await Utils.httpRequest(this.url.api(), {
         method: "POST",
         retry: 1,
         json: { devicetype: devicetype },
-        responseType: "json",
         timeout: 2000,
       });
       return discover.body[0];
     } catch (e) {
-      if (
-        e instanceof got.RequestError &&
-        e.response !== undefined &&
-        e.response.statusCode === 403
-      ) {
+      if (e.response !== undefined && e.response.statusCode === 403) {
         if (Array.isArray(e.response.body)) {
           return e.response.body[0];
         }
@@ -472,7 +457,6 @@ class DeconzAPI {
     let requestParams = {
       method: params.method,
       retry: 1,
-      responseType: "json",
       timeout: params.timeout || 2000,
     };
 
@@ -481,8 +465,8 @@ class DeconzAPI {
     }
 
     // return the response
-    return got(this.url.main() + "/" + endpoint, requestParams);
+    return Utils.httpRequest(this.url.main() + "/" + endpoint, requestParams);
   }
 }
 
-module.exports = DeconzAPI;
+export default DeconzAPI;

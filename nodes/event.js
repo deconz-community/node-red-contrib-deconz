@@ -1,4 +1,7 @@
-module.exports = function (RED) {
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
   class deConzItemEvent {
     constructor(config) {
       RED.nodes.createNode(this, config);

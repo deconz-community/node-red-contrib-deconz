@@ -86,4 +86,4 @@ class ConfigMigrationHandler {
   }
 }
 
-module.exports = ConfigMigrationHandler;
+export default ConfigMigrationHandler;

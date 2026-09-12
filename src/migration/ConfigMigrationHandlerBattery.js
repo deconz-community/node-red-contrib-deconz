@@ -1,4 +1,4 @@
-const ConfigMigrationHandler = require("./ConfigMigrationHandler");
+import ConfigMigrationHandler from "./ConfigMigrationHandler.js";
 
 class ConfigMigrationHandlerBattery extends ConfigMigrationHandler {
   get lastVersion() {
@@ -50,4 +50,4 @@ class ConfigMigrationHandlerBattery extends ConfigMigrationHandler {
   }
 }
 
-module.exports = ConfigMigrationHandlerBattery;
+export default ConfigMigrationHandlerBattery;

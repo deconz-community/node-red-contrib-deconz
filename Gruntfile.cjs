@@ -1,0 +1,43 @@
+module.exports = (grunt) => {
+    // Load all grunt tasks matching the ['grunt-*', '@*/grunt-*'] patterns
+    require("load-grunt-tasks")(grunt);
+
+    let srcFiles = ["Gruntfile.cjs", "src/**/*.js"];
+
+    grunt.initConfig({
+        uglify: {
+            options: {
+                mangle: { webkit: true },
+                compress: { webkit: true },
+                sourceMap: true,
+                //beautify: true,
+            },
+            dist: {
+                files: {
+                    "resources/dist/deconz-editor.js": [
+                        "src/editor/DeconzEditor.js",
+                        "src/editor/DeconzMainEditor.js",
+
+                        "src/editor/DeconzStatusTextEditor.js",
+                        "src/editor/DeconzDeviceListEditor.js",
+                        "src/editor/DeconzQueryEditor.js",
+                        "src/editor/DeconzDeviceEditor.js",
+                        "src/editor/DeconzSpecific*Editor.js",
+
+                        "src/editor/DeconzListItem*Editor.js",
+                        "src/editor/DeconzOutput*Editor.js",
+                        "src/editor/DeconzCommand*Editor.js",
+                    ],
+                },
+            },
+        },
+        watch: {
+            js: {
+                files: srcFiles,
+                tasks: ["build"],
+            },
+        },
+    });
+
+    grunt.registerTask("build", ["uglify"]);
+};

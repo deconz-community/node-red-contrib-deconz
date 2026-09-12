@@ -1,9 +1,9 @@
-let should = require("should");
+import should from "should";
 
-const DevicesSample = require("./DevicesSample");
-const DeviceList = require("../src/runtime/DeviceList");
-const ConfigMigration = require("../src/migration/ConfigMigration");
-const HomeKitFormatter = require("../src/runtime/HomeKitFormatter");
+import DevicesSample from "./DevicesSample.js";
+import DeviceList from "../src/runtime/DeviceList.js";
+import ConfigMigration from "../src/migration/ConfigMigration.js";
+import HomeKitFormatter from "../src/runtime/HomeKitFormatter.js";
 
 const QueryParams = {
   includeNotMatched: true,

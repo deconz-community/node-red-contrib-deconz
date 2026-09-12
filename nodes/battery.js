@@ -1,8 +1,11 @@
-const OutputMsgFormatter = require("../src/runtime/OutputMsgFormatter");
-const Utils = require("../src/runtime/Utils");
+import OutputMsgFormatter from "../src/runtime/OutputMsgFormatter.js";
+import Utils from "../src/runtime/Utils.js";
 
 const NodeType = "deconz-battery";
-module.exports = function (RED) {
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
   const defaultRule = {
     type: "config",
     format: "single",

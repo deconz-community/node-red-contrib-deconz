@@ -1,5 +1,5 @@
-const ConfigMigrationHandler = require("./ConfigMigrationHandler");
-const Utils = require("../runtime/Utils");
+import ConfigMigrationHandler from "./ConfigMigrationHandler.js";
+import Utils from "../runtime/Utils.js";
 
 class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
   get lastVersion() {
@@ -656,4 +656,4 @@ class ConfigMigrationHandlerOutput extends ConfigMigrationHandler {
   }
 }
 
-module.exports = ConfigMigrationHandlerOutput;
+export default ConfigMigrationHandlerOutput;
