@@ -1,6 +1,4 @@
-const REDUtil = require("@node-red/util/lib/util");
-const dotProp = require("dot-prop");
-const Colorspace = require("./Colorspace");
+import REDUtil from "@node-red/util/lib/util.js";
 
 class Utils {
   static sleep(ms, defaultValue) {
@@ -28,17 +26,17 @@ class Utils {
     return Array.isArray(noValueTypes) && noValueTypes.includes(property.type)
       ? property.type
       : await new Promise((resolve, reject) => {
-          REDUtil.evaluateNodeProperty(
-            property.value,
-            property.type,
-            node,
-            message_in,
-            (err, value) => {
-              if (err) reject(err);
-              else resolve(value);
-            }
-          );
-        });
+        REDUtil.evaluateNodeProperty(
+          property.value,
+          property.type,
+          node,
+          message_in,
+          (err, value) => {
+            if (err) reject(err);
+            else resolve(value);
+          }
+        );
+      });
   }
 
   static convertRange(value, r1, r2, roundValue = false, limitValue = false) {
@@ -164,4 +162,4 @@ class Utils {
   }
 }
 
-module.exports = Utils;
+export default Utils;

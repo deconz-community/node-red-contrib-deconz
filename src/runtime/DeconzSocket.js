@@ -1,5 +1,5 @@
-const EventEmitter = require("events");
-const WebSocket = require("ws");
+import EventEmitter from "events";
+import WebSocket from "ws";
 
 class DeconzSocket extends EventEmitter {
   constructor({
@@ -157,4 +157,4 @@ class DeconzSocket extends EventEmitter {
   }
 }
 
-module.exports = DeconzSocket;
+export default DeconzSocket;

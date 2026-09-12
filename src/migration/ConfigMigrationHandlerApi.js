@@ -1,4 +1,4 @@
-const ConfigMigrationHandler = require("./ConfigMigrationHandler");
+import ConfigMigrationHandler from "./ConfigMigrationHandler.js";
 
 class ConfigMigrationHandlerApi extends ConfigMigrationHandler {
   get lastVersion() {
@@ -11,4 +11,4 @@ class ConfigMigrationHandlerApi extends ConfigMigrationHandler {
   }
 }
 
-module.exports = ConfigMigrationHandlerApi;
+export default ConfigMigrationHandlerApi;

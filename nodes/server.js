@@ -1,18 +1,21 @@
-const got = require("got");
+import got from "got";
 
-const dotProp = require("dot-prop");
-const DeviceList = require("../src/runtime/DeviceList");
-const DeconzAPI = require("../src/runtime/DeconzAPI");
-const DeconzSocket = require("../src/runtime/DeconzSocket");
-const ConfigMigration = require("../src/migration/ConfigMigration");
-const Query = require("../src/runtime/Query");
-const Utils = require("../src/runtime/Utils");
-const {
+import { getProperty, hasProperty, setProperty } from "dot-prop";
+import DeviceList from "../src/runtime/DeviceList.js";
+import DeconzAPI from "../src/runtime/DeconzAPI.js";
+import DeconzSocket from "../src/runtime/DeconzSocket.js";
+import ConfigMigration from "../src/migration/ConfigMigration.js";
+import Query from "../src/runtime/Query.js";
+import Utils from "../src/runtime/Utils.js";
+import {
   setIntervalAsync,
   clearIntervalAsync,
-} = require("set-interval-async/fixed");
+} from "set-interval-async/fixed";
 
-module.exports = function (RED) {
+/**
+ * @param {import("node-red").NodeRedApp} RED
+ */
+export default function (RED) {
   class ServerNode {
     constructor(config) {
       RED.nodes.createNode(this, config);
@@ -199,7 +202,7 @@ module.exports = function (RED) {
       let options = Object.assign(
         {
           forceRefresh: false,
-          callback: () => {},
+          callback: () => { },
         },
         opt
       );
@@ -231,7 +234,7 @@ module.exports = function (RED) {
         } catch (e) {
           node.log(
             `discoverDevices: Could not get group 0 ${e.toString()}. This should not happen, ` +
-              `please open an issue on https://github.com/dresden-elektronik/deconz-rest-plugin`
+            `please open an issue on https://github.com/dresden-elektronik/deconz-rest-plugin`
           );
         }
         node.device_list.parse(mainConfig);
@@ -285,8 +288,7 @@ module.exports = function (RED) {
         if (!target) {
           node.warn(
             "ERROR: cant get " +
-              nodeID +
-              " node for start news, removed from list NodeWithQuery"
+            nodeID + " node for start news, removed from list NodeWithQuery"
           );
           node.unregisterNodeWithQuery(nodeID);
           continue;
@@ -322,10 +324,8 @@ module.exports = function (RED) {
           });
           node.error(
             e.toString() +
-              "\nNode ID : " +
-              nodeID +
-              "\nQuery: " +
-              JSON.stringify(querySrc)
+            "\nNode ID : " + nodeID +
+            "\nQuery: " + JSON.stringify(querySrc)
           );
         }
       }
@@ -379,8 +379,7 @@ module.exports = function (RED) {
         if (!target) {
           node.warn(
             "ERROR: cant get " +
-              nodeID +
-              " node for error news, removed from list NodeWithQuery"
+            nodeID + " node for error news, removed from list NodeWithQuery"
           );
           node.unregisterNodeWithQuery(nodeID);
           continue;
@@ -419,10 +418,8 @@ module.exports = function (RED) {
           });
           node.error(
             e.toString() +
-              "\nNode ID : " +
-              nodeID +
-              "\nQuery: " +
-              JSON.stringify(querySrc)
+            "\nNode ID : " + nodeID +
+            "\nQuery: " + JSON.stringify(querySrc)
           );
         }
       }
@@ -470,24 +467,21 @@ module.exports = function (RED) {
             case "device_path":
               node.warn(
                 "ERROR: cant get " +
-                  nodeID +
-                  " node, removed from list nodesByDevicePath"
+                nodeID + " node, removed from list nodesByDevicePath"
               );
               node.unregisterNodeByDevicePath(nodeID, news.device.device_path);
               break;
             case "query":
               node.warn(
                 "ERROR: cant get " +
-                  nodeID +
-                  " node, removed from list nodesWithQuery"
+                nodeID + " node, removed from list nodesWithQuery"
               );
               node.unregisterNodeWithQuery(nodeID);
               break;
             case "event_node":
               node.warn(
                 "ERROR: cant get " +
-                  nodeID +
-                  " node, removed from list nodesEvent"
+                nodeID + " node, removed from list nodesEvent"
               );
               node.unregisterEventNode(nodeID);
               break;
@@ -564,10 +558,8 @@ module.exports = function (RED) {
                       break;
                     default:
                       node.warn(
-                        "Unknown event of type '" +
-                          dataParsed.e +
-                          "'. " +
-                          JSON.stringify(dataParsed)
+                        "Unknown event of type '" + dataParsed.e + "'. " +
+                        JSON.stringify(dataParsed)
                       );
                       break;
                   }
@@ -575,10 +567,8 @@ module.exports = function (RED) {
                 break;
               default:
                 node.warn(
-                  "Unknown message of type '" +
-                    dataParsed.t +
-                    "'. " +
-                    JSON.stringify(dataParsed)
+                  "Unknown message of type '" + dataParsed.t + "'. " +
+                  JSON.stringify(dataParsed)
                 );
                 break;
             }
@@ -670,22 +660,22 @@ module.exports = function (RED) {
       let node = this;
       let changed = [];
 
-      if (dotProp.has(dataParsed, "name")) {
-        device.name = dotProp.get(dataParsed, "name");
+      if (hasProperty(dataParsed, "name")) {
+        device.name = getProperty(dataParsed, "name");
         changed.push("name");
       }
 
       ["config", "state"].forEach(function (key) {
-        if (dotProp.has(dataParsed, key)) {
-          Object.keys(dotProp.get(dataParsed, key)).forEach(function (
+        if (hasProperty(dataParsed, key)) {
+          Object.keys(getProperty(dataParsed, key)).forEach(function (
             state_name
           ) {
             let valuePath = key + "." + state_name;
-            let newValue = dotProp.get(dataParsed, valuePath);
-            let oldValue = dotProp.get(device, valuePath);
+            let newValue = getProperty(dataParsed, valuePath);
+            let oldValue = getProperty(device, valuePath);
             if (newValue !== oldValue) {
               changed.push(`${key}.${state_name}`);
-              dotProp.set(device, valuePath, newValue);
+              setProperty(device, valuePath, newValue);
             }
           });
         }
@@ -732,7 +722,7 @@ module.exports = function (RED) {
       if (device === undefined)
         return node.error(
           "Got websocket msg but the device does not exist. " +
-            JSON.stringify(dataParsed)
+          JSON.stringify(dataParsed)
         );
       let changed = node.updateDevice(device, dataParsed);
 
@@ -753,8 +743,7 @@ module.exports = function (RED) {
         if (!target) {
           node.warn(
             "ERROR: cant get " +
-              nodeID +
-              " node for socket message news, removed from list NodeWithQuery"
+            nodeID + " node for socket message news, removed from list NodeWithQuery"
           );
           node.unregisterNodeWithQuery(nodeID);
           continue;
@@ -785,10 +774,8 @@ module.exports = function (RED) {
           });
           node.error(
             e.toString() +
-              "\nNode ID : " +
-              nodeID +
-              "\nQuery: " +
-              JSON.stringify(querySrc)
+            "\nNode ID : " + nodeID +
+            "\nQuery: " + JSON.stringify(querySrc)
           );
         }
       }
@@ -868,8 +855,8 @@ module.exports = function (RED) {
       if (firstmsg === undefined) return;
 
       if (
-        dotProp.get(firstmsg, "meta.state.reachable") === false ||
-        dotProp.get(firstmsg, "meta.config.reachable") === false
+        getProperty(firstmsg, "meta.state.reachable") === false ||
+        getProperty(firstmsg, "meta.config.reachable") === false
       ) {
         node.status({
           fill: "red",
@@ -923,9 +910,9 @@ module.exports = function (RED) {
               }
               break;
             case "deconz-battery":
-              let battery = dotProp.get(firstmsg, "meta.config.battery");
+              let battery = getProperty(firstmsg, "meta.config.battery");
               if (battery === undefined)
-                battery = dotProp.get(firstmsg, "meta.state.battery");
+                battery = getProperty(firstmsg, "meta.state.battery");
               if (battery === undefined) return;
               node.status({
                 fill:
@@ -954,8 +941,8 @@ module.exports = function (RED) {
         );
         node.error(
           `Error with migration of node ${node.type} with id ${node.id}\n` +
-            migrationResult.errors.join("\n") +
-            "\nPlease open the node settings and update the configuration"
+          migrationResult.errors.join("\n") +
+          "\nPlease open the node settings and update the configuration"
         );
         node.status({
           fill: "red",

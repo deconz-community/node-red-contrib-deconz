@@ -1,5 +1,5 @@
-const Query = require("./Query");
-const Utils = require("./Utils");
+import Query from "./Query.js";
+import Utils from "./Utils.js";
 
 class DeviceList {
   constructor() {
@@ -146,4 +146,4 @@ class DeviceList {
   }
 }
 
-module.exports = DeviceList;
+export default DeviceList;

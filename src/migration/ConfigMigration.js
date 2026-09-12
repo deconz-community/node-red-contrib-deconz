@@ -1,10 +1,10 @@
-const dotProp = require("dot-prop");
-const ConfigMigrationHandlerApi = require("./ConfigMigrationHandlerApi");
-const ConfigMigrationHandlerInput = require("./ConfigMigrationHandlerInput");
-const ConfigMigrationHandlerGet = require("./ConfigMigrationHandlerGet");
-const ConfigMigrationHandlerOutput = require("./ConfigMigrationHandlerOutput");
-const ConfigMigrationHandlerBattery = require("./ConfigMigrationHandlerBattery");
-const ConfigMigrationHandlerServer = require("./ConfigMigrationHandlerServer");
+import { deleteProperty, setProperty } from "dot-prop";
+import ConfigMigrationHandlerApi from "./ConfigMigrationHandlerApi.js";
+import ConfigMigrationHandlerInput from "./ConfigMigrationHandlerInput.js";
+import ConfigMigrationHandlerGet from "./ConfigMigrationHandlerGet.js";
+import ConfigMigrationHandlerOutput from "./ConfigMigrationHandlerOutput.js";
+import ConfigMigrationHandlerBattery from "./ConfigMigrationHandlerBattery.js";
+import ConfigMigrationHandlerServer from "./ConfigMigrationHandlerServer.js";
 
 class ConfigMigration {
   constructor(type, config, server) {
@@ -69,18 +69,18 @@ class ConfigMigration {
 
     // Apply new configuration
     for (const [k, v] of Object.entries(result.new)) {
-      dotProp.set(config, k, v);
+      setProperty(config, k, v);
     }
-    result.delete.forEach((k) => dotProp.delete(config, k));
+    result.delete.forEach((k) => deleteProperty(config, k));
 
     // Apply new data on controller
     for (const [k, v] of Object.entries(result.controller.new)) {
-      dotProp.set(node, k, v);
+      setProperty(node, k, v);
     }
-    result.controller.delete.forEach((k) => dotProp.delete(node, k));
+    result.controller.delete.forEach((k) => deleteProperty(node, k));
 
     return result;
   }
 }
 
-module.exports = ConfigMigration;
+export default ConfigMigration;
